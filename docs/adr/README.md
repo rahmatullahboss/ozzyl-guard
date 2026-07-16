@@ -25,14 +25,21 @@ ADRs capture durable architectural decisions, alternatives, consequences, and su
 - [0003 — Keep Steadfast session scraper](0003-keep-steadfast-session-scraper.md)
 - [0004 — Foundation technology direction](0004-foundation-technology-direction.md)
 - [0005 — Browser session authentication baseline](0005-browser-session-authentication.md)
+- [0006 — Production deployment topology](0006-production-deployment-topology.md)
+- [0007 — Managed PostgreSQL production baseline](0007-managed-postgresql-production-baseline.md)
+- [0008 — PostgreSQL-first durable work and cache boundary](0008-postgresql-first-durable-work-and-cache.md)
+- [0009 — Managed secrets and KMS envelope encryption](0009-managed-secrets-and-kms-envelope-encryption.md)
+- [0010 — Vendor-neutral production observability](0010-vendor-neutral-production-observability.md)
 
 ## Pending ADRs
 
 - Managed identity provider or future authentication supersession
-- Queue/broker
-- Deployment platform
-- PostgreSQL provider
-- KMS/vault and envelope-encryption implementation
-- Cache/session storage
+- Specific deployment platform, account, and primary region
+- Specific managed PostgreSQL provider and service tier
+- Specific managed secret store and KMS/vault provider
+- Specific observability backend and retention policy
+- Redis-compatible cache provider when distributed coordination is required
+- Dedicated broker only if pilot evidence exceeds the PostgreSQL-first durable-work boundary
+- OTP provider
 
 Copy [template.md](template.md) for new decisions.
