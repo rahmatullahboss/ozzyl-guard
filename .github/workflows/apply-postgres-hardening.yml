@@ -6,12 +6,15 @@ on:
     paths:
       - scripts/tmp-apply-postgres-hardening.py
       - .github/workflows/apply-postgres-hardening.yml
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 permissions:
   contents: write
 
 jobs:
   apply:
+    if: github.head_ref == 'ai/postgres-concurrency-hardening-20260716' || github.ref_name == 'ai/postgres-concurrency-hardening-20260716'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
