@@ -61,7 +61,8 @@ Concrete provider selection and provisioning remain external production work.
 - GitHub Actions implementation CI run `29516535736`: passed; all six migrations and the prior 32 assertions passed
 - Infrastructure ADR pull-request CI run `29522339973`, job `87702183134`: audit, formatting, lint, six migrations, architecture, 18 typechecks, PostgreSQL tests, 18 builds, and PHP lint all passed
 - Infrastructure ADRs were tested at head `9bd863285068be30c84511c026b9a2e4c808b6de` and squash-merged to `main` as `74ed1a9037c1b3491c6a988092c21dafcbc2fedd`
-- PostgreSQL hardening CI run `29524088657`, job `87708004049`: all gates passed at head `11c5f8567f92fc83033d56e106eaa0b6ce3d9d7f`, including all five new PostgreSQL concurrency/idempotency tests and 37 total assertions
+- PostgreSQL hardening CI run `29524629662`, job `87709833186`: all gates passed at final head `c2330563b041b8c8d0fef2e382c0d4eb7cc7b40c`, including all five new PostgreSQL concurrency/idempotency tests and 37 total assertions
+- The verified PostgreSQL hardening change was squash-merged to `main` as `43bedadd6fdd238bbe9ecf9cae68a4c592bfd361`
 - Canonical documentation links before this slice: zero known broken internal links
 - `tracker.yml` YAML structure remains valid
 - Prohibited source-pattern search: no matches
