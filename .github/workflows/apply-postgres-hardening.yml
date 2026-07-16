@@ -29,24 +29,12 @@ jobs:
       - run: python3 scripts/tmp-apply-postgres-hardening.py
       - run: npx prettier --write apps/api/src/index.ts apps/api/src/postgres.ts apps/api/src/postgres-concurrency.test.ts
       - run: npm run typecheck --workspace @ozzyl/api
-      - name: Run API tests with captured output
-        id: api-tests
-        continue-on-error: true
-        run: npm run test --workspace @ozzyl/api > api-test.log 2>&1
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: postgres-hardening-api-test-log
-          path: api-test.log
-          if-no-files-found: error
-      - name: Fail when API tests failed
-        if: steps.api-tests.outcome != 'success'
-        run: exit 1
+      - name: Run API tests with dependency builds
+        run: npx turbo run test --filter=@ozzyl/api
       - name: Commit generated hardening changes
         run: |
           rm scripts/tmp-apply-postgres-hardening.py
           rm .github/workflows/apply-postgres-hardening.yml
-          rm api-test.log
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
