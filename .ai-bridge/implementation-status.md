@@ -23,30 +23,30 @@ Updated: 2026-07-16
 
 ## Product implementation
 
-| Area                             | Status   | Notes                                                                                                                          |
-| -------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| Shared contracts                 | done     | Canonical request/response/error/outcome/event schemas                                                                         |
-| Database/migrations              | baseline | Full schema and five append-only migrations; clean apply runs in CI, not locally verified due unavailable Docker/PostgreSQL    |
-| Password/session primitives      | done     | Argon2id and opaque hashed session token utilities                                                                             |
-| Organizations/stores/memberships | done     | Canonical relational schema and bootstrap transaction                                                                          |
-| API keys/usage/plans             | done     | Test/live prefixes, one-time raw reveal, hash-only persistence, scopes, revocation fields, atomic PostgreSQL usage reservation |
-| Courier adapter interface        | done     | Typed provider contract and structured errors                                                                                  |
-| Steadfast adapter                | baseline | Normalized internal endpoint adapter with bounded timeout/session errors; requires authorized live validation                  |
-| Steadfast session worker         | baseline | Playwright login, selector/CAPTCHA/2FA errors, encryption boundary, health state, runnable PG polling                          |
-| Courier observation worker/cache | done     | Durable jobs, `SKIP LOCKED` claiming, retry scheduling, normalized observation persistence                                     |
-| Risk engine                      | done     | One pure deterministic engine, versioned policy, confidence, signals, unknown/degraded handling                                |
-| Public API                       | done     | Assessment create/read, outcomes, courier refresh, OTP send/verify, auth/scopes/idempotency/rate limits                        |
-| PostgreSQL API repositories      | done     | API keys, usage, features, assessments/signals, outcomes, idempotency, courier jobs                                            |
-| Outcome feedback                 | done     | API, WooCommerce, Shopify, custom, and native adapter paths                                                                    |
-| Webhook delivery                 | baseline | HMAC, timestamp, SSRF controls, retries; durable outbox runner still needed                                                    |
-| WooCommerce                      | baseline | Encrypted service key, async assessment, canonical parsing, safe failure behavior, admin panel, manual recheck, outcomes       |
-| Shopify                          | baseline | Signed webhook helper, assessment/action mapping, outcome submission; app OAuth/webhook registration not implemented           |
-| Custom server SDK                | done     | Server-only integration and checkout action mapping                                                                            |
-| Native multi-store adapter       | baseline | Canonical client, shadow-comparison result, outcomes; source platform feature-flag wiring pending                              |
-| OTP verification                 | baseline | Secure service abstraction and worker library; production provider/runner blocked                                              |
-| Merchant dashboard               | baseline | Overview, queue, courier health, policy, usage, settings UI; auth and live API wiring pending                                  |
-| Platform admin                   | baseline | Operations UI foundation; auth and live operational data wiring pending                                                        |
-| Shared reputation                | deferred | Cross-merchant reputation/dispute system requires legal/privacy review and pilot evidence                                      |
+| Area                             | Status   | Notes                                                                                                                           |
+| -------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Shared contracts                 | done     | Canonical request/response/error/outcome/event schemas                                                                          |
+| Database/migrations              | baseline | Full schema and five append-only migrations; clean PostgreSQL 16 apply passed in remote CI; local Docker/PostgreSQL unavailable |
+| Password/session primitives      | done     | Argon2id and opaque hashed session token utilities                                                                              |
+| Organizations/stores/memberships | done     | Canonical relational schema and bootstrap transaction                                                                           |
+| API keys/usage/plans             | done     | Test/live prefixes, one-time raw reveal, hash-only persistence, scopes, revocation fields, atomic PostgreSQL usage reservation  |
+| Courier adapter interface        | done     | Typed provider contract and structured errors                                                                                   |
+| Steadfast adapter                | baseline | Normalized internal endpoint adapter with bounded timeout/session errors; requires authorized live validation                   |
+| Steadfast session worker         | baseline | Playwright login, selector/CAPTCHA/2FA errors, encryption boundary, health state, runnable PG polling                           |
+| Courier observation worker/cache | done     | Durable jobs, `SKIP LOCKED` claiming, retry scheduling, normalized observation persistence                                      |
+| Risk engine                      | done     | One pure deterministic engine, versioned policy, confidence, signals, unknown/degraded handling                                 |
+| Public API                       | done     | Assessment create/read, outcomes, courier refresh, OTP send/verify, auth/scopes/idempotency/rate limits                         |
+| PostgreSQL API repositories      | done     | API keys, usage, features, assessments/signals, outcomes, idempotency, courier jobs                                             |
+| Outcome feedback                 | done     | API, WooCommerce, Shopify, custom, and native adapter paths                                                                     |
+| Webhook delivery                 | baseline | HMAC, timestamp, SSRF controls, retries; durable outbox runner still needed                                                     |
+| WooCommerce                      | baseline | Encrypted service key, async assessment, canonical parsing, safe failure behavior, admin panel, manual recheck, outcomes        |
+| Shopify                          | baseline | Signed webhook helper, assessment/action mapping, outcome submission; app OAuth/webhook registration not implemented            |
+| Custom server SDK                | done     | Server-only integration and checkout action mapping                                                                             |
+| Native multi-store adapter       | baseline | Canonical client, shadow-comparison result, outcomes; source platform feature-flag wiring pending                               |
+| OTP verification                 | baseline | Secure service abstraction and worker library; production provider/runner blocked                                               |
+| Merchant dashboard               | baseline | Overview, queue, courier health, policy, usage, settings UI; auth and live API wiring pending                                   |
+| Platform admin                   | baseline | Operations UI foundation; auth and live operational data wiring pending                                                         |
+| Shared reputation                | deferred | Cross-merchant reputation/dispute system requires legal/privacy review and pilot evidence                                       |
 
 ## Migrations
 
@@ -68,7 +68,7 @@ Applied migrations must remain immutable.
 - `npm run test`: 26/26 Turbo tasks passed; 24 substantive unit/API/integration-adapter assertions passed, no-test packages exited explicitly with success
 - `npm run build`: 18/18 workspace builds passed
 - `npm audit --audit-level=high`: passed; four moderate dev-tooling findings remain
-- Remote GitHub Actions: workflow created, but the runner was blocked before any step started by the account billing/spending-limit restriction
+- Remote GitHub Actions run `29499998845`: passed; PostgreSQL migration apply, audit, format, lint, architecture, typecheck, tests, builds, and PHP lint all succeeded
 - WooCommerce `php -l`: passed
 - Canonical documentation link check: 33 files, zero broken links
 - `tracker.yml` YAML parse: passed
@@ -77,7 +77,6 @@ Applied migrations must remain immutable.
 
 ## External blockers and production requirements
 
-- GitHub Actions account billing/spending-limit resolution so hosted runners can start
 - Authorized Steadfast test/merchant account
 - Provider-terms and merchant-authorization review
 - Production KMS/vault and key-rotation setup

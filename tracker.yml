@@ -91,11 +91,13 @@ verification:
     documentation_links: 0_broken
   local_limitations:
     - docker_and_postgresql_are_not_available_in_this_workspace
-    - clean_database_apply_is_configured_for_ci_with_postgresql_16
+    - clean_database_apply_was_verified_in_remote_ci_with_postgresql_16
   remote_ci:
-    status: blocked_before_runner_start
-    reason: github_account_billing_or_spending_limit
-    code_verification_status: locally_passed
+    status: passed
+    run_id: 29499998845
+    job: verify
+    duration: 1m47s
+    completed: 2026-07-16
 
 migrations:
   immutable: true
@@ -107,7 +109,6 @@ migrations:
     - packages/database/migrations/0005_durable_operations.sql
 
 external_dependencies:
-  - github_actions_billing_or_spending_limit_resolution
   - authorized_steadfast_test_account
   - provider_authorization_review
   - production_managed_encryption_service
