@@ -194,11 +194,11 @@ export class PostgresAssessmentRepository implements AssessmentRepository {
     return result.rows[0] ? parseAssessmentRow(result.rows[0]) : null;
   }
 
-  async save(record: StoredAssessment): Promise<void> {
+  async save(record: StoredAssessment): Promise<StoredAssessment> {
     const client = await this.pool.connect();
     try {
       await client.query('begin');
-      await client.query(
+      const inserted = await client.query<{ id: string }>(
         `
           insert into risk_assessments (
             id, organization_id, store_id, api_key_id, external_order_id,
@@ -210,6 +210,7 @@ export class PostgresAssessmentRepository implements AssessmentRepository {
             $11, $12, $13, $14, $15
           )
           on conflict (organization_id, store_id, idempotency_key) do nothing
+          returning id
         `,
         [
           record.response.assessment_id,
@@ -229,6 +230,21 @@ export class PostgresAssessmentRepository implements AssessmentRepository {
           record.response.meta?.degraded ?? true,
         ],
       );
+      if (!inserted.rows[0]) {
+        const existing = await client.query<AssessmentRow>(
+          `
+            select id, organization_id, store_id, api_key_id, idempotency_key, phone_hash, order_snapshot
+            from risk_assessments
+            where organization_id = $1 and store_id = $2 and idempotency_key = $3
+            limit 1
+          `,
+          [record.identity.organizationId, record.identity.storeId, record.idempotencyKey],
+        );
+        const row = existing.rows[0];
+        if (!row) throw new Error('Assessment idempotency conflict could not be resolved');
+        await client.query('commit');
+        return parseAssessmentRow(row);
+      }
       for (const signal of record.response.signals) {
         await client.query(
           `
@@ -249,6 +265,7 @@ export class PostgresAssessmentRepository implements AssessmentRepository {
         );
       }
       await client.query('commit');
+      return record;
     } catch (error) {
       await client.query('rollback').catch(() => undefined);
       throw error;
@@ -270,19 +287,6 @@ export class PostgresOutcomeRepository implements OutcomeRepository {
     const client = await this.pool.connect();
     try {
       await client.query('begin');
-      const existing = await client.query<{ id: string }>(
-        `
-          select id from order_outcomes
-          where organization_id = $1 and store_id = $2 and idempotency_key = $3
-          limit 1
-        `,
-        [input.organizationId, input.storeId, input.idempotencyKey],
-      );
-      if (existing.rows[0]) {
-        await client.query('commit');
-        return { outcomeId: existing.rows[0].id, replay: true };
-      }
-
       let phoneHash: string | null = null;
       if (input.outcome.assessment_id) {
         const assessment = await client.query<{ phone_hash: string }>(
@@ -297,12 +301,14 @@ export class PostgresOutcomeRepository implements OutcomeRepository {
       }
 
       const outcomeId = `out_${randomUUID()}`;
-      await client.query(
+      const inserted = await client.query<{ id: string }>(
         `
           insert into order_outcomes (
             id, organization_id, store_id, external_order_id, idempotency_key,
             assessment_id, phone_hash, outcome, provider, reason, source, occurred_at
           ) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'api', $11)
+          on conflict (organization_id, store_id, idempotency_key) do nothing
+          returning id
         `,
         [
           outcomeId,
@@ -318,8 +324,24 @@ export class PostgresOutcomeRepository implements OutcomeRepository {
           input.outcome.occurred_at,
         ],
       );
+      const insertedRow = inserted.rows[0];
+      if (insertedRow) {
+        await client.query('commit');
+        return { outcomeId: insertedRow.id, replay: false };
+      }
+
+      const existing = await client.query<{ id: string }>(
+        `
+          select id from order_outcomes
+          where organization_id = $1 and store_id = $2 and idempotency_key = $3
+          limit 1
+        `,
+        [input.organizationId, input.storeId, input.idempotencyKey],
+      );
+      const existingRow = existing.rows[0];
+      if (!existingRow) throw new Error('Outcome idempotency conflict could not be resolved');
       await client.query('commit');
-      return { outcomeId, replay: false };
+      return { outcomeId: existingRow.id, replay: true };
     } catch (error) {
       await client.query('rollback').catch(() => undefined);
       throw error;
