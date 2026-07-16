@@ -45,6 +45,29 @@ Public API contract tests cover:
 - Multi-tenant isolation
 - Organization/store membership authorization
 
+### PostgreSQL concurrency and idempotency coverage
+
+The CI PostgreSQL service runs real-database integration tests for:
+
+- duplicate usage reservations serializing through the organization/period advisory lock;
+- replaying one persisted usage charge for concurrent duplicate request IDs;
+- concurrent distinct reservations at the plan boundary allowing only the remaining capacity;
+- concurrent assessment saves returning the single persisted scoped winner;
+- preventing losing assessment IDs from writing orphan or invalid signal rows;
+- concurrent outcome writes resolving as one insert and one replay rather than a unique-constraint error;
+- operation idempotency values remaining isolated by organization and store;
+- browser-session hashing, active membership resolution, merchant tenant revalidation, and explicit platform-admin authorization.
+
+Future PostgreSQL coverage must include:
+
+- competing worker claims and `SKIP LOCKED` behavior;
+- worker lease expiry and recovery;
+- retry/dead-letter transitions;
+- migration replay and clean restore rehearsal;
+- courier queue scope across organizations and stores;
+- additional assessment, outcome, feature, and dashboard repository isolation cases;
+- runtime-role versus migration-role permission enforcement.
+
 ## End-to-end tests
 
 - Merchant signup and store creation
