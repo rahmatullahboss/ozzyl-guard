@@ -1,0 +1,11 @@
+.git
+node_modules
+**/node_modules
+**/dist
+coverage
+codexpro
+.env
+.env.*
+playwright-report
+test-results
+.ai-bridge

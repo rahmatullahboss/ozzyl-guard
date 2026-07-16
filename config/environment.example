@@ -1,0 +1,57 @@
+# Ozzyl Guard local/deployment environment template
+# Copy these names into an untracked local environment file. Replace every redacted value.
+
+NODE_ENV=development
+LOG_LEVEL=debug
+API_PORT=3000
+DASHBOARD_PORT=5173
+ADMIN_PORT=5174
+API_PUBLIC_URL=http://localhost:3000
+DASHBOARD_PUBLIC_URL=http://localhost:5173
+ADMIN_PUBLIC_URL=http://localhost:5174
+
+# PostgreSQL
+DATABASE_URL=postgresql://ozzyl_guard:[REDACTED_SECRET]@localhost:5432/ozzyl_guard
+DATABASE_SSL=false
+DATABASE_POOL_SIZE=20
+POSTGRES_PASSWORD=[REDACTED_SECRET]
+
+# Authentication and privacy — generate long random local-only values
+SESSION_SECRET=[REDACTED_SECRET]
+API_KEY_PEPPER=[REDACTED_SECRET]
+PHONE_HMAC_KEY=[REDACTED_SECRET]
+
+# Credential/session encryption
+# Use a Base64-encoded 32-byte key for the local AES-256-GCM implementation.
+CREDENTIAL_ENCRYPTION_PROVIDER=local-development
+CREDENTIAL_ENCRYPTION_KEY_VERSION=local-v1
+CREDENTIAL_ENCRYPTION_KEY=[REDACTED_SECRET]
+
+# Initial bootstrap (run once after migrations)
+BOOTSTRAP_EMAIL=owner@example.com
+BOOTSTRAP_PASSWORD=[REDACTED_SECRET]
+BOOTSTRAP_ORGANIZATION_NAME=Ozzyl Guard Organization
+BOOTSTRAP_ORGANIZATION_SLUG=ozzyl-guard-organization
+BOOTSTRAP_STORE_NAME=Primary Store
+BOOTSTRAP_STORE_PLATFORM=custom
+BOOTSTRAP_KEY_ENVIRONMENT=test
+
+# Courier workers
+COURIER_SESSION_REFRESH_HOURS=6
+COURIER_OBSERVATION_TTL_HOURS=12
+WORKER_POLL_MS=5000
+STEADFAST_LIVE_TESTS=false
+
+# Queue/cache placeholders for later external infrastructure ADRs
+QUEUE_URL=[REDACTED_SECRET]
+CACHE_URL=[REDACTED_SECRET]
+
+# Verification provider — production remains disabled until a provider ADR/account exists
+OTP_PROVIDER=disabled
+OTP_SENDER_ID=[REDACTED_SECRET]
+OTP_PROVIDER_API_KEY=[REDACTED_SECRET]
+
+# Webhook signing and observability
+WEBHOOK_SIGNING_SECRET=[REDACTED_SECRET]
+ERROR_TRACKING_DSN=[REDACTED_SECRET]
+OTEL_EXPORTER_OTLP_ENDPOINT=[REDACTED_SECRET]

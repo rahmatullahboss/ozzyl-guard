@@ -1,0 +1,6 @@
+codexpro/
+node_modules/
+dist/
+coverage/
+package-lock.json
+.ai-bridge/pro-context.md

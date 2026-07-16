@@ -1,0 +1,141 @@
+schema_version: 1
+project:
+  name: Ozzyl Guard
+  repository: rahmatullahboss/ozzyl-guard
+  branch: main
+  visibility: private
+  status: mvp-foundation-complete
+  last_updated: 2026-07-16
+
+agent_entrypoint:
+  purpose: Continuation tracker for developers and AI agents.
+  read_first:
+    - tracker.yml
+    - AGENTS.md
+    - README.md
+    - .ai-bridge/current-plan.md
+    - .ai-bridge/implementation-status.md
+    - .ai-bridge/decisions.md
+    - .ai-bridge/pro-context.md
+    - docs/README.md
+    - docs/adr/README.md
+  workflow:
+    - inspect_current_repository_state
+    - search_existing_code_schema_routes_and_docs
+    - read_relevant_specs_and_adrs
+    - implement_the_smallest_coherent_change
+    - add_failure_and_tenant_isolation_tests
+    - run_npm_verify
+    - update_docs_status_and_tracker
+    - commit_and_push_after_green_verification
+
+source_of_truth:
+  architecture: docs/architecture/system-architecture.md
+  api: docs/api/api-specification.md
+  database: docs/database/database-design.md
+  courier: docs/courier/courier-intelligence.md
+  risk_engine: docs/risk-engine/risk-engine.md
+  integrations: docs/integrations/integrations.md
+  security: docs/security/security-privacy.md
+  testing: docs/testing/testing-strategy.md
+  operations: docs/operations/operations-observability.md
+  roadmap: docs/roadmap/implementation-roadmap.md
+  backlog: docs/roadmap/initial-backlog.md
+  risks: docs/roadmap/risk-register.md
+  current_plan: .ai-bridge/current-plan.md
+  implementation_status: .ai-bridge/implementation-status.md
+  decisions: .ai-bridge/decisions.md
+  full_context: .ai-bridge/pro-context.md
+
+invariants:
+  - exactly_one_canonical_risk_engine
+  - risk_engine_has_no_external_io
+  - courier_access_only_through_adapters_and_workers
+  - api_handlers_have_no_scoring_logic
+  - merchant_data_requires_organization_and_store_scope
+  - unknown_data_is_not_safe_by_default
+  - provider_failure_is_not_an_automatic_decision
+  - user_sessions_are_separate_from_service_access
+  - applied_migrations_are_immutable
+  - all_integrations_use_the_versioned_api_contract
+  - long_running_provider_work_is_asynchronous
+
+implemented:
+  - typescript_monorepo_and_ci
+  - postgresql_schema_and_five_migrations
+  - organization_store_membership_and_plan_foundation
+  - usage_metering_and_audit_foundation
+  - pure_versioned_explainable_risk_engine
+  - canonical_v1_api_and_postgresql_repositories
+  - steadfast_adapter_and_browser_session_worker
+  - postgresql_courier_sync_worker
+  - verification_and_webhook_libraries
+  - woocommerce_shopify_custom_and_native_adapters
+  - merchant_dashboard_foundation
+  - platform_admin_foundation
+  - docker_compose_baseline
+
+verification:
+  command: npm run verify
+  last_verified: 2026-07-16
+  status: passed
+  results:
+    migrations: 5_of_5
+    architecture_boundaries: passed
+    typecheck: 18_of_18
+    test_tasks: 26_of_26
+    assertions: 24
+    builds: 18_of_18
+    php_syntax: passed
+    high_critical_dependency_check: passed
+    documentation_links: 0_broken
+  local_limitations:
+    - docker_and_postgresql_are_not_available_in_this_workspace
+    - clean_database_apply_runs_in_ci_with_postgresql_16
+
+migrations:
+  immutable: true
+  files:
+    - packages/database/migrations/0001_foundation.sql
+    - packages/database/migrations/0002_courier.sql
+    - packages/database/migrations/0003_risk.sql
+    - packages/database/migrations/0004_verification_events.sql
+    - packages/database/migrations/0005_durable_operations.sql
+
+external_dependencies:
+  - authorized_steadfast_test_account
+  - provider_authorization_review
+  - production_managed_encryption_service
+  - otp_provider_account
+  - hosting_database_queue_cache_and_observability_decisions
+  - pilot_outcome_data
+
+next_milestone:
+  name: production-hardening-and-pilot-readiness
+  tasks:
+    - record_infrastructure_adrs
+    - connect_dashboard_and_admin_to_authenticated_live_data
+    - add_postgresql_repository_concurrency_and_tenant_tests
+    - validate_steadfast_with_an_authorized_account
+    - implement_the_selected_otp_runner
+    - add_durable_event_and_verification_runners
+    - enable_native_adapter_shadow_mode
+    - run_a_selected_merchant_pilot
+    - calibrate_decisions_before_broad_automatic_blocking
+
+release_policy:
+  branch: main
+  before_push:
+    - npm_run_verify_passes
+    - documentation_and_tracker_are_current
+    - repository_review_is_clean
+  rules:
+    - no_force_push_to_main
+    - do_not_edit_applied_migrations
+    - use_descriptive_commits
+
+notes:
+  - codexpro_and_local_mcp_files_are_workspace_tooling_and_ignored
+  - dashboard_and_admin_are_ui_foundations_pending_live_data
+  - broad_automatic_blocking_remains_disabled_until_pilot_calibration
+  - update_this_file_after_every_material_milestone
