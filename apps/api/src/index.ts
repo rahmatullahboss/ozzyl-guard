@@ -74,7 +74,7 @@ export interface AssessmentRepository {
     storeId: string;
     assessmentId: string;
   }): Promise<StoredAssessment | null>;
-  save(record: StoredAssessment): Promise<void>;
+  save(record: StoredAssessment): Promise<StoredAssessment>;
 }
 
 export interface OutcomeRepository {
@@ -286,7 +286,7 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
       },
     });
 
-    await dependencies.assessments.save({
+    const stored = await dependencies.assessments.save({
       identity: {
         apiKeyId: identity.apiKeyId,
         organizationId: identity.organizationId,
@@ -297,7 +297,10 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
       request,
       response,
     });
-    return context.json(response, 201);
+    return context.json(
+      stored.response,
+      stored.response.assessment_id === response.assessment_id ? 201 : 200,
+    );
   });
 
   app.get('/v1/risk-assessments/:assessmentId', async (context) => {
@@ -531,12 +534,13 @@ export class MemoryAssessmentRepository implements AssessmentRepository {
     return record;
   }
 
-  async save(record: StoredAssessment): Promise<void> {
+  async save(record: StoredAssessment): Promise<StoredAssessment> {
+    const key = `${record.identity.organizationId}:${record.identity.storeId}:${record.idempotencyKey}`;
+    const existing = this.byIdempotency.get(key);
+    if (existing) return existing;
     this.byId.set(record.response.assessment_id, record);
-    this.byIdempotency.set(
-      `${record.identity.organizationId}:${record.identity.storeId}:${record.idempotencyKey}`,
-      record,
-    );
+    this.byIdempotency.set(key, record);
+    return record;
   }
 }
 
