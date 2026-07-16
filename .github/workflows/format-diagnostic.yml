@@ -18,3 +18,4 @@ jobs:
           cache: npm
       - run: npm ci --no-audit --no-fund
       - run: npx prettier --list-different .
+        name: List differently formatted files
