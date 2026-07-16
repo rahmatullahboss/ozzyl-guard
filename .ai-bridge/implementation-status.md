@@ -68,6 +68,7 @@ Applied migrations must remain immutable.
 - `npm run test`: 26/26 Turbo tasks passed; 24 substantive unit/API/integration-adapter assertions passed, no-test packages exited explicitly with success
 - `npm run build`: 18/18 workspace builds passed
 - `npm audit --audit-level=high`: passed; four moderate dev-tooling findings remain
+- Remote GitHub Actions: workflow created, but the runner was blocked before any step started by the account billing/spending-limit restriction
 - WooCommerce `php -l`: passed
 - Canonical documentation link check: 33 files, zero broken links
 - `tracker.yml` YAML parse: passed
@@ -76,6 +77,7 @@ Applied migrations must remain immutable.
 
 ## External blockers and production requirements
 
+- GitHub Actions account billing/spending-limit resolution so hosted runners can start
 - Authorized Steadfast test/merchant account
 - Provider-terms and merchant-authorization review
 - Production KMS/vault and key-rotation setup

@@ -40,6 +40,7 @@ A runnable standalone MVP foundation is implemented. Phase 0 is complete, Phases
 - Production builds: 18 of 18 workspaces passed
 - WooCommerce PHP syntax: passed
 - npm high/critical audit threshold: passed; four moderate development-tooling advisories remain
+- Remote GitHub Actions workflow exists, but the hosted runner is blocked before job start by the account billing/spending-limit restriction
 - Canonical documentation links: 33 Markdown files checked, zero broken internal links
 - `tracker.yml` YAML parse: passed
 - Continuation bundle: refreshed and formatted
@@ -61,6 +62,7 @@ A clean PostgreSQL migration apply could not be executed locally because Docker/
 
 ## External blockers
 
+- GitHub Actions account billing/spending-limit resolution so hosted runners can start
 - Authorized Steadfast merchant/test credentials
 - Steadfast provider-terms and merchant-authorization review
 - Production KMS/vault choice and keys
