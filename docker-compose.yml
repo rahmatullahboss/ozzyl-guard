@@ -39,6 +39,8 @@ services:
       DATABASE_URL: postgresql://ozzyl_guard:${POSTGRES_PASSWORD}@postgres:5432/ozzyl_guard
       DATABASE_SSL: 'false'
       API_KEY_PEPPER: ${API_KEY_PEPPER:?API_KEY_PEPPER is required}
+      SESSION_PEPPER: ${SESSION_PEPPER:?SESSION_PEPPER is required}
+      SESSION_CSRF_SECRET: ${SESSION_CSRF_SECRET:?SESSION_CSRF_SECRET is required}
       PHONE_HMAC_KEY: ${PHONE_HMAC_KEY:?PHONE_HMAC_KEY is required}
     ports:
       - '3000:3000'

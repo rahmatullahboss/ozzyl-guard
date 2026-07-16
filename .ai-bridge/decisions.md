@@ -20,6 +20,7 @@ Updated: 2026-07-16
 14. WooCommerce, Shopify, custom, and native integrations use the same canonical request/response contract.
 15. Applied migrations are immutable and changes require new migrations.
 16. `fraudchecker.link` may exist only as an optional, identified fallback adapter; it is never the core source or an engine dependency.
+17. Pilot browser access uses the existing Argon2id and opaque hash-only PostgreSQL session primitives, `HttpOnly` cookies, CSRF protection, repository-level tenant revalidation, and an explicit `platform_admin` role; service API keys remain separate.
 
 ## Source SaaS conflict resolutions
 
@@ -52,7 +53,7 @@ No product source code was copied during Phase 0.
 
 These require separate ADRs before production implementation:
 
-- Managed authentication versus in-house Argon2id/session implementation
+- Managed identity provider or future supersession of the accepted pilot browser-session baseline
 - Queue/broker technology
 - API/dashboard/worker deployment platform
 - PostgreSQL hosting provider

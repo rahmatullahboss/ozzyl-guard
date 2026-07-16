@@ -15,6 +15,10 @@ const organizationName = process.env.BOOTSTRAP_ORGANIZATION_NAME ?? 'Ozzyl Guard
 const storeName = process.env.BOOTSTRAP_STORE_NAME ?? 'Primary Store';
 const storePlatform = process.env.BOOTSTRAP_STORE_PLATFORM ?? 'custom';
 const environment = process.env.BOOTSTRAP_KEY_ENVIRONMENT === 'test' ? 'test' : 'live';
+const platformRole = process.env.BOOTSTRAP_PLATFORM_ROLE ?? 'merchant';
+if (platformRole !== 'merchant' && platformRole !== 'platform_admin') {
+  throw new Error('BOOTSTRAP_PLATFORM_ROLE must be merchant or platform_admin');
+}
 const pepper = required('API_KEY_PEPPER');
 const slug = (process.env.BOOTSTRAP_ORGANIZATION_SLUG ?? organizationName)
   .toLowerCase()
@@ -36,8 +40,8 @@ const client = await pool.connect();
 try {
   await client.query('begin');
   await client.query(
-    `insert into users (id, email, password_hash, email_verified_at) values ($1, $2, $3, now())`,
-    [ids.user, email, passwordHash],
+    `insert into users (id, email, password_hash, email_verified_at, platform_role) values ($1, $2, $3, now(), $4)`,
+    [ids.user, email, passwordHash, platformRole],
   );
   await client.query(
     `insert into organizations (id, name, slug, plan_id) values ($1, $2, $3, 'plan_free')`,

@@ -42,7 +42,7 @@ The following require external accounts or production decisions before live use:
 - Authorized Steadfast merchant/test credentials and provider-terms review
 - Production KMS/vault instead of the local AES-GCM key implementation
 - OTP provider selection and credentials
-- Final dashboard authentication/backend endpoints and live data wiring
+- Authenticated dashboard/admin live data wiring is complete; production hosting, distributed rate limiting, account recovery, MFA, and managed identity supersession remain
 - Production queue/cache/observability providers
 - Pilot outcome calibration before broad automatic blocking
 

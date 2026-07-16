@@ -1,65 +1,148 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type FormEvent } from 'react';
+import type {
+  BrowserSessionResponse,
+  DashboardReview,
+  MerchantDashboardOverview,
+} from '@ozzyl/shared-types';
 
 type View = 'overview' | 'reviews' | 'couriers' | 'policies' | 'usage' | 'settings';
 
-type ReviewItem = {
-  id: string;
-  orderId: string;
-  phone: string;
-  score: number;
-  decision: 'verify' | 'review' | 'hold' | 'block';
-  confidence: number;
-  signals: string[];
-  createdAt: string;
+type StoreOption = {
+  organizationId: string;
+  organizationName: string;
+  storeId: string;
+  storeName: string;
+  platform: string;
 };
 
-const reviewItems: ReviewItem[] = [
-  {
-    id: 'ras_1029',
-    orderId: 'WC-1092',
-    phone: '017****5678',
-    score: 72,
-    decision: 'hold',
-    confidence: 0.82,
-    signals: ['Low delivery rate', 'High return rate', 'High-value COD'],
-    createdAt: '12 minutes ago',
-  },
-  {
-    id: 'ras_1028',
-    orderId: 'SHOP-4871',
-    phone: '018****9031',
-    score: 51,
-    decision: 'review',
-    confidence: 0.68,
-    signals: ['Rapid repeat orders', 'Stale courier observation'],
-    createdAt: '26 minutes ago',
-  },
-  {
-    id: 'ras_1024',
-    orderId: 'CUSTOM-882',
-    phone: '019****2210',
-    score: 34,
-    decision: 'verify',
-    confidence: 0.41,
-    signals: ['Insufficient history', 'New customer'],
-    createdAt: '1 hour ago',
-  },
-];
-
 const navItems: Array<{ id: View; label: string; description: string }> = [
-  { id: 'overview', label: 'Overview', description: 'Risk and savings summary' },
+  { id: 'overview', label: 'Overview', description: 'Live risk summary' },
   { id: 'reviews', label: 'Review queue', description: 'Orders requiring action' },
-  { id: 'couriers', label: 'Courier accounts', description: 'Sessions and health' },
-  { id: 'policies', label: 'Risk policies', description: 'Thresholds and actions' },
-  { id: 'usage', label: 'API usage', description: 'Limits and integrations' },
-  { id: 'settings', label: 'Settings', description: 'Stores, team and keys' },
+  { id: 'couriers', label: 'Courier accounts', description: 'Connection health' },
+  { id: 'policies', label: 'Risk policies', description: 'Pilot safety state' },
+  { id: 'usage', label: 'API usage', description: 'Current entitlement' },
+  { id: 'settings', label: 'Settings', description: 'Session and scope' },
 ];
 
 export function App() {
+  const [session, setSession] = useState<BrowserSessionResponse | null>(null);
+  const [overview, setOverview] = useState<MerchantDashboardOverview | null>(null);
+  const [selectedStore, setSelectedStore] = useState<StoreOption | null>(null);
+  const [selectedReview, setSelectedReview] = useState<DashboardReview | null>(null);
   const [view, setView] = useState<View>('overview');
-  const [selected, setSelected] = useState<ReviewItem | null>(reviewItems[0] ?? null);
-  const [policyMode, setPolicyMode] = useState<'balanced' | 'strict' | 'growth'>('balanced');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const stores = useMemo(() => flattenStores(session), [session]);
   const activeNav = useMemo(() => navItems.find((item) => item.id === view), [view]);
+
+  useEffect(() => {
+    void loadSession();
+  }, []);
+
+  useEffect(() => {
+    if (!session || stores.length === 0) return;
+    setSelectedStore((current) => current ?? stores[0] ?? null);
+  }, [session, stores]);
+
+  useEffect(() => {
+    if (!selectedStore) return;
+    void loadOverview(selectedStore);
+  }, [selectedStore]);
+
+  async function loadSession() {
+    setLoading(true);
+    try {
+      const response = await fetch('/auth/session', { credentials: 'include' });
+      if (response.status === 401) {
+        setSession(null);
+        setOverview(null);
+        return;
+      }
+      const body = await readJson<BrowserSessionResponse>(response);
+      setSession(body);
+    } catch (caught) {
+      setError(errorMessage(caught));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function loadOverview(store: StoreOption) {
+    setLoading(true);
+    setError(null);
+    try {
+      const params = new URLSearchParams({
+        organization_id: store.organizationId,
+        store_id: store.storeId,
+      });
+      const response = await fetch(`/dashboard/v1/overview?${params.toString()}`, {
+        credentials: 'include',
+      });
+      if (response.status === 401) {
+        setSession(null);
+        setOverview(null);
+        return;
+      }
+      const body = await readJson<MerchantDashboardOverview>(response);
+      setOverview(body);
+      setSelectedReview(body.reviews[0] ?? null);
+    } catch (caught) {
+      setError(errorMessage(caught));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleLogin(email: string, password: string) {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch('/auth/login', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const body = await readJson<BrowserSessionResponse>(response);
+      setSession(body);
+      setSelectedStore(flattenStores(body)[0] ?? null);
+    } catch (caught) {
+      setError(errorMessage(caught));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleLogout() {
+    if (!session) return;
+    setLoading(true);
+    try {
+      await readJson(
+        await fetch('/auth/logout', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'X-CSRF-Token': session.csrf_token },
+        }),
+      );
+      setSession(null);
+      setOverview(null);
+      setSelectedStore(null);
+      setSelectedReview(null);
+    } catch (caught) {
+      setError(errorMessage(caught));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (loading && !session) return <LoadingState label="Checking your secure session…" />;
+  if (!session) return <LoginScreen error={error} loading={loading} onLogin={handleLogin} />;
+  if (stores.length === 0) {
+    return (
+      <LoadingState label="Your account has no active organization/store scope. Contact an administrator." />
+    );
+  }
 
   return (
     <div className="app-shell">
@@ -87,8 +170,10 @@ export function App() {
         <div className="sidebar-footer">
           <span className="status-dot" />
           <div>
-            <strong>All core systems normal</strong>
-            <small>Last checked just now</small>
+            <strong>Authenticated live data</strong>
+            <small>
+              {overview ? `Updated ${formatDate(overview.generated_at)}` : 'Loading scope'}
+            </small>
           </div>
         </div>
       </aside>
@@ -96,56 +181,174 @@ export function App() {
       <main className="main-area">
         <header className="topbar">
           <div>
-            <p className="eyebrow">Merchant workspace</p>
+            <p className="eyebrow">{selectedStore?.organizationName ?? 'Merchant workspace'}</p>
             <h1>{activeNav?.label}</h1>
           </div>
           <div className="topbar-actions">
-            <select aria-label="Select store" defaultValue="store-1">
-              <option value="store-1">Ozzyl Demo Store</option>
-              <option value="store-2">Secondary Store</option>
+            <select
+              aria-label="Select store"
+              value={selectedStore ? storeKey(selectedStore) : ''}
+              onChange={(event) => {
+                const next = stores.find((store) => storeKey(store) === event.target.value) ?? null;
+                setSelectedStore(next);
+              }}
+            >
+              {stores.map((store) => (
+                <option key={storeKey(store)} value={storeKey(store)}>
+                  {store.storeName} · {store.platform}
+                </option>
+              ))}
             </select>
-            <button className="secondary-button" type="button">
-              Test assessment
-            </button>
-            <div className="avatar" aria-label="Account menu">
-              RZ
+            <div className="topbar-user">
+              <strong>{session.user.email}</strong>
+              <small>{overview?.scope.role ?? 'member'}</small>
             </div>
+            <button
+              className="secondary-button"
+              disabled={loading}
+              onClick={() => void handleLogout()}
+              type="button"
+            >
+              Sign out
+            </button>
           </div>
         </header>
 
-        {view === 'overview' && <Overview onOpenQueue={() => setView('reviews')} />}
-        {view === 'reviews' && <ReviewQueue selected={selected} onSelect={setSelected} />}
-        {view === 'couriers' && <CourierAccounts />}
-        {view === 'policies' && <RiskPolicies mode={policyMode} onModeChange={setPolicyMode} />}
-        {view === 'usage' && <Usage />}
-        {view === 'settings' && <Settings />}
+        {error && <div className="page-error">{error}</div>}
+        {loading && <div className="live-banner">Refreshing live data…</div>}
+        {!overview ? (
+          <LoadingState label="Loading store overview…" />
+        ) : (
+          <>
+            {view === 'overview' && (
+              <Overview overview={overview} onOpenQueue={() => setView('reviews')} />
+            )}
+            {view === 'reviews' && (
+              <ReviewQueue
+                items={overview.reviews}
+                selected={selectedReview}
+                onSelect={setSelectedReview}
+              />
+            )}
+            {view === 'couriers' && <CourierAccounts overview={overview} />}
+            {view === 'policies' && <RiskPolicies />}
+            {view === 'usage' && <Usage overview={overview} />}
+            {view === 'settings' && <Settings session={session} overview={overview} />}
+          </>
+        )}
       </main>
     </div>
   );
 }
 
-function Overview({ onOpenQueue }: { onOpenQueue(): void }) {
+function LoginScreen({
+  error,
+  loading,
+  onLogin,
+}: {
+  error: string | null;
+  loading: boolean;
+  onLogin(email: string, password: string): Promise<void>;
+}) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    void onLogin(email, password);
+  }
+  return (
+    <main className="auth-shell">
+      <form className="auth-card" onSubmit={submit}>
+        <div className="brand auth-brand">
+          <div className="brand-mark">OG</div>
+          <div>
+            <strong>Ozzyl Guard</strong>
+            <span>Merchant dashboard</span>
+          </div>
+        </div>
+        <div>
+          <p className="eyebrow">Secure browser session</p>
+          <h1>Sign in</h1>
+          <p className="auth-copy">
+            Dashboard users authenticate separately from service API keys.
+          </p>
+        </div>
+        <label>
+          Email
+          <input
+            autoComplete="email"
+            onChange={(event) => setEmail(event.target.value)}
+            required
+            type="email"
+            value={email}
+          />
+        </label>
+        <label>
+          Password
+          <input
+            autoComplete="current-password"
+            minLength={10}
+            onChange={(event) => setPassword(event.target.value)}
+            required
+            type="password"
+            value={password}
+          />
+        </label>
+        {error && <div className="form-error">{error}</div>}
+        <button className="primary-button" disabled={loading} type="submit">
+          {loading ? 'Signing in…' : 'Sign in'}
+        </button>
+      </form>
+    </main>
+  );
+}
+
+function Overview({
+  overview,
+  onOpenQueue,
+}: {
+  overview: MerchantDashboardOverview;
+  onOpenQueue(): void;
+}) {
+  const total = Math.max(overview.summary.assessments_30d, 1);
   return (
     <section className="content-stack">
       <div className="hero-panel">
         <div>
-          <p className="eyebrow">Last 30 days</p>
-          <h2>1,284 COD orders assessed</h2>
+          <p className="eyebrow">Live · last 30 days</p>
+          <h2>{number(overview.summary.assessments_30d)} COD orders assessed</h2>
           <p>
-            Ozzyl Guard identified 147 orders needing verification or review before courier handoff.
+            {number(overview.summary.pending_reviews)} assessments currently require verification,
+            review, hold, or merchant action.
           </p>
         </div>
         <div className="hero-score">
-          <strong>৳184,600</strong>
-          <span>estimated return cost avoided</span>
+          <strong>{number(overview.summary.degraded_30d)}</strong>
+          <span>degraded results kept explicit, never treated as automatically safe</span>
         </div>
       </div>
 
       <div className="metric-grid">
-        <Metric title="Assessment success" value="99.7%" note="API and worker completion" />
-        <Metric title="Orders verified" value="93" note="OTP confirmed customers" />
-        <Metric title="High-risk held" value="41" note="Pending merchant decision" />
-        <Metric title="Courier freshness" value="91%" note="Observations within TTL" />
+        <Metric
+          title="Assessments"
+          value={number(overview.summary.assessments_30d)}
+          note="Last 30 days"
+        />
+        <Metric
+          title="Verified"
+          value={number(overview.summary.verified_30d)}
+          note="Successful OTP sessions"
+        />
+        <Metric
+          title="Needs action"
+          value={number(overview.summary.pending_reviews)}
+          note="Live review queue"
+        />
+        <Metric
+          title="Monthly usage"
+          value={usageLabel(overview)}
+          note="Organization entitlement"
+        />
       </div>
 
       <div className="two-column">
@@ -155,14 +358,17 @@ function Overview({ onOpenQueue }: { onOpenQueue(): void }) {
               <p className="eyebrow">Risk distribution</p>
               <h3>Decision mix</h3>
             </div>
-            <span className="pill neutral">Engine v1.0.0</span>
+            <span className="pill neutral">Canonical engine output</span>
           </div>
           <div className="distribution">
-            <DistributionRow label="Allow" value={78} count="1,002" />
-            <DistributionRow label="Verify" value={11} count="141" />
-            <DistributionRow label="Review" value={6} count="77" />
-            <DistributionRow label="Hold" value={4} count="51" />
-            <DistributionRow label="Block" value={1} count="13" />
+            {Object.entries(overview.decisions).map(([decision, count]) => (
+              <DistributionRow
+                count={number(count)}
+                key={decision}
+                label={capitalize(decision)}
+                value={Math.round((count / total) * 100)}
+              />
+            ))}
           </div>
         </article>
 
@@ -177,46 +383,35 @@ function Overview({ onOpenQueue }: { onOpenQueue(): void }) {
             </button>
           </div>
           <div className="compact-list">
-            {reviewItems.map((item) => (
-              <div className="compact-row" key={item.id}>
+            {overview.reviews.slice(0, 5).map((item) => (
+              <div className="compact-row" key={item.assessment_id}>
                 <div>
-                  <strong>{item.orderId}</strong>
+                  <strong>{item.external_order_id ?? item.assessment_id}</strong>
                   <span>
-                    {item.phone} · {item.createdAt}
+                    {item.phone_masked} · {formatDate(item.created_at)}
                   </span>
                 </div>
-                <RiskBadge decision={item.decision} score={item.score} />
+                <RiskBadge decision={item.decision} score={item.risk_score} />
               </div>
             ))}
+            {overview.reviews.length === 0 && (
+              <div className="empty-state compact">No open reviews.</div>
+            )}
           </div>
         </article>
       </div>
-
-      <article className="panel">
-        <div className="panel-heading">
-          <div>
-            <p className="eyebrow">Provider health</p>
-            <h3>Courier intelligence</h3>
-          </div>
-          <span className="pill success">Cache-first active</span>
-        </div>
-        <div className="provider-grid">
-          <ProviderCard name="Steadfast" status="Connected" detail="Session refreshed 48m ago" />
-          <ProviderCard name="Pathao" status="Planned" detail="Adapter contract prepared" />
-          <ProviderCard name="RedX" status="Planned" detail="Adapter contract prepared" />
-          <ProviderCard name="Outcome feedback" status="Active" detail="842 confirmed outcomes" />
-        </div>
-      </article>
     </section>
   );
 }
 
 function ReviewQueue({
+  items,
   selected,
   onSelect,
 }: {
-  selected: ReviewItem | null;
-  onSelect(item: ReviewItem): void;
+  items: DashboardReview[];
+  selected: DashboardReview | null;
+  onSelect(item: DashboardReview): void;
 }) {
   return (
     <section className="review-layout">
@@ -224,32 +419,29 @@ function ReviewQueue({
         <div className="panel-heading">
           <div>
             <p className="eyebrow">Actionable assessments</p>
-            <h3>{reviewItems.length} open reviews</h3>
+            <h3>{items.length} open reviews</h3>
           </div>
-          <select aria-label="Filter review queue" defaultValue="all">
-            <option value="all">All decisions</option>
-            <option value="verify">Verify</option>
-            <option value="review">Review</option>
-            <option value="hold">Hold</option>
-          </select>
         </div>
         <div className="queue-list">
-          {reviewItems.map((item) => (
+          {items.map((item) => (
             <button
-              className={selected?.id === item.id ? 'queue-row selected' : 'queue-row'}
-              key={item.id}
+              className={
+                selected?.assessment_id === item.assessment_id ? 'queue-row selected' : 'queue-row'
+              }
+              key={item.assessment_id}
               onClick={() => onSelect(item)}
               type="button"
             >
               <div>
-                <strong>{item.orderId}</strong>
+                <strong>{item.external_order_id ?? item.assessment_id}</strong>
                 <span>
-                  {item.phone} · {item.createdAt}
+                  {item.phone_masked} · {formatDate(item.created_at)}
                 </span>
               </div>
-              <RiskBadge decision={item.decision} score={item.score} />
+              <RiskBadge decision={item.decision} score={item.risk_score} />
             </button>
           ))}
+          {items.length === 0 && <div className="empty-state">No assessments need action.</div>}
         </div>
       </article>
 
@@ -258,10 +450,10 @@ function ReviewQueue({
           <>
             <div className="panel-heading">
               <div>
-                <p className="eyebrow">Assessment {selected.id}</p>
-                <h3>{selected.orderId}</h3>
+                <p className="eyebrow">Assessment {selected.assessment_id}</p>
+                <h3>{selected.external_order_id ?? 'No external order id'}</h3>
               </div>
-              <RiskBadge decision={selected.decision} score={selected.score} />
+              <RiskBadge decision={selected.decision} score={selected.risk_score} />
             </div>
             <div className="detail-metrics">
               <Metric
@@ -269,34 +461,34 @@ function ReviewQueue({
                 value={`${Math.round(selected.confidence * 100)}%`}
                 note="Evidence quality"
               />
-              <Metric title="Courier orders" value="12" note="5 delivered · 4 returned" />
+              <Metric
+                title="Customer"
+                value={selected.phone_masked}
+                note="Masked operational data"
+              />
             </div>
             <div className="signal-list">
               <h4>Explainable signals</h4>
-              {selected.signals.map((signal, index) => (
-                <div className="signal" key={signal}>
-                  <span>+{index === 0 ? 30 : index === 1 ? 22 : 10}</span>
+              {selected.signals.map((signal) => (
+                <div className="signal" key={signal.code}>
+                  <span>
+                    {signal.score >= 0 ? '+' : ''}
+                    {signal.score}
+                  </span>
                   <div>
-                    <strong>{signal}</strong>
-                    <small>Evidence recorded with engine and policy version.</small>
+                    <strong>{signal.description}</strong>
+                    <small>{signal.code}</small>
                   </div>
                 </div>
               ))}
             </div>
-            <div className="action-grid">
-              <button className="primary-button" type="button">
-                Send OTP verification
-              </button>
-              <button className="secondary-button" type="button">
-                Request advance payment
-              </button>
-              <button className="secondary-button" type="button">
-                Allow with note
-              </button>
-              <button className="danger-button" type="button">
-                Block this order
-              </button>
-            </div>
+            <article className="notice-panel panel inline-notice">
+              <strong>Pilot safety</strong>
+              <p>
+                Broad automatic blocking is disabled. Decisions remain explainable and
+                merchant-reviewed until calibration is approved.
+              </p>
+            </article>
           </>
         ) : (
           <div className="empty-state">Select an assessment to inspect its evidence.</div>
@@ -306,230 +498,154 @@ function ReviewQueue({
   );
 }
 
-function CourierAccounts() {
+function CourierAccounts({ overview }: { overview: MerchantDashboardOverview }) {
   return (
     <section className="content-stack">
       <div className="section-intro">
         <div>
-          <p className="eyebrow">Isolated provider workers</p>
-          <h2>Courier accounts and sessions</h2>
+          <p className="eyebrow">Live scoped connections</p>
+          <h2>Courier accounts</h2>
           <p>
-            Credentials and sessions are encrypted separately. Browser login never runs in checkout
-            requests.
+            Provider credentials and sessions remain encrypted and outside synchronous checkout.
           </p>
         </div>
-        <button className="primary-button" type="button">
-          Connect courier account
-        </button>
       </div>
-      <article className="panel account-card">
-        <div className="provider-logo">S</div>
-        <div className="account-info">
-          <strong>Steadfast · Ozzyl Demo Store</strong>
-          <span>Connected with merchant-authorized session</span>
-          <div className="account-meta">
-            <span>Last success: 48 minutes ago</span>
-            <span>Next refresh: in 4 hours</span>
-            <span>Observation TTL: 12 hours</span>
+      {overview.couriers.map((account) => (
+        <article className="panel account-card" key={account.provider}>
+          <div className="provider-logo">{account.provider[0]?.toUpperCase()}</div>
+          <div className="account-info">
+            <strong>
+              {capitalize(account.provider)} · {overview.scope.store_name}
+            </strong>
+            <span>{account.failure_code ?? 'No active provider failure code'}</span>
+            <div className="account-meta">
+              <span>Last success: {formatNullableDate(account.last_success_at)}</span>
+              <span>Last failure: {formatNullableDate(account.last_failure_at)}</span>
+            </div>
           </div>
-        </div>
-        <div className="account-actions">
-          <span className="pill success">Healthy</span>
-          <button className="secondary-button" type="button">
-            Refresh now
-          </button>
-          <button className="text-button" type="button">
-            Reconnect
-          </button>
-        </div>
-      </article>
+          <span className={account.status === 'connected' ? 'pill success' : 'pill neutral'}>
+            {account.status}
+          </span>
+        </article>
+      ))}
+      {overview.couriers.length === 0 && (
+        <article className="panel empty-state">
+          No courier account is connected to this store.
+        </article>
+      )}
       <article className="panel notice-panel">
         <strong>Provider degradation policy</strong>
         <p>
-          A courier outage never marks a customer safe or fraudulent. Ozzyl Guard uses fresh cache,
-          then acceptable stale data, and finally returns an explicit unknown result with
-          verification guidance.
+          A provider outage never marks a customer safe or fraudulent. Missing evidence remains
+          explicit and routes to verification or review.
         </p>
       </article>
     </section>
   );
 }
 
-function RiskPolicies({
-  mode,
-  onModeChange,
-}: {
-  mode: 'balanced' | 'strict' | 'growth';
-  onModeChange(mode: 'balanced' | 'strict' | 'growth'): void;
-}) {
+function RiskPolicies() {
   return (
     <section className="content-stack">
-      <div className="section-intro">
-        <div>
-          <p className="eyebrow">Versioned configuration</p>
-          <h2>Store risk policy</h2>
-          <p>Merchant actions can change without creating another scoring engine.</p>
-        </div>
-        <span className="pill neutral">Policy store_1_v3</span>
-      </div>
-      <div className="policy-grid">
-        {(['growth', 'balanced', 'strict'] as const).map((policy) => (
-          <button
-            className={mode === policy ? 'policy-card selected' : 'policy-card'}
-            key={policy}
-            onClick={() => onModeChange(policy)}
-            type="button"
-          >
-            <strong>
-              {policy[0]?.toUpperCase()}
-              {policy.slice(1)}
-            </strong>
-            <span>
-              {policy === 'growth'
-                ? 'More COD orders allowed, verification for uncertain customers.'
-                : policy === 'strict'
-                  ? 'Earlier holds and stronger advance-payment recommendations.'
-                  : 'Balanced verification and review thresholds for most stores.'}
-            </span>
-          </button>
-        ))}
-      </div>
-      <article className="panel">
-        <div className="panel-heading">
-          <div>
-            <p className="eyebrow">Decision thresholds</p>
-            <h3>{mode} policy</h3>
-          </div>
-          <button className="primary-button" type="button">
-            Publish new version
-          </button>
-        </div>
-        <div className="threshold-grid">
-          <Threshold label="Verify" value={mode === 'strict' ? 20 : 25} />
-          <Threshold label="Review" value={mode === 'growth' ? 50 : 45} />
-          <Threshold label="Hold" value={mode === 'strict' ? 55 : 65} />
-          <Threshold label="Block" value={mode === 'strict' ? 75 : 80} />
-        </div>
-        <div className="form-grid">
-          <label>
-            Unknown customer action
-            <select defaultValue="verify">
-              <option value="verify">Require verification</option>
-              <option value="review">Send to manual review</option>
-            </select>
-          </label>
-          <label>
-            High-value COD threshold
-            <input defaultValue="10000" inputMode="numeric" />
-          </label>
-          <label>
-            Hold action
-            <select defaultValue="advance">
-              <option value="advance">Request advance payment</option>
-              <option value="review">Manual review only</option>
-            </select>
-          </label>
-        </div>
+      <article className="panel notice-panel">
+        <p className="eyebrow">Production hardening</p>
+        <h2>Automatic blocking remains disabled</h2>
+        <p>
+          The existing versioned policy and single canonical Risk Engine remain unchanged. Broad
+          automatic blocking will not be enabled before selected-merchant pilot review and
+          confidence calibration.
+        </p>
       </article>
     </section>
   );
 }
 
-function Usage() {
+function Usage({ overview }: { overview: MerchantDashboardOverview }) {
+  const limit = overview.summary.usage_limit;
+  const percentage = limit ? Math.min(100, (overview.summary.usage_month / limit) * 100) : 0;
   return (
     <section className="content-stack">
       <div className="metric-grid">
-        <Metric title="Assessments used" value="1,284" note="of 5,000 this month" />
-        <Metric title="Average latency" value="184ms" note="cache-first assessment" />
-        <Metric title="Outcome coverage" value="65.6%" note="842 confirmed outcomes" />
-        <Metric title="Webhook success" value="99.4%" note="retry worker active" />
+        <Metric
+          title="Assessments used"
+          value={number(overview.summary.usage_month)}
+          note="Current month"
+        />
+        <Metric
+          title="Plan limit"
+          value={limit === null ? 'Custom' : number(limit)}
+          note="Organization-wide"
+        />
+        <Metric
+          title="Open reviews"
+          value={number(overview.summary.pending_reviews)}
+          note="Current store"
+        />
+        <Metric
+          title="Degraded results"
+          value={number(overview.summary.degraded_30d)}
+          note="Last 30 days"
+        />
       </div>
       <article className="panel">
         <div className="panel-heading">
           <div>
             <p className="eyebrow">Monthly entitlement</p>
-            <h3>Starter plan usage</h3>
-          </div>
-          <span className="pill neutral">25.7% used</span>
-        </div>
-        <div className="large-progress">
-          <span style={{ width: '25.7%' }} />
-        </div>
-        <div className="usage-breakdown">
-          <span>WooCommerce · 812</span>
-          <span>Native multi-store · 391</span>
-          <span>Custom API · 81</span>
-        </div>
-      </article>
-      <article className="panel">
-        <div className="panel-heading">
-          <div>
-            <p className="eyebrow">Integration health</p>
-            <h3>API clients</h3>
+            <h3>{limit === null ? 'Custom plan usage' : `${Math.round(percentage)}% used`}</h3>
           </div>
         </div>
-        <div className="compact-list">
-          <IntegrationRow name="WooCommerce" environment="Live" lastUsed="2 minutes ago" />
-          <IntegrationRow name="Ozzyl Commerce" environment="Live" lastUsed="5 minutes ago" />
-          <IntegrationRow name="Staging tester" environment="Test" lastUsed="Yesterday" />
-        </div>
+        {limit !== null && (
+          <div className="large-progress">
+            <span style={{ width: `${percentage}%` }} />
+          </div>
+        )}
       </article>
     </section>
   );
 }
 
-function Settings() {
+function Settings({
+  session,
+  overview,
+}: {
+  session: BrowserSessionResponse;
+  overview: MerchantDashboardOverview;
+}) {
   return (
     <section className="content-stack">
-      <article className="panel">
-        <div className="panel-heading">
-          <div>
-            <p className="eyebrow">Service credentials</p>
-            <h3>API keys</h3>
-          </div>
-          <button className="primary-button" type="button">
-            Create API key
-          </button>
-        </div>
-        <div className="compact-list">
-          <IntegrationRow
-            name="WooCommerce production"
-            environment="ozg_live_ab12cd34…"
-            lastUsed="2 minutes ago"
-          />
-          <IntegrationRow
-            name="Staging integration"
-            environment="ozg_test_7ef901ab…"
-            lastUsed="Yesterday"
-          />
-        </div>
-        <p className="muted-note">
-          Raw keys are shown once. Only hashes are stored by Ozzyl Guard.
-        </p>
-      </article>
       <div className="two-column">
         <article className="panel">
-          <p className="eyebrow">Team</p>
-          <h3>Organization members</h3>
+          <p className="eyebrow">Authenticated user</p>
+          <h3>{session.user.email}</h3>
           <div className="compact-list">
-            <IntegrationRow name="Rahmatullah Zisan" environment="Owner" lastUsed="Active now" />
-            <IntegrationRow name="Operations staff" environment="Reviewer" lastUsed="3 hours ago" />
+            <IntegrationRow name="Platform role" value={session.user.platform_role} />
+            <IntegrationRow name="Organization role" value={overview.scope.role} />
+            <IntegrationRow name="Session expires" value={formatDate(session.expires_at)} />
           </div>
         </article>
         <article className="panel">
-          <p className="eyebrow">Webhook endpoint</p>
-          <h3>Outcome and alert delivery</h3>
-          <label>
-            HTTPS endpoint
-            <input defaultValue="https://store.example.com/ozzyl/webhook" />
-          </label>
-          <button className="secondary-button" type="button">
-            Send test event
-          </button>
+          <p className="eyebrow">Active tenant scope</p>
+          <h3>{overview.scope.store_name}</h3>
+          <div className="compact-list">
+            <IntegrationRow name="Organization" value={overview.scope.organization_name} />
+            <IntegrationRow name="Platform" value={overview.scope.platform} />
+            <IntegrationRow name="Store id" value={overview.scope.store_id} />
+          </div>
         </article>
       </div>
+      <article className="panel notice-panel">
+        <strong>Credential separation enforced</strong>
+        <p>
+          Browser user sessions are distinct from integration API keys. Raw service keys are not
+          used as cookies.
+        </p>
+      </article>
     </section>
   );
+}
+
+function LoadingState({ label }: { label: string }) {
+  return <main className="loading-state">{label}</main>;
 }
 
 function Metric({ title, value, note }: { title: string; value: string; note: string }) {
@@ -554,24 +670,7 @@ function DistributionRow({ label, value, count }: { label: string; value: number
   );
 }
 
-function ProviderCard({ name, status, detail }: { name: string; status: string; detail: string }) {
-  return (
-    <div className="provider-card">
-      <div className="provider-logo">{name[0]}</div>
-      <div>
-        <strong>{name}</strong>
-        <span>{detail}</span>
-      </div>
-      <span
-        className={status === 'Connected' || status === 'Active' ? 'pill success' : 'pill neutral'}
-      >
-        {status}
-      </span>
-    </div>
-  );
-}
-
-function RiskBadge({ decision, score }: { decision: ReviewItem['decision']; score: number }) {
+function RiskBadge({ decision, score }: { decision: DashboardReview['decision']; score: number }) {
   return (
     <span className={`risk-badge ${decision}`}>
       {decision} · {score}
@@ -579,31 +678,68 @@ function RiskBadge({ decision, score }: { decision: ReviewItem['decision']; scor
   );
 }
 
-function Threshold({ label, value }: { label: string; value: number }) {
+function IntegrationRow({ name, value }: { name: string; value: string }) {
   return (
-    <label className="threshold">
-      <span>{label}</span>
-      <input defaultValue={String(value)} inputMode="numeric" />
-    </label>
+    <div className="compact-row">
+      <strong>{name}</strong>
+      <span className="pill neutral">{value}</span>
+    </div>
   );
 }
 
-function IntegrationRow({
-  name,
-  environment,
-  lastUsed,
-}: {
-  name: string;
-  environment: string;
-  lastUsed: string;
-}) {
-  return (
-    <div className="compact-row">
-      <div>
-        <strong>{name}</strong>
-        <span>{lastUsed}</span>
-      </div>
-      <span className="pill neutral">{environment}</span>
-    </div>
+function flattenStores(session: BrowserSessionResponse | null): StoreOption[] {
+  if (!session) return [];
+  return session.organizations.flatMap((organization) =>
+    organization.stores.map((store) => ({
+      organizationId: organization.id,
+      organizationName: organization.name,
+      storeId: store.id,
+      storeName: store.name,
+      platform: store.platform,
+    })),
   );
+}
+
+function storeKey(store: StoreOption): string {
+  return `${store.organizationId}:${store.storeId}`;
+}
+
+async function readJson<T = { success: true }>(response: Response): Promise<T> {
+  const body = (await response.json()) as T & {
+    error?: { message?: string };
+  };
+  if (!response.ok)
+    throw new Error(body.error?.message ?? `Request failed with status ${response.status}`);
+  return body;
+}
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : 'The request could not be completed';
+}
+
+function number(value: number): string {
+  return new Intl.NumberFormat('en-BD').format(value);
+}
+
+function usageLabel(overview: MerchantDashboardOverview): string {
+  const limit = overview.summary.usage_limit;
+  return limit === null
+    ? number(overview.summary.usage_month)
+    : `${number(overview.summary.usage_month)} / ${number(limit)}`;
+}
+
+function formatDate(value: string): string {
+  return new Intl.DateTimeFormat('en-BD', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+    timeZone: 'Asia/Dhaka',
+  }).format(new Date(value));
+}
+
+function formatNullableDate(value: string | null): string {
+  return value ? formatDate(value) : 'Not recorded';
+}
+
+function capitalize(value: string): string {
+  return `${value.charAt(0).toUpperCase()}${value.slice(1)}`;
 }

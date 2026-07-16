@@ -6,6 +6,10 @@ export default defineConfig({
   server: {
     port: 5173,
     strictPort: true,
+    proxy: {
+      '/auth': 'http://localhost:3000',
+      '/dashboard': 'http://localhost:3000',
+    },
   },
   build: {
     sourcemap: true,

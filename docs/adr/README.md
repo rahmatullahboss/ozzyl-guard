@@ -24,10 +24,11 @@ ADRs capture durable architectural decisions, alternatives, consequences, and su
 - [0002 — Courier adapter boundary](0002-courier-adapter-boundary.md)
 - [0003 — Keep Steadfast session scraper](0003-keep-steadfast-session-scraper.md)
 - [0004 — Foundation technology direction](0004-foundation-technology-direction.md)
+- [0005 — Browser session authentication baseline](0005-browser-session-authentication.md)
 
 ## Pending ADRs
 
-- Authentication provider/implementation
+- Managed identity provider or future authentication supersession
 - Queue/broker
 - Deployment platform
 - PostgreSQL provider

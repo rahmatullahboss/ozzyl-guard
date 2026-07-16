@@ -3,8 +3,9 @@ project:
   name: Ozzyl Guard
   repository: rahmatullahboss/ozzyl-guard
   branch: main
-  visibility: private
-  status: mvp-foundation-complete
+  visibility: public
+  expected_visibility: private
+  status: production-hardening-in-progress
   last_updated: 2026-07-16
 
 agent_entrypoint:
@@ -62,17 +63,19 @@ invariants:
 
 implemented:
   - typescript_monorepo_and_ci
-  - postgresql_schema_and_five_migrations
+  - postgresql_schema_and_six_migrations
   - organization_store_membership_and_plan_foundation
   - usage_metering_and_audit_foundation
+  - opaque_browser_sessions_csrf_and_explicit_platform_admin_role
   - pure_versioned_explainable_risk_engine
   - canonical_v1_api_and_postgresql_repositories
   - steadfast_adapter_and_browser_session_worker
   - postgresql_courier_sync_worker
   - verification_and_webhook_libraries
   - woocommerce_shopify_custom_and_native_adapters
-  - merchant_dashboard_foundation
-  - platform_admin_foundation
+  - authenticated_live_merchant_dashboard
+  - authenticated_live_platform_admin
+  - postgresql_browser_session_and_tenant_isolation_integration_tests
   - docker_compose_baseline
 
 verification:
@@ -80,24 +83,24 @@ verification:
   last_verified: 2026-07-16
   status: passed
   results:
-    migrations: 5_of_5
+    migrations: 6_of_6
     architecture_boundaries: passed
     typecheck: 18_of_18
     test_tasks: 26_of_26
-    assertions: 24
+    assertions: 29_passed_3_postgresql_skipped
     builds: 18_of_18
     php_syntax: passed
     high_critical_dependency_check: passed
-    documentation_links: 0_broken
+    documentation_links: 49_checked_0_broken
   local_limitations:
     - docker_and_postgresql_are_not_available_in_this_workspace
-    - clean_database_apply_was_verified_in_remote_ci_with_postgresql_16
+    - three_postgresql_browser_access_integration_tests_require_database_url
   remote_ci:
-    status: passed
-    run_id: 29499998845
-    job: verify
-    duration: 1m47s
-    completed: 2026-07-16
+    status: pending_new_commit
+    previous_passing_run_id: 29499998845
+    previous_job: verify
+    previous_duration: 1m47s
+    previous_completed: 2026-07-16
 
 migrations:
   immutable: true
@@ -107,6 +110,7 @@ migrations:
     - packages/database/migrations/0003_risk.sql
     - packages/database/migrations/0004_verification_events.sql
     - packages/database/migrations/0005_durable_operations.sql
+    - packages/database/migrations/0006_browser_access.sql
 
 external_dependencies:
   - authorized_steadfast_test_account
@@ -120,8 +124,7 @@ next_milestone:
   name: production-hardening-and-pilot-readiness
   tasks:
     - record_infrastructure_adrs
-    - connect_dashboard_and_admin_to_authenticated_live_data
-    - add_postgresql_repository_concurrency_and_tenant_tests
+    - expand_postgresql_concurrency_idempotency_and_tenant_tests
     - validate_steadfast_with_an_authorized_account
     - implement_the_selected_otp_runner
     - add_durable_event_and_verification_runners
@@ -142,6 +145,7 @@ release_policy:
 
 notes:
   - codexpro_and_local_mcp_files_are_workspace_tooling_and_ignored
-  - dashboard_and_admin_are_ui_foundations_pending_live_data
+  - dashboard_and_admin_use_separate_authenticated_live_browser_sessions
+  - github_connector_reports_public_visibility_while_expected_state_is_private
   - broad_automatic_blocking_remains_disabled_until_pilot_calibration
   - update_this_file_after_every_material_milestone

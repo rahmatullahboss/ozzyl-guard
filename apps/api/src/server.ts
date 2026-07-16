@@ -19,9 +19,13 @@ import {
   PostgresApiKeyResolver,
   PostgresAssessmentFeatureProvider,
   PostgresAssessmentRepository,
+  PostgresBrowserAuditRepository,
+  PostgresBrowserAuthService,
   PostgresCourierRefreshQueue,
+  PostgresMerchantDashboardRepository,
   PostgresOperationIdempotencyStore,
   PostgresOutcomeRepository,
+  PostgresPlatformAdminRepository,
   PostgresUsageLedger,
 } from './postgres.js';
 
@@ -76,6 +80,9 @@ let pool: Pool | undefined;
 let dependencies: ApiDependencies;
 
 if (databaseUrl) {
+  const sessionPepper = required('SESSION_PEPPER');
+  const sessionCsrfSecret = required('SESSION_CSRF_SECRET');
+  const rateLimiter = new MemoryRateLimiter();
   pool = new Pool({
     connectionString: databaseUrl,
     max: Number(process.env.DATABASE_POOL_SIZE ?? 20),
@@ -91,8 +98,17 @@ if (databaseUrl) {
     outcomes: new PostgresOutcomeRepository(pool),
     refreshQueue: new PostgresCourierRefreshQueue(pool),
     idempotency: new PostgresOperationIdempotencyStore(pool),
-    rateLimiter: new MemoryRateLimiter(),
+    rateLimiter,
     hashPhone: (phone) => createHmac('sha256', phoneHmacKey).update(phone).digest('hex'),
+    browser: {
+      auth: new PostgresBrowserAuthService(pool, sessionPepper),
+      dashboard: new PostgresMerchantDashboardRepository(pool),
+      admin: new PostgresPlatformAdminRepository(pool),
+      audit: new PostgresBrowserAuditRepository(pool),
+      rateLimiter,
+      csrfSecret: sessionCsrfSecret,
+      secureCookies: productionMode,
+    },
   };
 } else {
   dependencies = {

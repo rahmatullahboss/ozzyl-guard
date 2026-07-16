@@ -15,6 +15,20 @@ Key prefixes:
 
 Raw keys are returned only at creation. The database stores a hash and a non-secret display prefix.
 
+### Browser user sessions
+
+Dashboard and platform-admin users do not authenticate with service API keys. Browser authentication uses a separate opaque `HttpOnly`, `SameSite=Lax` session cookie backed by a hash-only PostgreSQL session record.
+
+Browser endpoints are outside the public integration `/v1` namespace:
+
+- `POST /auth/login` — validates email/password, creates the browser session, and returns authorized organization/store scopes plus a CSRF proof.
+- `GET /auth/session` — restores the current user session and authorized scopes.
+- `POST /auth/logout` — requires `X-CSRF-Token` and revokes the current session.
+- `GET /dashboard/v1/overview?organization_id=...&store_id=...` — returns tenant-scoped live merchant data and requires both organization and store scope.
+- `GET /admin/v1/overview` — returns global operations data only for an explicit `platform_admin` user.
+
+Browser responses use `Cache-Control: no-store`. Raw session tokens, password material, CSRF proofs, cookies, API keys, and provider credentials must not be logged.
+
 ## Common headers
 
 - `Idempotency-Key` for create operations

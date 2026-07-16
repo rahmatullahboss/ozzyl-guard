@@ -12,6 +12,17 @@
 
 API keys are service credentials and must never be used as dashboard login sessions.
 
+Pilot browser-session baseline:
+
+- Argon2id verifies local passwords; a future managed identity provider may supersede credential verification.
+- A cryptographically random opaque token is sent only in an `HttpOnly`, `SameSite=Lax` cookie and only its HMAC hash is stored.
+- Production cookies require TLS and the `Secure` flag.
+- `SESSION_PEPPER` and `SESSION_CSRF_SECRET` are independent server-held secrets and must come from the approved secret manager.
+- State-changing browser requests require a derived CSRF proof.
+- Active users, unexpired/unrevoked sessions, organization membership, active organization, and active store are revalidated.
+- Platform administration requires the explicit `platform_admin` role; organization membership alone is insufficient.
+- Login, logout, merchant overview access, and platform-admin overview access are audited without raw credentials or cookie values.
+
 ## API keys
 
 - Generate with cryptographically secure random bytes

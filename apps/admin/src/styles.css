@@ -153,6 +153,105 @@ header > span {
   font-size: 13px;
   line-height: 1.5;
 }
+.admin-loading,
+.admin-auth {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  color: #617682;
+}
+.admin-auth-card,
+.access-denied {
+  width: min(460px, 100%);
+  display: grid;
+  gap: 18px;
+  padding: 28px;
+  background: white;
+  border: 1px solid #dfe7eb;
+  border-radius: 18px;
+  box-shadow: 0 18px 55px rgba(31, 47, 58, 0.1);
+}
+.admin-auth-card p,
+.access-denied p {
+  margin: 0 0 6px;
+  letter-spacing: 0.14em;
+  font-size: 11px;
+  font-weight: 900;
+  color: #65808d;
+}
+.admin-auth-card h1,
+.access-denied h1 {
+  margin: 0 0 5px;
+}
+.admin-auth-card label {
+  display: grid;
+  gap: 7px;
+  color: #607480;
+  font-size: 13px;
+  font-weight: 700;
+}
+.admin-auth-card input {
+  border: 1px solid #d5dee5;
+  border-radius: 10px;
+  padding: 11px 12px;
+  font: inherit;
+}
+.admin-auth-card button,
+.access-denied button,
+.header-actions button {
+  border: 1px solid #cad8df;
+  border-radius: 9px;
+  padding: 10px 13px;
+  background: #182632;
+  color: white;
+  font: inherit;
+  font-weight: 750;
+  cursor: pointer;
+}
+.admin-error {
+  margin: 0 0 16px;
+  border: 1px solid #efc7c7;
+  background: #fff0f0;
+  color: #a52c2c;
+  border-radius: 10px;
+  padding: 11px 13px;
+}
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.header-actions > span {
+  background: #182632;
+  color: #dbe7ec;
+  padding: 10px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+.header-actions button {
+  background: white;
+  color: #263844;
+}
+header small {
+  display: block;
+  margin-top: 6px;
+  color: #7d8f9a;
+}
+.access-denied {
+  margin: 80px auto;
+  text-align: center;
+}
+.access-denied span,
+.access-denied small {
+  display: block;
+  color: #71838e;
+}
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
 @media (max-width: 900px) {
   .stats {
     grid-template-columns: repeat(2, 1fr);

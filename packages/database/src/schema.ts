@@ -22,6 +22,7 @@ export const users = pgTable('users', {
   passwordHash: text('password_hash'),
   managedAuthId: text('managed_auth_id').unique(),
   emailVerifiedAt: timestamp('email_verified_at', { withTimezone: true }),
+  platformRole: text('platform_role').notNull().default('merchant'),
   status: text('status').notNull().default('active'),
   ...timestamps(),
 });

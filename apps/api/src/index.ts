@@ -22,6 +22,7 @@ import {
   type RiskAssessmentResponse,
 } from '@ozzyl/shared-types';
 import { VerificationError, type OtpService } from '@ozzyl/verification';
+import { createBrowserApi, type BrowserApiDependencies } from './browser.js';
 
 export interface ApiKeyIdentity {
   apiKeyId: string;
@@ -116,6 +117,7 @@ export interface ApiDependencies {
   rateLimiter: RateLimiter;
   hashPhone(phone: string): string;
   otpService?: OtpService;
+  browser?: BrowserApiDependencies;
   now?: () => Date;
   idFactory?: (prefix: string) => string;
 }
@@ -166,6 +168,8 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
   app.get('/health', (context) =>
     context.json({ status: 'ok', service: 'ozzyl-guard-api', timestamp: now().toISOString() }),
   );
+
+  if (dependencies.browser) app.route('/', createBrowserApi(dependencies.browser));
 
   app.use('/v1/*', async (context, next) => {
     const requestId = context.req.header('X-Request-ID')?.slice(0, 200) || idFactory('req');

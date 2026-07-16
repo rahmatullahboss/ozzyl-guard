@@ -12,6 +12,7 @@ Use PostgreSQL for the standalone product. Cloudflare D1 can remain suitable for
 - `email`
 - `password_hash` or managed-auth identifier
 - `email_verified_at`
+- `platform_role`: `merchant` or explicit `platform_admin`
 - `status`
 - timestamps
 
@@ -271,3 +272,14 @@ Migration 0001 should establish only the Phase 1 foundation:
 - audit_events
 
 Courier, risk, verification, and reputation tables should be introduced in subsequent append-only migrations aligned with coherent milestones.
+
+Current ordered migrations:
+
+1. `0001_foundation.sql` — identity, tenancy, plans, API keys, usage, and audit.
+2. `0002_courier.sql` — courier accounts, encrypted credential/session records, observations, and jobs.
+3. `0003_risk.sql` — risk policies, assessments, signals, and outcomes.
+4. `0004_verification_events.sql` — OTP verification and webhook delivery foundation.
+5. `0005_durable_operations.sql` — durable job payloads, idempotent outcomes, and idempotency records.
+6. `0006_browser_access.sql` — explicit platform role plus browser dashboard/admin query indexes.
+
+Migration 0006 does not store raw session material. `user_sessions.token_hash` remains the only persisted session-token representation. The merchant dashboard repository authorizes with `(user_id, organization_id, store_id)` before running any aggregate query.
