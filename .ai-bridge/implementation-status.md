@@ -24,33 +24,33 @@ Updated: 2026-07-16
 
 ## Product implementation
 
-| Area                             | Status   | Notes                                                                                                                    |
-| -------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------ |
-| Shared contracts                 | done     | Canonical request/response/error/outcome/event schemas                                                                   |
-| Database/migrations              | done     | Full schema and six append-only migrations; clean PostgreSQL 16 apply passed in CI                                       |
-| Password/session primitives      | done     | Argon2id and opaque hashed session token utilities                                                                       |
-| Organizations/stores/memberships | done     | Canonical relational schema and bootstrap transaction                                                                    |
-| API keys/usage/plans             | done     | One-time raw reveal, hash-only persistence, scopes, revocation fields, atomic PostgreSQL usage reservation               |
-| Courier adapter interface        | done     | Typed provider contract and structured errors                                                                            |
-| Steadfast adapter                | baseline | Normalized internal endpoint adapter with bounded timeout/session errors; requires authorized live validation            |
-| Steadfast session worker         | baseline | Playwright login, selector/CAPTCHA/2FA errors, encryption boundary, health state, runnable PostgreSQL polling            |
-| Courier observation worker/cache | done     | Durable jobs, `SKIP LOCKED` claiming, retry scheduling, normalized observation persistence                               |
-| Durable work architecture        | baseline | PostgreSQL-first job/outbox boundary accepted; webhook and verification runners plus dead-letter/lease recovery remain   |
-| Risk engine                      | done     | One pure deterministic engine, versioned policy, confidence, signals, unknown/degraded handling                          |
-| Public API                       | done     | Assessment create/read, outcomes, courier refresh, OTP send/verify, auth/scopes/idempotency/rate limits                  |
-| PostgreSQL API repositories      | done     | API keys, usage, features, assessments/signals, outcomes, idempotency, courier jobs                                      |
-| Outcome feedback                 | done     | API, WooCommerce, Shopify, custom, and native adapter paths                                                              |
-| Webhook delivery                 | baseline | HMAC, timestamp, SSRF controls, retries; durable PostgreSQL outbox runner still needed                                   |
-| WooCommerce                      | baseline | Encrypted service key, async assessment, canonical parsing, safe failure behavior, admin panel, manual recheck, outcomes |
-| Shopify                          | baseline | Signed webhook helper, assessment/action mapping, outcome submission; app OAuth/webhook registration not implemented     |
-| Custom server SDK                | done     | Server-only integration and checkout action mapping                                                                      |
-| Native multi-store adapter       | baseline | Canonical client, shadow-comparison result, outcomes; source platform feature-flag wiring pending                        |
-| OTP verification                 | baseline | Secure service abstraction and worker library; production provider/runner blocked                                        |
-| Merchant dashboard               | done     | Argon2id login, opaque HttpOnly session, CSRF logout, authorized store switching, and live scoped operations data        |
-| Platform admin                   | done     | Explicit `platform_admin` role gate with authenticated live global operations data                                       |
-| Managed encryption               | baseline | KMS/vault envelope-encryption architecture accepted; provider and implementation remain                                  |
-| Observability                    | baseline | OpenTelemetry-compatible boundary accepted; shared helpers, backend, dashboards, alerts, and redaction tests remain      |
-| Shared reputation                | deferred | Cross-merchant reputation/dispute system requires legal/privacy review and pilot evidence                                |
+| Area                             | Status   | Notes                                                                                                                            |
+| -------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Shared contracts                 | done     | Canonical request/response/error/outcome/event schemas                                                                           |
+| Database/migrations              | done     | Full schema and six append-only migrations; clean PostgreSQL 16 apply passed in CI                                               |
+| Password/session primitives      | done     | Argon2id and opaque hashed session token utilities                                                                               |
+| Organizations/stores/memberships | done     | Canonical relational schema and bootstrap transaction                                                                            |
+| API keys/usage/plans             | done     | Atomic PostgreSQL quota reservation now has duplicate-request and plan-limit concurrency coverage                               |
+| Courier adapter interface        | done     | Typed provider contract and structured errors                                                                                    |
+| Steadfast adapter                | baseline | Normalized internal endpoint adapter with bounded timeout/session errors; requires authorized live validation                    |
+| Steadfast session worker         | baseline | Playwright login, selector/CAPTCHA/2FA errors, encryption boundary, health state, runnable PostgreSQL polling                    |
+| Courier observation worker/cache | done     | Durable jobs, `SKIP LOCKED` claiming, retry scheduling, normalized observation persistence                                       |
+| Durable work architecture        | baseline | PostgreSQL-first job/outbox boundary accepted; webhook and verification runners plus dead-letter/lease recovery remain           |
+| Risk engine                      | done     | One pure deterministic engine, versioned policy, confidence, signals, unknown/degraded handling                                  |
+| Public API                       | done     | Assessment create/read, outcomes, courier refresh, OTP send/verify, auth/scopes/idempotency/rate limits                          |
+| PostgreSQL API repositories      | done     | Assessment and outcome race losers resolve to the scoped persisted winner; operation idempotency isolation is covered            |
+| Outcome feedback                 | done     | API, WooCommerce, Shopify, custom, and native adapter paths                                                                      |
+| Webhook delivery                 | baseline | HMAC, timestamp, SSRF controls, retries; durable PostgreSQL outbox runner still needed                                           |
+| WooCommerce                      | baseline | Encrypted service key, async assessment, canonical parsing, safe failure behavior, admin panel, manual recheck, outcomes         |
+| Shopify                          | baseline | Signed webhook helper, assessment/action mapping, outcome submission; app OAuth/webhook registration not implemented             |
+| Custom server SDK                | done     | Server-only integration and checkout action mapping                                                                              |
+| Native multi-store adapter       | baseline | Canonical client, shadow-comparison result, outcomes; source platform feature-flag wiring pending                                |
+| OTP verification                 | baseline | Secure service abstraction and worker library; production provider/runner blocked                                                |
+| Merchant dashboard               | done     | Argon2id login, opaque HttpOnly session, CSRF logout, authorized store switching, and live scoped operations data                |
+| Platform admin                   | done     | Explicit `platform_admin` role gate with authenticated live global operations data                                               |
+| Managed encryption               | baseline | KMS/vault envelope-encryption architecture accepted; provider and implementation remain                                          |
+| Observability                    | baseline | OpenTelemetry-compatible boundary accepted; shared helpers, backend, dashboards, alerts, and redaction tests remain              |
+| Shared reputation                | deferred | Cross-merchant reputation/dispute system requires legal/privacy review and pilot evidence                                        |
 
 ## Migrations
 
@@ -70,14 +70,14 @@ Applied migrations must remain immutable.
 - `npm run db:check`: six migrations validated
 - `npm run check:architecture`: passed
 - `npm run typecheck`: 18/18 workspaces passed
-- `npm run test`: 26/26 Turbo tasks passed; GitHub CI included PostgreSQL integration tests
+- `npm run test`: 26/26 Turbo tasks passed; PostgreSQL CI now contains 37 assertions
 - `npm run build`: 18/18 workspace builds passed
 - `npm audit --audit-level=high`: passed; four moderate development-tooling findings remain
-- GitHub Actions implementation run `29516535736`: all six migrations and 32 assertions passed
-- Infrastructure ADR pull-request run `29522339973`, job `87702183134`: audit, format, lint, migrations, architecture, typecheck, PostgreSQL tests, builds, and PHP lint passed
-- The verified ADR head `9bd863285068be30c84511c026b9a2e4c808b6de` was squash-merged to `main` as `74ed1a9037c1b3491c6a988092c21dafcbc2fedd`
-- Previous canonical documentation link check: 49 files, zero broken links
-- Five new ADR files and their repository-relative links were reviewed
+- GitHub Actions implementation run `29516535736`: all six migrations and the prior 32 assertions passed
+- Infrastructure ADR pull-request run `29522339973`, job `87702183134`: all gates passed
+- PostgreSQL hardening run `29524088657`, job `87708004049`: all gates passed at head `11c5f8567f92fc83033d56e106eaa0b6ce3d9d7f`
+- The hardening run executed and passed five new real-PostgreSQL tests covering duplicate quota reservations, concurrent plan-limit enforcement, assessment idempotency races, outcome idempotency races, and organization/store-scoped operation idempotency
+- Previous canonical documentation checks found zero broken internal links
 - Prohibited insecure-pattern scan: zero matches
 
 The generated `.ai-bridge/pro-context.md` still requires the repository-local exporter because the current GitHub-only connector cannot run that workspace tool.
@@ -100,7 +100,7 @@ The generated `.ai-bridge/pro-context.md` still requires the repository-local ex
 - Steadfast UI/internal endpoint changes can break automation.
 - Local AES-GCM key configuration is not a replacement for managed KMS in production.
 - In-process API and browser-session rate limiting is not distributed across replicas.
-- PostgreSQL durable work still needs webhook/verification runners, lease recovery, dead letters, and broader concurrency tests.
+- PostgreSQL durable work still needs webhook/verification runners, worker lease/claim recovery, dead letters, migration replay, and additional repository-isolation tests.
 - Browser login has no account recovery, invitation, MFA, or managed identity-provider integration yet.
 - GitHub currently reports public repository visibility although the expected policy is private.
 - Provider-specific infrastructure has not been provisioned or smoke-tested.
@@ -109,4 +109,4 @@ The generated `.ai-bridge/pro-context.md` still requires the repository-local ex
 
 ## Next milestone
 
-Expand PostgreSQL concurrency/idempotency/isolation tests, then provision the accepted infrastructure baseline, implement managed envelope encryption and durable runners, validate Steadfast, select OTP, and begin native-adapter shadow rollout.
+Expand PostgreSQL worker-claim, migration-replay, and additional repository-isolation tests, then provision the accepted infrastructure baseline, implement managed envelope encryption and durable runners, validate Steadfast, select OTP, and begin native-adapter shadow rollout.
