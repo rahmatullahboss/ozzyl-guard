@@ -40,6 +40,7 @@ source_of_truth:
   security: docs/security/security-privacy.md
   testing: docs/testing/testing-strategy.md
   operations: docs/operations/operations-observability.md
+  deployment: docs/operations/deployment.md
   roadmap: docs/roadmap/implementation-roadmap.md
   backlog: docs/roadmap/initial-backlog.md
   risks: docs/roadmap/risk-register.md
@@ -60,6 +61,9 @@ invariants:
   - applied_migrations_are_immutable
   - all_integrations_use_the_versioned_api_contract
   - long_running_provider_work_is_asynchronous
+  - postgresql_is_authoritative_for_pilot_durable_work
+  - cache_state_is_non_authoritative
+  - production_decryption_fails_closed
 
 implemented:
   - typescript_monorepo_and_ci
@@ -77,11 +81,12 @@ implemented:
   - authenticated_live_platform_admin
   - postgresql_browser_session_and_tenant_isolation_integration_tests
   - docker_compose_baseline
+  - accepted_provider_neutral_production_infrastructure_adrs
 
 verification:
   command: npm run verify
   last_verified: 2026-07-16
-  status: passed
+  status: passed_on_previous_main_commit
   results:
     migrations: 6_of_6
     architecture_boundaries: passed
@@ -92,10 +97,10 @@ verification:
     builds: 18_of_18
     php_syntax: passed
     high_critical_dependency_check: passed
-    documentation_links: 49_checked_0_broken
+    documentation_links: 54_reviewed_0_known_broken
   local_limitations:
-    - docker_and_postgresql_are_not_available_in_this_workspace
-    - three_postgresql_browser_access_integration_tests_require_database_url
+    - docker_and_postgresql_are_not_available_in_the_previous_local_workspace
+    - github_only_connector_cannot_run_repository_local_exporter
   remote_ci:
     status: passed
     run_id: 29516535736
@@ -105,6 +110,9 @@ verification:
     duration: 1m50s
     completed: 2026-07-16
     postgresql_tests: 3_of_3_passed
+  pending_for_current_adr_branch:
+    - pull_request_ci
+    - continuation_bundle_local_exporter_refresh
 
 migrations:
   immutable: true
@@ -116,22 +124,33 @@ migrations:
     - packages/database/migrations/0005_durable_operations.sql
     - packages/database/migrations/0006_browser_access.sql
 
+accepted_infrastructure_adrs:
+  - docs/adr/0006-production-deployment-topology.md
+  - docs/adr/0007-managed-postgresql-production-baseline.md
+  - docs/adr/0008-postgresql-first-durable-work-and-cache.md
+  - docs/adr/0009-managed-secrets-and-kms-envelope-encryption.md
+  - docs/adr/0010-vendor-neutral-production-observability.md
+
 external_dependencies:
   - authorized_steadfast_test_account
   - provider_authorization_review
-  - production_managed_encryption_service
+  - deployment_platform_account_region_and_budget
+  - managed_postgresql_provider_and_service_tier
+  - managed_secret_store_and_kms_vault_provider
+  - observability_backend_and_retention_policy
   - otp_provider_account
-  - hosting_database_queue_cache_and_observability_decisions
   - pilot_outcome_data
 
 next_milestone:
   name: production-hardening-and-pilot-readiness
   tasks:
-    - record_infrastructure_adrs
-    - expand_postgresql_concurrency_idempotency_and_tenant_tests
+    - expand_postgresql_concurrency_idempotency_worker_claim_and_tenant_tests
+    - select_and_provision_accepted_infrastructure_providers
+    - implement_managed_envelope_encryption
     - validate_steadfast_with_an_authorized_account
     - implement_the_selected_otp_runner
     - add_durable_event_and_verification_runners
+    - add_distributed_cache_only_when_replica_coordination_requires_it
     - enable_native_adapter_shadow_mode
     - run_a_selected_merchant_pilot
     - calibrate_decisions_before_broad_automatic_blocking
@@ -151,5 +170,8 @@ notes:
   - codexpro_and_local_mcp_files_are_workspace_tooling_and_ignored
   - dashboard_and_admin_use_separate_authenticated_live_browser_sessions
   - github_connector_reports_public_visibility_while_expected_state_is_private
+  - infrastructure_architecture_is_accepted_but_provider_selection_is_pending
+  - postgresql_remains_the_pilot_durable_job_and_outbox_source_of_truth
   - broad_automatic_blocking_remains_disabled_until_pilot_calibration
+  - pro_context_requires_local_exporter_refresh_after_this_github_only_milestone
   - update_this_file_after_every_material_milestone
