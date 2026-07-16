@@ -30,7 +30,7 @@ Updated: 2026-07-16
 | Database/migrations              | done     | Full schema and six append-only migrations; clean PostgreSQL 16 apply passed in CI                                       |
 | Password/session primitives      | done     | Argon2id and opaque hashed session token utilities                                                                       |
 | Organizations/stores/memberships | done     | Canonical relational schema and bootstrap transaction                                                                    |
-| API keys/usage/plans             | done     | Atomic PostgreSQL quota reservation now has duplicate-request and plan-limit concurrency coverage                        |
+| API keys/usage/plans             | done     | Atomic PostgreSQL quota reservation has duplicate-request and plan-limit concurrency coverage                            |
 | Courier adapter interface        | done     | Typed provider contract and structured errors                                                                            |
 | Steadfast adapter                | baseline | Normalized internal endpoint adapter with bounded timeout/session errors; requires authorized live validation            |
 | Steadfast session worker         | baseline | Playwright login, selector/CAPTCHA/2FA errors, encryption boundary, health state, runnable PostgreSQL polling            |
@@ -70,13 +70,12 @@ Applied migrations must remain immutable.
 - `npm run db:check`: six migrations validated
 - `npm run check:architecture`: passed
 - `npm run typecheck`: 18/18 workspaces passed
-- `npm run test`: 26/26 Turbo tasks passed; PostgreSQL CI now contains 37 assertions
+- `npm run test`: 26/26 Turbo tasks passed; PostgreSQL CI contains 37 assertions
 - `npm run build`: 18/18 workspace builds passed
 - `npm audit --audit-level=high`: passed; four moderate development-tooling findings remain
-- GitHub Actions implementation run `29516535736`: all six migrations and the prior 32 assertions passed
-- Infrastructure ADR pull-request run `29522339973`, job `87702183134`: all gates passed
-- PostgreSQL hardening run `29524088657`, job `87708004049`: all gates passed at head `11c5f8567f92fc83033d56e106eaa0b6ce3d9d7f`
+- PostgreSQL hardening run `29524629662`, job `87709833186`: all gates passed at final head `c2330563b041b8c8d0fef2e382c0d4eb7cc7b40c`
 - The hardening run executed and passed five new real-PostgreSQL tests covering duplicate quota reservations, concurrent plan-limit enforcement, assessment idempotency races, outcome idempotency races, and organization/store-scoped operation idempotency
+- The verified hardening change was squash-merged to `main` as `43bedadd6fdd238bbe9ecf9cae68a4c592bfd361`
 - Previous canonical documentation checks found zero broken internal links
 - Prohibited insecure-pattern scan: zero matches
 
