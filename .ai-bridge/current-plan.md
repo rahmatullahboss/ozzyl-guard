@@ -52,13 +52,15 @@ Concrete provider selection and provisioning remain external production work.
 - Production builds: 18 of 18 workspaces passed
 - WooCommerce PHP syntax: passed
 - npm high/critical audit threshold: passed; four moderate development-tooling advisories remain
-- GitHub Actions CI run `29516535736`: passed in 1m50s; all six migrations applied and all 32 assertions passed, including three PostgreSQL browser-access integration tests
-- Canonical documentation links before this ADR slice: 49 Markdown files checked, zero broken internal links
-- New infrastructure ADR links were reviewed against repository paths
+- GitHub Actions implementation CI run `29516535736`: passed; all six migrations and all 32 assertions passed
+- Infrastructure ADR pull-request CI run `29522339973`, job `87702183134`: audit, formatting, lint, six migrations, architecture, 18 typechecks, PostgreSQL tests, 18 builds, and PHP lint all passed
+- Infrastructure ADRs were tested at head `9bd863285068be30c84511c026b9a2e4c808b6de` and squash-merged to `main` as `74ed1a9037c1b3491c6a988092c21dafcbc2fedd`
+- Canonical documentation links before the ADR slice: 49 Markdown files checked, zero broken internal links
+- Five new ADR files and repository-relative links were reviewed
 - `tracker.yml` YAML structure remains valid
 - Prohibited source-pattern search: no matches
 
-The GitHub-only connector workspace cannot run the repository-local continuation exporter, so `.ai-bridge/pro-context.md` must be regenerated from the local workspace after this documentation milestone. The canonical tracker, plan, status, decisions, ADR index, deployment guide, and observability guide are updated.
+The GitHub-only connector workspace cannot run the repository-local continuation exporter, so `.ai-bridge/pro-context.md` must be regenerated from the local workspace. The canonical tracker, plan, status, decisions, ADR index, deployment guide, and observability guide are current.
 
 ## Next production milestone
 
