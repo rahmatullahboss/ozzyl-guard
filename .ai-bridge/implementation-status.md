@@ -65,21 +65,22 @@ Applied migrations must remain immutable.
 
 ## Verification evidence
 
-- `npm run format:check`: passed on the previous implementation commit
+- `npm run format:check`: passed
 - `npm run lint`: passed with zero warnings
 - `npm run db:check`: six migrations validated
 - `npm run check:architecture`: passed
 - `npm run typecheck`: 18/18 workspaces passed
-- `npm run test`: 26/26 Turbo tasks passed; 29 local assertions plus three PostgreSQL-only tests skipped locally
+- `npm run test`: 26/26 Turbo tasks passed; GitHub CI included PostgreSQL integration tests
 - `npm run build`: 18/18 workspace builds passed
 - `npm audit --audit-level=high`: passed; four moderate development-tooling findings remain
-- GitHub Actions run `29516535736`: passed; all six migrations and 32 assertions passed
-- WooCommerce `php -l`: passed
+- GitHub Actions implementation run `29516535736`: all six migrations and 32 assertions passed
+- Infrastructure ADR pull-request run `29522339973`, job `87702183134`: audit, format, lint, migrations, architecture, typecheck, PostgreSQL tests, builds, and PHP lint passed
+- The verified ADR head `9bd863285068be30c84511c026b9a2e4c808b6de` was squash-merged to `main` as `74ed1a9037c1b3491c6a988092c21dafcbc2fedd`
 - Previous canonical documentation link check: 49 files, zero broken links
 - Five new ADR files and their repository-relative links were reviewed
 - Prohibited insecure-pattern scan: zero matches
 
-A pull-request CI run must verify formatting, lint, architecture, tests, migrations, and builds for this documentation milestone before merge.
+The generated `.ai-bridge/pro-context.md` still requires the repository-local exporter because the current GitHub-only connector cannot run that workspace tool.
 
 ## External blockers and production requirements
 
