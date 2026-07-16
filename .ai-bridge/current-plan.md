@@ -60,7 +60,7 @@ Concrete provider selection and provisioning remain external production work.
 - `tracker.yml` YAML structure remains valid
 - Prohibited source-pattern search: no matches
 
-The GitHub-only connector workspace cannot run the repository-local continuation exporter, so `.ai-bridge/pro-context.md` must be regenerated from the local workspace. The canonical tracker, plan, status, decisions, ADR index, deployment guide, and observability guide are current.
+The current GitHub-only connector workspace cannot run the repository-local continuation exporter, so `.ai-bridge/pro-context.md` must be regenerated from the local workspace. The canonical tracker, plan, status, decisions, ADR index, deployment guide, and observability guide are current.
 
 ## Next production milestone
 
