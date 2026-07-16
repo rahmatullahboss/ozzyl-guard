@@ -87,7 +87,7 @@ implemented:
 verification:
   command: npm run verify
   last_verified: 2026-07-16
-  status: passed_for_hardening_code_head_pending_final_docs_ci
+  status: passed
   results:
     migrations: 6_of_6
     architecture_boundaries: passed
@@ -104,15 +104,15 @@ verification:
     - local_main_and_origin_main_sync_cannot_be_verified_from_this_connector_workspace
   remote_ci:
     status: passed
-    run_id: 29524088657
-    job_id: 87708004049
+    run_id: 29524629662
+    job_id: 87709833186
     job: verify
-    tested_head: 11c5f8567f92fc83033d56e106eaa0b6ce3d9d7f
+    tested_head: c2330563b041b8c8d0fef2e382c0d4eb7cc7b40c
+    merged_main_commit: 43bedadd6fdd238bbe9ecf9cae68a4c592bfd361
     completed: 2026-07-16
     steps: audit_format_lint_migrations_architecture_typecheck_tests_build_php_all_passed
     postgresql_concurrency_tests: 5_of_5_passed
   pending_follow_up:
-    - final_documentation_head_ci
     - continuation_bundle_local_exporter_refresh
 
 migrations:
