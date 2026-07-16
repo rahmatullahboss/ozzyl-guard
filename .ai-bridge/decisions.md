@@ -21,6 +21,11 @@ Updated: 2026-07-16
 15. Applied migrations are immutable and changes require new migrations.
 16. `fraudchecker.link` may exist only as an optional, identified fallback adapter; it is never the core source or an engine dependency.
 17. Pilot browser access uses the existing Argon2id and opaque hash-only PostgreSQL session primitives, `HttpOnly` cookies, CSRF protection, repository-level tenant revalidation, and an explicit `platform_admin` role; service API keys remain separate.
+18. Production uses a provider-neutral managed application/container topology with independently deployed API, static UIs, migration job, and private workers; Playwright remains isolated.
+19. Production uses managed PostgreSQL 16+ in the primary application region. PostgreSQL remains authoritative for tenant data, browser sessions, idempotency, usage, audit records, and durable work.
+20. PostgreSQL is the pilot durable job/outbox source of truth. A Redis-compatible service is optional for ephemeral distributed coordination and must not own durable jobs or security-critical state.
+21. Production secrets use a managed secret store, and persisted sensitive records use managed KMS/vault envelope encryption with fail-closed decryption and no plaintext fallback.
+22. Production observability uses structured JSON logs and OpenTelemetry-compatible metrics/traces at application and worker boundaries; telemetry does not add external I/O to the risk engine.
 
 ## Source SaaS conflict resolutions
 
@@ -51,19 +56,20 @@ No product source code was copied during Phase 0.
 
 ## Pending decisions
 
-These require separate ADRs before production implementation:
+These require provider selection, provisioning, or separate ADRs before production implementation:
 
 - Managed identity provider or future supersession of the accepted pilot browser-session baseline
-- Queue/broker technology
-- API/dashboard/worker deployment platform
-- PostgreSQL hosting provider
-- KMS/vault and envelope-encryption implementation
-- Cache/session storage
-- Worker scheduler/runtime
+- Specific deployment platform, account, and primary region
+- Specific managed PostgreSQL provider and service tier
+- Specific managed secret store and KMS/vault provider
+- Specific observability backend and retention policy
+- Redis-compatible cache provider when distributed coordination is required
+- Dedicated broker only if measured scale requires superseding ADR 0008
+- Worker scheduler/runtime implementation on the selected deployment platform
 - OTP provider
 
 ## External requirements
 
-No credentials are needed for Phase 1 foundation.
+No credentials are needed for the documented infrastructure architecture.
 
-Live Steadfast testing requires an authorized test/merchant account. Commercial scale additionally requires review of provider terms and merchant authorization evidence.
+Provider-specific provisioning requires approved accounts, budgets, regions, and access policies. Live Steadfast testing requires an authorized test/merchant account. Commercial scale additionally requires review of provider terms and merchant authorization evidence.
