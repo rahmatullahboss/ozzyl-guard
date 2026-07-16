@@ -1,6 +1,6 @@
 # Ozzyl Guard — Production Hardening Continuation Context
 
-Generated: 2026-07-16T16:39:40.209Z
+Generated: 2026-07-16T16:45:17.308Z
 Workspace: /Users/rahmatullahzisan/Desktop/Dev/Ozzyl Guard
 Workspace ID: ws_dfece19fe5040cc4a5675d02
 Write mode: workspace
@@ -282,13 +282,17 @@ Instruction for ChatGPT: use this as repository context, produce a narrow Codex 
 
 ```text
 ## main...origin/main
- M turbo.json
+ M .ai-bridge/current-plan.md
+ M .ai-bridge/implementation-status.md
+ M .ai-bridge/pro-context.md
+ M tracker.yml
 ```
 
 ## Recent Commits
 
 ```text
-69b1600 (HEAD -> main, origin/main) feat: wire authenticated live operations
+cdfff5a (HEAD -> main, origin/main) fix: run PostgreSQL integration tests in CI
+69b1600 feat: wire authenticated live operations
 fc5aa40 docs: record successful GitHub Actions run [skip ci]
 acd5217 docs: record GitHub Actions billing blocker [skip ci]
 24cab73 feat: establish Ozzyl Guard MVP foundation
@@ -297,18 +301,521 @@ acd5217 docs: record GitHub Actions billing blocker [skip ci]
 ## Git Diff
 
 ```diff
-diff --git a/turbo.json b/turbo.json
-index 85ab9ec..e3c4541 100644
---- a/turbo.json
-+++ b/turbo.json
-@@ -11,6 +11,7 @@
-     },
-     "test": {
-       "dependsOn": ["^build"],
-+      "env": ["DATABASE_URL"],
-       "outputs": ["coverage/**"]
-     },
-     "dev": {
+diff --git a/.ai-bridge/current-plan.md b/.ai-bridge/current-plan.md
+index ae28629..7dd897d 100644
+--- a/.ai-bridge/current-plan.md
++++ b/.ai-bridge/current-plan.md
+@@ -8,7 +8,7 @@ A runnable standalone MVP foundation is implemented and the first production-har
+
+ ## Completed
+
+-- [x] Repository, private GitHub remote, documentation, ADR, status, risk register, tracker, and continuation bundle setup
++- [x] Repository, canonical GitHub remote, documentation, ADR, status, risk register, tracker, and continuation bundle setup
+ - [x] npm workspaces, Turborepo, TypeScript, formatting, linting, tests, and CI
+ - [x] Canonical shared API/error/event contracts
+ - [x] PostgreSQL/Drizzle schema and six append-only migrations
+@@ -42,13 +42,13 @@ A runnable standalone MVP foundation is implemented and the first production-har
+ - Production builds: 18 of 18 workspaces passed
+ - WooCommerce PHP syntax: passed
+ - npm high/critical audit threshold: passed; four moderate development-tooling advisories remain
+-- Previous GitHub Actions CI run `29499998845`: passed; the new commit must validate migration 0006 and run the three PostgreSQL browser-access tests
++- GitHub Actions CI run `29516535736`: passed in 1m50s; all six migrations applied and all 32 assertions passed, including three PostgreSQL browser-access integration tests
+ - Canonical documentation links: 49 Markdown files checked, zero broken internal links
+ - `tracker.yml` YAML parse: passed
+ - Continuation bundle: refreshed and formatted
+ - Prohibited source-pattern search: no matches
+
+-A clean PostgreSQL migration apply could not be executed locally because Docker/PostgreSQL is unavailable in this workspace. The previous five migrations passed remotely against PostgreSQL 16; migration 0006 and the new PostgreSQL browser-access tests await the next GitHub Actions run.
++A clean PostgreSQL migration apply cannot be executed locally because Docker/PostgreSQL is unavailable in this workspace. GitHub Actions run `29516535736` applied all six migrations against PostgreSQL 16 and passed all three browser-access PostgreSQL integration tests.
+
+ ## Next production milestone
+
+diff --git a/.ai-bridge/implementation-status.md b/.ai-bridge/implementation-status.md
+index f20d4dc..9ee0bcc 100644
+--- a/.ai-bridge/implementation-status.md
++++ b/.ai-bridge/implementation-status.md
+@@ -23,30 +23,30 @@ Updated: 2026-07-16
+
+ ## Product implementation
+
+-| Area                             | Status   | Notes                                                                                                                                                       |
+-| -------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+-| Shared contracts                 | done     | Canonical request/response/error/outcome/event schemas                                                                                                      |
+-| Database/migrations              | baseline | Full schema and six append-only migrations; migration 0006 adds explicit platform role and live-read indexes; clean apply awaits the next PostgreSQL CI run |
+-| Password/session primitives      | done     | Argon2id and opaque hashed session token utilities                                                                                                          |
+-| Organizations/stores/memberships | done     | Canonical relational schema and bootstrap transaction                                                                                                       |
+-| API keys/usage/plans             | done     | Test/live prefixes, one-time raw reveal, hash-only persistence, scopes, revocation fields, atomic PostgreSQL usage reservation                              |
+-| Courier adapter interface        | done     | Typed provider contract and structured errors                                                                                                               |
+-| Steadfast adapter                | baseline | Normalized internal endpoint adapter with bounded timeout/session errors; requires authorized live validation                                               |
+-| Steadfast session worker         | baseline | Playwright login, selector/CAPTCHA/2FA errors, encryption boundary, health state, runnable PG polling                                                       |
+-| Courier observation worker/cache | done     | Durable jobs, `SKIP LOCKED` claiming, retry scheduling, normalized observation persistence                                                                  |
+-| Risk engine                      | done     | One pure deterministic engine, versioned policy, confidence, signals, unknown/degraded handling                                                             |
+-| Public API                       | done     | Assessment create/read, outcomes, courier refresh, OTP send/verify, auth/scopes/idempotency/rate limits                                                     |
+-| PostgreSQL API repositories      | done     | API keys, usage, features, assessments/signals, outcomes, idempotency, courier jobs                                                                         |
+-| Outcome feedback                 | done     | API, WooCommerce, Shopify, custom, and native adapter paths                                                                                                 |
+-| Webhook delivery                 | baseline | HMAC, timestamp, SSRF controls, retries; durable outbox runner still needed                                                                                 |
+-| WooCommerce                      | baseline | Encrypted service key, async assessment, canonical parsing, safe failure behavior, admin panel, manual recheck, outcomes                                    |
+-| Shopify                          | baseline | Signed webhook helper, assessment/action mapping, outcome submission; app OAuth/webhook registration not implemented                                        |
+-| Custom server SDK                | done     | Server-only integration and checkout action mapping                                                                                                         |
+-| Native multi-store adapter       | baseline | Canonical client, shadow-comparison result, outcomes; source platform feature-flag wiring pending                                                           |
+-| OTP verification                 | baseline | Secure service abstraction and worker library; production provider/runner blocked                                                                           |
+-| Merchant dashboard               | done     | Argon2id login, opaque HttpOnly session, CSRF logout, authorized store switching, and live scoped overview/review/courier/usage data                        |
+-| Platform admin                   | done     | Explicit `platform_admin` role gate with authenticated live organization, assessment, backlog, webhook, incident, and provider data                         |
+-| Shared reputation                | deferred | Cross-merchant reputation/dispute system requires legal/privacy review and pilot evidence                                                                   |
++| Area                             | Status   | Notes                                                                                                                                                |
++| -------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
++| Shared contracts                 | done     | Canonical request/response/error/outcome/event schemas                                                                                               |
++| Database/migrations              | done     | Full schema and six append-only migrations; migration 0006 adds explicit platform role and live-read indexes; clean PostgreSQL 16 apply passed in CI |
++| Password/session primitives      | done     | Argon2id and opaque hashed session token utilities                                                                                                   |
++| Organizations/stores/memberships | done     | Canonical relational schema and bootstrap transaction                                                                                                |
++| API keys/usage/plans             | done     | Test/live prefixes, one-time raw reveal, hash-only persistence, scopes, revocation fields, atomic PostgreSQL usage reservation                       |
++| Courier adapter interface        | done     | Typed provider contract and structured errors                                                                                                        |
++| Steadfast adapter                | baseline | Normalized internal endpoint adapter with bounded timeout/session errors; requires authorized live validation                                        |
++| Steadfast session worker         | baseline | Playwright login, selector/CAPTCHA/2FA errors, encryption boundary, health state, runnable PG polling                                                |
++| Courier observation worker/cache | done     | Durable jobs, `SKIP LOCKED` claiming, retry scheduling, normalized observation persistence                                                           |
++| Risk engine                      | done     | One pure deterministic engine, versioned policy, confidence, signals, unknown/degraded handling                                                      |
++| Public API                       | done     | Assessment create/read, outcomes, courier refresh, OTP send/verify, auth/scopes/idempotency/rate limits                                              |
++| PostgreSQL API repositories      | done     | API keys, usage, features, assessments/signals, outcomes, idempotency, courier jobs                                                                  |
++| Outcome feedback                 | done     | API, WooCommerce, Shopify, custom, and native adapter paths                                                                                          |
++| Webhook delivery                 | baseline | HMAC, timestamp, SSRF controls, retries; durable outbox runner still needed                                                                          |
++| WooCommerce                      | baseline | Encrypted service key, async assessment, canonical parsing, safe failure behavior, admin panel, manual recheck, outcomes                             |
++| Shopify                          | baseline | Signed webhook helper, assessment/action mapping, outcome submission; app OAuth/webhook registration not implemented                                 |
++| Custom server SDK                | done     | Server-only integration and checkout action mapping                                                                                                  |
++| Native multi-store adapter       | baseline | Canonical client, shadow-comparison result, outcomes; source platform feature-flag wiring pending                                                    |
++| OTP verification                 | baseline | Secure service abstraction and worker library; production provider/runner blocked                                                                    |
++| Merchant dashboard               | done     | Argon2id login, opaque HttpOnly session, CSRF logout, authorized store switching, and live scoped overview/review/courier/usage data                 |
++| Platform admin                   | done     | Explicit `platform_admin` role gate with authenticated live organization, assessment, backlog, webhook, incident, and provider data                  |
++| Shared reputation                | deferred | Cross-merchant reputation/dispute system requires legal/privacy review and pilot evidence                                                            |
+
+ ## Migrations
+
+@@ -69,7 +69,7 @@ Applied migrations must remain immutable.
+ - `npm run test`: 26/26 Turbo tasks passed; 29 assertions passed and three PostgreSQL browser-access integration tests skipped because local `DATABASE_URL` is unavailable
+ - `npm run build`: 18/18 workspace builds passed
+ - `npm audit --audit-level=high`: passed; four moderate dev-tooling findings remain
+-- Previous GitHub Actions run `29499998845`: passed; the new commit must run migration 0006 and the three PostgreSQL browser-access integration tests
++- GitHub Actions run `29516535736`: passed in 1m50s; all six migrations applied and all 32 assertions passed, including 13/13 API tests and 3/3 PostgreSQL browser-access integration tests
+ - WooCommerce `php -l`: passed
+ - Canonical documentation link check: 49 files, zero broken links
+ - `tracker.yml` YAML parse: passed
+diff --git a/.ai-bridge/pro-context.md b/.ai-bridge/pro-context.md
+index 833f6d1..46bd9a2 100644
+--- a/.ai-bridge/pro-context.md
++++ b/.ai-bridge/pro-context.md
+@@ -1,6 +1,6 @@
+ # Ozzyl Guard — Production Hardening Continuation Context
+
+-Generated: 2026-07-16T16:39:40.209Z
++Generated: 2026-07-16T16:44:41.155Z
+ Workspace: /Users/rahmatullahzisan/Desktop/Dev/Ozzyl Guard
+ Workspace ID: ws_dfece19fe5040cc4a5675d02
+ Write mode: workspace
+@@ -282,13 +282,16 @@ Instruction for ChatGPT: use this as repository context, produce a narrow Codex
+
+ ```text
+ ## main...origin/main
+- M turbo.json
++ M .ai-bridge/current-plan.md
++ M .ai-bridge/implementation-status.md
++ M tracker.yml
+ ```
+
+ ## Recent Commits
+
+ ```text
+-69b1600 (HEAD -> main, origin/main) feat: wire authenticated live operations
++cdfff5a (HEAD -> main, origin/main) fix: run PostgreSQL integration tests in CI
++69b1600 feat: wire authenticated live operations
+ fc5aa40 docs: record successful GitHub Actions run [skip ci]
+ acd5217 docs: record GitHub Actions billing blocker [skip ci]
+ 24cab73 feat: establish Ozzyl Guard MVP foundation
+@@ -297,18 +300,91 @@ acd5217 docs: record GitHub Actions billing blocker [skip ci]
+ ## Git Diff
+
+ ```diff
+-diff --git a/turbo.json b/turbo.json
+-index 85ab9ec..e3c4541 100644
+---- a/turbo.json
+-+++ b/turbo.json
+-@@ -11,6 +11,7 @@
+-     },
+-     "test": {
+-       "dependsOn": ["^build"],
+-+      "env": ["DATABASE_URL"],
+-       "outputs": ["coverage/**"]
+-     },
+-     "dev": {
++diff --git a/.ai-bridge/current-plan.md b/.ai-bridge/current-plan.md
++index ae28629..7dd897d 100644
++--- a/.ai-bridge/current-plan.md
+++++ b/.ai-bridge/current-plan.md
++@@ -8,7 +8,7 @@ A runnable standalone MVP foundation is implemented and the first production-har
++
++ ## Completed
++
++-- [x] Repository, private GitHub remote, documentation, ADR, status, risk register, tracker, and continuation bundle setup
+++- [x] Repository, canonical GitHub remote, documentation, ADR, status, risk register, tracker, and continuation bundle setup
++ - [x] npm workspaces, Turborepo, TypeScript, formatting, linting, tests, and CI
++ - [x] Canonical shared API/error/event contracts
++ - [x] PostgreSQL/Drizzle schema and six append-only migrations
++@@ -42,13 +42,13 @@ A runnable standalone MVP foundation is implemented and the first production-har
++ - Production builds: 18 of 18 workspaces passed
++ - WooCommerce PHP syntax: passed
++ - npm high/critical audit threshold: passed; four moderate development-tooling advisories remain
++-- Previous GitHub Actions CI run `29499998845`: passed; the new commit must validate migration 0006 and run the three PostgreSQL browser-access tests
+++- GitHub Actions CI run `29516535736`: passed in 1m50s; all six migrations applied and all 32 assertions passed, including three PostgreSQL browser-access integration tests
++ - Canonical documentation links: 49 Markdown files checked, zero broken internal links
++ - `tracker.yml` YAML parse: passed
++ - Continuation bundle: refreshed and formatted
++ - Prohibited source-pattern search: no matches
++
++-A clean PostgreSQL migration apply could not be executed locally because Docker/PostgreSQL is unavailable in this workspace. The previous five migrations passed remotely against PostgreSQL 16; migration 0006 and the new PostgreSQL browser-access tests await the next GitHub Actions run.
+++A clean PostgreSQL migration apply cannot be executed locally because Docker/PostgreSQL is unavailable in this workspace. GitHub Actions run `29516535736` applied all six migrations against PostgreSQL 16 and passed all three browser-access PostgreSQL integration tests.
++
++ ## Next production milestone
++
++diff --git a/.ai-bridge/implementation-status.md b/.ai-bridge/implementation-status.md
++index f20d4dc..87f78d4 100644
++--- a/.ai-bridge/implementation-status.md
+++++ b/.ai-bridge/implementation-status.md
++@@ -26,7 +26,7 @@ Updated: 2026-07-16
++ | Area                             | Status   | Notes                                                                                                                                                       |
++ | -------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
++ | Shared contracts                 | done     | Canonical request/response/error/outcome/event schemas                                                                                                      |
++-| Database/migrations              | baseline | Full schema and six append-only migrations; migration 0006 adds explicit platform role and live-read indexes; clean apply awaits the next PostgreSQL CI run |
+++| Database/migrations              | done     | Full schema and six append-only migrations; migration 0006 adds explicit platform role and live-read indexes; clean PostgreSQL 16 apply passed in CI        |
++ | Password/session primitives      | done     | Argon2id and opaque hashed session token utilities                                                                                                          |
++ | Organizations/stores/memberships | done     | Canonical relational schema and bootstrap transaction                                                                                                       |
++ | API keys/usage/plans             | done     | Test/live prefixes, one-time raw reveal, hash-only persistence, scopes, revocation fields, atomic PostgreSQL usage reservation                              |
++@@ -69,7 +69,7 @@ Applied migrations must remain immutable.
++ - `npm run test`: 26/26 Turbo tasks passed; 29 assertions passed and three PostgreSQL browser-access integration tests skipped because local `DATABASE_URL` is unavailable
++ - `npm run build`: 18/18 workspace builds passed
++ - `npm audit --audit-level=high`: passed; four moderate dev-tooling findings remain
++-- Previous GitHub Actions run `29499998845`: passed; the new commit must run migration 0006 and the three PostgreSQL browser-access integration tests
+++- GitHub Actions run `29516535736`: passed in 1m50s; all six migrations applied and all 32 assertions passed, including 13/13 API tests and 3/3 PostgreSQL browser-access integration tests
++ - WooCommerce `php -l`: passed
++ - Canonical documentation link check: 49 files, zero broken links
++ - `tracker.yml` YAML parse: passed
++diff --git a/tracker.yml b/tracker.yml
++index 1d7498d..0b11cf4 100644
++--- a/tracker.yml
+++++ b/tracker.yml
++@@ -87,7 +87,8 @@ verification:
++     architecture_boundaries: passed
++     typecheck: 18_of_18
++     test_tasks: 26_of_26
++-    assertions: 29_passed_3_postgresql_skipped
+++    local_assertions: 29_passed_3_postgresql_skipped
+++    remote_assertions: 32_passed
++     builds: 18_of_18
++     php_syntax: passed
++     high_critical_dependency_check: passed
++@@ -96,11 +97,14 @@ verification:
++     - docker_and_postgresql_are_not_available_in_this_workspace
++     - three_postgresql_browser_access_integration_tests_require_database_url
++   remote_ci:
++-    status: pending_new_commit
++-    previous_passing_run_id: 29499998845
++-    previous_job: verify
++-    previous_duration: 1m47s
++-    previous_completed: 2026-07-16
+++    status: passed
+++    run_id: 29516535736
+++    job_id: 87682870530
+++    job: verify
+++    commit: cdfff5a504e9309bd64bae188c3dd03729f1133e
+++    duration: 1m50s
+++    completed: 2026-07-16
+++    postgresql_tests: 3_of_3_passed
++
++ migrations:
++   immutable: true
+ ```
+
+ ## Existing AI Bridge Context
+@@ -324,7 +400,7 @@ index 85ab9ec..e3c4541 100644
+  8 |
+  9 | ## Completed
+ 10 |
+-11 | - [x] Repository, private GitHub remote, documentation, ADR, status, risk register, tracker, and continuation bundle setup
++11 | - [x] Repository, canonical GitHub remote, documentation, ADR, status, risk register, tracker, and continuation bundle setup
+ 12 | - [x] npm workspaces, Turborepo, TypeScript, formatting, linting, tests, and CI
+ 13 | - [x] Canonical shared API/error/event contracts
+ 14 | - [x] PostgreSQL/Drizzle schema and six append-only migrations
+@@ -358,13 +434,13 @@ index 85ab9ec..e3c4541 100644
+ 42 | - Production builds: 18 of 18 workspaces passed
+ 43 | - WooCommerce PHP syntax: passed
+ 44 | - npm high/critical audit threshold: passed; four moderate development-tooling advisories remain
+-45 | - Previous GitHub Actions CI run `29499998845`: passed; the new commit must validate migration 0006 and run the three PostgreSQL browser-access tests
++45 | - GitHub Actions CI run `29516535736`: passed in 1m50s; all six migrations applied and all 32 assertions passed, including three PostgreSQL browser-access integration tests
+ 46 | - Canonical documentation links: 49 Markdown files checked, zero broken internal links
+ 47 | - `tracker.yml` YAML parse: passed
+ 48 | - Continuation bundle: refreshed and formatted
+ 49 | - Prohibited source-pattern search: no matches
+ 50 |
+-51 | A clean PostgreSQL migration apply could not be executed locally because Docker/PostgreSQL is unavailable in this workspace. The previous five migrations passed remotely against PostgreSQL 16; migration 0006 and the new PostgreSQL browser-access tests await the next GitHub Actions run.
++51 | A clean PostgreSQL migration apply cannot be executed locally because Docker/PostgreSQL is unavailable in this workspace. GitHub Actions run `29516535736` applied all six migrations against PostgreSQL 16 and passed all three browser-access PostgreSQL integration tests.
+ 52 |
+ 53 | ## Next production milestone
+ 54 |
+@@ -496,7 +572,7 @@ index 85ab9ec..e3c4541 100644
+
+ ## Selected Files
+
+-Changed files detected: turbo.json
++Changed files detected: .ai-bridge/current-plan.md, .ai-bridge/implementation-status.md, tracker.yml
+ Auto-include important root files: yes
+ Auto-include changed files: yes
+ Explicit selected paths: tracker.yml, AGENTS.md, README.md, docs/README.md, .ai-bridge/current-plan.md, .ai-bridge/implementation-status.md, .ai-bridge/decisions.md, docs/adr/README.md, docs/adr/0005-browser-session-authentication.md, docs/api/api-specification.md, docs/database/database-design.md, docs/security/security-privacy.md, .github/workflows/ci.yml, turbo.json, apps/api/src/browser.ts, apps/api/src/postgres.ts, apps/api/src/browser.test.ts, apps/api/src/postgres-browser.test.ts, apps/dashboard/src/App.tsx, apps/admin/src/main.tsx, packages/database/migrations/0006_browser_access.sql
+@@ -945,8 +1021,8 @@ Lines: 1-23 of 23
+
+ ### .ai-bridge/current-plan.md
+
+-Bytes: 5238
+-SHA-256: 8c05a169bd9b5197ea86b948348ce267c79b769d4ed705d2587d81cdc8f295e7
++Bytes: 5246
++SHA-256: 45ffce172c807819239f5325b6c1a7b2b2708174f8fb0c7b30bd15722ddc8d3e
+ Lines: 1-85 of 85
+
+ ```markdown
+@@ -960,7 +1036,7 @@ Lines: 1-85 of 85
+  8 |
+  9 | ## Completed
+ 10 |
+-11 | - [x] Repository, private GitHub remote, documentation, ADR, status, risk register, tracker, and continuation bundle setup
++11 | - [x] Repository, canonical GitHub remote, documentation, ADR, status, risk register, tracker, and continuation bundle setup
+ 12 | - [x] npm workspaces, Turborepo, TypeScript, formatting, linting, tests, and CI
+ 13 | - [x] Canonical shared API/error/event contracts
+ 14 | - [x] PostgreSQL/Drizzle schema and six append-only migrations
+@@ -994,13 +1070,13 @@ Lines: 1-85 of 85
+ 42 | - Production builds: 18 of 18 workspaces passed
+ 43 | - WooCommerce PHP syntax: passed
+ 44 | - npm high/critical audit threshold: passed; four moderate development-tooling advisories remain
+-45 | - Previous GitHub Actions CI run `29499998845`: passed; the new commit must validate migration 0006 and run the three PostgreSQL browser-access tests
++45 | - GitHub Actions CI run `29516535736`: passed in 1m50s; all six migrations applied and all 32 assertions passed, including three PostgreSQL browser-access integration tests
+ 46 | - Canonical documentation links: 49 Markdown files checked, zero broken internal links
+ 47 | - `tracker.yml` YAML parse: passed
+ 48 | - Continuation bundle: refreshed and formatted
+ 49 | - Prohibited source-pattern search: no matches
+ 50 |
+-51 | A clean PostgreSQL migration apply could not be executed locally because Docker/PostgreSQL is unavailable in this workspace. The previous five migrations passed remotely against PostgreSQL 16; migration 0006 and the new PostgreSQL browser-access tests await the next GitHub Actions run.
++51 | A clean PostgreSQL migration apply cannot be executed locally because Docker/PostgreSQL is unavailable in this workspace. GitHub Actions run `29516535736` applied all six migrations against PostgreSQL 16 and passed all three browser-access PostgreSQL integration tests.
+ 52 |
+ 53 | ## Next production milestone
+ 54 |
+@@ -1118,8 +1194,8 @@ Lines: 1-70 of 70
+
+ ### .ai-bridge/implementation-status.md
+
+-Bytes: 9490
+-SHA-256: 7f3e673bf461ebfb4058e2b0ae56e4bb7e94f484b8d6ae86e5e62fd8de605e15
++Bytes: 9528
++SHA-256: b2074a204b49425cc75008fbf95360990f0c41034f19f670ecdc1e7bfd916696
+ Lines: 1-104 of 104
+
+ ```markdown
+@@ -1151,7 +1227,7 @@ Lines: 1-104 of 104
+  26 | | Area                             | Status   | Notes                                                                                                                                                       |
+  27 | | -------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+  28 | | Shared contracts                 | done     | Canonical request/response/error/outcome/event schemas                                                                                                      |
+- 29 | | Database/migrations              | baseline | Full schema and six append-only migrations; migration 0006 adds explicit platform role and live-read indexes; clean apply awaits the next PostgreSQL CI run |
++ 29 | | Database/migrations              | done     | Full schema and six append-only migrations; migration 0006 adds explicit platform role and live-read indexes; clean PostgreSQL 16 apply passed in CI        |
+  30 | | Password/session primitives      | done     | Argon2id and opaque hashed session token utilities                                                                                                          |
+  31 | | Organizations/stores/memberships | done     | Canonical relational schema and bootstrap transaction                                                                                                       |
+  32 | | API keys/usage/plans             | done     | Test/live prefixes, one-time raw reveal, hash-only persistence, scopes, revocation fields, atomic PostgreSQL usage reservation                              |
+@@ -1194,7 +1270,7 @@ Lines: 1-104 of 104
+  69 | - `npm run test`: 26/26 Turbo tasks passed; 29 assertions passed and three PostgreSQL browser-access integration tests skipped because local `DATABASE_URL` is unavailable
+  70 | - `npm run build`: 18/18 workspace builds passed
+  71 | - `npm audit --audit-level=high`: passed; four moderate dev-tooling findings remain
+- 72 | - Previous GitHub Actions run `29499998845`: passed; the new commit must run migration 0006 and the three PostgreSQL browser-access integration tests
++ 72 | - GitHub Actions run `29516535736`: passed in 1m50s; all six migrations applied and all 32 assertions passed, including 13/13 API tests and 3/3 PostgreSQL browser-access integration tests
+  73 | - WooCommerce `php -l`: passed
+  74 | - Canonical documentation link check: 49 files, zero broken links
+  75 | - `tracker.yml` YAML parse: passed
+@@ -5172,9 +5248,9 @@ Lines: 1-16 of 16
+
+ ### tracker.yml
+
+-Bytes: 5253
+-SHA-256: cb90d77b43feb9f9f3bb2a31d157007346428dee7bd1d9a6d66bb765a3f034a6
+-Lines: 1-152 of 152
++Bytes: 5349
++SHA-256: b7b96601a776ead2cbd37b5e1fd95dd6527911edd7b3849bf9d25c10c4eb1c1c
++Lines: 1-156 of 156
+
+ ```yaml
+   1 | schema_version: 1
+@@ -5266,69 +5342,73 @@ Lines: 1-152 of 152
+  87 |     architecture_boundaries: passed
+  88 |     typecheck: 18_of_18
+  89 |     test_tasks: 26_of_26
+- 90 |     assertions: 29_passed_3_postgresql_skipped
+- 91 |     builds: 18_of_18
+- 92 |     php_syntax: passed
+- 93 |     high_critical_dependency_check: passed
+- 94 |     documentation_links: 49_checked_0_broken
+- 95 |   local_limitations:
+- 96 |     - docker_and_postgresql_are_not_available_in_this_workspace
+- 97 |     - three_postgresql_browser_access_integration_tests_require_database_url
+- 98 |   remote_ci:
+- 99 |     status: pending_new_commit
+-100 |     previous_passing_run_id: 29499998845
+-101 |     previous_job: verify
+-102 |     previous_duration: 1m47s
+-103 |     previous_completed: 2026-07-16
+-104 |
+-105 | migrations:
+-106 |   immutable: true
+-107 |   files:
+-108 |     - packages/database/migrations/0001_foundation.sql
+-109 |     - packages/database/migrations/0002_courier.sql
+-110 |     - packages/database/migrations/0003_risk.sql
+-111 |     - packages/database/migrations/0004_verification_events.sql
+-112 |     - packages/database/migrations/0005_durable_operations.sql
+-113 |     - packages/database/migrations/0006_browser_access.sql
+-114 |
+-115 | external_dependencies:
+-116 |   - authorized_steadfast_test_account
+-117 |   - provider_authorization_review
+-118 |   - production_managed_encryption_service
+-119 |   - otp_provider_account
+-120 |   - hosting_database_queue_cache_and_observability_decisions
+-121 |   - pilot_outcome_data
+-122 |
+-123 | next_milestone:
+-124 |   name: production-hardening-and-pilot-readiness
+-125 |   tasks:
+-126 |     - record_infrastructure_adrs
+-127 |     - expand_postgresql_concurrency_idempotency_and_tenant_tests
+-128 |     - validate_steadfast_with_an_authorized_account
+-129 |     - implement_the_selected_otp_runner
+-130 |     - add_durable_event_and_verification_runners
+-131 |     - enable_native_adapter_shadow_mode
+-132 |     - run_a_selected_merchant_pilot
+-133 |     - calibrate_decisions_before_broad_automatic_blocking
+-134 |
+-135 | release_policy:
+-136 |   branch: main
+-137 |   before_push:
+-138 |     - npm_run_verify_passes
+-139 |     - documentation_and_tracker_are_current
+-140 |     - repository_review_is_clean
+-141 |   rules:
+-142 |     - no_force_push_to_main
+-143 |     - do_not_edit_applied_migrations
+-144 |     - use_descriptive_commits
+-145 |
+-146 | notes:
+-147 |   - codexpro_and_local_mcp_files_are_workspace_tooling_and_ignored
+-148 |   - dashboard_and_admin_use_separate_authenticated_live_browser_sessions
+-149 |   - github_connector_reports_public_visibility_while_expected_state_is_private
+-150 |   - broad_automatic_blocking_remains_disabled_until_pilot_calibration
+-151 |   - update_this_file_after_every_material_milestone
+-152 |
++ 90 |     local_assertions: 29_passed_3_postgresql_skipped
++ 91 |     remote_assertions: 32_passed
++ 92 |     builds: 18_of_18
++ 93 |     php_syntax: passed
++ 94 |     high_critical_dependency_check: passed
++ 95 |     documentation_links: 49_checked_0_broken
++ 96 |   local_limitations:
++ 97 |     - docker_and_postgresql_are_not_available_in_this_workspace
++ 98 |     - three_postgresql_browser_access_integration_tests_require_database_url
++ 99 |   remote_ci:
++100 |     status: passed
++101 |     run_id: 29516535736
++102 |     job_id: 87682870530
++103 |     job: verify
++104 |     commit: cdfff5a504e9309bd64bae188c3dd03729f1133e
++105 |     duration: 1m50s
++106 |     completed: 2026-07-16
++107 |     postgresql_tests: 3_of_3_passed
++108 |
++109 | migrations:
++110 |   immutable: true
++111 |   files:
++112 |     - packages/database/migrations/0001_foundation.sql
++113 |     - packages/database/migrations/0002_courier.sql
++114 |     - packages/database/migrations/0003_risk.sql
++115 |     - packages/database/migrations/0004_verification_events.sql
++116 |     - packages/database/migrations/0005_durable_operations.sql
++117 |     - packages/database/migrations/0006_browser_access.sql
++118 |
++119 | external_dependencies:
++120 |   - authorized_steadfast_test_account
++121 |   - provider_authorization_review
++122 |   - production_managed_encryption_service
++123 |   - otp_provider_account
++124 |   - hosting_database_queue_cache_and_observability_decisions
++125 |   - pilot_outcome_data
++126 |
++127 | next_milestone:
++128 |   name: production-hardening-and-pilot-readiness
++129 |   tasks:
++130 |     - record_infrastructure_adrs
++131 |     - expand_postgresql_concurrency_idempotency_and_tenant_tests
++132 |     - validate_steadfast_with_an_authorized_account
++133 |     - implement_the_selected_otp_runner
++134 |     - add_durable_event_and_verification_runners
++135 |     - enable_native_adapter_shadow_mode
++136 |     - run_a_selected_merchant_pilot
++137 |     - calibrate_decisions_before_broad_automatic_blocking
++138 |
++139 | release_policy:
++140 |   branch: main
++141 |   before_push:
++142 |     - npm_run_verify_passes
++143 |     - documentation_and_tracker_are_current
++144 |     - repository_review_is_clean
++145 |   rules:
++146 |     - no_force_push_to_main
++147 |     - do_not_edit_applied_migrations
++148 |     - use_descriptive_commits
++149 |
++150 | notes:
++151 |   - codexpro_and_local_mcp_files_are_workspace_tooling_and_ignored
++152 |   - dashboard_and_admin_use_separate_authenticated_live_browser_sessions
++153 |   - github_connector_reports_public_visibility_while_expected_state_is_private
++154 |   - broad_automatic_blocking_remains_disabled_until_pilot_calibration
++155 |   - update_this_file_after_every_material_milestone
++156 |
+ ```
+
+ ### eslint.config.js
+diff --git a/tracker.yml b/tracker.yml
+index 1d7498d..0b11cf4 100644
+--- a/tracker.yml
++++ b/tracker.yml
+@@ -87,7 +87,8 @@ verification:
+     architecture_boundaries: passed
+     typecheck: 18_of_18
+     test_tasks: 26_of_26
+-    assertions: 29_passed_3_postgresql_skipped
++    local_assertions: 29_passed_3_postgresql_skipped
++    remote_assertions: 32_passed
+     builds: 18_of_18
+     php_syntax: passed
+     high_critical_dependency_check: passed
+@@ -96,11 +97,14 @@ verification:
+     - docker_and_postgresql_are_not_available_in_this_workspace
+     - three_postgresql_browser_access_integration_tests_require_database_url
+   remote_ci:
+-    status: pending_new_commit
+-    previous_passing_run_id: 29499998845
+-    previous_job: verify
+-    previous_duration: 1m47s
+-    previous_completed: 2026-07-16
++    status: passed
++    run_id: 29516535736
++    job_id: 87682870530
++    job: verify
++    commit: cdfff5a504e9309bd64bae188c3dd03729f1133e
++    duration: 1m50s
++    completed: 2026-07-16
++    postgresql_tests: 3_of_3_passed
+
+ migrations:
+   immutable: true
 ```
 
 ## Existing AI Bridge Context
@@ -324,7 +831,7 @@ index 85ab9ec..e3c4541 100644
  8 |
  9 | ## Completed
 10 |
-11 | - [x] Repository, private GitHub remote, documentation, ADR, status, risk register, tracker, and continuation bundle setup
+11 | - [x] Repository, canonical GitHub remote, documentation, ADR, status, risk register, tracker, and continuation bundle setup
 12 | - [x] npm workspaces, Turborepo, TypeScript, formatting, linting, tests, and CI
 13 | - [x] Canonical shared API/error/event contracts
 14 | - [x] PostgreSQL/Drizzle schema and six append-only migrations
@@ -358,13 +865,13 @@ index 85ab9ec..e3c4541 100644
 42 | - Production builds: 18 of 18 workspaces passed
 43 | - WooCommerce PHP syntax: passed
 44 | - npm high/critical audit threshold: passed; four moderate development-tooling advisories remain
-45 | - Previous GitHub Actions CI run `29499998845`: passed; the new commit must validate migration 0006 and run the three PostgreSQL browser-access tests
+45 | - GitHub Actions CI run `29516535736`: passed in 1m50s; all six migrations applied and all 32 assertions passed, including three PostgreSQL browser-access integration tests
 46 | - Canonical documentation links: 49 Markdown files checked, zero broken internal links
 47 | - `tracker.yml` YAML parse: passed
 48 | - Continuation bundle: refreshed and formatted
 49 | - Prohibited source-pattern search: no matches
 50 |
-51 | A clean PostgreSQL migration apply could not be executed locally because Docker/PostgreSQL is unavailable in this workspace. The previous five migrations passed remotely against PostgreSQL 16; migration 0006 and the new PostgreSQL browser-access tests await the next GitHub Actions run.
+51 | A clean PostgreSQL migration apply cannot be executed locally because Docker/PostgreSQL is unavailable in this workspace. GitHub Actions run `29516535736` applied all six migrations against PostgreSQL 16 and passed all three browser-access PostgreSQL integration tests.
 52 |
 53 | ## Next production milestone
 54 |
@@ -496,7 +1003,7 @@ index 85ab9ec..e3c4541 100644
 
 ## Selected Files
 
-Changed files detected: turbo.json
+Changed files detected: .ai-bridge/current-plan.md, .ai-bridge/implementation-status.md, .ai-bridge/pro-context.md, tracker.yml
 Auto-include important root files: yes
 Auto-include changed files: yes
 Explicit selected paths: tracker.yml, AGENTS.md, README.md, docs/README.md, .ai-bridge/current-plan.md, .ai-bridge/implementation-status.md, .ai-bridge/decisions.md, docs/adr/README.md, docs/adr/0005-browser-session-authentication.md, docs/api/api-specification.md, docs/database/database-design.md, docs/security/security-privacy.md, .github/workflows/ci.yml, turbo.json, apps/api/src/browser.ts, apps/api/src/postgres.ts, apps/api/src/browser.test.ts, apps/api/src/postgres-browser.test.ts, apps/dashboard/src/App.tsx, apps/admin/src/main.tsx, packages/database/migrations/0006_browser_access.sql
@@ -945,8 +1452,8 @@ Lines: 1-23 of 23
 
 ### .ai-bridge/current-plan.md
 
-Bytes: 5238
-SHA-256: 8c05a169bd9b5197ea86b948348ce267c79b769d4ed705d2587d81cdc8f295e7
+Bytes: 5246
+SHA-256: 45ffce172c807819239f5325b6c1a7b2b2708174f8fb0c7b30bd15722ddc8d3e
 Lines: 1-85 of 85
 
 ```markdown
@@ -960,7 +1467,7 @@ Lines: 1-85 of 85
  8 |
  9 | ## Completed
 10 |
-11 | - [x] Repository, private GitHub remote, documentation, ADR, status, risk register, tracker, and continuation bundle setup
+11 | - [x] Repository, canonical GitHub remote, documentation, ADR, status, risk register, tracker, and continuation bundle setup
 12 | - [x] npm workspaces, Turborepo, TypeScript, formatting, linting, tests, and CI
 13 | - [x] Canonical shared API/error/event contracts
 14 | - [x] PostgreSQL/Drizzle schema and six append-only migrations
@@ -994,13 +1501,13 @@ Lines: 1-85 of 85
 42 | - Production builds: 18 of 18 workspaces passed
 43 | - WooCommerce PHP syntax: passed
 44 | - npm high/critical audit threshold: passed; four moderate development-tooling advisories remain
-45 | - Previous GitHub Actions CI run `29499998845`: passed; the new commit must validate migration 0006 and run the three PostgreSQL browser-access tests
+45 | - GitHub Actions CI run `29516535736`: passed in 1m50s; all six migrations applied and all 32 assertions passed, including three PostgreSQL browser-access integration tests
 46 | - Canonical documentation links: 49 Markdown files checked, zero broken internal links
 47 | - `tracker.yml` YAML parse: passed
 48 | - Continuation bundle: refreshed and formatted
 49 | - Prohibited source-pattern search: no matches
 50 |
-51 | A clean PostgreSQL migration apply could not be executed locally because Docker/PostgreSQL is unavailable in this workspace. The previous five migrations passed remotely against PostgreSQL 16; migration 0006 and the new PostgreSQL browser-access tests await the next GitHub Actions run.
+51 | A clean PostgreSQL migration apply cannot be executed locally because Docker/PostgreSQL is unavailable in this workspace. GitHub Actions run `29516535736` applied all six migrations against PostgreSQL 16 and passed all three browser-access PostgreSQL integration tests.
 52 |
 53 | ## Next production milestone
 54 |
@@ -1118,8 +1625,8 @@ Lines: 1-70 of 70
 
 ### .ai-bridge/implementation-status.md
 
-Bytes: 9490
-SHA-256: 7f3e673bf461ebfb4058e2b0ae56e4bb7e94f484b8d6ae86e5e62fd8de605e15
+Bytes: 9360
+SHA-256: 21f0ebb9ebd3f97864dc541b963a10f0c5fc70e013bf91f109549c2c8c9ca6b1
 Lines: 1-104 of 104
 
 ```markdown
@@ -1148,30 +1655,30 @@ Lines: 1-104 of 104
  23 |
  24 | ## Product implementation
  25 |
- 26 | | Area                             | Status   | Notes                                                                                                                                                       |
- 27 | | -------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
- 28 | | Shared contracts                 | done     | Canonical request/response/error/outcome/event schemas                                                                                                      |
- 29 | | Database/migrations              | baseline | Full schema and six append-only migrations; migration 0006 adds explicit platform role and live-read indexes; clean apply awaits the next PostgreSQL CI run |
- 30 | | Password/session primitives      | done     | Argon2id and opaque hashed session token utilities                                                                                                          |
- 31 | | Organizations/stores/memberships | done     | Canonical relational schema and bootstrap transaction                                                                                                       |
- 32 | | API keys/usage/plans             | done     | Test/live prefixes, one-time raw reveal, hash-only persistence, scopes, revocation fields, atomic PostgreSQL usage reservation                              |
- 33 | | Courier adapter interface        | done     | Typed provider contract and structured errors                                                                                                               |
- 34 | | Steadfast adapter                | baseline | Normalized internal endpoint adapter with bounded timeout/session errors; requires authorized live validation                                               |
- 35 | | Steadfast session worker         | baseline | Playwright login, selector/CAPTCHA/2FA errors, encryption boundary, health state, runnable PG polling                                                       |
- 36 | | Courier observation worker/cache | done     | Durable jobs, `SKIP LOCKED` claiming, retry scheduling, normalized observation persistence                                                                  |
- 37 | | Risk engine                      | done     | One pure deterministic engine, versioned policy, confidence, signals, unknown/degraded handling                                                             |
- 38 | | Public API                       | done     | Assessment create/read, outcomes, courier refresh, OTP send/verify, auth/scopes/idempotency/rate limits                                                     |
- 39 | | PostgreSQL API repositories      | done     | API keys, usage, features, assessments/signals, outcomes, idempotency, courier jobs                                                                         |
- 40 | | Outcome feedback                 | done     | API, WooCommerce, Shopify, custom, and native adapter paths                                                                                                 |
- 41 | | Webhook delivery                 | baseline | HMAC, timestamp, SSRF controls, retries; durable outbox runner still needed                                                                                 |
- 42 | | WooCommerce                      | baseline | Encrypted service key, async assessment, canonical parsing, safe failure behavior, admin panel, manual recheck, outcomes                                    |
- 43 | | Shopify                          | baseline | Signed webhook helper, assessment/action mapping, outcome submission; app OAuth/webhook registration not implemented                                        |
- 44 | | Custom server SDK                | done     | Server-only integration and checkout action mapping                                                                                                         |
- 45 | | Native multi-store adapter       | baseline | Canonical client, shadow-comparison result, outcomes; source platform feature-flag wiring pending                                                           |
- 46 | | OTP verification                 | baseline | Secure service abstraction and worker library; production provider/runner blocked                                                                           |
- 47 | | Merchant dashboard               | done     | Argon2id login, opaque HttpOnly session, CSRF logout, authorized store switching, and live scoped overview/review/courier/usage data                        |
- 48 | | Platform admin                   | done     | Explicit `platform_admin` role gate with authenticated live organization, assessment, backlog, webhook, incident, and provider data                         |
- 49 | | Shared reputation                | deferred | Cross-merchant reputation/dispute system requires legal/privacy review and pilot evidence                                                                   |
+ 26 | | Area                             | Status   | Notes                                                                                                                                                |
+ 27 | | -------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+ 28 | | Shared contracts                 | done     | Canonical request/response/error/outcome/event schemas                                                                                               |
+ 29 | | Database/migrations              | done     | Full schema and six append-only migrations; migration 0006 adds explicit platform role and live-read indexes; clean PostgreSQL 16 apply passed in CI |
+ 30 | | Password/session primitives      | done     | Argon2id and opaque hashed session token utilities                                                                                                   |
+ 31 | | Organizations/stores/memberships | done     | Canonical relational schema and bootstrap transaction                                                                                                |
+ 32 | | API keys/usage/plans             | done     | Test/live prefixes, one-time raw reveal, hash-only persistence, scopes, revocation fields, atomic PostgreSQL usage reservation                       |
+ 33 | | Courier adapter interface        | done     | Typed provider contract and structured errors                                                                                                        |
+ 34 | | Steadfast adapter                | baseline | Normalized internal endpoint adapter with bounded timeout/session errors; requires authorized live validation                                        |
+ 35 | | Steadfast session worker         | baseline | Playwright login, selector/CAPTCHA/2FA errors, encryption boundary, health state, runnable PG polling                                                |
+ 36 | | Courier observation worker/cache | done     | Durable jobs, `SKIP LOCKED` claiming, retry scheduling, normalized observation persistence                                                           |
+ 37 | | Risk engine                      | done     | One pure deterministic engine, versioned policy, confidence, signals, unknown/degraded handling                                                      |
+ 38 | | Public API                       | done     | Assessment create/read, outcomes, courier refresh, OTP send/verify, auth/scopes/idempotency/rate limits                                              |
+ 39 | | PostgreSQL API repositories      | done     | API keys, usage, features, assessments/signals, outcomes, idempotency, courier jobs                                                                  |
+ 40 | | Outcome feedback                 | done     | API, WooCommerce, Shopify, custom, and native adapter paths                                                                                          |
+ 41 | | Webhook delivery                 | baseline | HMAC, timestamp, SSRF controls, retries; durable outbox runner still needed                                                                          |
+ 42 | | WooCommerce                      | baseline | Encrypted service key, async assessment, canonical parsing, safe failure behavior, admin panel, manual recheck, outcomes                             |
+ 43 | | Shopify                          | baseline | Signed webhook helper, assessment/action mapping, outcome submission; app OAuth/webhook registration not implemented                                 |
+ 44 | | Custom server SDK                | done     | Server-only integration and checkout action mapping                                                                                                  |
+ 45 | | Native multi-store adapter       | baseline | Canonical client, shadow-comparison result, outcomes; source platform feature-flag wiring pending                                                    |
+ 46 | | OTP verification                 | baseline | Secure service abstraction and worker library; production provider/runner blocked                                                                    |
+ 47 | | Merchant dashboard               | done     | Argon2id login, opaque HttpOnly session, CSRF logout, authorized store switching, and live scoped overview/review/courier/usage data                 |
+ 48 | | Platform admin                   | done     | Explicit `platform_admin` role gate with authenticated live organization, assessment, backlog, webhook, incident, and provider data                  |
+ 49 | | Shared reputation                | deferred | Cross-merchant reputation/dispute system requires legal/privacy review and pilot evidence                                                            |
  50 |
  51 | ## Migrations
  52 |
@@ -1194,7 +1701,7 @@ Lines: 1-104 of 104
  69 | - `npm run test`: 26/26 Turbo tasks passed; 29 assertions passed and three PostgreSQL browser-access integration tests skipped because local `DATABASE_URL` is unavailable
  70 | - `npm run build`: 18/18 workspace builds passed
  71 | - `npm audit --audit-level=high`: passed; four moderate dev-tooling findings remain
- 72 | - Previous GitHub Actions run `29499998845`: passed; the new commit must run migration 0006 and the three PostgreSQL browser-access integration tests
+ 72 | - GitHub Actions run `29516535736`: passed in 1m50s; all six migrations applied and all 32 assertions passed, including 13/13 API tests and 3/3 PostgreSQL browser-access integration tests
  73 | - WooCommerce `php -l`: passed
  74 | - Canonical documentation link check: 49 files, zero broken links
  75 | - `tracker.yml` YAML parse: passed
@@ -5172,9 +5679,9 @@ Lines: 1-16 of 16
 
 ### tracker.yml
 
-Bytes: 5253
-SHA-256: cb90d77b43feb9f9f3bb2a31d157007346428dee7bd1d9a6d66bb765a3f034a6
-Lines: 1-152 of 152
+Bytes: 5349
+SHA-256: b7b96601a776ead2cbd37b5e1fd95dd6527911edd7b3849bf9d25c10c4eb1c1c
+Lines: 1-156 of 156
 
 ```yaml
   1 | schema_version: 1
@@ -5266,69 +5773,73 @@ Lines: 1-152 of 152
  87 |     architecture_boundaries: passed
  88 |     typecheck: 18_of_18
  89 |     test_tasks: 26_of_26
- 90 |     assertions: 29_passed_3_postgresql_skipped
- 91 |     builds: 18_of_18
- 92 |     php_syntax: passed
- 93 |     high_critical_dependency_check: passed
- 94 |     documentation_links: 49_checked_0_broken
- 95 |   local_limitations:
- 96 |     - docker_and_postgresql_are_not_available_in_this_workspace
- 97 |     - three_postgresql_browser_access_integration_tests_require_database_url
- 98 |   remote_ci:
- 99 |     status: pending_new_commit
-100 |     previous_passing_run_id: 29499998845
-101 |     previous_job: verify
-102 |     previous_duration: 1m47s
-103 |     previous_completed: 2026-07-16
-104 |
-105 | migrations:
-106 |   immutable: true
-107 |   files:
-108 |     - packages/database/migrations/0001_foundation.sql
-109 |     - packages/database/migrations/0002_courier.sql
-110 |     - packages/database/migrations/0003_risk.sql
-111 |     - packages/database/migrations/0004_verification_events.sql
-112 |     - packages/database/migrations/0005_durable_operations.sql
-113 |     - packages/database/migrations/0006_browser_access.sql
-114 |
-115 | external_dependencies:
-116 |   - authorized_steadfast_test_account
-117 |   - provider_authorization_review
-118 |   - production_managed_encryption_service
-119 |   - otp_provider_account
-120 |   - hosting_database_queue_cache_and_observability_decisions
-121 |   - pilot_outcome_data
-122 |
-123 | next_milestone:
-124 |   name: production-hardening-and-pilot-readiness
-125 |   tasks:
-126 |     - record_infrastructure_adrs
-127 |     - expand_postgresql_concurrency_idempotency_and_tenant_tests
-128 |     - validate_steadfast_with_an_authorized_account
-129 |     - implement_the_selected_otp_runner
-130 |     - add_durable_event_and_verification_runners
-131 |     - enable_native_adapter_shadow_mode
-132 |     - run_a_selected_merchant_pilot
-133 |     - calibrate_decisions_before_broad_automatic_blocking
-134 |
-135 | release_policy:
-136 |   branch: main
-137 |   before_push:
-138 |     - npm_run_verify_passes
-139 |     - documentation_and_tracker_are_current
-140 |     - repository_review_is_clean
-141 |   rules:
-142 |     - no_force_push_to_main
-143 |     - do_not_edit_applied_migrations
-144 |     - use_descriptive_commits
-145 |
-146 | notes:
-147 |   - codexpro_and_local_mcp_files_are_workspace_tooling_and_ignored
-148 |   - dashboard_and_admin_use_separate_authenticated_live_browser_sessions
-149 |   - github_connector_reports_public_visibility_while_expected_state_is_private
-150 |   - broad_automatic_blocking_remains_disabled_until_pilot_calibration
-151 |   - update_this_file_after_every_material_milestone
-152 |
+ 90 |     local_assertions: 29_passed_3_postgresql_skipped
+ 91 |     remote_assertions: 32_passed
+ 92 |     builds: 18_of_18
+ 93 |     php_syntax: passed
+ 94 |     high_critical_dependency_check: passed
+ 95 |     documentation_links: 49_checked_0_broken
+ 96 |   local_limitations:
+ 97 |     - docker_and_postgresql_are_not_available_in_this_workspace
+ 98 |     - three_postgresql_browser_access_integration_tests_require_database_url
+ 99 |   remote_ci:
+100 |     status: passed
+101 |     run_id: 29516535736
+102 |     job_id: 87682870530
+103 |     job: verify
+104 |     commit: cdfff5a504e9309bd64bae188c3dd03729f1133e
+105 |     duration: 1m50s
+106 |     completed: 2026-07-16
+107 |     postgresql_tests: 3_of_3_passed
+108 |
+109 | migrations:
+110 |   immutable: true
+111 |   files:
+112 |     - packages/database/migrations/0001_foundation.sql
+113 |     - packages/database/migrations/0002_courier.sql
+114 |     - packages/database/migrations/0003_risk.sql
+115 |     - packages/database/migrations/0004_verification_events.sql
+116 |     - packages/database/migrations/0005_durable_operations.sql
+117 |     - packages/database/migrations/0006_browser_access.sql
+118 |
+119 | external_dependencies:
+120 |   - authorized_steadfast_test_account
+121 |   - provider_authorization_review
+122 |   - production_managed_encryption_service
+123 |   - otp_provider_account
+124 |   - hosting_database_queue_cache_and_observability_decisions
+125 |   - pilot_outcome_data
+126 |
+127 | next_milestone:
+128 |   name: production-hardening-and-pilot-readiness
+129 |   tasks:
+130 |     - record_infrastructure_adrs
+131 |     - expand_postgresql_concurrency_idempotency_and_tenant_tests
+132 |     - validate_steadfast_with_an_authorized_account
+133 |     - implement_the_selected_otp_runner
+134 |     - add_durable_event_and_verification_runners
+135 |     - enable_native_adapter_shadow_mode
+136 |     - run_a_selected_merchant_pilot
+137 |     - calibrate_decisions_before_broad_automatic_blocking
+138 |
+139 | release_policy:
+140 |   branch: main
+141 |   before_push:
+142 |     - npm_run_verify_passes
+143 |     - documentation_and_tracker_are_current
+144 |     - repository_review_is_clean
+145 |   rules:
+146 |     - no_force_push_to_main
+147 |     - do_not_edit_applied_migrations
+148 |     - use_descriptive_commits
+149 |
+150 | notes:
+151 |   - codexpro_and_local_mcp_files_are_workspace_tooling_and_ignored
+152 |   - dashboard_and_admin_use_separate_authenticated_live_browser_sessions
+153 |   - github_connector_reports_public_visibility_while_expected_state_is_private
+154 |   - broad_automatic_blocking_remains_disabled_until_pilot_calibration
+155 |   - update_this_file_after_every_material_milestone
+156 |
 ```
 
 ### eslint.config.js

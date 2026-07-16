@@ -8,7 +8,7 @@ A runnable standalone MVP foundation is implemented and the first production-har
 
 ## Completed
 
-- [x] Repository, private GitHub remote, documentation, ADR, status, risk register, tracker, and continuation bundle setup
+- [x] Repository, canonical GitHub remote, documentation, ADR, status, risk register, tracker, and continuation bundle setup
 - [x] npm workspaces, Turborepo, TypeScript, formatting, linting, tests, and CI
 - [x] Canonical shared API/error/event contracts
 - [x] PostgreSQL/Drizzle schema and six append-only migrations
@@ -42,13 +42,13 @@ A runnable standalone MVP foundation is implemented and the first production-har
 - Production builds: 18 of 18 workspaces passed
 - WooCommerce PHP syntax: passed
 - npm high/critical audit threshold: passed; four moderate development-tooling advisories remain
-- Previous GitHub Actions CI run `29499998845`: passed; the new commit must validate migration 0006 and run the three PostgreSQL browser-access tests
+- GitHub Actions CI run `29516535736`: passed in 1m50s; all six migrations applied and all 32 assertions passed, including three PostgreSQL browser-access integration tests
 - Canonical documentation links: 49 Markdown files checked, zero broken internal links
 - `tracker.yml` YAML parse: passed
 - Continuation bundle: refreshed and formatted
 - Prohibited source-pattern search: no matches
 
-A clean PostgreSQL migration apply could not be executed locally because Docker/PostgreSQL is unavailable in this workspace. The previous five migrations passed remotely against PostgreSQL 16; migration 0006 and the new PostgreSQL browser-access tests await the next GitHub Actions run.
+A clean PostgreSQL migration apply cannot be executed locally because Docker/PostgreSQL is unavailable in this workspace. GitHub Actions run `29516535736` applied all six migrations against PostgreSQL 16 and passed all three browser-access PostgreSQL integration tests.
 
 ## Next production milestone
 

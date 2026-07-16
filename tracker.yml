@@ -87,7 +87,8 @@ verification:
     architecture_boundaries: passed
     typecheck: 18_of_18
     test_tasks: 26_of_26
-    assertions: 29_passed_3_postgresql_skipped
+    local_assertions: 29_passed_3_postgresql_skipped
+    remote_assertions: 32_passed
     builds: 18_of_18
     php_syntax: passed
     high_critical_dependency_check: passed
@@ -96,11 +97,14 @@ verification:
     - docker_and_postgresql_are_not_available_in_this_workspace
     - three_postgresql_browser_access_integration_tests_require_database_url
   remote_ci:
-    status: pending_new_commit
-    previous_passing_run_id: 29499998845
-    previous_job: verify
-    previous_duration: 1m47s
-    previous_completed: 2026-07-16
+    status: passed
+    run_id: 29516535736
+    job_id: 87682870530
+    job: verify
+    commit: cdfff5a504e9309bd64bae188c3dd03729f1133e
+    duration: 1m50s
+    completed: 2026-07-16
+    postgresql_tests: 3_of_3_passed
 
 migrations:
   immutable: true
