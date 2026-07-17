@@ -79,11 +79,12 @@ Applied migrations must remain immutable.
 - `npm run test`: 28/28 Turbo tasks passed; repository contains 53 assertions
 - `npm run build`: 19/19 workspace builds passed
 - `npm audit --audit-level=high`: passed; four moderate development-tooling findings remain
-- Webhook outbox code run `29549466931`, job `87788743529`: all gates passed at head `d44a1104d27d3229cc31350726756d22ec085faf`
+- Webhook outbox final run `29550097719`, job `87790624617`: all gates passed at head `fb0a68bac4628a96f82413b5d71092e4f0367536`
 - Five real-PostgreSQL webhook tests cover competing claims, fresh-lease protection, expired-owner recovery, retry cleanup, exhausted stale failure, and scope mismatch rejection
 - Transactional API coverage proves one delivery per matching store/organization endpoint and persisted winner, with no raw phone in event payloads
 - Event-worker tests cover HMAC delivery, unsafe URL rejection, DNS-to-private rejection, retryable DNS failures, and redirect-disabled fetch behavior
 - Envelope-cipher tests cover context-bound round trips and wrong-context rejection
+- The verified webhook outbox change was squash-merged to `main` as `752d08776f35345e5ec002d9a9ca720f304df8cc`
 - Previous canonical documentation checks found zero broken internal links
 - Prohibited insecure-pattern scan: zero matches
 
