@@ -24,6 +24,7 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - name: Apply milestone documentation patch
         run: |
+          python3 scripts/tmp-fix-native-shadow-docs.py
           set +e
           python3 scripts/tmp-native-shadow-docs.py > /tmp/native-shadow-docs.log 2>&1
           status=$?
@@ -40,6 +41,7 @@ jobs:
       - name: Remove temporary documentation tooling
         run: |
           rm -f .ai-bridge/tmp-native-shadow-docs.log
+          rm -f scripts/tmp-fix-native-shadow-docs.py
           rm -f scripts/tmp-native-shadow-docs.py
           rm -f .github/workflows/tmp-native-shadow-docs.yml
       - name: Format canonical documentation
