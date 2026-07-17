@@ -38,11 +38,12 @@ The repository now contains a runnable MVP foundation:
 - WooCommerce plugin, Shopify adapter, custom JavaScript/server adapter, and native multi-store adapter
 - Docker, Docker Compose, migration integrity verification, clean logical restore rehearsal, and least-privilege runtime-role verification in CI
 - Authoritative organization/store revalidation across API keys, feature assembly, writes, dashboards, and secret-free webhook/verification administration
+- Provider-neutral managed envelope v2 with per-record data keys, authenticated wrapped-key metadata, structured safe failures, legacy dual-read, and rotation/re-encryption primitives
 
 The following require external accounts or production decisions before live use:
 
 - Authorized Steadfast merchant/test credentials and provider-terms review
-- Production KMS/vault instead of the local AES-GCM key implementation
+- A selected KMS/vault adapter, component service identities, access auditing, runtime wiring, and an audited background rewrite before replacing local v1 encryption in production
 - OTP provider selection and credentials
 - Authenticated dashboard/admin live data wiring is complete; production hosting, distributed rate limiting, account recovery, MFA, and managed identity supersession remain
 - Production queue/cache/observability providers

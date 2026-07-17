@@ -25,6 +25,7 @@ The repository includes:
 - migration execution separated from API startup
 - migration SHA-256 manifest, apply/replay, and history-integrity verification
 - clean PostgreSQL logical backup/restore rehearsal in CI
+- provider-neutral managed-envelope v2 primitives with per-record data keys, legacy dual-read, rotation detection, and structured safe failures
 - `db:runtime-grants` and CI effective-permission verification for an externally created non-owner runtime role
 - independently runnable `workers/event-worker/dist/runner.js`
 - independently runnable `workers/verification-worker/dist/runner.js` after a reviewed provider module is bundled/configured
@@ -150,7 +151,7 @@ The Docker Compose setup is a development/self-hosted baseline, not the final pr
 ## Security requirements
 
 - Use managed secrets and least-privilege service identities.
-- Replace the local AES-GCM master-key environment variable with managed KMS/vault envelope encryption before production credential and webhook-secret migration.
+- Select and wire a reviewed KMS/vault adapter and component service identities before switching runtime writes to managed-envelope v2; then run an audited background rewrite before retiring local v1 keys.
 - Give migration ownership and runtime access distinct PostgreSQL identities. The migration owner runs schema/history/grant operations; runtime services use non-owner explicit DML grants and never migration-owner credentials.
 - Split API, session worker, sync worker, event worker, and verification worker into narrower roles on the selected platform when supported; each must remain no more privileged than the reviewed repository runtime policy.
 - Do not put secrets in images, CI logs, command arguments, source maps, logs, traces, or cache values.
@@ -190,4 +191,4 @@ Repository source-head CI run `29560049322`, job `87820368024`, verifies nine ma
 
 The verified event-worker boundary includes transactional assessment/outcome outbox rows, explicit organization/store scope, atomic claims, stale recovery, expired-owner rejection, retry/final-failure transitions, endpoint-bound secret decryption, HMAC signing, HTTPS validation, DNS-to-non-public rejection, and redirect rejection.
 
-Production provider provisioning, controlled-egress smoke tests, managed-provider PITR/retention validation, managed KMS validation, and provider-specific OTP delivery remain pending.
+Production provider provisioning, controlled-egress smoke tests, managed-provider PITR/retention validation, selected KMS adapter/service-identity/access-audit validation, audited ciphertext rewrite, and provider-specific OTP delivery remain pending.

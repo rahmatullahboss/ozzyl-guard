@@ -69,7 +69,7 @@ All exception/error serialization must pass through a central redaction layer. W
 - Decryption failure must fail closed
 - No plaintext compatibility fallback
 
-The local/self-hosted AES-256-GCM implementation is isolated in `@ozzyl/encryption`. Production key generation, wrapping, access policy, rotation, and decrypt authorization must move to the accepted managed KMS/vault boundary without changing caller contracts.
+The local/self-hosted AES-256-GCM implementation is isolated in `@ozzyl/encryption`. The package also provides a provider-neutral managed v2 boundary with a random per-record data key, authenticated context digest and wrapped-key metadata, data-key zeroization, structured safe failures, explicit legacy dual-read, and key-version re-encryption. Production runtime call sites remain on local v1 until a selected KMS/vault adapter, component identities, access auditing, and an audited background rewrite are provisioned; there is no automatic local or plaintext fallback.
 
 Webhook signing secrets are stored only as encrypted endpoint material. The event worker decrypts them using the authenticated context `webhook-endpoint:<endpoint-id>` immediately before signing; the API and checkout path do not need plaintext access for delivery.
 
