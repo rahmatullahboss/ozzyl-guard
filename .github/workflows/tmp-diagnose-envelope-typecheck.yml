@@ -1,21 +1,21 @@
 name: Finalize envelope type correction
 
 on:
-  push:
-    branches: [ai/managed-envelope-boundary-20260717]
+  pull_request:
+    types: [reopened]
 
 permissions:
   contents: write
 
 jobs:
   finalize:
-    if: github.actor != 'github-actions[bot]'
+    if: github.head_ref == 'ai/managed-envelope-boundary-20260717'
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.ref_name }}
+          ref: ${{ github.head_ref }}
           fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
@@ -53,7 +53,7 @@ jobs:
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add -f .ai-bridge/tmp-envelope-validation.log
             git commit -m "test: capture managed envelope validation failure"
-            git push origin HEAD:${{ github.ref_name }}
+            git push origin HEAD:${{ github.head_ref }}
             exit "$status"
           fi
       - name: Commit production-only correction
@@ -65,4 +65,4 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
           git commit -m "fix: preserve managed envelope algorithm literal type"
-          git push origin HEAD:${{ github.ref_name }}
+          git push origin HEAD:${{ github.head_ref }}
