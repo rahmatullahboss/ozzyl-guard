@@ -1,0 +1,6 @@
+
+/home/runner/work/ozzyl-guard/ozzyl-guard/packages/encryption/src/index.ts
+  571:10  error  Unexpected control character(s) in regular expression: \x00, \x1f  no-control-regex
+
+✖ 1 problem (1 error, 0 warnings)
+
