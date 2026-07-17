@@ -24,6 +24,7 @@ jobs:
       - name: Apply documentation patch
         run: |
           set +e
+          python3 scripts/tmp-verification-docs-fix.py
           python3 scripts/tmp-verification-docs.py > /tmp/verification-docs.log 2>&1
           status=$?
           cat /tmp/verification-docs.log
@@ -60,6 +61,7 @@ jobs:
       - name: Commit verified documentation
         run: |
           rm scripts/tmp-verification-docs.py
+          rm scripts/tmp-verification-docs-fix.py
           rm .github/workflows/apply-verification-docs.yml
           rm -f .ai-bridge/tmp-verification-docs.log
           git config user.name "github-actions[bot]"
