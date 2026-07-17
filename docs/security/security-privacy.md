@@ -42,9 +42,11 @@ Never log:
 - OTP plaintext
 - Full phone number where masking is sufficient
 - Access tokens
+- Webhook signing secrets or decrypted secret envelopes
 - Raw courier payloads unless explicitly encrypted, access-controlled, retained briefly, and required for evidence/debugging
+- Unrestricted domain-event or request payloads
 
-All exception/error serialization must pass through a central redaction layer.
+All exception/error serialization must pass through a central redaction layer. Worker logs use structured identifiers and error codes, not secret-bearing exception payloads.
 
 ## Phone data
 
@@ -53,23 +55,31 @@ All exception/error serialization must pass through a central redaction layer.
 - Encrypt raw phone only when operational lookup is necessary
 - Separate analytics identity from operational contact data
 - Document retention and deletion behavior
+- Do not include raw phone values in webhook outbox events
 
-## Credential storage
+## Credential and envelope storage
 
 - Envelope encryption
 - Key version stored with ciphertext
 - Master keys outside database
 - Rotation procedure
 - Strict service identity permissions
-- Separate encryption context/keys for credentials and sessions
+- Separate authenticated encryption context for credentials, sessions, webhook endpoints, and future verification jobs
 - Audit credential reads and decrypt operations
 - Decryption failure must fail closed
+- No plaintext compatibility fallback
+
+The local/self-hosted AES-256-GCM implementation is isolated in `@ozzyl/encryption`. Production key generation, wrapping, access policy, rotation, and decrypt authorization must move to the accepted managed KMS/vault boundary without changing caller contracts.
+
+Webhook signing secrets are stored only as encrypted endpoint material. The event worker decrypts them using the authenticated context `webhook-endpoint:<endpoint-id>` immediately before signing; the API and checkout path do not need plaintext access for delivery.
 
 ## Multi-tenancy
 
 Every merchant-owned record includes organization/store scope. Repository methods require scope parameters rather than optional filters.
 
 Tests must prove that one organization/store cannot read, mutate, infer, or enumerate another tenant's data through IDs, external references, caches, jobs, webhooks, or logs.
+
+Webhook delivery rows persist explicit organization/store scope and are revalidated against the endpoint and store relationships before claim. Mismatched rows fail closed instead of being sent.
 
 ## Shared reputation safeguards
 
@@ -92,6 +102,26 @@ Tests must prove that one organization/store cannot read, mutate, infer, or enum
 - Bind OTP to verification session/order/purpose
 - Do not expose delivery success when provider actually failed
 - Do not log OTP values
+- Move provider delivery out of synchronous API handling
+- Encrypt any future durable job material that must contain the delivery phone or OTP
+- Bind future verification-job ciphertext to the job/session scope through authenticated encryption context
+
+## Webhook security
+
+- Emit durable outbox rows in the same transaction as the newly persisted assessment or outcome
+- Never perform merchant webhook network delivery from the risk engine, checkout handler, or API persistence transaction
+- Use stable event IDs and `(endpoint_id, event_id)` uniqueness for replay/idempotency control
+- Sign the exact canonical event payload with HMAC-SHA256 over `timestamp.payload`
+- Require HTTPS
+- Reject URL credentials, localhost names, `.local` names, literal non-public IPv4/IPv6 addresses, and metadata destinations
+- Resolve hostnames before fetch and reject the destination when any resolved address is invalid or non-public
+- Treat DNS resolution failure as retryable without making a request
+- Disable redirects to prevent redirect-based destination bypass
+- Apply bounded timeout, attempt limit, backoff, and terminal failure
+- Require the current unexpired worker lease for delivery-state transitions
+- Do not include raw phone, OTP, API keys, provider credentials, or signing secrets in event payloads or logs
+
+Application-level URL and DNS validation is not sufficient by itself against every DNS-rebinding, routing, proxy, or infrastructure failure. Production must also restrict event-worker egress, block metadata/private networks at the network layer, and use a controlled resolver or equivalent policy.
 
 ## Web security
 
@@ -122,8 +152,10 @@ Tests must prove that one organization/store cannot read, mutate, infer, or enum
 - SAST and secret scanning
 - Backups and restore testing
 - Incident response runbook
-- Key compromise and courier credential compromise runbooks
+- Key compromise, webhook-secret compromise, and courier credential compromise runbooks
+- Queue/outbox lease recovery and dead-letter procedures
 - Production access review and break-glass procedure
+- Private worker ingress and controlled egress
 
 ## Source SaaS findings that must not be copied
 
@@ -135,3 +167,5 @@ Tests must prove that one organization/store cannot read, mutate, infer, or enum
 - Hardcoded infrastructure identifiers
 - Decryption fallback to plaintext
 - Broad unaudited cross-store lookup
+- Synchronous webhook delivery in checkout handling
+- Plaintext webhook signing secrets in configuration or logs
