@@ -1,0 +1,93 @@
+name: Apply runtime role isolation implementation
+
+on:
+  pull_request:
+    types: [reopened]
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.head_ref == 'ai/runtime-role-isolation-20260717'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: ozzyl_guard
+          POSTGRES_PASSWORD: ozzyl_guard
+          POSTGRES_DB: ozzyl_guard_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ozzyl_guard -d ozzyl_guard_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://ozzyl_guard:ozzyl_guard@localhost:5432/ozzyl_guard_test
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Apply implementation patch
+        run: python3 scripts/tmp-runtime-role-isolation.py
+      - name: Format changed sources
+        run: >-
+          npx prettier --write
+          apps/api/src/index.ts
+          apps/api/src/postgres.ts
+          apps/api/src/postgres-administration.ts
+          apps/api/src/postgres-administration.test.ts
+          apps/api/src/postgres-isolation.test.ts
+          apps/api/src/postgres-dashboard-isolation.test.ts
+          packages/database/src/index.ts
+          packages/database/src/runtime-role.ts
+          packages/database/src/apply-runtime-grants.ts
+          packages/database/src/runtime-role.test.ts
+          packages/database/src/runtime-role.postgres.test.ts
+          packages/database/package.json
+          package.json
+          .github/workflows/ci.yml
+      - run: npm run format:check
+      - run: npm run lint
+      - run: npm run db:check
+      - run: npm run db:migrate
+      - name: Validate runtime grant CLI
+        env:
+          PGHOST: localhost
+          PGPORT: '5432'
+          PGUSER: ozzyl_guard
+          PGPASSWORD: ozzyl_guard
+          PGDATABASE: ozzyl_guard_test
+          DATABASE_RUNTIME_ROLE: ozzyl_guard_runtime_patch
+        run: |
+          cleanup() {
+            psql --set ON_ERROR_STOP=1 --command 'drop owned by ozzyl_guard_runtime_patch' >/dev/null 2>&1 || true
+            psql --set ON_ERROR_STOP=1 --command 'drop role if exists ozzyl_guard_runtime_patch' >/dev/null 2>&1 || true
+          }
+          trap cleanup EXIT
+          psql --set ON_ERROR_STOP=1 --command 'create role ozzyl_guard_runtime_patch login nosuperuser nocreatedb nocreaterole noinherit noreplication nobypassrls'
+          npm run db:runtime-grants
+      - run: npm run typecheck
+      - run: npm run build
+      - run: npm run test
+      - name: Commit production-only implementation
+        run: |
+          rm scripts/tmp-runtime-role-isolation.py
+          rm .github/workflows/capture-runtime-role-inventory.yml
+          rm .github/workflows/apply-runtime-role-isolation.yml
+          rm -f .ai-bridge/tmp-runtime-role-inventory.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "test: harden runtime role and tenant isolation"
+          git push origin HEAD:${{ github.head_ref }}
