@@ -29,6 +29,7 @@ jobs:
     env:
       DATABASE_URL: postgresql://ozzyl_guard:ozzyl_guard@localhost:5432/ozzyl_guard_test
       RESTORE_DATABASE_URL: postgresql://ozzyl_guard:ozzyl_guard@localhost:5432/ozzyl_guard_restore_test
+      RESTORE_REHEARSAL_VERIFY_DATA_HASHES: 'true'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
