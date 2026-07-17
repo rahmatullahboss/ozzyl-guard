@@ -96,7 +96,7 @@ implemented:
 verification:
   command: npm run verify
   last_verified: 2026-07-17
-  status: passed_for_webhook_outbox_code_head_pending_final_docs_ci
+  status: passed
   results:
     migrations: 8_of_8
     migration_replay: passed
@@ -116,15 +116,15 @@ verification:
     - local_main_and_origin_main_sync_cannot_be_verified_from_this_connector_workspace
   remote_ci:
     status: passed
-    run_id: 29549466931
-    job_id: 87788743529
+    run_id: 29550097719
+    job_id: 87790624617
     job: verify
-    tested_head: d44a1104d27d3229cc31350726756d22ec085faf
+    tested_head: fb0a68bac4628a96f82413b5d71092e4f0367536
+    merged_main_commit: 752d08776f35345e5ec002d9a9ca720f304df8cc
     completed: 2026-07-17
     steps: audit_format_lint_eight_migrations_migration_replay_architecture_typecheck_tests_build_php_all_passed
     postgresql_webhook_worker_lease_tests: 5_of_5_passed
   pending_follow_up:
-    - final_documentation_head_ci
     - continuation_bundle_local_exporter_refresh
 
 migrations:
