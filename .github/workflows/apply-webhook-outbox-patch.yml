@@ -50,12 +50,12 @@ jobs:
       - run: npm run typecheck --workspace @ozzyl/api
       - run: npm run test --workspace @ozzyl/encryption
       - run: npm run test --workspace @ozzyl/event-worker
-      - name: Run API tests with captured output
+      - name: Run API tests with dependency builds
         id: api_tests
         continue-on-error: true
         run: |
           set -o pipefail
-          npm run test --workspace @ozzyl/api 2>&1 | tee tmp-api-test.log
+          npx turbo run test --filter=@ozzyl/api 2>&1 | tee tmp-api-test.log
       - name: Publish API test failure
         if: steps.api_tests.outcome != 'success'
         run: |
