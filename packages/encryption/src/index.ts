@@ -7,7 +7,7 @@ import {
   type CipherGCMTypes,
 } from 'node:crypto';
 
-const AES_ALGORITHM: CipherGCMTypes = 'aes-256-gcm';
+const AES_ALGORITHM = 'aes-256-gcm' as const;
 const MANAGED_ENVELOPE_VERSION = 2;
 const MANAGED_SCHEMA_VERSION = 1;
 
