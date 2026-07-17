@@ -14,6 +14,7 @@
 - Policy parsing/versioning
 - Webhook HMAC signing, retry classification, and DNS destination validation
 - Migration manifest ordering and SHA-256 tamper detection
+- Runtime-role identifier validation and explicit table-policy completeness
 
 ## Contract tests
 
@@ -90,7 +91,12 @@ The CI PostgreSQL service runs real-database integration tests for:
 - competing verification workers claiming different due jobs with `FOR UPDATE SKIP LOCKED`;
 - protecting fresh verification leases and rejecting expired owners;
 - reclaiming stale verification work, clearing retry ownership, and terminalizing exhausted leases;
-- failing both the verification job and authoritative session on persisted scope mismatch.
+- failing both the verification job and authoritative session on persisted scope mismatch;
+- rejecting API keys, feature assembly, assessment writes, and outcome writes when organization/store ownership does not match;
+- isolating merchant dashboard aggregates and rechecking active platform-admin role on every call;
+- listing and updating webhook administration only for an active owner/admin scope without exposing signing secrets;
+- listing verification administration only for the authorized store without exposing OTP hashes or encrypted job payloads;
+- allowing reviewed runtime DML while denying migration-history reads, DELETE, DDL, schema creation, database ownership, elevated attributes, and inherited privileges.
 
 ### Webhook destination security coverage
 
@@ -141,8 +147,8 @@ Production-managed point-in-time recovery remains a provider provisioning gate r
 Future PostgreSQL coverage must include:
 
 - lease renewal during future jobs whose bounded execution time can exceed the configured lease;
-- webhook endpoint administration, feature, and dashboard repository isolation cases;
-- runtime-role versus migration-role permission enforcement.
+- selected-provider smoke tests for distinct API/worker runtime identities and migration-owner grant execution;
+- operational replay/dead-letter authorization and audit coverage.
 
 ## End-to-end tests
 
@@ -174,6 +180,7 @@ Future PostgreSQL coverage must include:
 - Credential decryption failure
 - Worker lease ownership and stale-owner rejection
 - Job payload scope, encryption-context, phone-HMAC, and OTP-hash tampering
+- Runtime database role privilege escape, ownership, migration-history, DELETE, and DDL attempts
 
 ## Scraper tests
 
@@ -219,6 +226,7 @@ Do not promote automatic blocking until false-positive behavior is understood an
 - integration tests with PostgreSQL
 - migration manifest, verification, replay, and database-history integrity
 - clean PostgreSQL backup/restore rehearsal
+- least-privilege runtime database role grant and effective-permission verification
 - dependency audit
 - secret scanning
 - architecture/dependency-boundary tests
