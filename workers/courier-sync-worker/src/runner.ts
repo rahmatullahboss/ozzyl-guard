@@ -7,6 +7,7 @@ import {
 } from '@ozzyl/courier-adapters';
 import { AesGcmEnvelopeCipher } from '@ozzyl/courier-session-worker';
 import { CourierSyncWorker } from './index.js';
+import { PostgresCourierJobQueue, type ClaimedCourierJob } from './postgres.js';
 
 const required = (name: string): string => {
   const value = process.env[name];
@@ -20,6 +21,9 @@ const cipher = new AesGcmEnvelopeCipher(
   required('CREDENTIAL_ENCRYPTION_KEY_VERSION'),
 );
 const pollMs = Number(process.env.WORKER_POLL_MS ?? 5_000);
+const leaseMs = Number(process.env.WORKER_LEASE_MS ?? 5 * 60_000);
+const workerId = process.env.WORKER_ID ?? `courier-sync-${randomUUID()}`;
+const jobs = new PostgresCourierJobQueue(pool, { leaseMs });
 let stopping = false;
 
 const steadfast = new SteadfastAdapter({
@@ -86,102 +90,58 @@ const syncWorker = new CourierSyncWorker({
   },
   health: {
     async started(jobId, at): Promise<void> {
-      await pool.query(
-        `update courier_jobs set status = 'processing', started_at = $2, attempts = attempts + 1, updated_at = now() where id = $1`,
-        [jobId, at],
-      );
+      await jobs.started(jobId, workerId, at);
     },
     async completed(jobId, at): Promise<void> {
-      await pool.query(
-        `update courier_jobs set status = 'completed', completed_at = $2, error_code = null, updated_at = now() where id = $1`,
-        [jobId, at],
-      );
+      await jobs.completed(jobId, workerId, at);
     },
     async failed(jobId, code, retryable, at): Promise<void> {
-      await pool.query(
-        `
-          update courier_jobs set status = case when $3 and attempts < 5 then 'queued' else 'failed' end,
-            scheduled_at = case when $3 and attempts < 5 then $4 + (least(3600, power(2, attempts) * 30)::text || ' seconds')::interval else scheduled_at end,
-            completed_at = case when $3 and attempts < 5 then null else $4 end,
-            error_code = $2, updated_at = now()
-          where id = $1
-        `,
-        [jobId, code, retryable, at],
-      );
+      await jobs.failed(jobId, workerId, code, retryable, at);
     },
   },
 });
 
-async function claimJob(): Promise<JobRow | null> {
-  const client = await pool.connect();
-  try {
-    await client.query('begin');
-    const result = await client.query<JobRow>(
-      `
-        select cj.id, cj.courier_account_id, cj.payload
-        from courier_jobs cj
-        where cj.status = 'queued' and cj.job_type = 'customer_observation_refresh'
-          and cj.scheduled_at <= now()
-        order by cj.scheduled_at asc
-        for update skip locked
-        limit 1
-      `,
-    );
-    const row = result.rows[0];
-    if (!row) {
-      await client.query('commit');
-      return null;
-    }
-    await client.query(
-      `update courier_jobs set status = 'claimed', updated_at = now() where id = $1`,
-      [row.id],
-    );
-    await client.query('commit');
-    return row;
-  } catch (error) {
-    await client.query('rollback').catch(() => undefined);
-    throw error;
-  } finally {
-    client.release();
-  }
-}
-
 async function run(): Promise<void> {
-  console.info(JSON.stringify({ level: 'info', event: 'courier.sync.worker.started' }));
+  console.info(
+    JSON.stringify({ level: 'info', event: 'courier.sync.worker.started', worker_id: workerId }),
+  );
   while (!stopping) {
     try {
-      const job = await claimJob();
+      const job = await jobs.claim(workerId);
       if (!job) {
         await new Promise((resolve) => setTimeout(resolve, pollMs));
         continue;
       }
-      const payload = parsePayload(job.payload);
+      let payload: ReturnType<typeof parsePayload>;
+      try {
+        payload = parsePayload(job.payload, job);
+      } catch (error) {
+        await jobs.failed(job.id, workerId, errorCode(error, 'INVALID_JOB_PAYLOAD'), false);
+        throw error;
+      }
       await syncWorker.sync({
         jobId: job.id,
-        storeId: payload.storeId,
-        courierAccountId: job.courier_account_id,
-        provider: payload.provider,
+        storeId: job.storeId,
+        courierAccountId: job.courierAccountId,
+        provider: job.provider,
         phone: payload.phone,
         phoneHash: payload.phoneHash,
         force: payload.force,
       });
     } catch (error) {
-      const code =
-        error && typeof error === 'object' && 'code' in error
-          ? String(error.code)
-          : 'WORKER_TICK_FAILED';
-      console.error(JSON.stringify({ level: 'error', event: 'courier.sync.worker.error', code }));
+      console.error(
+        JSON.stringify({
+          level: 'error',
+          event: 'courier.sync.worker.error',
+          code: errorCode(error, 'WORKER_TICK_FAILED'),
+        }),
+      );
       await new Promise((resolve) => setTimeout(resolve, Math.min(pollMs, 5_000)));
     }
   }
   await pool.end();
 }
 
-interface JobRow {
-  id: string;
-  courier_account_id: string;
-  payload: unknown;
-}
 interface ObservationRow {
   provider: 'steadfast' | 'pathao' | 'redx' | 'aggregator';
   total_orders: number;
@@ -195,27 +155,37 @@ interface ObservationRow {
   expires_at: Date;
 }
 
-function parsePayload(value: unknown): {
-  storeId: string;
-  provider: string;
-  phone: string;
-  phoneHash: string;
-  force: boolean;
-} {
-  if (!value || typeof value !== 'object') throw new Error('Courier job payload is invalid');
+function parsePayload(
+  value: unknown,
+  job: ClaimedCourierJob,
+): { phone: string; phoneHash: string; force: boolean } {
+  if (!value || typeof value !== 'object') throw invalidPayload('Courier job payload is invalid');
   const row = value as Record<string, unknown>;
-  if (
-    ![row.storeId, row.provider, row.phone, row.phoneHash].every((item) => typeof item === 'string')
-  ) {
-    throw new Error('Courier job payload is incomplete');
+  if (![row.phone, row.phoneHash].every((item) => typeof item === 'string')) {
+    throw invalidPayload('Courier job payload is incomplete');
+  }
+  if (typeof row.organizationId === 'string' && row.organizationId !== job.organizationId) {
+    throw invalidPayload('Courier job organization scope does not match the account');
+  }
+  if (typeof row.storeId === 'string' && row.storeId !== job.storeId) {
+    throw invalidPayload('Courier job store scope does not match the account');
+  }
+  if (typeof row.provider === 'string' && row.provider !== job.provider) {
+    throw invalidPayload('Courier job provider does not match the account');
   }
   return {
-    storeId: String(row.storeId),
-    provider: String(row.provider),
     phone: String(row.phone),
     phoneHash: String(row.phoneHash),
     force: row.force === true,
   };
+}
+
+function invalidPayload(message: string): Error & { code: string } {
+  return Object.assign(new Error(message), { code: 'INVALID_JOB_PAYLOAD' });
+}
+
+function errorCode(error: unknown, fallback: string): string {
+  return error && typeof error === 'object' && 'code' in error ? String(error.code) : fallback;
 }
 
 function observationFromRow(row: ObservationRow): CourierObservation {
