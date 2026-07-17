@@ -66,10 +66,10 @@ jobs:
           status=$?
           cat /tmp/verification-worker-test.log
           if [ "$status" -ne 0 ]; then
-            cp /tmp/verification-worker-test.log scripts/tmp-verification-worker-test.log
+            tail -n 180 /tmp/verification-worker-test.log > .ai-bridge/tmp-verification-worker-test.log
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add scripts/tmp-verification-worker-test.log
+            git add -f .ai-bridge/tmp-verification-worker-test.log
             git commit -m "test: capture verification worker failure"
             git push origin HEAD:${{ github.head_ref }}
             exit "$status"
@@ -82,7 +82,7 @@ jobs:
         run: |
           rm scripts/tmp-verification-queue-patch.py
           rm .github/workflows/apply-verification-queue-patch.yml
-          rm -f scripts/tmp-verification-worker-test.log
+          rm -f .ai-bridge/tmp-verification-worker-test.log
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
