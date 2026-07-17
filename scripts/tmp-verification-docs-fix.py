@@ -2,7 +2,7 @@ from pathlib import Path
 
 path = Path('scripts/tmp-verification-docs.py')
 text = path.read_text()
-old = '''replace_once(
+old_status = '''replace_once(
     "tracker.yml",
     """  status: passed
 """,
@@ -10,7 +10,7 @@ old = '''replace_once(
 """,
 )
 '''
-new = '''replace_once(
+new_status = '''replace_once(
     "tracker.yml",
     """verification:
   command: npm run verify
@@ -24,6 +24,18 @@ new = '''replace_once(
 """,
 )
 '''
-if text.count(old) != 1:
-    raise SystemExit(f'Expected one tracker verification status patch, found {text.count(old)}')
-path.write_text(text.replace(old, new))
+if text.count(old_status) != 1:
+    raise SystemExit(f'Expected one tracker verification status patch, found {text.count(old_status)}')
+text = text.replace(old_status, new_status)
+
+old_testing = '''    """- Worker lease ownership and stale-owner rejection
+- Job payload scope tampering
+""",
+'''
+new_testing = '''    """- Worker lease ownership and stale-owner rejection
+- Job/event payload scope tampering
+""",
+'''
+if text.count(old_testing) != 1:
+    raise SystemExit(f'Expected one testing wording patch, found {text.count(old_testing)}')
+path.write_text(text.replace(old_testing, new_testing))
