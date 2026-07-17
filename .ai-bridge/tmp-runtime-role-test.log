@@ -1,0 +1,500 @@
+cache hit, replaying logs c1088b0de1ada4a2
+
+> @ozzyl/authentication@0.1.0 build
+> tsup src/index.ts --format esm --dts --sourcemap --clean
+
+[34mCLI[39m Building entry: src/index.ts
+[34mCLI[39m Using tsconfig: tsconfig.json
+[34mCLI[39m tsup v8.5.1
+[34mCLI[39m Target: es2022
+[34mCLI[39m Cleaning output folder
+[34mESM[39m Build start
+[32mESM[39m [1mdist/index.js     [22m[32m2.00 KB[39m
+[32mESM[39m [1mdist/index.js.map [22m[32m3.75 KB[39m
+[32mESM[39m ⚡️ Build success in 42ms
+[34mDTS[39m Build start
+[32mDTS[39m ⚡️ Build success in 5961ms
+[32mDTS[39m [1mdist/index.d.ts [22m[32m1.00 KB[39m
+::endgroup::
+::group::@ozzyl/courier-adapters:build
+cache hit, replaying logs 5e8ba18a4ca964bf
+
+> @ozzyl/courier-adapters@0.1.0 build
+> tsup src/index.ts --format esm --dts --sourcemap --clean
+
+[34mCLI[39m Building entry: src/index.ts
+[34mCLI[39m Using tsconfig: tsconfig.json
+[34mCLI[39m tsup v8.5.1
+[34mCLI[39m Target: es2022
+[34mCLI[39m Cleaning output folder
+[34mESM[39m Build start
+[32mESM[39m [1mdist/index.js     [22m[32m4.69 KB[39m
+[32mESM[39m [1mdist/index.js.map [22m[32m9.31 KB[39m
+[32mESM[39m ⚡️ Build success in 55ms
+[34mDTS[39m Build start
+[32mDTS[39m ⚡️ Build success in 6114ms
+[32mDTS[39m [1mdist/index.d.ts [22m[32m2.30 KB[39m
+::endgroup::
+::group::@ozzyl/sdk:build
+cache hit, replaying logs b5a2269384709d69
+
+> @ozzyl/sdk@0.1.0 build
+> tsup src/index.ts --format esm --dts --sourcemap --clean
+
+[34mCLI[39m Building entry: src/index.ts
+[34mCLI[39m Using tsconfig: tsconfig.json
+[34mCLI[39m tsup v8.5.1
+[34mCLI[39m Target: es2022
+[34mCLI[39m Cleaning output folder
+[34mESM[39m Build start
+[32mESM[39m [1mdist/index.js     [22m[32m3.89 KB[39m
+[32mESM[39m [1mdist/index.js.map [22m[32m7.34 KB[39m
+[32mESM[39m ⚡️ Build success in 90ms
+[34mDTS[39m Build start
+[32mDTS[39m ⚡️ Build success in 10146ms
+[32mDTS[39m [1mdist/index.d.ts [22m[32m1.29 KB[39m
+::endgroup::
+::group::@ozzyl/risk-engine:build
+cache hit, replaying logs 6c2198a9e9865d51
+
+> @ozzyl/risk-engine@0.1.0 build
+> tsup src/index.ts --format esm --dts --sourcemap --clean
+
+[34mCLI[39m Building entry: src/index.ts
+[34mCLI[39m Using tsconfig: tsconfig.json
+[34mCLI[39m tsup v8.5.1
+[34mCLI[39m Target: es2022
+[34mCLI[39m Cleaning output folder
+[34mESM[39m Build start
+[32mESM[39m [1mdist/index.js     [22m[32m7.00 KB[39m
+[32mESM[39m [1mdist/index.js.map [22m[32m13.55 KB[39m
+[32mESM[39m ⚡️ Build success in 77ms
+[34mDTS[39m Build start
+[32mDTS[39m ⚡️ Build success in 9324ms
+[32mDTS[39m [1mdist/index.d.ts [22m[32m2.33 KB[39m
+::endgroup::
+::group::@ozzyl/shared-types:test
+cache miss, executing fba0787e44ed530f
+
+> @ozzyl/shared-types@0.1.0 test
+> vitest run --passWithNoTests
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/ozzyl-guard/ozzyl-guard/packages/shared-types[39m
+
+No test files found, exiting with code 0
+
+[2minclude: [22m[33m**/*.test.ts[39m
+[2mexclude:  [22m[33m**/node_modules/**[2m, [22m**/.git/**[39m
+
+::endgroup::
+::group::@ozzyl/admin:test
+cache miss, executing be7e67141fd682a6
+
+> @ozzyl/admin@0.1.0 test
+> vitest run --passWithNoTests
+
+[2m5:55:33 AM[22m [33m[1m[vite][22m[39m [33mwarning: `esbuild` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `oxc` instead.[39m
+[2m5:55:33 AM[22m [33m[1m[vite][22m[39m [33mwarning: `optimizeDeps.esbuildOptions` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `optimizeDeps.rolldownOptions` instead.[39m
+[33mBoth esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored.[39m The following esbuild options were set: `{ jsx: 'automatic', jsxImportSource: undefined }`
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/ozzyl-guard/ozzyl-guard/apps/admin[39m
+
+No test files found, exiting with code 0
+
+[2minclude: [22m[33m**/*.{test,spec}.?(c|m)[jt]s?(x)[39m
+[2mexclude:  [22m[33m**/node_modules/**[2m, [22m**/.git/**[39m
+
+::endgroup::
+::group::@ozzyl/sdk:test
+cache miss, executing 43313600f87026d9
+
+> @ozzyl/sdk@0.1.0 test
+> vitest run --passWithNoTests
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/ozzyl-guard/ozzyl-guard/packages/sdk[39m
+
+No test files found, exiting with code 0
+
+[2minclude: [22m[33m**/*.test.ts[39m
+[2mexclude:  [22m[33m**/node_modules/**[2m, [22m**/.git/**[39m
+
+::endgroup::
+::group::@ozzyl/encryption:test
+cache miss, executing 11ad9658e7d4ec15
+
+> @ozzyl/encryption@0.1.0 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/ozzyl-guard/ozzyl-guard/packages/encryption[39m
+
+ [32m✓[39m src/index.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 48[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m   Start at [22m 05:55:33
+[2m   Duration [22m 731ms[2m (transform 118ms, setup 0ms, import 174ms, tests 48ms, environment 0ms)[22m
+
+::endgroup::
+::group::@ozzyl/verification:test
+cache miss, executing b9623492d421c79f
+
+> @ozzyl/verification@0.1.0 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/ozzyl-guard/ozzyl-guard/packages/verification[39m
+
+ [32m✓[39m src/index.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 45[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m   Start at [22m 05:55:33
+[2m   Duration [22m 1.21s[2m (transform 310ms, setup 0ms, import 405ms, tests 45ms, environment 0ms)[22m
+
+::endgroup::
+::group::@ozzyl/courier-session-worker:build
+cache hit, replaying logs 23e46a0d8d063ba6
+
+> @ozzyl/courier-session-worker@0.1.0 build
+> tsup src/index.ts src/runner.ts --format esm --dts --sourcemap --clean
+
+[34mCLI[39m Building entry: src/index.ts, src/runner.ts
+[34mCLI[39m Using tsconfig: tsconfig.json
+[34mCLI[39m tsup v8.5.1
+[34mCLI[39m Target: es2022
+[34mCLI[39m Cleaning output folder
+[34mESM[39m Build start
+[32mESM[39m [1mdist/index.js              [22m[32m274.00 B[39m
+[32mESM[39m [1mdist/runner.js             [22m[32m4.72 KB[39m
+[32mESM[39m [1mdist/chunk-RUCQKXWS.js     [22m[32m4.68 KB[39m
+[32mESM[39m [1mdist/index.js.map          [22m[32m71.00 B[39m
+[32mESM[39m [1mdist/runner.js.map         [22m[32m7.83 KB[39m
+[32mESM[39m [1mdist/chunk-RUCQKXWS.js.map [22m[32m8.62 KB[39m
+[32mESM[39m ⚡️ Build success in 32ms
+[34mDTS[39m Build start
+[32mDTS[39m ⚡️ Build success in 13440ms
+[32mDTS[39m [1mdist/runner.d.ts [22m[32m13.00 B[39m
+[32mDTS[39m [1mdist/index.d.ts  [22m[32m1.77 KB[39m
+::endgroup::
+::group::@ozzyl/authentication:test
+cache miss, executing 425f21b87b2b0441
+
+> @ozzyl/authentication@0.1.0 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/ozzyl-guard/ozzyl-guard/packages/authentication[39m
+
+ [32m✓[39m src/index.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 321[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m   Start at [22m 05:55:33
+[2m   Duration [22m 1.16s[2m (transform 112ms, setup 0ms, import 187ms, tests 321ms, environment 0ms)[22m
+
+::endgroup::
+::group::@ozzyl/courier-adapters:test
+cache miss, executing 59578162faf3da94
+
+> @ozzyl/courier-adapters@0.1.0 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/ozzyl-guard/ozzyl-guard/packages/courier-adapters[39m
+
+ [32m✓[39m src/index.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 202[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m   Start at [22m 05:55:33
+[2m   Duration [22m 1.50s[2m (transform 247ms, setup 0ms, import 341ms, tests 202ms, environment 0ms)[22m
+
+::endgroup::
+::group::@ozzyl/billing:test
+cache miss, executing 50af672f37f0329c
+
+> @ozzyl/billing@0.1.0 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/ozzyl-guard/ozzyl-guard/packages/billing[39m
+
+ [32m✓[39m src/index.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 34[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m   Start at [22m 05:55:34
+[2m   Duration [22m 1.23s[2m (transform 182ms, setup 0ms, import 272ms, tests 34ms, environment 0ms)[22m
+
+::endgroup::
+::group::@ozzyl/event-worker:test
+cache miss, executing 07788cbb7d361ee0
+
+> @ozzyl/event-worker@0.1.0 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/ozzyl-guard/ozzyl-guard/workers/event-worker[39m
+
+ [32m✓[39m src/index.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 206[2mms[22m[39m
+ [32m✓[39m src/postgres.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 325[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[32m10 passed[39m[22m[90m (10)[39m
+[2m   Start at [22m 05:55:33
+[2m   Duration [22m 1.88s[2m (transform 643ms, setup 0ms, import 1.14s, tests 531ms, environment 0ms)[22m
+
+::endgroup::
+::group::@ozzyl/database:test
+cache miss, executing 33fbfd550aec880b
+
+> @ozzyl/database@0.1.0 test
+> vitest run --passWithNoTests
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/ozzyl-guard/ozzyl-guard/packages/database[39m
+
+ [32m✓[39m src/migration-integrity.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 129[2mms[22m[39m
+ [32m✓[39m src/migration-integrity.postgres.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 167[2mms[22m[39m
+ [32m✓[39m src/runtime-role.postgres.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 515[2mms[22m[39m
+     [33m[2m✓[22m[39m allows current application DML but denies migration history, delete, and DDL [33m 324[2mms[22m[39m
+ [32m✓[39m src/runtime-role.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m4 passed[39m[22m[90m (4)[39m
+[2m      Tests [22m [1m[32m13 passed[39m[22m[90m (13)[39m
+[2m   Start at [22m 05:55:34
+[2m   Duration [22m 2.28s[2m (transform 590ms, setup 0ms, import 1.33s, tests 823ms, environment 13ms)[22m
+
+::endgroup::
+::group::@ozzyl/dashboard:test
+cache miss, executing 90bd6216bf6bb96f
+
+> @ozzyl/dashboard@0.1.0 test
+> vitest run --passWithNoTests
+
+[2m5:55:36 AM[22m [33m[1m[vite][22m[39m [33mwarning: `esbuild` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `oxc` instead.[39m
+[2m5:55:36 AM[22m [33m[1m[vite][22m[39m [33mwarning: `optimizeDeps.esbuildOptions` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `optimizeDeps.rolldownOptions` instead.[39m
+[33mBoth esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored.[39m The following esbuild options were set: `{ jsx: 'automatic', jsxImportSource: undefined }`
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/ozzyl-guard/ozzyl-guard/apps/dashboard[39m
+
+No test files found, exiting with code 0
+
+[2minclude: [22m[33m**/*.{test,spec}.?(c|m)[jt]s?(x)[39m
+[2mexclude:  [22m[33m**/node_modules/**[2m, [22m**/.git/**[39m
+
+::endgroup::
+::group::@ozzyl/risk-engine:test
+cache miss, executing 034f293e5ca97b54
+
+> @ozzyl/risk-engine@0.1.0 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/ozzyl-guard/ozzyl-guard/packages/risk-engine[39m
+
+ [32m✓[39m src/index.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 28[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m4 passed[39m[22m[90m (4)[39m
+[2m   Start at [22m 05:55:36
+[2m   Duration [22m 900ms[2m (transform 176ms, setup 0ms, import 214ms, tests 28ms, environment 0ms)[22m
+
+::endgroup::
+::group::@ozzyl/custom-js-integration:test
+cache miss, executing b946e794666d0b12
+
+> @ozzyl/custom-js-integration@0.1.0 test
+> vitest run --passWithNoTests
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/ozzyl-guard/ozzyl-guard/integrations/custom-js[39m
+
+No test files found, exiting with code 0
+
+[2minclude: [22m[33m**/*.test.ts[39m
+[2mexclude:  [22m[33m**/node_modules/**[2m, [22m**/.git/**[39m
+
+::endgroup::
+::group::@ozzyl/verification-worker:test
+cache miss, executing 86f316837483561e
+
+> @ozzyl/verification-worker@0.1.0 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/ozzyl-guard/ozzyl-guard/workers/verification-worker[39m
+
+ [32m✓[39m src/payload.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 69[2mms[22m[39m
+ [32m✓[39m src/index.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 37[2mms[22m[39m
+ [32m✓[39m src/postgres.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 309[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m3 passed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[32m11 passed[39m[22m[90m (11)[39m
+[2m   Start at [22m 05:55:35
+[2m   Duration [22m 1.64s[2m (transform 649ms, setup 0ms, import 1.30s, tests 416ms, environment 1ms)[22m
+
+::endgroup::
+::group::@ozzyl/multi-store-saas-integration:test
+cache miss, executing a9ac36686c5a0fef
+
+> @ozzyl/multi-store-saas-integration@0.1.0 test
+> vitest run --passWithNoTests
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/ozzyl-guard/ozzyl-guard/integrations/multi-store-saas[39m
+
+No test files found, exiting with code 0
+
+[2minclude: [22m[33m**/*.test.ts[39m
+[2mexclude:  [22m[33m**/node_modules/**[2m, [22m**/.git/**[39m
+
+::endgroup::
+::group::@ozzyl/shopify-integration:test
+cache miss, executing 5ea243bda5abe9d1
+
+> @ozzyl/shopify-integration@0.1.0 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/ozzyl-guard/ozzyl-guard/integrations/shopify[39m
+
+ [32m✓[39m src/index.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m   Start at [22m 05:55:37
+[2m   Duration [22m 505ms[2m (transform 84ms, setup 0ms, import 129ms, tests 19ms, environment 6ms)[22m
+
+::endgroup::
+::group::@ozzyl/courier-session-worker:test
+cache miss, executing 03af50d9ed423eda
+
+> @ozzyl/courier-session-worker@0.1.0 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/ozzyl-guard/ozzyl-guard/workers/courier-session-worker[39m
+
+ [32m✓[39m src/index.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 14[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m   Start at [22m 05:55:36
+[2m   Duration [22m 2.16s[2m (transform 239ms, setup 0ms, import 1.68s, tests 14ms, environment 0ms)[22m
+
+::endgroup::
+::group::@ozzyl/courier-sync-worker:test
+cache miss, executing e88cf2342adb4170
+
+> @ozzyl/courier-sync-worker@0.1.0 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/ozzyl-guard/ozzyl-guard/workers/courier-sync-worker[39m
+
+ [32m✓[39m src/index.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m src/postgres.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 175[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[32m7 passed[39m[22m[90m (7)[39m
+[2m   Start at [22m 05:55:38
+[2m   Duration [22m 784ms[2m (transform 191ms, setup 0ms, import 353ms, tests 184ms, environment 0ms)[22m
+
+::endgroup::
+[;31m@ozzyl/api:test[;0m
+cache miss, executing 0a00c8a1f2ab61e1
+
+> @ozzyl/api@0.1.0 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/ozzyl-guard/ozzyl-guard/apps/api[39m
+
+ [31m❯[39m src/postgres-dashboard-isolation.test.ts [2m([22m[2m2 tests[22m[2m | [22m[33m2 skipped[39m[2m)[22m[32m 66[2mms[22m[39m
+     [2m[90m↓[39m[22m aggregates only the authorized organization and store
+     [2m[90m↓[39m[22m rechecks active platform-admin authorization on every repository call
+ [32m✓[39m src/index.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 94[2mms[22m[39m
+ [32m✓[39m src/postgres-concurrency.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 313[2mms[22m[39m
+ [32m✓[39m src/browser.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 69[2mms[22m[39m
+ [31m❯[39m src/postgres-administration.test.ts [2m([22m[2m2 tests[22m[2m | [22m[33m2 skipped[39m[2m)[22m[32m 45[2mms[22m[39m
+     [2m[90m↓[39m[22m lists and changes only authorized relationally scoped webhook endpoints
+     [2m[90m↓[39m[22m returns secret-free verification administration rows only for the authorized store
+ [32m✓[39m src/postgres-isolation.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 81[2mms[22m[39m
+ [32m✓[39m src/postgres-browser.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 168[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Suites 2 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/postgres-administration.test.ts[2m > [22mPostgreSQL webhook and verification administration isolation
+[31m[1merror[22m: new row for relation "users" violates check constraint "users_auth_method_check"[39m
+[90m [2m❯[22m ../../node_modules/pg/lib/client.js:[2m652:17[22m[39m
+[36m [2m❯[22m src/postgres-administration.test.ts:[2m33:7[22m[39m
+    [90m 31|[39m     [35mtry[39m {
+    [90m 32|[39m       [35mawait[39m client[33m.[39m[34mquery[39m([32m'begin'[39m)[33m;[39m
+    [90m 33|[39m       [35mawait[39m client[33m.[39m[34mquery[39m(
+    [90m   |[39m       [31m^[39m
+    [90m 34|[39m         `insert into users (id, email, status) values ($1, $2, 'active…
+    [90m 35|[39m         [ownerA, `${ownerA}@example.com`, ownerB, `${ownerB}@example.c…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/postgres-dashboard-isolation.test.ts[2m > [22mPostgreSQL dashboard and platform administration isolation
+[31m[1merror[22m: new row for relation "users" violates check constraint "users_auth_method_check"[39m
+[90m [2m❯[22m ../../node_modules/pg/lib/client.js:[2m652:17[22m[39m
+[36m [2m❯[22m src/postgres-dashboard-isolation.test.ts:[2m29:7[22m[39m
+    [90m 27|[39m     [35mtry[39m {
+    [90m 28|[39m       [35mawait[39m client[33m.[39m[34mquery[39m([32m'begin'[39m)[33m;[39m
+    [90m 29|[39m       [35mawait[39m client[33m.[39m[34mquery[39m(
+    [90m   |[39m       [31m^[39m
+    [90m 30|[39m         [32m`
+    [90m 31|[39m           insert into users (id, email, platform_role, status) values
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m5 passed[39m[22m[90m (7)[39m
+[2m      Tests [22m [1m[32m25 passed[39m[22m[2m | [22m[33m4 skipped[39m[90m (29)[39m
+[2m   Start at [22m 05:55:37
+[2m   Duration [22m 1.81s[2m (transform 605ms, setup 0ms, import 1.58s, tests 836ms, environment 1ms)[22m
+
+
+::error file=/home/runner/work/ozzyl-guard/ozzyl-guard/apps/api/src/postgres-administration.test.ts,title=src/postgres-administration.test.ts > PostgreSQL webhook and verification administration isolation,line=33,column=7::error: new row for relation "users" violates check constraint "users_auth_method_check"%0A ❯ ../../node_modules/pg/lib/client.js:652:17%0A ❯ src/postgres-administration.test.ts:33:7%0A%0A⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯%0ASerialized Error: { length: 415, severity: 'ERROR', code: '23514', detail: 'Failing row contains (usr_admin_a_e9900348-a5bc-4676-bc33-90c227b93627, usr_admin_a_e9900348-a5bc-4676-bc33-90c227b93627@example.com, null, null, null, active, 2026-07-17 05:55:39.26361+00, 2026-07-17 05:55:39.26361+00, merchant).', hint: undefined, position: undefined, internalPosition: undefined, internalQuery: undefined, where: undefined, schema: 'public', table: 'users', dataType: undefined, constraint: 'users_auth_method_check', file: 'execMain.c', routine: 'ExecConstraints' }%0A
+
+::error file=/home/runner/work/ozzyl-guard/ozzyl-guard/apps/api/src/postgres-dashboard-isolation.test.ts,title=src/postgres-dashboard-isolation.test.ts > PostgreSQL dashboard and platform administration isolation,line=29,column=7::error: new row for relation "users" violates check constraint "users_auth_method_check"%0A ❯ ../../node_modules/pg/lib/client.js:652:17%0A ❯ src/postgres-dashboard-isolation.test.ts:29:7%0A%0A⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯%0ASerialized Error: { length: 425, severity: 'ERROR', code: '23514', detail: 'Failing row contains (usr_dashboard_a_e7ded6d3-73ee-4e53-bc6a-9310d5f78a44, usr_dashboard_a_e7ded6d3-73ee-4e53-bc6a-9310d5f78a44@example.com, null, null, null, active, 2026-07-17 05:55:38.832584+00, 2026-07-17 05:55:38.832584+00, merchant).', hint: undefined, position: undefined, internalPosition: undefined, internalQuery: undefined, where: undefined, schema: 'public', table: 'users', dataType: undefined, constraint: 'users_auth_method_check', file: 'execMain.c', routine: 'ExecConstraints' }%0A
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /home/runner/work/ozzyl-guard/ozzyl-guard/apps/api
+npm error workspace @ozzyl/api@0.1.0
+npm error location /home/runner/work/ozzyl-guard/ozzyl-guard/apps/api
+npm error command failed
+npm error command sh -c vitest run
+::error::command (/home/runner/work/ozzyl-guard/ozzyl-guard/apps/api) /opt/hostedtoolcache/node/20.20.2/x64/bin/npm run test exited (1)
+@ozzyl/api#test:  ERROR  command (/home/runner/work/ozzyl-guard/ozzyl-guard/apps/api) /opt/hostedtoolcache/node/20.20.2/x64/bin/npm run test exited (1)
+
+ Tasks:    27 successful, 28 total
+Cached:    9 cached, 28 total
+  Time:    8.157s 
+Failed:    @ozzyl/api#test
+
+ WARNING  no output files found for task @ozzyl/admin#test. Please check your `outputs` key in `turbo.json`
+ WARNING  no output files found for task @ozzyl/authentication#test. Please check your `outputs` key in `turbo.json`
+ WARNING  no output files found for task @ozzyl/billing#test. Please check your `outputs` key in `turbo.json`
+ WARNING  no output files found for task @ozzyl/courier-adapters#test. Please check your `outputs` key in `turbo.json`
+ WARNING  no output files found for task @ozzyl/courier-session-worker#test. Please check your `outputs` key in `turbo.json`
+ WARNING  no output files found for task @ozzyl/courier-sync-worker#test. Please check your `outputs` key in `turbo.json`
+ WARNING  no output files found for task @ozzyl/custom-js-integration#test. Please check your `outputs` key in `turbo.json`
+ WARNING  no output files found for task @ozzyl/dashboard#test. Please check your `outputs` key in `turbo.json`
+ WARNING  no output files found for task @ozzyl/database#test. Please check your `outputs` key in `turbo.json`
+ WARNING  no output files found for task @ozzyl/encryption#test. Please check your `outputs` key in `turbo.json`
+ WARNING  no output files found for task @ozzyl/event-worker#test. Please check your `outputs` key in `turbo.json`
+ WARNING  no output files found for task @ozzyl/multi-store-saas-integration#test. Please check your `outputs` key in `turbo.json`
+ WARNING  no output files found for task @ozzyl/risk-engine#test. Please check your `outputs` key in `turbo.json`
+ WARNING  no output files found for task @ozzyl/sdk#test. Please check your `outputs` key in `turbo.json`
+ WARNING  no output files found for task @ozzyl/shared-types#test. Please check your `outputs` key in `turbo.json`
+ WARNING  no output files found for task @ozzyl/shopify-integration#test. Please check your `outputs` key in `turbo.json`
+ WARNING  no output files found for task @ozzyl/verification#test. Please check your `outputs` key in `turbo.json`
+ WARNING  no output files found for task @ozzyl/verification-worker#test. Please check your `outputs` key in `turbo.json`
+ ERROR  run failed: command  exited (1)
