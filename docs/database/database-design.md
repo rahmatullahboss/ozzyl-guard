@@ -179,6 +179,22 @@ Organization, store, and provider scope come from the `courier_accounts` and `st
 - degraded flags
 - timestamps
 
+### `integration_shadow_comparisons`
+
+- immutable organization/store-scoped native-client comparison evidence
+- source API key and integration name
+- external order and scoped assessment references
+- legacy score/decision
+- server-derived Guard score/decision/confidence
+- decision-change flag and score delta
+- rollout version, deterministic sample bucket, and sample rate
+- evaluation and creation timestamps
+
+The assessment foreign key includes organization and store scope. No raw phone,
+API key, provider credential, or unrestricted order snapshot is stored.
+Idempotency is unique by organization, store, integration, and key; conflicting
+reuse fails closed.
+
 ### `risk_signals`
 
 - assessment id

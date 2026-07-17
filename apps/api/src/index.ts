@@ -14,9 +14,12 @@ import {
   type VerificationFeatures,
 } from '@ozzyl/risk-engine';
 import {
+  nativeShadowComparisonInputSchema,
+  nativeShadowComparisonResponseSchema,
   orderOutcomeSchema,
   riskAssessmentRequestSchema,
   riskAssessmentResponseSchema,
+  type NativeShadowComparisonInput,
   type OrderOutcomeInput,
   type RiskAssessmentRequest,
   type RiskAssessmentResponse,
@@ -25,6 +28,7 @@ import { VerificationError } from '@ozzyl/verification';
 import { createBrowserApi, type BrowserApiDependencies } from './browser.js';
 
 export * from './postgres-administration.js';
+export * from './postgres-shadow-comparisons.js';
 
 export interface ApiKeyIdentity {
   apiKeyId: string;
@@ -88,6 +92,17 @@ export interface OutcomeRepository {
   }): Promise<{ outcomeId: string; replay: boolean }>;
 }
 
+export interface ShadowComparisonRepository {
+  save(input: {
+    organizationId: string;
+    storeId: string;
+    apiKeyId: string;
+    idempotencyKey: string;
+    comparison: NativeShadowComparisonInput;
+    guardAssessment: RiskAssessmentResponse;
+  }): Promise<{ comparisonId: string; replay: boolean }>;
+}
+
 export interface CourierRefreshQueue {
   enqueue(input: {
     organizationId: string;
@@ -135,6 +150,7 @@ export interface ApiDependencies {
   features: AssessmentFeatureProvider;
   assessments: AssessmentRepository;
   outcomes: OutcomeRepository;
+  shadowComparisons?: ShadowComparisonRepository;
   refreshQueue: CourierRefreshQueue;
   idempotency: OperationIdempotencyStore;
   rateLimiter: RateLimiter;
@@ -182,6 +198,7 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
       endpoints: {
         assessments: 'POST /v1/risk-assessments',
         outcomes: 'POST /v1/order-outcomes',
+        nativeShadowComparisons: 'POST /v1/integration-comparisons/native-shadow',
         refresh: 'POST /v1/courier-observations/refresh',
         otpSend: 'POST /v1/verifications/otp/send',
         otpVerify: 'POST /v1/verifications/otp/verify',
@@ -377,6 +394,85 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
       { success: true as const, outcome_id: saved.outcomeId, replay: saved.replay },
       saved.replay ? 200 : 201,
     );
+  });
+
+  app.post('/v1/integration-comparisons/native-shadow', async (context) => {
+    const requestId = context.get('requestId');
+    const identity = context.get('identity');
+    const scopeError = requireScope(identity, 'comparisons:write', requestId);
+    if (scopeError) return scopeError;
+    if (!dependencies.shadowComparisons) {
+      return apiError(
+        requestId,
+        503,
+        'SHADOW_COMPARISON_UNAVAILABLE',
+        'Native shadow comparison persistence is not configured',
+      );
+    }
+    const idempotencyKey = readIdempotencyKey(context.req.header('Idempotency-Key'));
+    if (!idempotencyKey) {
+      return apiError(requestId, 400, 'IDEMPOTENCY_KEY_REQUIRED', 'Idempotency-Key is required');
+    }
+    const parsedBody = await parseJson(context.req.raw, nativeShadowComparisonInputSchema);
+    if (!parsedBody.success) return apiError(requestId, 400, 'INVALID_REQUEST', parsedBody.message);
+    const assessment = await dependencies.assessments.findById({
+      organizationId: identity.organizationId,
+      storeId: identity.storeId,
+      assessmentId: parsedBody.value.assessment_id,
+    });
+    if (!assessment) {
+      return apiError(
+        requestId,
+        400,
+        'ASSESSMENT_NOT_FOUND',
+        'Assessment not found for this store',
+      );
+    }
+    if (assessment.request.external_order_id !== parsedBody.value.external_order_id) {
+      return apiError(
+        requestId,
+        400,
+        'ASSESSMENT_ORDER_MISMATCH',
+        'Assessment does not belong to the supplied external order',
+      );
+    }
+    try {
+      const saved = await dependencies.shadowComparisons.save({
+        organizationId: identity.organizationId,
+        storeId: identity.storeId,
+        apiKeyId: identity.apiKeyId,
+        idempotencyKey,
+        comparison: parsedBody.value,
+        guardAssessment: assessment.response,
+      });
+      const response = nativeShadowComparisonResponseSchema.parse({
+        success: true,
+        comparison_id: saved.comparisonId,
+        replay: saved.replay,
+      });
+      return context.json(response, saved.replay ? 200 : 201);
+    } catch (error) {
+      const code =
+        error && typeof error === 'object' && 'code' in error && typeof error.code === 'string'
+          ? error.code
+          : 'SHADOW_COMPARISON_UNAVAILABLE';
+      const status =
+        code === 'SHADOW_COMPARISON_IDEMPOTENCY_CONFLICT'
+          ? 409
+          : code === 'SHADOW_ASSESSMENT_NOT_FOUND' ||
+              code === 'SHADOW_ASSESSMENT_ORDER_MISMATCH' ||
+              code === 'TENANT_SCOPE_MISMATCH'
+            ? 400
+            : 503;
+      return apiError(
+        requestId,
+        status,
+        code,
+        status === 503
+          ? 'Native shadow comparison could not be persisted'
+          : 'Native shadow comparison was rejected',
+      );
+    }
   });
 
   app.post('/v1/courier-observations/refresh', async (context) => {
@@ -588,6 +684,59 @@ export class MemoryOutcomeRepository implements OutcomeRepository {
     const outcomeId = `out_${randomUUID()}`;
     this.outcomes.set(key, outcomeId);
     return { outcomeId, replay: false };
+  }
+}
+
+export class MemoryShadowComparisonRepository implements ShadowComparisonRepository {
+  private readonly records = new Map<
+    string,
+    {
+      comparisonId: string;
+      comparison: NativeShadowComparisonInput;
+      guardAssessment: RiskAssessmentResponse;
+    }
+  >();
+
+  async save(input: {
+    organizationId: string;
+    storeId: string;
+    apiKeyId: string;
+    idempotencyKey: string;
+    comparison: NativeShadowComparisonInput;
+    guardAssessment: RiskAssessmentResponse;
+  }): Promise<{ comparisonId: string; replay: boolean }> {
+    const key = `${input.organizationId}:${input.storeId}:${input.idempotencyKey}`;
+    const existing = this.records.get(key);
+    if (existing) {
+      if (
+        JSON.stringify(existing.comparison) !== JSON.stringify(input.comparison) ||
+        existing.guardAssessment.assessment_id !== input.guardAssessment.assessment_id
+      ) {
+        const error = new Error('SHADOW_COMPARISON_IDEMPOTENCY_CONFLICT') as Error & {
+          code: string;
+        };
+        error.code = 'SHADOW_COMPARISON_IDEMPOTENCY_CONFLICT';
+        throw error;
+      }
+      return { comparisonId: existing.comparisonId, replay: true };
+    }
+    const comparisonId = `cmp_${randomUUID()}`;
+    this.records.set(key, {
+      comparisonId,
+      comparison: input.comparison,
+      guardAssessment: input.guardAssessment,
+    });
+    return { comparisonId, replay: false };
+  }
+
+  findByIdempotency(input: { organizationId: string; storeId: string; idempotencyKey: string }):
+    | {
+        comparisonId: string;
+        comparison: NativeShadowComparisonInput;
+        guardAssessment: RiskAssessmentResponse;
+      }
+    | undefined {
+    return this.records.get(`${input.organizationId}:${input.storeId}:${input.idempotencyKey}`);
   }
 }
 

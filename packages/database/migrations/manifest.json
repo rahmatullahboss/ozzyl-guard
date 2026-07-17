@@ -37,6 +37,10 @@
     {
       "name": "0009_verification_delivery_queue.sql",
       "checksum_sha256": "de3520681106227c34b6ca145103a5f026a8f36cf983e8603ec484cdd99f1247"
+    },
+    {
+      "name": "0010_native_shadow_comparisons.sql",
+      "checksum_sha256": "3d88f4196b83b723a3f6f2a2fc5c85b33800c180081ab7e5b731821d823f0821"
     }
   ]
 }

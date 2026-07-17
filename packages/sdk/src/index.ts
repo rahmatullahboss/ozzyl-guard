@@ -1,8 +1,12 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import {
+  nativeShadowComparisonInputSchema,
+  nativeShadowComparisonResponseSchema,
   orderOutcomeSchema,
   riskAssessmentRequestSchema,
   riskAssessmentResponseSchema,
+  type NativeShadowComparisonInput,
+  type NativeShadowComparisonResponse,
   type OrderOutcomeInput,
   type RiskAssessmentRequest,
   type RiskAssessmentResponse,
@@ -51,6 +55,19 @@ export class OzzylGuardClient {
       body: JSON.stringify(payload),
     });
     return riskAssessmentResponseSchema.parse(response);
+  }
+
+  async reportNativeShadowComparison(
+    input: NativeShadowComparisonInput,
+    options: { idempotencyKey: string },
+  ): Promise<NativeShadowComparisonResponse> {
+    const payload = nativeShadowComparisonInputSchema.parse(input);
+    const response = await this.request('/v1/integration-comparisons/native-shadow', {
+      method: 'POST',
+      headers: { 'Idempotency-Key': options.idempotencyKey },
+      body: JSON.stringify(payload),
+    });
+    return nativeShadowComparisonResponseSchema.parse(response);
   }
 
   async submitOutcome(

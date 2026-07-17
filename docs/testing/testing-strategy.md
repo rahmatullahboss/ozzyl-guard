@@ -15,6 +15,7 @@
 - Webhook HMAC signing, retry classification, and DNS destination validation
 - Migration manifest ordering and SHA-256 tamper detection
 - Runtime-role identifier validation and explicit table-policy completeness
+- Native shadow off mode, deterministic sampling, legacy-authoritative disagreement, and safe assessment/persistence failures
 
 ## Contract tests
 
@@ -35,6 +36,7 @@ Public API contract tests cover:
 - Unknown/degraded behavior
 - Idempotent replay
 - Test/live key isolation
+- Dedicated comparison scope, idempotent replay, order binding, and cross-store assessment rejection
 
 Webhook delivery contract tests cover:
 
@@ -58,6 +60,7 @@ Webhook delivery contract tests cover:
 - Lease-owned webhook delivery and retry
 - Multi-tenant isolation
 - Organization/store membership authorization
+- Concurrent tenant-scoped native shadow comparison persistence and idempotency-conflict rejection
 
 ### PostgreSQL concurrency and idempotency coverage
 
@@ -96,7 +99,24 @@ The CI PostgreSQL service runs real-database integration tests for:
 - isolating merchant dashboard aggregates and rechecking active platform-admin role on every call;
 - listing and updating webhook administration only for an active owner/admin scope without exposing signing secrets;
 - listing verification administration only for the authorized store without exposing OTP hashes or encrypted job payloads;
-- allowing reviewed runtime DML while denying migration-history reads, DELETE, DDL, schema creation, database ownership, elevated attributes, and inherited privileges.
+- allowing reviewed runtime DML while denying migration-history reads, DELETE, DDL, schema creation, database ownership, elevated attributes, and inherited privileges;
+- serializing concurrent duplicate native-shadow comparison writes into one immutable row;
+- deriving Guard comparison values from the tenant-scoped assessment rather than trusting client values;
+- rejecting idempotency-key reuse with changed rollout evidence and rejecting cross-store assessment references.
+
+### Native shadow rollout safety coverage
+
+Default tests prove:
+
+- `off` mode performs no Guard assessment or comparison API call;
+- deterministic sampling keeps retries for the same store/order in the same cohort;
+- the legacy score and decision remain the effective result even when Guard recommends block;
+- Guard assessment and comparison-persistence failures return safe codes without leaking provider or database details;
+- the API requires `comparisons:write`, idempotency, matching order identity, and the authenticated organization/store assessment scope;
+- PostgreSQL stores one immutable comparison winner under concurrent duplicate writes and derives Guard score, decision, and confidence server-side;
+- the comparison table contains no raw phone, API key, credential, or unrestricted order snapshot.
+
+Live source-platform invocation and enforcement remain outside this milestone. Any enforcement design requires opt-in pilot outcomes and explicit review.
 
 ### Webhook destination security coverage
 

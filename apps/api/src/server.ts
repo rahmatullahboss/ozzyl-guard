@@ -10,6 +10,7 @@ import {
   MemoryOperationIdempotencyStore,
   MemoryOutcomeRepository,
   MemoryRateLimiter,
+  MemoryShadowComparisonRepository,
   MemoryRefreshQueue,
   MissingFeatureProvider,
   type ApiDependencies,
@@ -30,6 +31,7 @@ import {
   PostgresUsageLedger,
 } from './postgres.js';
 import { PostgresVerificationService } from './postgres-verification.js';
+import { PostgresShadowComparisonRepository } from './postgres-shadow-comparisons.js';
 
 const required = (name: string): string => {
   const value = process.env[name];
@@ -105,6 +107,7 @@ if (databaseUrl) {
     features: new PostgresAssessmentFeatureProvider(pool),
     assessments: new PostgresAssessmentRepository(pool),
     outcomes: new PostgresOutcomeRepository(pool),
+    shadowComparisons: new PostgresShadowComparisonRepository(pool),
     refreshQueue: new PostgresCourierRefreshQueue(pool),
     idempotency: new PostgresOperationIdempotencyStore(pool),
     rateLimiter,
@@ -136,6 +139,7 @@ if (databaseUrl) {
           'risk:write',
           'risk:read',
           'outcomes:write',
+          'comparisons:write',
           'courier:refresh',
           'verification:write',
         ]),
@@ -145,6 +149,7 @@ if (databaseUrl) {
     features: new MissingFeatureProvider(),
     assessments: new MemoryAssessmentRepository(),
     outcomes: new MemoryOutcomeRepository(),
+    shadowComparisons: new MemoryShadowComparisonRepository(),
     refreshQueue: new MemoryRefreshQueue(),
     idempotency: new MemoryOperationIdempotencyStore(),
     rateLimiter: new MemoryRateLimiter(),

@@ -72,6 +72,7 @@ try {
         'risk:write',
         'risk:read',
         'outcomes:write',
+        'comparisons:write',
         'courier:refresh',
         'verification:write',
       ]),

@@ -79,6 +79,30 @@ export const orderOutcomeSchema = z.object({
 });
 export type OrderOutcomeInput = z.infer<typeof orderOutcomeSchema>;
 
+export const nativeShadowComparisonInputSchema = z.object({
+  external_order_id: z.string().min(1).max(200),
+  assessment_id: z.string().min(1).max(200),
+  legacy_score: z.number().int().min(0).max(100),
+  legacy_decision: z
+    .string()
+    .trim()
+    .min(1)
+    .max(50)
+    .transform((value) => value.toLowerCase()),
+  rollout_version: z.string().trim().min(1).max(100),
+  sample_bucket: z.number().int().min(0).max(9999),
+  sample_rate_bps: z.number().int().min(1).max(10000),
+  evaluated_at: z.string().datetime(),
+});
+export type NativeShadowComparisonInput = z.infer<typeof nativeShadowComparisonInputSchema>;
+
+export const nativeShadowComparisonResponseSchema = z.object({
+  success: z.literal(true),
+  comparison_id: z.string().min(1),
+  replay: z.boolean(),
+});
+export type NativeShadowComparisonResponse = z.infer<typeof nativeShadowComparisonResponseSchema>;
+
 export const apiErrorSchema = z.object({
   success: z.literal(false),
   error: z.object({

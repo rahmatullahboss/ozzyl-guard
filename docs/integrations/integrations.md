@@ -83,6 +83,18 @@ Treat the existing platform as the first native client.
 - Send order outcomes back to Guard.
 - Keep courier booking in the commerce platform, but risk assessment in Guard.
 - Roll out behind a feature flag and compare old/new decisions before removing old code.
+- The first rollout mode is `off` or `shadow` only; Guard never becomes the
+  effective decision source in this milestone.
+- Select the shadow cohort deterministically from a stable store-specific
+  sampling key and order ID so retries stay in the same cohort.
+- Run shadow evaluation after order persistence, not as a checkout-blocking
+  control. A Guard or comparison-persistence failure returns a safe code while
+  the legacy result remains authoritative.
+- Persist successful comparisons through
+  `POST /v1/integration-comparisons/native-shadow`; the API derives Guard values
+  from the scoped assessment and rejects cross-store or mismatched-order data.
+- Do not enable enforcement or broad automatic blocking until pilot outcomes
+  have been reviewed and thresholds calibrated.
 
 ## Meta audience exclusion — later phase
 
