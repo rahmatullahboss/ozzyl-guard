@@ -27,7 +27,7 @@ jobs:
           cache: npm
       - run: npm ci --no-audit --no-fund >/dev/null
       - run: python3 scripts/tmp-worker-lease-docs.py
-      - run: npx prettier --write tracker.yml .ai-bridge/current-plan.md .ai-bridge/implementation-status.md .ai-bridge/decisions.md docs/testing/testing-strategy.md docs/database/database-design.md config/environment.example docker-compose.yml
+      - run: npx prettier --write tracker.yml .ai-bridge/current-plan.md .ai-bridge/implementation-status.md .ai-bridge/decisions.md docs/testing/testing-strategy.md docs/database/database-design.md docker-compose.yml
       - name: Commit formatted worker lease docs
         run: |
           git config user.name "github-actions[bot]"
