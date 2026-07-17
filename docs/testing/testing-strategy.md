@@ -56,16 +56,29 @@ The CI PostgreSQL service runs real-database integration tests for:
 - preventing losing assessment IDs from writing orphan or invalid signal rows;
 - concurrent outcome writes resolving as one insert and one replay rather than a unique-constraint error;
 - operation idempotency values remaining isolated by organization and store;
-- browser-session hashing, active membership resolution, merchant tenant revalidation, and explicit platform-admin authorization.
+- browser-session hashing, active membership resolution, merchant tenant revalidation, and explicit platform-admin authorization;
+- competing courier workers claiming different due jobs with `FOR UPDATE SKIP LOCKED`;
+- preventing another worker from stealing a fresh lease;
+- reclaiming expired `claimed` or `processing` jobs and rejecting the previous owner;
+- clearing lease ownership when retryable work is returned to the queue with backoff;
+- moving exhausted stale jobs to terminal failure with `LEASE_EXPIRED`;
+- deriving courier organization/store/provider scope from account relationships rather than payload fields.
+
+### Migration replay coverage
+
+CI runs the migration command twice against the same PostgreSQL service:
+
+1. the first run applies every ordered migration;
+2. the second run verifies that already-recorded migrations are skipped without schema errors or duplicate side effects.
+
+The migration history table remains the replay source of truth. Applied migration files remain immutable.
 
 Future PostgreSQL coverage must include:
 
-- competing worker claims and `SKIP LOCKED` behavior;
-- worker lease expiry and recovery;
-- retry/dead-letter transitions;
-- migration replay and clean restore rehearsal;
-- courier queue scope across organizations and stores;
-- additional assessment, outcome, feature, and dashboard repository isolation cases;
+- clean backup/restore rehearsal and migration-table integrity checks;
+- durable webhook-outbox and verification-queue worker claims, leases, retries, and dead-letter transitions;
+- lease renewal during future jobs whose bounded execution time can exceed the configured lease;
+- additional courier queue, assessment, outcome, feature, and dashboard repository isolation cases;
 - runtime-role versus migration-role permission enforcement.
 
 ## End-to-end tests
@@ -92,6 +105,8 @@ Future PostgreSQL coverage must include:
 - Injection attacks
 - Session fixation/rotation
 - Credential decryption failure
+- Worker lease ownership and stale-owner rejection
+- Job payload scope tampering
 
 ## Scraper tests
 
@@ -134,7 +149,7 @@ Do not promote automatic blocking until false-positive behavior is understood an
 - unit tests
 - contract tests
 - integration tests with PostgreSQL
-- migration verification
+- migration verification and replay
 - dependency audit
 - secret scanning
 - architecture/dependency-boundary tests
