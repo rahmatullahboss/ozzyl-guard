@@ -1,6 +1,10 @@
 import { createHmac } from 'node:crypto';
 import { describe, expect, it, vi } from 'vitest';
-import { EventWorker, assertSafeWebhookUrl } from './index.js';
+import {
+  EventWorker,
+  assertSafeWebhookDestination,
+  assertSafeWebhookUrl,
+} from './index.js';
 
 const repository = {
   markDelivered: vi.fn(async () => undefined),
@@ -17,13 +21,57 @@ const event = {
   payload: { assessmentId: 'ras_1' },
 };
 
+const publicResolver = async (): Promise<readonly string[]> => ['93.184.216.34'];
+
 describe('webhook destination validation', () => {
   it('rejects invalid, local, and private destinations', () => {
     expect(() => assertSafeWebhookUrl('not-a-url')).toThrow();
     expect(() => assertSafeWebhookUrl('http://example.com/hook')).toThrow();
     expect(() => assertSafeWebhookUrl('https://127.0.0.1/hook')).toThrow();
     expect(() => assertSafeWebhookUrl('https://10.0.0.1/hook')).toThrow();
+    expect(() => assertSafeWebhookUrl('https://[::1]/hook')).toThrow();
     expect(assertSafeWebhookUrl('https://merchant.example/hook').hostname).toBe('merchant.example');
+  });
+
+  it('rejects a hostname that resolves to any non-public address', async () => {
+    await expect(
+      assertSafeWebhookDestination('https://merchant.example/hook', async () => [
+        '93.184.216.34',
+        '10.0.0.5',
+      ]),
+    ).rejects.toMatchObject({ code: 'UNSAFE_WEBHOOK_DESTINATION' });
+  });
+
+  it('treats DNS resolution failures as retryable worker failures', async () => {
+    const isolatedRepository = {
+      markDelivered: vi.fn(async () => undefined),
+      markRetry: vi.fn(async () => undefined),
+      markFailed: vi.fn(async () => undefined),
+    };
+    const fetcher = vi.fn<typeof fetch>();
+    const worker = new EventWorker(isolatedRepository, {
+      fetcher,
+      resolver: async () => {
+        throw new Error('temporary DNS failure');
+      },
+      now: () => new Date('2026-07-17T00:00:00.000Z'),
+    });
+    const result = await worker.deliver({
+      endpoint: {
+        id: 'we_dns',
+        url: 'https://merchant.example/hook',
+        signingSecret: 'x'.repeat(32),
+        active: true,
+      },
+      event,
+      attempt: 1,
+    });
+    expect(result).toMatchObject({
+      status: 'retry_scheduled',
+      errorCode: 'WEBHOOK_DNS_RESOLUTION_FAILED',
+    });
+    expect(fetcher).not.toHaveBeenCalled();
+    expect(isolatedRepository.markRetry).toHaveBeenCalledOnce();
   });
 });
 
@@ -41,6 +89,7 @@ describe('EventWorker', () => {
     });
     const worker = new EventWorker(repository, {
       fetcher,
+      resolver: publicResolver,
       now: () => new Date('2026-07-17T00:00:00.000Z'),
     });
     const result = await worker.deliver({
@@ -63,7 +112,7 @@ describe('EventWorker', () => {
       markFailed: vi.fn(async () => undefined),
     };
     const fetcher = vi.fn<typeof fetch>();
-    const worker = new EventWorker(isolatedRepository, { fetcher });
+    const worker = new EventWorker(isolatedRepository, { fetcher, resolver: publicResolver });
     const result = await worker.deliver({
       endpoint: {
         id: 'we_unsafe',
