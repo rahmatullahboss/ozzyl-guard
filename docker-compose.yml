@@ -86,6 +86,9 @@ services:
       DATABASE_URL: postgresql://ozzyl_guard:${POSTGRES_PASSWORD}@postgres:5432/ozzyl_guard
       CREDENTIAL_ENCRYPTION_KEY: ${CREDENTIAL_ENCRYPTION_KEY:?CREDENTIAL_ENCRYPTION_KEY is required}
       CREDENTIAL_ENCRYPTION_KEY_VERSION: ${CREDENTIAL_ENCRYPTION_KEY_VERSION:-v1}
+      WORKER_ID: ${WORKER_ID:-courier-sync-local}
+      WORKER_POLL_MS: ${WORKER_POLL_MS:-5000}
+      WORKER_LEASE_MS: ${WORKER_LEASE_MS:-300000}
     depends_on:
       migrate:
         condition: service_completed_successfully
