@@ -1,0 +1,71 @@
+name: Apply restore integrity documentation
+
+on:
+  push:
+    branches: [ai/postgres-restore-integrity-20260717]
+    paths:
+      - .github/workflows/apply-restore-integrity-docs.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ai/postgres-restore-integrity-20260717
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Apply documentation patch
+        run: |
+          set +e
+          python3 scripts/tmp-restore-integrity-docs.py > /tmp/restore-integrity-docs.log 2>&1
+          status=$?
+          cat /tmp/restore-integrity-docs.log
+          if [ "$status" -ne 0 ]; then
+            cp /tmp/restore-integrity-docs.log .ai-bridge/tmp-restore-docs.log
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add -f .ai-bridge/tmp-restore-docs.log
+            git commit -m "docs: capture restore integrity documentation failure"
+            git push origin HEAD:ai/postgres-restore-integrity-20260717
+            exit "$status"
+          fi
+      - run: >-
+          npx prettier --write
+          tracker.yml
+          README.md
+          config/environment.example
+          .ai-bridge/current-plan.md
+          .ai-bridge/implementation-status.md
+          .ai-bridge/decisions.md
+          docs/database/database-design.md
+          docs/testing/testing-strategy.md
+          docs/operations/deployment.md
+          docs/operations/operations-observability.md
+      - run: npm run format:check
+      - run: npm run db:check
+      - name: Verify completed milestone wording
+        run: |
+          ! grep -q "add_clean_restore_rehearsal_and_migration_integrity_checks" tracker.yml
+          grep -q "migration_integrity_tests: 7_of_7_passed" tracker.yml
+          grep -q "packages/database/migrations/manifest.json" docs/database/database-design.md
+          grep -q "db:restore-rehearsal" docs/operations/deployment.md
+          grep -q "managed-provider PITR" docs/database/database-design.md
+      - name: Commit verified documentation
+        run: |
+          rm scripts/tmp-restore-integrity-docs.py
+          rm .github/workflows/apply-restore-integrity-docs.yml
+          rm -f .ai-bridge/tmp-restore-docs.log
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "docs: record PostgreSQL restore integrity milestone"
+          git push origin HEAD:ai/postgres-restore-integrity-20260717
