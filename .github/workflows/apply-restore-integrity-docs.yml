@@ -41,7 +41,6 @@ jobs:
           npx prettier --write
           tracker.yml
           README.md
-          config/environment.example
           .ai-bridge/current-plan.md
           .ai-bridge/implementation-status.md
           .ai-bridge/decisions.md
@@ -58,6 +57,7 @@ jobs:
           grep -q "packages/database/migrations/manifest.json" docs/database/database-design.md
           grep -q "db:restore-rehearsal" docs/operations/deployment.md
           grep -q "managed-provider PITR" docs/database/database-design.md
+          grep -q "RESTORE_DATABASE_URL" config/environment.example
       - name: Commit verified documentation
         run: |
           rm scripts/tmp-restore-integrity-docs.py
