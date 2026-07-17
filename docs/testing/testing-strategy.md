@@ -13,6 +13,7 @@
 - API key generation/prefix/hash verification
 - Policy parsing/versioning
 - Webhook HMAC signing, retry classification, and DNS destination validation
+- Migration manifest ordering and SHA-256 tamper detection
 
 ## Contract tests
 
@@ -123,9 +124,22 @@ CI runs the migration command twice against the same PostgreSQL service:
 
 The migration history table remains the replay source of truth. Applied migration files remain immutable.
 
+### Migration integrity and restore coverage
+
+CI additionally proves:
+
+- the ordered SQL file list exactly matches the committed SHA-256 manifest;
+- changed migration bytes, unknown history rows, checksum mismatch, and non-contiguous history are rejected;
+- legacy name-only rows can be backfilled only from committed manifest values before `checksum_sha256` becomes `NOT NULL`;
+- migration execution is serialized by one session-held advisory lock;
+- the restore target is a distinct pre-created clean database;
+- `pg_dump`/`pg_restore` credentials are not placed in process arguments;
+- restored schema, full table data hashes, sequence state, migration history, and replay match the source.
+
+Production-managed point-in-time recovery remains a provider provisioning gate rather than a repository CI claim.
+
 Future PostgreSQL coverage must include:
 
-- clean backup/restore rehearsal and migration-table integrity checks;
 - lease renewal during future jobs whose bounded execution time can exceed the configured lease;
 - webhook endpoint administration, feature, and dashboard repository isolation cases;
 - runtime-role versus migration-role permission enforcement.
@@ -203,7 +217,8 @@ Do not promote automatic blocking until false-positive behavior is understood an
 - unit tests
 - contract tests
 - integration tests with PostgreSQL
-- migration verification and replay
+- migration manifest, verification, replay, and database-history integrity
+- clean PostgreSQL backup/restore rehearsal
 - dependency audit
 - secret scanning
 - architecture/dependency-boundary tests

@@ -4,14 +4,15 @@ Updated: 2026-07-17
 
 ## Current state
 
-A runnable standalone MVP foundation and six production-hardening slices are complete:
+A runnable standalone MVP foundation and seven production-hardening slices are complete:
 
 1. dashboard/admin browser authentication with live PostgreSQL data and tenant revalidation;
 2. accepted provider-neutral infrastructure ADRs for deployment, managed PostgreSQL, durable work/cache, KMS envelope encryption, and observability;
 3. PostgreSQL concurrency and idempotency hardening for usage reservations, assessments, outcomes, and tenant-scoped operation records;
 4. lease-owned PostgreSQL courier-worker claims with stale-job recovery, authoritative account scope, and migration replay verification;
 5. transactional PostgreSQL webhook outbox emission and a lease-owned event worker with encrypted signing-secret access and DNS-aware SSRF controls;
-6. transactional encrypted OTP delivery queues, tenant-scoped database verification, and a lease-owned private verification worker with no provider I/O in API requests.
+6. transactional encrypted OTP delivery queues, tenant-scoped database verification, and a lease-owned private verification worker with no provider I/O in API requests;
+7. SHA-256-bound migration history integrity and a clean PostgreSQL logical backup/restore rehearsal with schema, data, sequence, history, and replay verification.
 
 Concrete provider selection and provisioning remain external production work.
 
@@ -66,6 +67,9 @@ Concrete provider selection and provisioning remain external production work.
 - [x] Verification scope mismatch fails both the job and authoritative session closed
 - [x] Job-bound encrypted payloads validate tenant, purpose, phone HMAC, and OTP hash before provider I/O
 - [x] CI applies the ordered migration set twice to prove migration replay is a clean no-op
+- [x] Every migration file is bound to a committed SHA-256 manifest and a non-null database history checksum
+- [x] Unknown, gapped, missing-checksum, or checksum-mismatched migration history fails closed
+- [x] CI restores a real `pg_dump` into a clean distinct PostgreSQL database and compares schema, full table data hashes, sequence state, migration history, and replay
 
 ## Verified baseline
 
@@ -76,7 +80,7 @@ Concrete provider selection and provisioning remain external production work.
 - Architecture import boundaries: passed
 - Typecheck: 19 of 19 workspaces passed
 - Test/build dependency tasks: 28 of 28 passed
-- Repository assertions: 67 passed, including five courier lease tests, five webhook lease tests, five verification lease tests, three verification-payload validation tests, transactional queues/outbox coverage, DNS SSRF tests, and envelope-cipher tests
+- Repository assertions: 74 passed, including five courier lease tests, five webhook lease tests, five verification lease tests, three verification-payload validation tests, seven migration-integrity tests, transactional queues/outbox coverage, DNS SSRF tests, and envelope-cipher tests
 - Production builds: 19 of 19 workspaces passed
 - WooCommerce PHP syntax: passed
 - npm high/critical audit threshold: passed; four moderate development-tooling advisories remain
@@ -87,6 +91,8 @@ Concrete provider selection and provisioning remain external production work.
 - Verification queue targeted run `29553255223`, job `87800077114`: nine migrations/replay, verification/API typechecks, lease/payload/API tests, builds, and Compose profile validation passed for source commit `5fce01ac98bc8115959276b1ffc636a1702d77a0`
 - Verification queue final CI run `29554260434`, job `87803061854`: audit, formatting, lint, nine migrations, migration replay, architecture, 19 typechecks, 67 assertions, 19 builds, and PHP lint passed at head `7f24a7be544ae60d7a0a15b4a5020b4253e0d192`
 - The verified verification queue change was squash-merged to `main` as `146360ab40efe45bfa7332c1a42b6cac0e88d17b`
+- Restore-integrity source-head CI run `29556041278`, job `87808175661`: audit, formatting, lint, manifest validation, nine migrations, replay, history integrity, clean full-data-hash restore rehearsal, architecture, 19 typechecks, 74 assertions, 19 builds, and PHP lint passed at head `0eb8f09bc5e91c18e7ee5933cedb0e78f618a972`
+- Final documentation-head CI remains required before merge
 - Canonical documentation links before this slice: zero known broken internal links
 - `tracker.yml` YAML structure remains valid
 - Prohibited source-pattern search: no matches
@@ -95,15 +101,14 @@ The current GitHub-only connector workspace cannot run the repository-local cont
 
 ## Next production milestone
 
-1. Add clean backup/restore rehearsal and migration-table integrity verification.
-2. Expand PostgreSQL isolation coverage for feature assembly, dashboards, webhook administration, verification administration, and runtime-role versus migration-role permissions.
-3. Select and provision the managed runtime, PostgreSQL, KMS/vault, and observability providers under ADRs 0006–0010.
-4. Replace local encryption-key handling with the accepted managed KMS envelope-encryption implementation.
-5. Add an authorized Steadfast test account, live opt-in tests, selector monitoring, and provider-terms approval.
-6. Select, review, bundle, and configure the production OTP provider adapter/account for the existing verification runner.
-7. Add distributed rate limiting/cache only when multiple replicas require it.
-8. Integrate the native multi-store adapter behind a shadow-comparison feature flag.
-9. Pilot with selected merchants, collect outcomes, calibrate confidence/thresholds, and keep broad automatic blocking disabled until reviewed.
+1. Expand PostgreSQL isolation coverage for feature assembly, dashboards, webhook administration, verification administration, and runtime-role versus migration-role permissions.
+2. Select and provision the managed runtime, PostgreSQL, KMS/vault, and observability providers under ADRs 0006–0010.
+3. Replace local encryption-key handling with the accepted managed KMS envelope-encryption implementation.
+4. Add an authorized Steadfast test account, live opt-in tests, selector monitoring, and provider-terms approval.
+5. Select, review, bundle, and configure the production OTP provider adapter/account for the existing verification runner.
+6. Add distributed rate limiting/cache only when multiple replicas require it.
+7. Integrate the native multi-store adapter behind a shadow-comparison feature flag.
+8. Pilot with selected merchants, collect outcomes, calibrate confidence/thresholds, and keep broad automatic blocking disabled until reviewed.
 
 ## External blockers
 
