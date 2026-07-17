@@ -1,0 +1,39 @@
+name: Diagnose managed envelope lint
+
+on:
+  push:
+    branches: [ai/managed-envelope-boundary-20260717]
+
+permissions:
+  contents: write
+
+jobs:
+  diagnose:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Capture lint output
+        run: |
+          set +e
+          npx eslint packages/encryption/src/index.ts packages/encryption/src/index.test.ts --max-warnings=0 > .ai-bridge/tmp-managed-envelope-lint.log 2>&1
+          status=$?
+          cat .ai-bridge/tmp-managed-envelope-lint.log
+          if [ "$status" -eq 0 ]; then
+            rm -f .ai-bridge/tmp-managed-envelope-lint.log
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f .ai-bridge/tmp-managed-envelope-lint.log
+          git commit -m "test: capture managed envelope lint failure"
+          git push origin HEAD:${{ github.ref_name }}
+          exit "$status"
