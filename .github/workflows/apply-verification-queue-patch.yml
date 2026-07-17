@@ -50,7 +50,6 @@ jobs:
           apps/api/src/postgres-verification.ts
           apps/api/src/postgres-concurrency.test.ts
           workers/verification-worker
-          config/environment.example
           package-lock.json
       - run: npm run db:check
       - run: npm run db:migrate
