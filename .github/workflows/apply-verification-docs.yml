@@ -21,7 +21,21 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci --no-audit --no-fund
-      - run: python3 scripts/tmp-verification-docs.py
+      - name: Apply documentation patch
+        run: |
+          set +e
+          python3 scripts/tmp-verification-docs.py > /tmp/verification-docs.log 2>&1
+          status=$?
+          cat /tmp/verification-docs.log
+          if [ "$status" -ne 0 ]; then
+            cp /tmp/verification-docs.log .ai-bridge/tmp-verification-docs.log
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add -f .ai-bridge/tmp-verification-docs.log
+            git commit -m "docs: capture verification docs patch failure"
+            git push origin HEAD:${{ github.head_ref }}
+            exit "$status"
+          fi
       - run: >-
           npx prettier --write
           tracker.yml
@@ -47,6 +61,7 @@ jobs:
         run: |
           rm scripts/tmp-verification-docs.py
           rm .github/workflows/apply-verification-docs.yml
+          rm -f .ai-bridge/tmp-verification-docs.log
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
