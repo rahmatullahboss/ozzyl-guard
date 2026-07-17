@@ -16,7 +16,18 @@ try {
   await client.query('select pg_advisory_lock(hashtext($1))', [migrationLockKey]);
   await ensureMigrationHistoryTable(client);
   const migrations = await loadVerifiedMigrations();
-  await verifyMigrationHistory(client, migrations, { allowLegacyChecksumBackfill: true });
+
+  try {
+    await client.query('begin');
+    await verifyMigrationHistory(client, migrations, { allowLegacyChecksumBackfill: true });
+    await client.query(
+      'alter table ozzyl_guard_migrations alter column checksum_sha256 set not null',
+    );
+    await client.query('commit');
+  } catch (error) {
+    await client.query('rollback');
+    throw error;
+  }
 
   const applied = new Set(
     (await client.query<{ name: string }>('select name from ozzyl_guard_migrations')).rows.map(
