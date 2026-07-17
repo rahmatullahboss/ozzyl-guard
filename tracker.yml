@@ -6,7 +6,7 @@ project:
   visibility: public
   expected_visibility: private
   status: production-hardening-in-progress
-  last_updated: 2026-07-16
+  last_updated: 2026-07-17
 
 agent_entrypoint:
   purpose: Continuation tracker for developers and AI agents.
@@ -64,10 +64,11 @@ invariants:
   - postgresql_is_authoritative_for_pilot_durable_work
   - cache_state_is_non_authoritative
   - production_decryption_fails_closed
+  - durable_worker_transitions_require_current_lease_ownership
 
 implemented:
   - typescript_monorepo_and_ci
-  - postgresql_schema_and_six_migrations
+  - postgresql_schema_and_seven_migrations
   - organization_store_membership_and_plan_foundation
   - usage_metering_and_audit_foundation
   - opaque_browser_sessions_csrf_and_explicit_platform_admin_role
@@ -83,18 +84,22 @@ implemented:
   - docker_compose_baseline
   - accepted_provider_neutral_production_infrastructure_adrs
   - postgresql_usage_assessment_outcome_and_operation_idempotency_race_hardening
+  - postgresql_courier_worker_atomic_claim_and_lease_recovery
+  - migration_replay_ci_gate
 
 verification:
   command: npm run verify
-  last_verified: 2026-07-16
-  status: passed
+  last_verified: 2026-07-17
+  status: passed_for_worker_lease_code_head_pending_final_docs_ci
   results:
-    migrations: 6_of_6
+    migrations: 7_of_7
+    migration_replay: passed
     architecture_boundaries: passed
     typecheck: 18_of_18
     test_tasks: 26_of_26
-    remote_assertions: 37_passed
+    remote_assertions: 42_passed
     postgresql_concurrency_tests: 5_of_5_passed
+    postgresql_worker_lease_tests: 5_of_5_passed
     builds: 18_of_18
     php_syntax: passed
     high_critical_dependency_check: passed
@@ -104,15 +109,15 @@ verification:
     - local_main_and_origin_main_sync_cannot_be_verified_from_this_connector_workspace
   remote_ci:
     status: passed
-    run_id: 29524629662
-    job_id: 87709833186
+    run_id: 29544434788
+    job_id: 87773443770
     job: verify
-    tested_head: c2330563b041b8c8d0fef2e382c0d4eb7cc7b40c
-    merged_main_commit: 43bedadd6fdd238bbe9ecf9cae68a4c592bfd361
-    completed: 2026-07-16
-    steps: audit_format_lint_migrations_architecture_typecheck_tests_build_php_all_passed
-    postgresql_concurrency_tests: 5_of_5_passed
+    tested_head: e0c9f06bc90c6ab69d99225e545b9b4dde74a25c
+    completed: 2026-07-17
+    steps: audit_format_lint_seven_migrations_migration_replay_architecture_typecheck_tests_build_php_all_passed
+    postgresql_worker_lease_tests: 5_of_5_passed
   pending_follow_up:
+    - final_documentation_head_ci
     - continuation_bundle_local_exporter_refresh
 
 migrations:
@@ -124,6 +129,7 @@ migrations:
     - packages/database/migrations/0004_verification_events.sql
     - packages/database/migrations/0005_durable_operations.sql
     - packages/database/migrations/0006_browser_access.sql
+    - packages/database/migrations/0007_worker_leases.sql
 
 accepted_infrastructure_adrs:
   - docs/adr/0006-production-deployment-topology.md
@@ -145,12 +151,14 @@ external_dependencies:
 next_milestone:
   name: production-hardening-and-pilot-readiness
   tasks:
-    - expand_postgresql_worker_claim_migration_replay_and_additional_repository_isolation_tests
+    - implement_durable_webhook_outbox_runner_with_worker_leases
+    - implement_verification_queue_runner_with_worker_leases
+    - add_clean_restore_rehearsal_and_migration_integrity_checks
+    - expand_additional_repository_and_runtime_role_isolation_tests
     - select_and_provision_accepted_infrastructure_providers
     - implement_managed_envelope_encryption
     - validate_steadfast_with_an_authorized_account
     - implement_the_selected_otp_runner
-    - add_durable_event_and_verification_runners
     - add_distributed_cache_only_when_replica_coordination_requires_it
     - enable_native_adapter_shadow_mode
     - run_a_selected_merchant_pilot
@@ -175,6 +183,9 @@ notes:
   - postgresql_remains_the_pilot_durable_job_and_outbox_source_of_truth
   - assessment_and_outcome_idempotency_races_resolve_to_the_scoped_persisted_winner
   - duplicate_usage_reservations_and_plan_limit_races_are_covered_in_real_postgresql_ci
+  - courier_jobs_use_atomic_claims_expiring_leases_and_owner_checked_transitions
+  - courier_worker_scope_is_derived_from_relational_account_data_not_payload_fields
+  - exhausted_stale_courier_jobs_fail_closed_with_lease_expired
   - broad_automatic_blocking_remains_disabled_until_pilot_calibration
   - pro_context_requires_local_exporter_refresh_after_this_github_only_milestone
   - update_this_file_after_every_material_milestone
