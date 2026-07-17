@@ -6,12 +6,15 @@ on:
     paths:
       - scripts/tmp-webhook-outbox-patch.py
       - .github/workflows/apply-webhook-outbox-patch.yml
+  pull_request:
+    types: [opened]
 
 permissions:
   contents: write
 
 jobs:
   apply:
+    if: github.event_name == 'push' || github.event.action == 'opened'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     services:
