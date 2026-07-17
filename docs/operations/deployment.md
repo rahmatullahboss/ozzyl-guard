@@ -23,7 +23,8 @@ The repository includes:
 - API health check
 - graceful API and worker shutdown
 - migration execution separated from API startup
-- migration apply/replay verification
+- migration SHA-256 manifest, apply/replay, and history-integrity verification
+- clean PostgreSQL logical backup/restore rehearsal in CI
 - independently runnable `workers/event-worker/dist/runner.js`
 - independently runnable `workers/verification-worker/dist/runner.js` after a reviewed provider module is bundled/configured
 
@@ -110,17 +111,23 @@ Staging and production require separate:
 
 1. Build immutable artifacts.
 2. Run migration-file, formatting, lint, and architecture checks.
-3. Apply migrations as a separate release job.
+3. Apply migrations as a separate release job while the migration identity holds the repository advisory lock.
 4. Run the migration command again to verify replay/no-op behavior.
-5. Verify database and service readiness.
-6. Deploy API and private workers independently.
-7. Verify event-worker database, KMS/decrypt, DNS, and controlled-egress access.
-8. Deploy static dashboard/admin assets.
-9. Enable new engine/policy/integration behavior through a feature flag or merchant pilot.
-10. Compare decision, outcome, outbox, and delivery metrics before broader rollout.
-11. Roll back application artifacts without editing applied migrations when release validation fails.
+5. Run `npm run db:integrity` and fail the release on manifest, history, gap, null-checksum, or checksum mismatch.
+6. Restore a release-candidate backup into a separate clean staging/recovery database and verify schema/history/replay; use full data hashes when the dataset and maintenance window permit.
+7. Verify database and service readiness.
+8. Deploy API and private workers independently.
+9. Verify event-worker database, KMS/decrypt, DNS, and controlled-egress access.
+10. Deploy static dashboard/admin assets.
+11. Enable new engine/policy/integration behavior through a feature flag or merchant pilot.
+12. Compare decision, outcome, outbox, and delivery metrics before broader rollout.
+13. Roll back application artifacts without editing applied migrations when release validation fails.
 
-Migrations 0008 and 0009 are append-only and immutable after application. Future webhook or verification-delivery schema changes require a new migration.
+Migrations 0008 and 0009 are append-only and immutable after application. Future webhook or verification-delivery schema changes require a new migration. Every new SQL migration must also add its reviewed SHA-256 entry to the manifest; regenerating the manifest to bless an unexplained edit is prohibited.
+
+### Database integrity and restore commands
+
+`npm run db:integrity` is read-only and requires a complete contiguous history with non-null matching checksums. `npm run db:restore-rehearsal` requires a separately created empty target through `RESTORE_DATABASE_URL`; it refuses the same database and any target with existing public relations. `RESTORE_REHEARSAL_VERIFY_DATA_HASHES=true` enables a full table scan/hash comparison and should be scheduled only for an approved maintenance or isolated snapshot window on large datasets.
 
 ## Provider-selection work still required
 
@@ -157,8 +164,9 @@ The Docker Compose setup is a development/self-hosted baseline, not the final pr
 
 Before a selected merchant pilot:
 
-- all nine migrations apply to a clean managed PostgreSQL 16+ database;
-- migration replay is a clean no-op;
+- all nine migrations match the committed SHA-256 manifest and apply to a clean managed PostgreSQL 16+ database;
+- migration replay is a clean no-op and migration-history integrity passes;
+- a logical restore rehearsal succeeds against a distinct clean target;
 - runtime and migration database roles are separated;
 - point-in-time restore is demonstrated;
 - API readiness, graceful shutdown, and artifact rollback are demonstrated;
@@ -175,8 +183,8 @@ Before a selected merchant pilot:
 
 ## Current verification boundary
 
-Repository CI currently verifies eight ordered migrations and immediate replay against PostgreSQL 16, architecture boundaries, 19 workspace typechecks, 28 test tasks with 53 assertions, 19 builds, dependency audit, formatting, lint, and WooCommerce PHP syntax.
+Repository source-head CI run `29556041278`, job `87808175661`, verifies nine manifest-bound migrations, immediate replay, non-null history checksums, clean full-data-hash logical restore, architecture boundaries, 19 workspace typechecks, 28 test tasks with 74 assertions, 19 builds, dependency audit, formatting, lint, and WooCommerce PHP syntax.
 
 The verified event-worker boundary includes transactional assessment/outcome outbox rows, explicit organization/store scope, atomic claims, stale recovery, expired-owner rejection, retry/final-failure transitions, endpoint-bound secret decryption, HMAC signing, HTTPS validation, DNS-to-non-public rejection, and redirect rejection.
 
-Production provider provisioning, controlled-egress smoke tests, restore drills, managed KMS validation, and the durable verification queue/runner remain pending.
+Production provider provisioning, controlled-egress smoke tests, managed-provider PITR/retention validation, managed KMS validation, and provider-specific OTP delivery remain pending.

@@ -24,7 +24,7 @@ The full context bundle includes the important specifications, accepted ADRs, mi
 The repository now contains a runnable MVP foundation:
 
 - TypeScript npm/Turborepo monorepo
-- PostgreSQL schema and nine append-only migrations
+- PostgreSQL schema, nine append-only migrations, committed SHA-256 manifest, and non-null history checksums
 - Argon2id user-password utilities and opaque user sessions
 - Hash-only `ozg_test_` / `ozg_live_` API-key lifecycle utilities
 - Organizations, stores, memberships, plans, usage events, audit events, and tenant scope
@@ -36,7 +36,7 @@ The repository now contains a runnable MVP foundation:
 - Durable signed webhook outbox/worker with retries, leases, encrypted secrets, and DNS-aware SSRF protection
 - Merchant dashboard and platform operations admin applications
 - WooCommerce plugin, Shopify adapter, custom JavaScript/server adapter, and native multi-store adapter
-- Docker, Docker Compose, and CI verification
+- Docker, Docker Compose, migration integrity verification, and clean logical restore rehearsal in CI
 
 The following require external accounts or production decisions before live use:
 
@@ -100,6 +100,7 @@ Prerequisites: Node.js 20+, npm 10+, PostgreSQL 16+, and Playwright browser depe
 npm install
 npm run db:check
 npm run db:migrate
+npm run db:integrity
 npm run bootstrap -w @ozzyl/api
 npm run dev:api
 ```
@@ -146,6 +147,9 @@ The Compose topology separates PostgreSQL, migrations, API, Playwright session, 
 npm run format:check
 npm run lint
 npm run db:check
+npm run db:integrity
+# Requires a separately created empty target database:
+RESTORE_DATABASE_URL=postgresql://... RESTORE_REHEARSAL_VERIFY_DATA_HASHES=true npm run db:restore-rehearsal
 npm run typecheck
 npm run test
 npm run build

@@ -11,23 +11,23 @@ Updated: 2026-07-17
 
 ## Repository and delivery
 
-| Area                       | Status   | Notes                                                                                                                         |
-| -------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| Documentation and ADRs     | done     | Architecture, API, database, courier, risk, integrations, security, testing, operations, roadmap, and ten accepted ADRs       |
-| Continuation documentation | baseline | Tracker, plan, status, and decisions updated; generated `pro-context.md` requires local exporter refresh after this milestone |
-| Git repository             | baseline | `main` is canonical; GitHub currently reports public visibility although the expected policy is private                       |
-| Monorepo/tooling           | done     | 19 npm workspaces with Turborepo, TypeScript, ESLint, Prettier, Vitest, Vite, and tsup                                        |
-| CI                         | done     | PostgreSQL 16 apply/replay, audit, format, lint, architecture, typecheck, tests, builds, PHP lint                             |
-| Container foundation       | done     | Separate API, migration, PostgreSQL, Playwright session, courier-sync, event, and opt-in verification-worker services         |
-| Production platform ADRs   | baseline | ADRs 0006–0010 accept provider-neutral topology, database, durable work/cache, KMS, and observability boundaries              |
-| Provider provisioning      | blocked  | Concrete hosting, PostgreSQL, KMS/vault, observability, and optional cache providers/accounts are not selected                |
+| Area                       | Status   | Notes                                                                                                                                                         |
+| -------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Documentation and ADRs     | done     | Architecture, API, database, courier, risk, integrations, security, testing, operations, roadmap, and ten accepted ADRs                                       |
+| Continuation documentation | baseline | Tracker, plan, status, and decisions updated; generated `pro-context.md` requires local exporter refresh after this milestone                                 |
+| Git repository             | baseline | `main` is canonical; GitHub currently reports public visibility although the expected policy is private                                                       |
+| Monorepo/tooling           | done     | 19 npm workspaces with Turborepo, TypeScript, ESLint, Prettier, Vitest, Vite, and tsup                                                                        |
+| CI                         | done     | PostgreSQL 16 manifest/apply/replay/history integrity, clean logical restore rehearsal, audit, format, lint, architecture, typecheck, tests, builds, PHP lint |
+| Container foundation       | done     | Separate API, migration, PostgreSQL, Playwright session, courier-sync, event, and opt-in verification-worker services                                         |
+| Production platform ADRs   | baseline | ADRs 0006–0010 accept provider-neutral topology, database, durable work/cache, KMS, and observability boundaries                                              |
+| Provider provisioning      | blocked  | Concrete hosting, PostgreSQL, KMS/vault, observability, and optional cache providers/accounts are not selected                                                |
 
 ## Product implementation
 
 | Area                             | Status   | Notes                                                                                                                                         |
 | -------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | Shared contracts                 | done     | Canonical request/response/error/outcome/event schemas                                                                                        |
-| Database/migrations              | done     | Nine append-only migrations; clean PostgreSQL 16 apply and immediate replay passed in full CI                                                 |
+| Database/migrations              | done     | Nine append-only migrations bound to a committed SHA-256 manifest; history checksums are non-null and fail closed on mismatch                 |
 | Password/session primitives      | done     | Argon2id and opaque hashed session token utilities                                                                                            |
 | Shared envelope encryption       | done     | Provider-neutral local AES-256-GCM package with key-version and authenticated-context binding; managed KMS remains production work            |
 | Organizations/stores/memberships | done     | Canonical relational schema and bootstrap transaction                                                                                         |
@@ -38,6 +38,7 @@ Updated: 2026-07-17
 | Courier observation worker/cache | done     | Lease-owned atomic claims, expired-owner rejection, stale recovery, retry/final failure, relational scope, observation persistence            |
 | Durable webhook outbox           | done     | Assessment/outcome transaction emission, scoped event payloads, lease-owned event worker, retries, stale recovery, encrypted secret access    |
 | Durable work architecture        | baseline | PostgreSQL ownership/lease pattern proven for courier, webhook, and verification work; broader operational dead-letter tooling remains        |
+| Backup/restore integrity         | done     | Clean logical `pg_dump`/`pg_restore` rehearsal compares schema, full table data hashes, sequences, migration history, and replay in CI        |
 | Risk engine                      | done     | One pure deterministic engine, versioned policy, confidence, signals, unknown/degraded handling                                               |
 | Public API                       | done     | Assessment create/read, outcomes, courier refresh, OTP send/verify, auth/scopes/idempotency/rate limits                                       |
 | PostgreSQL API repositories      | done     | Assessment/outcome winners emit outbox rows atomically; race losers resolve to scoped persisted winners                                       |
@@ -72,12 +73,14 @@ Applied migrations must remain immutable.
 
 - `npm run format:check`: passed
 - `npm run lint`: passed with zero warnings
-- `npm run db:check`: nine migrations validated
-- initial migration apply: passed
+- `npm run db:check`: nine migrations and committed SHA-256 manifest validated
+- initial migration apply: passed with non-null history checksums
 - immediate migration replay: passed as a clean no-op
+- `npm run db:integrity`: complete contiguous history and checksums passed
+- `npm run db:restore-rehearsal`: clean logical restore, schema fingerprint, full table data hashes, sequence state, history, and replay passed
 - `npm run check:architecture`: passed
 - `npm run typecheck`: 19/19 workspaces passed
-- `npm run test`: 28/28 Turbo tasks passed; repository contains 67 assertions
+- `npm run test`: 28/28 Turbo tasks passed; repository contains 74 assertions
 - `npm run build`: 19/19 workspace builds passed
 - `npm audit --audit-level=high`: passed; four moderate development-tooling findings remain
 - Webhook outbox final run `29550097719`, job `87790624617`: all gates passed at head `fb0a68bac4628a96f82413b5d71092e4f0367536`
@@ -89,6 +92,8 @@ Applied migrations must remain immutable.
 - Verification queue targeted run `29553255223`, job `87800077114`: migration 0009/replay, verification/API typechecks, five PostgreSQL lease tests, three encrypted-payload tests, API tests/builds, and Compose profile validation passed for source commit `5fce01ac98bc8115959276b1ffc636a1702d77a0`
 - Verification queue final run `29554260434`, job `87803061854`: audit, format, lint, nine migrations/replay, architecture, 19 workspace typechecks, 28 test tasks with 67 assertions, 19 builds, and PHP lint passed at head `7f24a7be544ae60d7a0a15b4a5020b4253e0d192`
 - The verified verification queue change was squash-merged to `main` as `146360ab40efe45bfa7332c1a42b6cac0e88d17b`
+- Restore-integrity source run `29556041278`, job `87808175661`: manifest, apply/replay, history integrity, clean full-data-hash restore, architecture, 19 typechecks, 28 test tasks with 74 assertions, 19 builds, and PHP lint passed at head `0eb8f09bc5e91c18e7ee5933cedb0e78f618a972`
+- Final documentation-head CI remains pending before merge
 - Previous canonical documentation checks found zero broken internal links
 - Prohibited insecure-pattern scan: zero matches
 
@@ -97,7 +102,7 @@ The generated `.ai-bridge/pro-context.md` still requires the repository-local ex
 ## External blockers and production requirements
 
 - Concrete deployment platform, account, primary region, DNS, and TLS setup
-- Managed PostgreSQL provider/service tier and restore drill
+- Managed PostgreSQL provider/service tier, automated backup retention, and production-equivalent point-in-time restore drill
 - Managed secret store and KMS/vault provider
 - Observability backend, retention, dashboards, alerts, and incident channels
 - Optional Redis-compatible cache only when distributed coordination is required
@@ -113,7 +118,7 @@ The generated `.ai-bridge/pro-context.md` still requires the repository-local ex
 - Local AES-GCM key configuration is not a replacement for managed KMS in production.
 - DNS validation reduces hostname-based SSRF risk, but production still requires controlled egress and network policy against DNS rebinding/route changes.
 - In-process API and browser-session rate limiting is not distributed across replicas.
-- Durable PostgreSQL work still needs clean restore rehearsal, broader dead-letter/replay operations, verification administration, and runtime-role permission tests.
+- Durable PostgreSQL work still needs broader dead-letter/replay operations, verification administration, and runtime-role permission tests.
 - The verification runner has no bundled production provider adapter; provider selection, account credentials, terms, delivery callbacks, and staging validation remain external.
 - Browser login has no account recovery, invitation, MFA, or managed identity-provider integration yet.
 - GitHub currently reports public repository visibility although the expected policy is private.
@@ -123,4 +128,4 @@ The generated `.ai-bridge/pro-context.md` still requires the repository-local ex
 
 ## Next milestone
 
-Add restore rehearsal and migration integrity, broaden repository/runtime-role isolation, provision the accepted infrastructure baseline, implement managed encryption, validate Steadfast, select and bundle the OTP provider adapter for the completed runner, and begin native-adapter shadow rollout.
+Broaden repository/runtime-role isolation, provision the accepted infrastructure baseline and production point-in-time restore drill, implement managed encryption, validate Steadfast, select and bundle the OTP provider adapter for the completed runner, and begin native-adapter shadow rollout.

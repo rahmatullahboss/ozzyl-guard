@@ -15,6 +15,10 @@ DATABASE_URL=postgresql://ozzyl_guard:[REDACTED_SECRET]@localhost:5432/ozzyl_gua
 DATABASE_SSL=false
 DATABASE_POOL_SIZE=20
 POSTGRES_PASSWORD=[REDACTED_SECRET]
+# Operational restore rehearsal only. Target must be distinct, pre-created, and empty.
+RESTORE_DATABASE_URL=postgresql://ozzyl_guard:[REDACTED_SECRET]@localhost:5432/ozzyl_guard_restore
+# Full data hashing scans every public table; enable only in CI or an approved isolated window.
+RESTORE_REHEARSAL_VERIFY_DATA_HASHES=false
 
 # Authentication and privacy — generate long random local-only values
 SESSION_PEPPER=[REDACTED_SECRET]

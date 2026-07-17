@@ -28,7 +28,8 @@ Instrumentation belongs at API, repository, provider-adapter, and worker boundar
 - Lock wait and deadlock rate
 - Slow query rate
 - Migration success/failure
-- Backup and restore status
+- Backup and restore status, duration, age, and last successful drill
+- Migration manifest/history checksum mismatch count
 - Durable-job claim and lease-recovery rate
 - `SKIP LOCKED` claim throughput
 - Stale-lease recovery and exhausted-work terminalization
@@ -142,7 +143,7 @@ The event ID links API persistence and asynchronous delivery. The delivery ID li
 - API p95 latency or error-rate breach
 - Assessment error/degraded spike
 - PostgreSQL unavailable, connection saturation, or lock-wait spike
-- Database migration or backup failure
+- Database migration, manifest/history integrity, backup, or restore failure
 - Queue/outbox backlog, oldest-event age, stuck lease, or dead-letter growth
 - Event-worker claim rate drops to zero while due backlog grows
 - Webhook delivery failure or retry spike
@@ -164,7 +165,7 @@ Create and exercise runbooks for:
 - KMS/vault outage
 - OTP provider outage, credential rejection, payload validation failure, and uncertain provider acceptance
 - Courier provider outage
-- Database restore and failover
+- Database logical restore, managed point-in-time restore, and failover
 - API key compromise
 - Courier credential/session compromise
 - Webhook signing-secret compromise and endpoint rotation
@@ -177,6 +178,8 @@ Create and exercise runbooks for:
 - Reputation dispute escalation when that subsystem exists
 
 A webhook replay runbook must verify endpoint status and scope, rotate or re-encrypt the signing secret when needed, and create a new authorized replay record rather than mutating immutable event identity or silently resetting a delivered row.
+
+A database restore runbook must identify the approved backup or PITR timestamp, freeze or isolate writes when consistency requires it, provision a distinct clean target, verify manifest/history integrity before and after restore, compare schema and approved data/sequence checks, replay migrations as a no-op, rotate credentials if the drill crosses trust boundaries, record recovery time and recovery point, and require an explicit cutover decision. The repository rehearsal never drops the source or performs production cutover automatically.
 
 ## Health model
 
