@@ -91,6 +91,10 @@ integration('PostgreSQL courier job leases', () => {
       scheduledAt: new Date(at.getTime() - 180_000),
     });
 
+    await expect(queue.completed(jobId, `old-worker-${suffix}`, at)).rejects.toBeInstanceOf(
+      CourierJobLeaseError,
+    );
+
     const claimed = await queue.claim(`new-worker-${suffix}`, at);
     expect(claimed?.id).toBe(jobId);
     await expect(
