@@ -40,7 +40,7 @@ export class PostgresVerificationDeliveryQueue {
     const client = await this.pool.connect();
     try {
       await client.query('begin');
-      await client.query(
+      const mismatched = await client.query<{ verification_session_id: string }>(
         `
           update verification_jobs vj
           set status = 'failed', error_code = 'VERIFICATION_SCOPE_MISMATCH',
@@ -55,9 +55,18 @@ export class PostgresVerificationDeliveryQueue {
                 and vs.organization_id = vj.organization_id
                 and vs.store_id = vj.store_id
             )
+          returning vj.verification_session_id
         `,
         [at],
       );
+      for (const row of mismatched.rows) {
+        await this.failSession(
+          client,
+          row.verification_session_id,
+          'VERIFICATION_SCOPE_MISMATCH',
+          at,
+        );
+      }
       await this.failExpired(client, at);
       await this.failExhausted(client, at);
 
@@ -163,6 +172,8 @@ export class PostgresVerificationDeliveryQueue {
         where vj.id = $1 and vj.claimed_by = $2 and vj.status = 'claimed'
           and vj.lease_expires_at > $3
           and vs.id = vj.verification_session_id
+          and vs.organization_id = vj.organization_id
+          and vs.store_id = vj.store_id
           and vs.status = 'queued' and vs.expires_at > $3
       `,
       [jobId, workerId, at, new Date(at.getTime() + this.leaseMs)],
@@ -189,6 +200,8 @@ export class PostgresVerificationDeliveryQueue {
           where vj.id = $1 and vj.claimed_by = $2 and vj.status = 'processing'
             and vj.lease_expires_at > $4
             and vs.id = vj.verification_session_id
+            and vs.organization_id = vj.organization_id
+            and vs.store_id = vj.store_id
             and vs.status = 'queued' and vs.expires_at > $4
           returning vj.verification_session_id
         `,
@@ -227,12 +240,16 @@ export class PostgresVerificationDeliveryQueue {
   ): Promise<void> {
     const result = await this.pool.query(
       `
-        update verification_jobs
+        update verification_jobs vj
         set status = 'retry_scheduled', next_attempt_at = $3, error_code = $4,
           completed_at = null, claimed_by = null, claimed_at = null,
           lease_expires_at = null, updated_at = now()
-        where id = $1 and claimed_by = $2 and status = 'processing'
-          and lease_expires_at > $5
+        from verification_sessions vs
+        where vj.id = $1 and vj.claimed_by = $2 and vj.status = 'processing'
+          and vj.lease_expires_at > $5
+          and vs.id = vj.verification_session_id
+          and vs.organization_id = vj.organization_id
+          and vs.store_id = vj.store_id
       `,
       [jobId, workerId, input.nextAttemptAt, input.errorCode, input.at],
     );
@@ -253,13 +270,18 @@ export class PostgresVerificationDeliveryQueue {
         store_id: string;
       }>(
         `
-          update verification_jobs
+          update verification_jobs vj
           set status = 'failed', error_code = $3, completed_at = $4,
             claimed_by = null, claimed_at = null, lease_expires_at = null,
             updated_at = now()
-          where id = $1 and claimed_by = $2 and status in ('claimed', 'processing')
-            and lease_expires_at > $4
-          returning verification_session_id, organization_id, store_id
+          from verification_sessions vs
+          where vj.id = $1 and vj.claimed_by = $2
+            and vj.status in ('claimed', 'processing')
+            and vj.lease_expires_at > $4
+            and vs.id = vj.verification_session_id
+            and vs.organization_id = vj.organization_id
+            and vs.store_id = vj.store_id
+          returning vj.verification_session_id, vj.organization_id, vj.store_id
         `,
         [jobId, workerId, input.errorCode, input.at],
       );

@@ -161,13 +161,23 @@ integration('PostgreSQL verification delivery leases', () => {
       expiresAt: new Date(at.getTime() + 600_000),
     });
     await expect(queue.claim(`scope-verification-${suffix}`, at)).resolves.toBeNull();
-    const stored = await pool.query<{ status: string; error_code: string }>(
-      `select status, error_code from verification_jobs where id = $1`,
+    const stored = await pool.query<{
+      status: string;
+      error_code: string;
+      session_status: string;
+    }>(
+      `
+        select vj.status, vj.error_code, vs.status as session_status
+        from verification_jobs vj
+        join verification_sessions vs on vs.id = vj.verification_session_id
+        where vj.id = $1
+      `,
       [jobId],
     );
     expect(stored.rows[0]).toEqual({
       status: 'failed',
       error_code: 'VERIFICATION_SCOPE_MISMATCH',
+      session_status: 'delivery_failed',
     });
   });
 

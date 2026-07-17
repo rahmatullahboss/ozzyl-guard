@@ -42,6 +42,9 @@ services:
       SESSION_PEPPER: ${SESSION_PEPPER:?SESSION_PEPPER is required}
       SESSION_CSRF_SECRET: ${SESSION_CSRF_SECRET:?SESSION_CSRF_SECRET is required}
       PHONE_HMAC_KEY: ${PHONE_HMAC_KEY:?PHONE_HMAC_KEY is required}
+      OTP_HASH_SECRET: ${OTP_HASH_SECRET:?OTP_HASH_SECRET is required}
+      CREDENTIAL_ENCRYPTION_KEY: ${CREDENTIAL_ENCRYPTION_KEY:?CREDENTIAL_ENCRYPTION_KEY is required}
+      CREDENTIAL_ENCRYPTION_KEY_VERSION: ${CREDENTIAL_ENCRYPTION_KEY_VERSION:-v1}
     ports:
       - '3000:3000'
     depends_on:
@@ -89,6 +92,33 @@ services:
       WORKER_ID: ${WORKER_ID:-courier-sync-local}
       WORKER_POLL_MS: ${WORKER_POLL_MS:-5000}
       WORKER_LEASE_MS: ${WORKER_LEASE_MS:-300000}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  verification-worker:
+    profiles: ['verification']
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    command: ['node', 'workers/verification-worker/dist/runner.js']
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://ozzyl_guard:${POSTGRES_PASSWORD}@postgres:5432/ozzyl_guard
+      CREDENTIAL_ENCRYPTION_KEY: ${CREDENTIAL_ENCRYPTION_KEY:?CREDENTIAL_ENCRYPTION_KEY is required}
+      CREDENTIAL_ENCRYPTION_KEY_VERSION: ${CREDENTIAL_ENCRYPTION_KEY_VERSION:-v1}
+      PHONE_HMAC_KEY: ${PHONE_HMAC_KEY:?PHONE_HMAC_KEY is required}
+      OTP_HASH_SECRET: ${OTP_HASH_SECRET:?OTP_HASH_SECRET is required}
+      OTP_PROVIDER_MODULE: ${OTP_PROVIDER_MODULE:-}
+      OTP_SENDER_ID: ${OTP_SENDER_ID:-}
+      OTP_PROVIDER_API_KEY: ${OTP_PROVIDER_API_KEY:-}
+      VERIFICATION_WORKER_ID: ${VERIFICATION_WORKER_ID:-verification-local}
+      VERIFICATION_WORKER_POLL_MS: ${VERIFICATION_WORKER_POLL_MS:-5000}
+      VERIFICATION_WORKER_LEASE_MS: ${VERIFICATION_WORKER_LEASE_MS:-60000}
+      VERIFICATION_WORKER_MAX_ATTEMPTS: ${VERIFICATION_WORKER_MAX_ATTEMPTS:-5}
+      OTP_PROVIDER_TIMEOUT_MS: ${OTP_PROVIDER_TIMEOUT_MS:-10000}
     depends_on:
       migrate:
         condition: service_completed_successfully

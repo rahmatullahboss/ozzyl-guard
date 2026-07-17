@@ -1,13 +1,10 @@
-import { createHmac, randomUUID } from 'node:crypto';
+import { randomUUID } from 'node:crypto';
 import { Pool } from 'pg';
 import { AesGcmEnvelopeCipher } from '@ozzyl/encryption';
-import { verifyOtp, type OtpDeliveryProvider } from '@ozzyl/verification';
+import type { OtpDeliveryProvider } from '@ozzyl/verification';
 import { VerificationWorker } from './index.js';
-import {
-  PostgresVerificationDeliveryQueue,
-  VerificationDeliveryLeaseError,
-  type ClaimedVerificationDelivery,
-} from './postgres.js';
+import { PostgresVerificationDeliveryQueue, VerificationDeliveryLeaseError } from './postgres.js';
+import { decryptAndValidateVerificationPayload } from './payload.js';
 
 const required = (name: string): string => {
   const value = process.env[name];
@@ -59,7 +56,11 @@ async function run(): Promise<void> {
 
     try {
       await queue.started(delivery.id, workerId);
-      const payload = decryptAndValidate(delivery);
+      const payload = decryptAndValidateVerificationPayload(delivery, {
+        cipher,
+        phoneHmacKey,
+        otpSecret,
+      });
       const worker = new VerificationWorker(provider, queue.reporterFor(delivery, workerId), {
         maxAttempts,
         timeoutMs,
@@ -88,32 +89,6 @@ async function run(): Promise<void> {
   await pool.end();
 }
 
-function decryptAndValidate(delivery: ClaimedVerificationDelivery): { phone: string; otp: string } {
-  let value: unknown;
-  try {
-    value = cipher.decrypt<unknown>(delivery.payloadEncrypted, `verification-job:${delivery.id}`);
-  } catch {
-    throw coded('VERIFICATION_PAYLOAD_DECRYPTION_FAILED');
-  }
-  if (!value || typeof value !== 'object') throw coded('INVALID_VERIFICATION_PAYLOAD');
-  const payload = value as Record<string, unknown>;
-  const phone = typeof payload.phone === 'string' ? payload.phone : '';
-  const otp = typeof payload.otp === 'string' ? payload.otp : '';
-  const phoneHash = createHmac('sha256', phoneHmacKey).update(phone).digest('hex');
-  if (
-    payload.verificationId !== delivery.verificationId ||
-    payload.organizationId !== delivery.organizationId ||
-    payload.storeId !== delivery.storeId ||
-    payload.purpose !== delivery.purpose ||
-    phoneHash !== delivery.phoneHash ||
-    !/^\d{6}$/.test(otp) ||
-    !verifyOtp(delivery.verificationId, otp, delivery.otpHash, otpSecret)
-  ) {
-    throw coded('INVALID_VERIFICATION_PAYLOAD');
-  }
-  return { phone, otp };
-}
-
 async function loadProvider(moduleName: string): Promise<OtpDeliveryProvider> {
   const loaded = (await import(moduleName)) as {
     createOtpDeliveryProvider?: () => OtpDeliveryProvider | Promise<OtpDeliveryProvider>;
@@ -126,10 +101,6 @@ async function loadProvider(moduleName: string): Promise<OtpDeliveryProvider> {
     throw new Error('OTP provider module returned an invalid provider');
   }
   return configured;
-}
-
-function coded(code: string): Error & { code: string } {
-  return Object.assign(new Error(code), { code });
 }
 
 function errorCode(error: unknown, fallback: string): string {
