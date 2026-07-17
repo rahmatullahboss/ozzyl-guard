@@ -14,6 +14,7 @@ import {
 const execFileAsync = promisify(execFile);
 const databaseUrl = process.env.DATABASE_URL;
 const restoreDatabaseUrl = process.env.RESTORE_DATABASE_URL;
+const verifyDataHashes = process.env.RESTORE_REHEARSAL_VERIFY_DATA_HASHES === 'true';
 if (!databaseUrl) throw new Error('DATABASE_URL is required');
 if (!restoreDatabaseUrl) throw new Error('RESTORE_DATABASE_URL is required');
 
@@ -47,7 +48,8 @@ try {
   const migrations = await loadVerifiedMigrations();
   await verifyMigrationHistory(sourcePool, migrations, { requireComplete: true });
   const sourceSchemaFingerprint = await schemaFingerprint(sourcePool);
-  const sourceTableCounts = await tableCounts(sourcePool);
+  const sourceTableState = await tableState(sourcePool, verifyDataHashes);
+  const sourceSequenceState = await sequenceState(sourcePool);
   const sourceHistory = await migrationHistorySnapshot(sourcePool);
 
   await runPostgresTool(
@@ -76,9 +78,14 @@ try {
     throw new Error('Restored schema fingerprint does not match the source database');
   }
 
-  const restoredTableCounts = await tableCounts(restorePool);
-  if (JSON.stringify(sourceTableCounts) !== JSON.stringify(restoredTableCounts)) {
-    throw new Error('Restored table counts do not match the source database');
+  const restoredTableState = await tableState(restorePool, verifyDataHashes);
+  if (JSON.stringify(sourceTableState) !== JSON.stringify(restoredTableState)) {
+    throw new Error('Restored table state does not match the source database');
+  }
+
+  const restoredSequenceState = await sequenceState(restorePool);
+  if (JSON.stringify(sourceSequenceState) !== JSON.stringify(restoredSequenceState)) {
+    throw new Error('Restored sequence state does not match the source database');
   }
 
   const restoredHistory = await migrationHistorySnapshot(restorePool);
@@ -94,7 +101,7 @@ try {
   }
 
   console.info(
-    `Restore rehearsal passed for ${migrations.length} migrations and ${sourceTableCounts.length} public tables`,
+    `Restore rehearsal passed for ${migrations.length} migrations and ${sourceTableState.length} public tables${verifyDataHashes ? ' with full data hashes' : ''}`,
   );
 } finally {
   await Promise.allSettled([sourcePool.end(), restorePool.end()]);
@@ -186,7 +193,10 @@ async function schemaFingerprint(pool: Pool): Promise<string> {
   );
 }
 
-async function tableCounts(pool: Pool): Promise<Array<{ tableName: string; rowCount: string }>> {
+async function tableState(
+  pool: Pool,
+  includeDataHashes: boolean,
+): Promise<Array<{ tableName: string; rowCount: string; dataHash?: string }>> {
   const tables = await pool.query<{ table_name: string }>(`
     select c.relname as table_name
     from pg_class c
@@ -194,14 +204,44 @@ async function tableCounts(pool: Pool): Promise<Array<{ tableName: string; rowCo
     where n.nspname = 'public' and c.relkind in ('r', 'p')
     order by c.relname
   `);
-  const counts: Array<{ tableName: string; rowCount: string }> = [];
+  const state: Array<{ tableName: string; rowCount: string; dataHash?: string }> = [];
   for (const { table_name: tableName } of tables.rows) {
-    const result = await pool.query<{ row_count: string }>(
-      `select count(*)::text as row_count from ${quoteIdentifier('public')}.${quoteIdentifier(tableName)}`,
-    );
-    counts.push({ tableName, rowCount: result.rows[0]?.row_count ?? '0' });
+    const qualifiedTable = `${quoteIdentifier('public')}.${quoteIdentifier(tableName)}`;
+    if (!includeDataHashes) {
+      const result = await pool.query<{ row_count: string }>(
+        `select count(*)::text as row_count from ${qualifiedTable}`,
+      );
+      state.push({ tableName, rowCount: result.rows[0]?.row_count ?? '0' });
+      continue;
+    }
+    const result = await pool.query<{ row_count: string; data_hash: string }>(`
+      select
+        count(*)::text as row_count,
+        md5(coalesce(string_agg(row_hash, '' order by row_hash), '')) as data_hash
+      from (
+        select md5(row_to_json(source_row)::text) as row_hash
+        from ${qualifiedTable} as source_row
+      ) as hashed_rows
+    `);
+    state.push({
+      tableName,
+      rowCount: result.rows[0]?.row_count ?? '0',
+      dataHash: result.rows[0]?.data_hash ?? '',
+    });
   }
-  return counts;
+  return state;
+}
+
+async function sequenceState(pool: Pool): Promise<unknown[]> {
+  return (
+    await pool.query(`
+      select sequencename, last_value::text, start_value::text, min_value::text,
+             max_value::text, increment_by::text, cycle, cache_size::text
+      from pg_sequences
+      where schemaname = 'public'
+      order by sequencename
+    `)
+  ).rows;
 }
 
 function quoteIdentifier(value: string): string {
