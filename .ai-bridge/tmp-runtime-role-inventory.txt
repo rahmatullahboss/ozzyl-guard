@@ -152,5 +152,5 @@ docs/database/database-design.md:293:### `verification_sessions`
 docs/adr/0007-managed-postgresql-production-baseline.md:81:3. Configure TLS, private access, runtime and migration roles, backup retention, and alerts.
 docs/operations/deployment.md:71:- read access to the matching `webhook_endpoints` and scoped `stores` relationship;
 .github/workflows/capture-runtime-role-inventory.yml:1:name: Capture runtime role isolation inventory
-.github/workflows/capture-runtime-role-inventory.yml:26:            grep -RInE 'webhook_endpoints|verification_sessions|PostgresAssessmentFeatureProvider|PostgresMerchantDashboardRepository|PostgresPlatformAdminRepository|GRANT |REVOKE |runtime role|migration role' apps packages workers docs .github package.json 2>/dev/null || true
-.github/workflows/capture-runtime-role-inventory.yml:33:          git commit -m "test: capture runtime role isolation inventory"
+.github/workflows/capture-runtime-role-inventory.yml:25:            grep -RInE 'webhook_endpoints|verification_sessions|PostgresAssessmentFeatureProvider|PostgresMerchantDashboardRepository|PostgresPlatformAdminRepository|GRANT |REVOKE |runtime role|migration role' apps packages workers docs .github package.json 2>/dev/null || true
+.github/workflows/capture-runtime-role-inventory.yml:32:          git commit -m "test: capture runtime role isolation inventory"
