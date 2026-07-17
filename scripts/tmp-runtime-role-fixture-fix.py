@@ -46,5 +46,25 @@ replace_once(
           `managed-${platformAdmin}`,
         ],""",
 )
+replace_once(
+    "apps/api/src/postgres-administration.ts",
+    "set status = $5, updated_at = now()",
+    "set status = $4, updated_at = now()",
+)
+replace_once(
+    "apps/api/src/postgres-administration.ts",
+    "where we.id = $4 and we.organization_id = $2",
+    "where we.id = $3 and we.organization_id = $1",
+)
+replace_once(
+    "apps/api/src/postgres-administration.ts",
+    "we.store_id = $3",
+    "we.store_id = $2",
+)
+replace_once(
+    "apps/api/src/postgres-administration.ts",
+    "[input.userId, input.organizationId, input.storeId, input.endpointId, input.status]",
+    "[input.organizationId, input.storeId, input.endpointId, input.status]",
+)
 
-print("runtime role isolation auth fixtures fixed")
+print("runtime role isolation fixtures and SQL parameters fixed")
