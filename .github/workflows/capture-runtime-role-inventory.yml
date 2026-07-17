@@ -1,0 +1,34 @@
+name: Capture runtime role isolation inventory
+
+on:
+  push:
+    branches: [ai/runtime-role-isolation-20260717]
+    paths:
+      - .github/workflows/capture-runtime-role-inventory.yml
+
+permissions:
+  contents: write
+
+jobs:
+  capture:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ai/runtime-role-isolation-20260717
+      - name: Capture repository inventory
+        run: |
+          {
+            echo '## SOURCE FILES'
+            find apps packages workers -type f \( -name '*.ts' -o -name '*.sql' -o -name 'package.json' \) | sort
+            echo
+            echo '## RELEVANT SYMBOLS'
+            grep -RInE 'webhook_endpoints|verification_sessions|PostgresAssessmentFeatureProvider|PostgresMerchantDashboardRepository|PostgresPlatformAdminRepository|GRANT |REVOKE |runtime role|migration role' apps packages workers docs .github package.json 2>/dev/null || true
+          } > .ai-bridge/tmp-runtime-role-inventory.txt
+      - name: Commit inventory
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f .ai-bridge/tmp-runtime-role-inventory.txt
+          git commit -m "test: capture runtime role isolation inventory"
+          git push origin HEAD:ai/runtime-role-isolation-20260717
