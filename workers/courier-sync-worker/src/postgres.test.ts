@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { Pool } from 'pg';
 import { CourierJobLeaseError, PostgresCourierJobQueue } from './postgres.js';
 
@@ -41,6 +41,10 @@ integration('PostgreSQL courier job leases', () => {
     } finally {
       client.release();
     }
+  });
+
+  afterEach(async () => {
+    await pool.query('delete from courier_jobs where courier_account_id = $1', [accountId]);
   });
 
   afterAll(async () => {

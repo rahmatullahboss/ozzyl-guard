@@ -191,7 +191,7 @@ export class PostgresCourierJobQueue {
         set status = case when $4 and attempts < $6 then 'queued' else 'failed' end,
           scheduled_at = case
             when $4 and attempts < $6
-              then $5 + (least(3600, power(2, greatest(attempts, 1)) * 30)::text || ' seconds')::interval
+              then $5::timestamptz + (least(3600, power(2, greatest(attempts, 1)) * 30)::text || ' seconds')::interval
             else scheduled_at
           end,
           completed_at = case when $4 and attempts < $6 then null else $5 end,
