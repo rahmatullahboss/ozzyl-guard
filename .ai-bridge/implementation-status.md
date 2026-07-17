@@ -24,33 +24,33 @@ Updated: 2026-07-17
 
 ## Product implementation
 
-| Area                             | Status   | Notes                                                                                                                                |
-| -------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| Shared contracts                 | done     | Canonical request/response/error/outcome/event schemas                                                                               |
-| Database/migrations              | done     | Seven append-only migrations; clean PostgreSQL 16 apply and immediate replay passed in CI                                            |
-| Password/session primitives      | done     | Argon2id and opaque hashed session token utilities                                                                                   |
-| Organizations/stores/memberships | done     | Canonical relational schema and bootstrap transaction                                                                                |
-| API keys/usage/plans             | done     | Atomic PostgreSQL quota reservation has duplicate-request and plan-limit concurrency coverage                                        |
-| Courier adapter interface        | done     | Typed provider contract and structured errors                                                                                        |
-| Steadfast adapter                | baseline | Normalized internal endpoint adapter with bounded timeout/session errors; requires authorized live validation                        |
-| Steadfast session worker         | baseline | Playwright login, selector/CAPTCHA/2FA errors, encryption boundary, health state, runnable PostgreSQL polling                        |
-| Courier observation worker/cache | done     | Lease-owned atomic claims, stale recovery, retry/final failure transitions, relational scope, normalized observation persistence     |
+| Area                             | Status   | Notes                                                                                                                                 |
+| -------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| Shared contracts                 | done     | Canonical request/response/error/outcome/event schemas                                                                                |
+| Database/migrations              | done     | Seven append-only migrations; clean PostgreSQL 16 apply and immediate replay passed in CI                                             |
+| Password/session primitives      | done     | Argon2id and opaque hashed session token utilities                                                                                    |
+| Organizations/stores/memberships | done     | Canonical relational schema and bootstrap transaction                                                                                 |
+| API keys/usage/plans             | done     | Atomic PostgreSQL quota reservation has duplicate-request and plan-limit concurrency coverage                                         |
+| Courier adapter interface        | done     | Typed provider contract and structured errors                                                                                         |
+| Steadfast adapter                | baseline | Normalized internal endpoint adapter with bounded timeout/session errors; requires authorized live validation                         |
+| Steadfast session worker         | baseline | Playwright login, selector/CAPTCHA/2FA errors, encryption boundary, health state, runnable PostgreSQL polling                         |
+| Courier observation worker/cache | done     | Lease-owned atomic claims, stale recovery, retry/final failure transitions, relational scope, normalized observation persistence      |
 | Durable work architecture        | baseline | PostgreSQL ownership/lease pattern proven for courier jobs; webhook and verification runners plus broader dead-letter handling remain |
-| Risk engine                      | done     | One pure deterministic engine, versioned policy, confidence, signals, unknown/degraded handling                                      |
-| Public API                       | done     | Assessment create/read, outcomes, courier refresh, OTP send/verify, auth/scopes/idempotency/rate limits                              |
-| PostgreSQL API repositories      | done     | Assessment and outcome race losers resolve to the scoped persisted winner; operation idempotency isolation is covered                |
-| Outcome feedback                 | done     | API, WooCommerce, Shopify, custom, and native adapter paths                                                                          |
-| Webhook delivery                 | baseline | HMAC, timestamp, SSRF controls, retries; durable PostgreSQL outbox runner still needed                                               |
-| WooCommerce                      | baseline | Encrypted service key, async assessment, canonical parsing, safe failure behavior, admin panel, manual recheck, outcomes             |
-| Shopify                          | baseline | Signed webhook helper, assessment/action mapping, outcome submission; app OAuth/webhook registration not implemented                 |
-| Custom server SDK                | done     | Server-only integration and checkout action mapping                                                                                  |
-| Native multi-store adapter       | baseline | Canonical client, shadow-comparison result, outcomes; source platform feature-flag wiring pending                                    |
-| OTP verification                 | baseline | Secure service abstraction and worker library; production provider/runner blocked                                                    |
-| Merchant dashboard               | done     | Argon2id login, opaque HttpOnly session, CSRF logout, authorized store switching, and live scoped operations data                    |
-| Platform admin                   | done     | Explicit `platform_admin` role gate with authenticated live global operations data                                                   |
-| Managed encryption               | baseline | KMS/vault envelope-encryption architecture accepted; provider and implementation remain                                              |
-| Observability                    | baseline | OpenTelemetry-compatible boundary accepted; shared helpers, backend, dashboards, alerts, and redaction tests remain                  |
-| Shared reputation                | deferred | Cross-merchant reputation/dispute system requires legal/privacy review and pilot evidence                                            |
+| Risk engine                      | done     | One pure deterministic engine, versioned policy, confidence, signals, unknown/degraded handling                                       |
+| Public API                       | done     | Assessment create/read, outcomes, courier refresh, OTP send/verify, auth/scopes/idempotency/rate limits                               |
+| PostgreSQL API repositories      | done     | Assessment and outcome race losers resolve to the scoped persisted winner; operation idempotency isolation is covered                 |
+| Outcome feedback                 | done     | API, WooCommerce, Shopify, custom, and native adapter paths                                                                           |
+| Webhook delivery                 | baseline | HMAC, timestamp, SSRF controls, retries; durable PostgreSQL outbox runner still needed                                                |
+| WooCommerce                      | baseline | Encrypted service key, async assessment, canonical parsing, safe failure behavior, admin panel, manual recheck, outcomes              |
+| Shopify                          | baseline | Signed webhook helper, assessment/action mapping, outcome submission; app OAuth/webhook registration not implemented                  |
+| Custom server SDK                | done     | Server-only integration and checkout action mapping                                                                                   |
+| Native multi-store adapter       | baseline | Canonical client, shadow-comparison result, outcomes; source platform feature-flag wiring pending                                     |
+| OTP verification                 | baseline | Secure service abstraction and worker library; production provider/runner blocked                                                     |
+| Merchant dashboard               | done     | Argon2id login, opaque HttpOnly session, CSRF logout, authorized store switching, and live scoped operations data                     |
+| Platform admin                   | done     | Explicit `platform_admin` role gate with authenticated live global operations data                                                    |
+| Managed encryption               | baseline | KMS/vault envelope-encryption architecture accepted; provider and implementation remain                                               |
+| Observability                    | baseline | OpenTelemetry-compatible boundary accepted; shared helpers, backend, dashboards, alerts, and redaction tests remain                   |
+| Shared reputation                | deferred | Cross-merchant reputation/dispute system requires legal/privacy review and pilot evidence                                             |
 
 ## Migrations
 
