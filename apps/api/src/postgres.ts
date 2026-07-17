@@ -20,6 +20,7 @@ import {
   riskAssessmentResponseSchema,
   type BrowserOrganization,
   type MerchantDashboardOverview,
+  type DomainEvent,
   type OrderOutcomeInput,
   type PlatformAdminOverview,
   type PlatformRole,
@@ -264,6 +265,22 @@ export class PostgresAssessmentRepository implements AssessmentRepository {
           ],
         );
       }
+      await enqueueWebhookDeliveries(client, {
+        id: `evt_assessment_${record.response.assessment_id}`,
+        type: 'assessment.completed',
+        organizationId: record.identity.organizationId,
+        storeId: record.identity.storeId,
+        occurredAt: new Date().toISOString(),
+        payload: {
+          assessmentId: record.response.assessment_id,
+          externalOrderId: record.request.external_order_id ?? null,
+          riskScore: record.response.risk_score,
+          riskLevel: record.response.risk_level,
+          decision: record.response.decision,
+          confidence: record.response.confidence,
+          degraded: record.response.meta?.degraded ?? true,
+        },
+      });
       await client.query('commit');
       return record;
     } catch (error) {
@@ -326,6 +343,20 @@ export class PostgresOutcomeRepository implements OutcomeRepository {
       );
       const insertedRow = inserted.rows[0];
       if (insertedRow) {
+        await enqueueWebhookDeliveries(client, {
+          id: `evt_outcome_${insertedRow.id}`,
+          type: 'order.outcome_recorded',
+          organizationId: input.organizationId,
+          storeId: input.storeId,
+          occurredAt: input.outcome.occurred_at,
+          payload: {
+            outcomeId: insertedRow.id,
+            assessmentId: input.outcome.assessment_id ?? null,
+            externalOrderId: input.outcome.external_order_id,
+            outcome: input.outcome.outcome,
+            provider: input.outcome.provider ?? null,
+          },
+        });
         await client.query('commit');
         return { outcomeId: insertedRow.id, replay: false };
       }
@@ -1231,5 +1262,41 @@ function isRiskPolicy(value: unknown): value is {
     typeof record.highValueOrderAmount === 'number' &&
     (record.unknownDecision === 'verify' || record.unknownDecision === 'review') &&
     ['verify', 'review', 'hold', 'block'].every((key) => typeof thresholdRecord[key] === 'number')
+  );
+}
+
+async function enqueueWebhookDeliveries(client: PoolClient, event: DomainEvent): Promise<void> {
+  await client.query(
+    `
+      insert into webhook_deliveries (
+        id, endpoint_id, organization_id, store_id, event_id, event_type,
+        event_payload, occurred_at, status, next_attempt_at
+      )
+      select
+        'whd_' || md5(we.id || ':' || $1),
+        we.id,
+        $2,
+        $3,
+        $1,
+        $4,
+        $5::jsonb,
+        $6,
+        'queued',
+        now()
+      from webhook_endpoints we
+      where we.organization_id = $2
+        and (we.store_id is null or we.store_id = $3)
+        and we.status = 'active'
+        and we.events @> jsonb_build_array($4::text)
+      on conflict (endpoint_id, event_id) do nothing
+    `,
+    [
+      event.id,
+      event.organizationId,
+      event.storeId ?? null,
+      event.type,
+      JSON.stringify(event),
+      event.occurredAt,
+    ],
   );
 }

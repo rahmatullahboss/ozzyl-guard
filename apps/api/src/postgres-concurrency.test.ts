@@ -21,6 +21,9 @@ integration('PostgreSQL concurrency and idempotency', () => {
   const otherOrganizationId = `org_concurrency_other_${suffix}`;
   const otherStoreId = `sto_concurrency_other_${suffix}`;
   const apiKeyId = `key_concurrency_${suffix}`;
+  const storeWebhookId = `we_concurrency_store_${suffix}`;
+  const organizationWebhookId = `we_concurrency_org_${suffix}`;
+  const otherWebhookId = `we_concurrency_other_${suffix}`;
 
   beforeAll(async () => {
     const client = await pool.connect();
@@ -49,6 +52,26 @@ integration('PostgreSQL concurrency and idempotency', () => {
           ) values ($1, $2, $3, 'test', $4, 'ozg_test_concurrency', 'Concurrency test', $5::jsonb)
         `,
         [apiKeyId, organizationId, storeId, `hash_${suffix}`, JSON.stringify(['*'])],
+      );
+      const webhookEvents = JSON.stringify(['assessment.completed', 'order.outcome_recorded']);
+      await client.query(
+        `
+          insert into webhook_endpoints (
+            id, organization_id, store_id, url, secret_encrypted, events, status
+          ) values
+            ($1, $2, $3, 'https://store.example/hook', 'encrypted-store', $7::jsonb, 'active'),
+            ($4, $2, null, 'https://organization.example/hook', 'encrypted-org', $7::jsonb, 'active'),
+            ($5, $6, null, 'https://other.example/hook', 'encrypted-other', $7::jsonb, 'active')
+        `,
+        [
+          storeWebhookId,
+          organizationId,
+          storeId,
+          organizationWebhookId,
+          otherWebhookId,
+          otherOrganizationId,
+          webhookEvents,
+        ],
       );
       await client.query('commit');
     } catch (error) {
@@ -196,6 +219,58 @@ integration('PostgreSQL concurrency and idempotency', () => {
       [organizationId, storeId, input.idempotencyKey],
     );
     expect(stored.rows[0]?.count).toBe(1);
+  });
+
+  it('enqueues one scoped webhook delivery per matching endpoint and persisted winner', async () => {
+    const assessments = new PostgresAssessmentRepository(pool);
+    const outcomes = new PostgresOutcomeRepository(pool);
+    const assessment = await assessments.save(
+      assessmentRecord(`ras_outbox_${suffix}`, `assessment-outbox-${suffix}`),
+    );
+    const outcome = await outcomes.save({
+      organizationId,
+      storeId,
+      idempotencyKey: `outcome-outbox-${suffix}`,
+      outcome: {
+        external_order_id: `ORDER-OUTBOX-${suffix}`,
+        assessment_id: assessment.response.assessment_id,
+        outcome: 'delivered',
+        provider: 'steadfast',
+        occurred_at: '2026-07-17T06:00:00.000Z',
+      },
+    });
+
+    const eventIds = [
+      `evt_assessment_${assessment.response.assessment_id}`,
+      `evt_outcome_${outcome.outcomeId}`,
+    ];
+    const stored = await pool.query<{
+      endpoint_id: string;
+      organization_id: string;
+      store_id: string | null;
+      event_id: string;
+      event_type: string;
+      event_payload: unknown;
+    }>(
+      `
+        select endpoint_id, organization_id, store_id, event_id, event_type, event_payload
+        from webhook_deliveries
+        where event_id = any($1::text[])
+        order by event_id, endpoint_id
+      `,
+      [eventIds],
+    );
+    expect(stored.rows).toHaveLength(4);
+    expect(new Set(stored.rows.map((row) => row.endpoint_id))).toEqual(
+      new Set([storeWebhookId, organizationWebhookId]),
+    );
+    expect(stored.rows.every((row) => row.organization_id === organizationId)).toBe(true);
+    expect(stored.rows.every((row) => row.store_id === storeId)).toBe(true);
+    expect(stored.rows.some((row) => row.event_type === 'assessment.completed')).toBe(true);
+    expect(stored.rows.some((row) => row.event_type === 'order.outcome_recorded')).toBe(true);
+    expect(JSON.stringify(stored.rows.map((row) => row.event_payload))).not.toContain(
+      '01712345678',
+    );
   });
 
   it('keeps operation idempotency values isolated by organization and store', async () => {

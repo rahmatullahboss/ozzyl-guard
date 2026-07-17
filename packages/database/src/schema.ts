@@ -463,13 +463,32 @@ export const webhookDeliveries = pgTable(
     endpointId: text('endpoint_id')
       .notNull()
       .references(() => webhookEndpoints.id, { onDelete: 'cascade' }),
+    organizationId: text('organization_id')
+      .notNull()
+      .references(() => organizations.id, { onDelete: 'cascade' }),
+    storeId: text('store_id').references(() => stores.id, { onDelete: 'cascade' }),
     eventId: text('event_id').notNull(),
+    eventType: text('event_type').notNull(),
+    eventPayload: jsonb('event_payload').notNull(),
+    occurredAt: timestamp('occurred_at', { withTimezone: true }).notNull(),
     status: text('status').notNull(),
     attempts: integer('attempts').notNull().default(0),
     nextAttemptAt: timestamp('next_attempt_at', { withTimezone: true }),
     responseStatus: integer('response_status'),
     errorCode: text('error_code'),
+    claimedBy: text('claimed_by'),
+    claimedAt: timestamp('claimed_at', { withTimezone: true }),
+    leaseExpiresAt: timestamp('lease_expires_at', { withTimezone: true }),
+    completedAt: timestamp('completed_at', { withTimezone: true }),
     ...timestamps(),
   },
-  (table) => [uniqueIndex('webhook_deliveries_event_unique').on(table.endpointId, table.eventId)],
+  (table) => [
+    uniqueIndex('webhook_deliveries_event_unique').on(table.endpointId, table.eventId),
+    index('webhook_deliveries_claim_idx').on(
+      table.status,
+      table.nextAttemptAt,
+      table.leaseExpiresAt,
+    ),
+    index('webhook_deliveries_scope_idx').on(table.organizationId, table.storeId, table.createdAt),
+  ],
 );

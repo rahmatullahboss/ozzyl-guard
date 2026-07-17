@@ -94,5 +94,26 @@ services:
         condition: service_completed_successfully
     restart: unless-stopped
 
+  event-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    command: ['node', 'workers/event-worker/dist/runner.js']
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://ozzyl_guard:${POSTGRES_PASSWORD}@postgres:5432/ozzyl_guard
+      CREDENTIAL_ENCRYPTION_KEY: ${CREDENTIAL_ENCRYPTION_KEY:?CREDENTIAL_ENCRYPTION_KEY is required}
+      CREDENTIAL_ENCRYPTION_KEY_VERSION: ${CREDENTIAL_ENCRYPTION_KEY_VERSION:-v1}
+      EVENT_WORKER_ID: ${EVENT_WORKER_ID:-event-local}
+      EVENT_WORKER_POLL_MS: ${EVENT_WORKER_POLL_MS:-5000}
+      EVENT_WORKER_LEASE_MS: ${EVENT_WORKER_LEASE_MS:-60000}
+      EVENT_WORKER_MAX_ATTEMPTS: ${EVENT_WORKER_MAX_ATTEMPTS:-5}
+      WEBHOOK_TIMEOUT_MS: ${WEBHOOK_TIMEOUT_MS:-5000}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
 volumes:
   ozzyl_guard_postgres:

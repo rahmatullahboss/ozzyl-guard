@@ -45,6 +45,13 @@ WORKER_POLL_MS=5000
 WORKER_LEASE_MS=300000
 # Set a stable unique identifier per replica in production. Local workers generate one when omitted.
 WORKER_ID=courier-sync-local
+
+# Durable webhook event worker
+EVENT_WORKER_ID=event-local
+EVENT_WORKER_POLL_MS=5000
+EVENT_WORKER_LEASE_MS=60000
+EVENT_WORKER_MAX_ATTEMPTS=5
+WEBHOOK_TIMEOUT_MS=5000
 STEADFAST_LIVE_TESTS=false
 
 # Queue/cache placeholders for later external infrastructure ADRs

@@ -1,4 +1,5 @@
 import { createHmac } from 'node:crypto';
+import { lookup } from 'node:dns/promises';
 import { isIP } from 'node:net';
 import type { DomainEvent } from '@ozzyl/shared-types';
 
@@ -40,27 +41,59 @@ export interface WebhookDeliveryRepository {
   }): Promise<void>;
 }
 
+export type WebhookDestinationResolver = (hostname: string) => Promise<readonly string[]>;
+
 export class WebhookDestinationError extends Error {
   readonly code = 'UNSAFE_WEBHOOK_DESTINATION';
 }
 
+export class WebhookResolutionError extends Error {
+  readonly code = 'WEBHOOK_DNS_RESOLUTION_FAILED';
+}
+
 export function assertSafeWebhookUrl(rawUrl: string): URL {
-  const url = new URL(rawUrl);
+  let url: URL;
+  try {
+    url = new URL(rawUrl);
+  } catch {
+    throw new WebhookDestinationError('Webhook endpoint URL is invalid');
+  }
   if (url.protocol !== 'https:') {
     throw new WebhookDestinationError('Webhook endpoints must use HTTPS');
   }
-  const hostname = url.hostname.toLowerCase();
+  const hostname = normalizedHostname(url.hostname);
   if (hostname === 'localhost' || hostname.endsWith('.localhost') || hostname.endsWith('.local')) {
     throw new WebhookDestinationError('Local webhook destinations are not allowed');
   }
-  if (isIP(hostname) && isPrivateIp(hostname)) {
-    throw new WebhookDestinationError('Private IP webhook destinations are not allowed');
+  if (isIP(hostname) && isNonPublicIp(hostname)) {
+    throw new WebhookDestinationError('Non-public IP webhook destinations are not allowed');
   }
-  if (hostname === '169.254.169.254' || hostname === 'metadata.google.internal') {
+  if (hostname === 'metadata.google.internal') {
     throw new WebhookDestinationError('Metadata service destinations are not allowed');
   }
   if (url.username || url.password) {
     throw new WebhookDestinationError('Webhook URLs must not contain credentials');
+  }
+  return url;
+}
+
+export async function assertSafeWebhookDestination(
+  rawUrl: string,
+  resolver: WebhookDestinationResolver = resolveHostname,
+): Promise<URL> {
+  const url = assertSafeWebhookUrl(rawUrl);
+  const hostname = normalizedHostname(url.hostname);
+  let addresses: readonly string[];
+  try {
+    addresses = await resolver(hostname);
+  } catch {
+    throw new WebhookResolutionError('Webhook destination DNS resolution failed');
+  }
+  if (addresses.length === 0) {
+    throw new WebhookResolutionError('Webhook destination did not resolve to an address');
+  }
+  if (addresses.some((address) => !isIP(address) || isNonPublicIp(address))) {
+    throw new WebhookDestinationError('Webhook destination resolved to a non-public address');
   }
   return url;
 }
@@ -73,14 +106,24 @@ export class EventWorker {
   private readonly fetcher: typeof fetch;
   private readonly timeoutMs: number;
   private readonly maxAttempts: number;
+  private readonly now: () => Date;
+  private readonly resolver: WebhookDestinationResolver;
 
   constructor(
     private readonly repository: WebhookDeliveryRepository,
-    options?: { fetcher?: typeof fetch; timeoutMs?: number; maxAttempts?: number },
+    options?: {
+      fetcher?: typeof fetch;
+      timeoutMs?: number;
+      maxAttempts?: number;
+      now?: () => Date;
+      resolver?: WebhookDestinationResolver;
+    },
   ) {
     this.fetcher = options?.fetcher ?? fetch;
     this.timeoutMs = options?.timeoutMs ?? 5_000;
     this.maxAttempts = options?.maxAttempts ?? 5;
+    this.now = options?.now ?? (() => new Date());
+    this.resolver = options?.resolver ?? resolveHostname;
   }
 
   async deliver(input: {
@@ -93,14 +136,29 @@ export class EventWorker {
         endpointId: input.endpoint.id,
         eventId: input.event.id,
         errorCode: 'ENDPOINT_INACTIVE',
-        at: new Date(),
+        at: this.now(),
       });
       return { status: 'failed', errorCode: 'ENDPOINT_INACTIVE' };
     }
 
-    const url = assertSafeWebhookUrl(input.endpoint.url);
+    let url: URL;
+    try {
+      url = await assertSafeWebhookDestination(input.endpoint.url, this.resolver);
+    } catch (error) {
+      return this.retryOrFail({
+        endpointId: input.endpoint.id,
+        eventId: input.event.id,
+        attempt: input.attempt,
+        errorCode:
+          error instanceof WebhookDestinationError || error instanceof WebhookResolutionError
+            ? error.code
+            : 'UNSAFE_WEBHOOK_DESTINATION',
+        retryable: error instanceof WebhookResolutionError,
+      });
+    }
+
     const payload = JSON.stringify(input.event);
-    const timestamp = String(Math.floor(Date.now() / 1_000));
+    const timestamp = String(Math.floor(this.now().getTime() / 1_000));
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), this.timeoutMs);
 
@@ -124,7 +182,7 @@ export class EventWorker {
           endpointId: input.endpoint.id,
           eventId: input.event.id,
           responseStatus: response.status,
-          at: new Date(),
+          at: this.now(),
         });
         return { status: 'delivered', responseStatus: response.status };
       }
@@ -160,7 +218,7 @@ export class EventWorker {
     errorCode: string;
     retryable: boolean;
   }): Promise<DeliveryResult> {
-    const at = new Date();
+    const at = this.now();
     if (input.retryable && input.attempt < this.maxAttempts) {
       const delayMs = Math.min(60 * 60 * 1_000, 2 ** Math.max(0, input.attempt - 1) * 30_000);
       const nextAttemptAt = new Date(at.getTime() + delayMs);
@@ -195,25 +253,53 @@ export class EventWorker {
   }
 }
 
-function isPrivateIp(hostname: string): boolean {
-  if (hostname.includes(':')) {
-    const normalized = hostname.toLowerCase();
+async function resolveHostname(hostname: string): Promise<readonly string[]> {
+  if (isIP(hostname)) return [hostname];
+  const records = await lookup(hostname, { all: true, verbatim: true });
+  return records.map((record) => record.address);
+}
+
+function normalizedHostname(hostname: string): string {
+  return hostname.toLowerCase().replace(/^\[/, '').replace(/\]$/, '');
+}
+
+function isNonPublicIp(address: string): boolean {
+  const version = isIP(address);
+  if (version === 4) {
+    const parts = address.split('.').map(Number);
+    const [first, second, third] = parts;
+    if (parts.length !== 4 || first === undefined || second === undefined || third === undefined) {
+      return true;
+    }
     return (
+      first === 0 ||
+      first === 10 ||
+      first === 127 ||
+      (first === 100 && second >= 64 && second <= 127) ||
+      (first === 169 && second === 254) ||
+      (first === 172 && second >= 16 && second <= 31) ||
+      (first === 192 && second === 0 && third === 0) ||
+      (first === 192 && second === 0 && third === 2) ||
+      (first === 192 && second === 168) ||
+      (first === 198 && (second === 18 || second === 19)) ||
+      (first === 198 && second === 51 && third === 100) ||
+      (first === 203 && second === 0 && third === 113) ||
+      first >= 224
+    );
+  }
+  if (version === 6) {
+    const normalized = address.toLowerCase();
+    const mappedIpv4 = normalized.match(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/)?.[1];
+    if (mappedIpv4) return isNonPublicIp(mappedIpv4);
+    return (
+      normalized === '::' ||
       normalized === '::1' ||
       normalized.startsWith('fc') ||
       normalized.startsWith('fd') ||
-      normalized.startsWith('fe80:')
+      /^fe[89ab]/.test(normalized) ||
+      normalized.startsWith('ff') ||
+      normalized.startsWith('2001:db8:')
     );
   }
-  const parts = hostname.split('.').map(Number);
-  const [first, second] = parts;
-  if (parts.length !== 4 || first === undefined || second === undefined) return true;
-  return (
-    first === 10 ||
-    first === 127 ||
-    (first === 169 && second === 254) ||
-    (first === 172 && second >= 16 && second <= 31) ||
-    (first === 192 && second === 168) ||
-    first === 0
-  );
+  return true;
 }

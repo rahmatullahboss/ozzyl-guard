@@ -11,11 +11,17 @@
     }
   },
   "scripts": {
-    "build": "tsup src/index.ts --format esm --dts --sourcemap --clean",
+    "build": "tsup src/index.ts src/postgres.ts src/runner.ts --format esm --dts --sourcemap --clean",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "start": "node dist/runner.js"
   },
   "dependencies": {
-    "@ozzyl/shared-types": "*"
+    "@ozzyl/shared-types": "*",
+    "@ozzyl/encryption": "*",
+    "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.15.5"
   }
 }

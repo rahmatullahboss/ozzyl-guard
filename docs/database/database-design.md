@@ -208,6 +208,54 @@ Organization, store, and provider scope come from the `courier_accounts` and `st
 - confirmed at
 - evidence reference
 
+## Event and webhook subsystem
+
+### `webhook_endpoints`
+
+- `id`
+- `organization_id`
+- optional `store_id`
+- HTTPS destination URL
+- encrypted signing-secret envelope
+- subscribed event-type array
+- status
+- timestamps
+
+A store-scoped endpoint receives only events for that store. An organization-wide endpoint may receive events for any authorized store in the organization. Endpoint secrets are never stored as plaintext.
+
+### `webhook_deliveries`
+
+- `id`
+- `endpoint_id`
+- `organization_id`
+- optional `store_id`
+- stable `event_id`
+- canonical `event_type`
+- canonical `event_payload`
+- `occurred_at`
+- status and attempts
+- `next_attempt_at`
+- `response_status`
+- error code
+- `claimed_by`
+- `claimed_at`
+- `lease_expires_at`
+- `completed_at`
+- timestamps
+
+Assessment and outcome repositories insert matching webhook deliveries in the same PostgreSQL transaction as the newly persisted assessment or outcome. A transaction rollback therefore cannot leave a delivery for data that was not committed, and an idempotency loser does not emit another event.
+
+The persisted event payload contains explicit organization/store identity and the stable event ID/type. It must not include raw phone values, API keys, OTPs, provider credentials, signing secrets, or unrestricted assessment request snapshots.
+
+The unique `(endpoint_id, event_id)` constraint prevents duplicate delivery rows. Event workers claim due rows with `FOR UPDATE SKIP LOCKED`, attach an expiring owner lease, and require the current unexpired owner for delivery, retry, or terminal-failure transitions. Stale work can be reclaimed; exhausted stale work fails with `LEASE_EXPIRED`.
+
+Before a delivery is claimed, its organization/store scope is revalidated against `webhook_endpoints` and `stores`. Mismatched rows fail closed with `WEBHOOK_SCOPE_MISMATCH`.
+
+Recommended operational indexes:
+
+- `(status, next_attempt_at, lease_expires_at)` for claim/recovery scans
+- `(organization_id, store_id, created_at desc)` for scoped operations views
+
 ## Reputation subsystem
 
 ### `reputation_reports`
@@ -261,7 +309,7 @@ Materialized/derived score by phone hash:
 - sent/delivered/failed times
 - expiry
 
-Never store OTP plaintext.
+Never store OTP plaintext. The next durable-work milestone must introduce encrypted provider-delivery job material rather than adding raw phone or OTP values to these records.
 
 ## Initial migration boundaries
 
@@ -277,7 +325,7 @@ Migration 0001 should establish only the Phase 1 foundation:
 - usage_events
 - audit_events
 
-Courier, risk, verification, and reputation tables should be introduced in subsequent append-only migrations aligned with coherent milestones.
+Courier, risk, verification, event, and reputation tables should be introduced in subsequent append-only migrations aligned with coherent milestones.
 
 Current ordered migrations:
 
@@ -288,7 +336,12 @@ Current ordered migrations:
 5. `0005_durable_operations.sql` — durable job payloads, idempotent outcomes, and idempotency records.
 6. `0006_browser_access.sql` — explicit platform role plus browser dashboard/admin query indexes.
 7. `0007_worker_leases.sql` — explicit courier-worker ownership, claim/lease timestamps, stale-job recovery support, and claim scheduling index.
+8. `0008_webhook_delivery_leases.sql` — scoped canonical webhook event payloads, event-worker ownership/lease timestamps, completion state, and claim/scope indexes.
 
 Migration 0006 does not store raw session material. `user_sessions.token_hash` remains the only persisted session-token representation. The merchant dashboard repository authorizes with `(user_id, organization_id, store_id)` before running any aggregate query.
 
-Migration 0007 is append-only and does not rewrite prior migration files. CI applies the complete migration set twice against the same PostgreSQL service to verify replay safety.
+Migration 0007 is append-only and does not rewrite prior migration files. Courier jobs use explicit owner leases and relational account scope.
+
+Migration 0008 backfills endpoint-derived scope for prior delivery rows. Legacy rows whose canonical event payload cannot be reconstructed are terminalized with `LEGACY_EVENT_PAYLOAD_MISSING` rather than delivered with invented data.
+
+CI applies the complete migration set twice against the same PostgreSQL service to verify replay safety. Applied migration files remain immutable.

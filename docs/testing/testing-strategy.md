@@ -8,10 +8,11 @@
 - Decision threshold mapping
 - Provider response normalization
 - Status mapping
-- Encryption helpers
+- Envelope encryption, key-version handling, and authenticated-context binding
 - OTP expiry and attempt limits
 - API key generation/prefix/hash verification
 - Policy parsing/versioning
+- Webhook HMAC signing, retry classification, and DNS destination validation
 
 ## Contract tests
 
@@ -33,6 +34,15 @@ Public API contract tests cover:
 - Idempotent replay
 - Test/live key isolation
 
+Webhook delivery contract tests cover:
+
+- Canonical domain-event payloads
+- HMAC signature over timestamp and exact payload
+- Redirect rejection
+- Retryable HTTP/network/DNS failures
+- Terminal unsafe-destination and inactive-endpoint failures
+- No signing secret, raw phone, or unrestricted request body in logs
+
 ## Integration tests
 
 - User/session authentication
@@ -41,7 +51,8 @@ Public API contract tests cover:
 - Assessment persistence
 - OTP send/verify
 - Courier session refresh
-- Webhook signing and retry
+- Transactional assessment/outcome webhook outbox emission
+- Lease-owned webhook delivery and retry
 - Multi-tenant isolation
 - Organization/store membership authorization
 
@@ -56,13 +67,35 @@ The CI PostgreSQL service runs real-database integration tests for:
 - preventing losing assessment IDs from writing orphan or invalid signal rows;
 - concurrent outcome writes resolving as one insert and one replay rather than a unique-constraint error;
 - operation idempotency values remaining isolated by organization and store;
+- assessment and outcome winners creating exactly one outbox row per matching active endpoint inside the persistence transaction;
+- outbox rows excluding raw phone values and unrelated tenant endpoints;
 - browser-session hashing, active membership resolution, merchant tenant revalidation, and explicit platform-admin authorization;
 - competing courier workers claiming different due jobs with `FOR UPDATE SKIP LOCKED`;
-- preventing another worker from stealing a fresh lease;
-- reclaiming expired `claimed` or `processing` jobs and rejecting the previous owner;
-- clearing lease ownership when retryable work is returned to the queue with backoff;
-- moving exhausted stale jobs to terminal failure with `LEASE_EXPIRED`;
-- deriving courier organization/store/provider scope from account relationships rather than payload fields.
+- preventing another courier worker from stealing a fresh lease;
+- reclaiming expired courier jobs and rejecting the previous owner;
+- clearing courier ownership when retryable work is returned to the queue with backoff;
+- moving exhausted stale courier jobs to terminal failure with `LEASE_EXPIRED`;
+- deriving courier organization/store/provider scope from account relationships rather than payload fields;
+- competing event workers claiming different due webhook deliveries with `FOR UPDATE SKIP LOCKED`;
+- preventing another event worker from stealing a fresh webhook lease;
+- rejecting an expired event-worker owner before completion or failure;
+- reclaiming stale webhook deliveries and incrementing attempts only when processing starts;
+- clearing webhook ownership when a retry is scheduled;
+- moving exhausted stale webhook deliveries to terminal failure with `LEASE_EXPIRED`;
+- failing webhook deliveries whose persisted organization/store scope does not match the endpoint relationship.
+
+### Webhook destination security coverage
+
+Default tests use injected DNS and fetch boundaries. They prove:
+
+- non-HTTPS URLs, embedded credentials, localhost names, local suffixes, and literal non-public IPv4/IPv6 addresses are rejected;
+- a hostname resolving to any non-public address is rejected before `fetch`;
+- DNS resolution failure is classified as retryable without making a network request;
+- redirects are disabled;
+- successful deliveries use the expected HMAC signature and canonical payload;
+- envelope ciphertext cannot be decrypted under another endpoint or session context.
+
+Production must add controlled egress and network policy because application-level DNS validation alone cannot eliminate DNS-rebinding or route-change risk.
 
 ### Migration replay coverage
 
@@ -76,9 +109,9 @@ The migration history table remains the replay source of truth. Applied migratio
 Future PostgreSQL coverage must include:
 
 - clean backup/restore rehearsal and migration-table integrity checks;
-- durable webhook-outbox and verification-queue worker claims, leases, retries, and dead-letter transitions;
+- encrypted verification-queue claims, leases, retries, provider delivery, and terminal-failure transitions;
 - lease renewal during future jobs whose bounded execution time can exceed the configured lease;
-- additional courier queue, assessment, outcome, feature, and dashboard repository isolation cases;
+- webhook endpoint administration, feature, and dashboard repository isolation cases;
 - runtime-role versus migration-role permission enforcement.
 
 ## End-to-end tests
@@ -87,9 +120,11 @@ Future PostgreSQL coverage must include:
 - Create a test/live API key
 - Connect Steadfast account
 - Assess WooCommerce COD order
+- Receive a signed `assessment.completed` webhook asynchronously
 - Review high-risk order
 - Verify OTP
 - Submit courier outcome
+- Receive a signed `order.outcome_recorded` webhook asynchronously
 - View usage and savings report
 
 ## Security tests
@@ -99,14 +134,16 @@ Future PostgreSQL coverage must include:
 - Raw key absence from database/metadata/logs
 - Brute-force OTP
 - CSRF
-- SSRF
-- Webhook replay
+- Literal-IP and DNS-result SSRF
+- Webhook replay and redirect handling
+- Webhook signing-secret decryption failure
+- Envelope authenticated-context mismatch
 - Secret redaction
 - Injection attacks
 - Session fixation/rotation
 - Credential decryption failure
 - Worker lease ownership and stale-owner rejection
-- Job payload scope tampering
+- Job/event payload scope tampering
 
 ## Scraper tests
 
@@ -126,9 +163,10 @@ Live provider tests must be opt-in and use dedicated authorized test accounts. D
 
 - `packages/risk-engine` cannot import network/database/provider/browser packages
 - API routes cannot import provider session drivers directly
+- API persistence may enqueue durable work but cannot execute merchant/provider network delivery
 - All schema comes from `packages/database`
-- All public response types come from `packages/shared-types`
-- Tenant-scoped repositories require a scope argument
+- All public response and domain-event types come from `packages/shared-types`
+- Tenant-scoped repositories, outbox rows, and jobs require explicit scope
 
 ## Pilot evaluation
 
