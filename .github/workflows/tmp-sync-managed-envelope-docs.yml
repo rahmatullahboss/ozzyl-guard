@@ -1,0 +1,266 @@
+name: Sync managed envelope documentation
+
+on:
+  push:
+    branches: [ai/managed-envelope-boundary-20260717]
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Sync canonical documentation
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+
+          def replace_once(path: str, old: str, new: str) -> None:
+              file = Path(path)
+              text = file.read_text()
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f'Expected one match in {path}; found {count}: {old[:80]!r}')
+              file.write_text(text.replace(old, new, 1))
+
+          replace_once(
+              'tracker.yml',
+              '  - runtime_database_role_is_non_owner_non_migration_and_explicitly_granted\n',
+              '  - runtime_database_role_is_non_owner_non_migration_and_explicitly_granted\n  - managed_envelopes_use_random_per_record_data_keys_and_authenticated_context\n  - production_kms_failures_have_no_plaintext_or_local_fallback\n',
+          )
+          replace_once(
+              'tracker.yml',
+              '  - least_privilege_postgresql_runtime_role_policy_grant_cli_and_ci_gate\n',
+              '  - least_privilege_postgresql_runtime_role_policy_grant_cli_and_ci_gate\n  - provider_neutral_managed_envelope_v2_with_random_per_record_data_keys\n  - managed_envelope_legacy_dual_read_key_rotation_and_safe_failure_tests\n',
+          )
+          replace_once('tracker.yml', '    remote_assertions: 87_passed\n', '    remote_assertions: 96_passed\n')
+          replace_once(
+              'tracker.yml',
+              '    postgresql_runtime_role_tests: 6_of_6_passed\n',
+              '    postgresql_runtime_role_tests: 6_of_6_passed\n    managed_envelope_tests: 11_of_11_passed\n',
+          )
+          replace_once(
+              'tracker.yml',
+              '''  source_validation:
+    status: passed
+    run_id: 29560049322
+    job_id: 87820368024
+    tested_head: 90a50b215b063d87f71725eb6a375cbb887345de
+    completed: 2026-07-17
+    steps: audit_format_lint_manifest_nine_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_typecheck_tests_build_php_all_passed
+    migration_integrity_tests: 7_of_7_passed
+    tenant_admin_isolation_tests: 7_of_7_passed
+    runtime_role_tests: 6_of_6_passed
+''',
+              '''  source_validation:
+    status: passed
+    run_id: 29579223561
+    job_id: 87880659693
+    tested_head: 9dbd61eb84fa6d42958e120d5ce9e1e402bd6688
+    completed: 2026-07-17
+    steps: audit_format_lint_manifest_nine_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_typecheck_tests_build_php_all_passed
+    managed_envelope_tests: 11_of_11_passed
+''',
+          )
+          replace_once(
+              'tracker.yml',
+              '    - implement_managed_envelope_encryption\n',
+              '    - select_and_wire_a_reviewed_managed_kms_adapter_and_audited_reencryption_runner\n',
+          )
+          replace_once(
+              'tracker.yml',
+              '  - runtime_grants_must_be_reapplied_by_the_migration_owner_after_each_migration_release\n',
+              '  - runtime_grants_must_be_reapplied_by_the_migration_owner_after_each_migration_release\n  - managed_envelope_v2_uses_one_random_dek_per_record_and_authenticated_wrapped_key_metadata\n  - managed_envelope_context_mismatch_is_rejected_before_key_unwrap\n  - legacy_ciphertext_is_dual_read_only_through_explicitly_configured_legacy_keys\n  - production_runtime_stays_on_local_v1_until_a_reviewed_kms_adapter_and_identity_policy_are_provisioned\n',
+          )
+
+          replace_once(
+              '.ai-bridge/current-plan.md',
+              'A runnable standalone MVP foundation and eight production-hardening slices are complete:',
+              'A runnable standalone MVP foundation and nine production-hardening slices are complete:',
+          )
+          replace_once(
+              '.ai-bridge/current-plan.md',
+              '8. authoritative tenant-scope revalidation across API keys, feature assembly, assessment/outcome writes, dashboards and administration, plus an explicit least-privilege PostgreSQL runtime-role grant boundary.\n',
+              '8. authoritative tenant-scope revalidation across API keys, feature assembly, assessment/outcome writes, dashboards and administration, plus an explicit least-privilege PostgreSQL runtime-role grant boundary;\n9. provider-neutral managed envelope v2 with random per-record data keys, authenticated wrapped-key metadata, structured fail-closed errors, explicit legacy dual-read, and key-version re-encryption primitives.\n',
+          )
+          replace_once(
+              '.ai-bridge/current-plan.md',
+              '- [x] CI proves the runtime role cannot read migration history, delete rows, create/alter tables, create schema objects, own the database/schema/relations, or inherit elevated role privileges\n',
+              '- [x] CI proves the runtime role cannot read migration history, delete rows, create/alter tables, create schema objects, own the database/schema/relations, or inherit elevated role privileges\n- [x] Managed envelope v2 creates and zeroes a random AES-256 data key per record and wraps it only through a provider-neutral KMS/vault contract\n- [x] Ciphertext authenticates the context digest and wrapped-key metadata, rejects context substitution before unwrap, and returns structured non-secret failure codes\n- [x] Explicit legacy-key dual-read and managed key-version re-encryption preserve access during controlled rotation without plaintext fallback\n',
+          )
+          replace_once(
+              '.ai-bridge/current-plan.md',
+              'Repository assertions: 87 passed, including five courier lease tests, five webhook lease tests, five verification lease tests, three verification-payload validation tests, seven migration-integrity tests, seven tenant/admin isolation tests, six runtime-role policy/permission tests, transactional queues/outbox coverage, DNS SSRF tests, and envelope-cipher tests',
+              'Repository assertions: 96 passed, including five courier lease tests, five webhook lease tests, five verification lease tests, three verification-payload validation tests, seven migration-integrity tests, seven tenant/admin isolation tests, six runtime-role policy/permission tests, eleven envelope-encryption tests, transactional queues/outbox coverage, and DNS SSRF tests',
+          )
+          replace_once(
+              '.ai-bridge/current-plan.md',
+              '- The verified runtime-role and tenant-isolation change was squash-merged to `main` as `845749ce9570dc49558073808247e1dc1221669b`\n',
+              '- The verified runtime-role and tenant-isolation change was squash-merged to `main` as `845749ce9570dc49558073808247e1dc1221669b`\n- Managed-envelope source-head CI run `29579223561`, job `87880659693`: audit, formatting, lint, manifest validation, nine migrations, replay, history integrity, clean restore, runtime-role grants, architecture, 19 typechecks, 96 assertions, 19 builds, and PHP lint passed at head `9dbd61eb84fa6d42958e120d5ce9e1e402bd6688`\n',
+          )
+          replace_once(
+              '.ai-bridge/current-plan.md',
+              '2. Replace local encryption-key handling with the accepted managed KMS envelope-encryption implementation.\n',
+              '2. Select and provision a reviewed KMS/vault adapter, component service identities, access auditing, and an audited PostgreSQL background re-encryption runner before switching runtime writes from local v1 to managed v2.\n',
+          )
+
+          replace_once(
+              '.ai-bridge/implementation-status.md',
+              '| Shared envelope encryption       | done     | Provider-neutral local AES-256-GCM package with key-version and authenticated-context binding; managed KMS remains production work            |',
+              '| Shared envelope encryption       | done     | Local v1 plus provider-neutral managed v2 with per-record DEKs, authenticated wrapped-key metadata, legacy dual-read, rotation, and safe errors |',
+          )
+          replace_once(
+              '.ai-bridge/implementation-status.md',
+              '| Managed encryption               | baseline | KMS/vault envelope-encryption architecture accepted; provider and implementation remain                                                       |',
+              '| Managed encryption               | baseline | Provider-neutral v2 primitive is implemented; selected KMS adapter, service identities, audits, runtime wiring, and rewrite job remain         |',
+          )
+          replace_once(
+              '.ai-bridge/implementation-status.md',
+              '`npm run test`: 28/28 Turbo tasks passed; repository contains 87 assertions',
+              '`npm run test`: 28/28 Turbo tasks passed; repository contains 96 assertions',
+          )
+          replace_once(
+              '.ai-bridge/implementation-status.md',
+              '- Envelope-cipher tests cover context-bound round trips and wrong-context rejection\n',
+              '- Eleven envelope tests cover local compatibility, per-record DEK zeroization, opaque wrapping, pre-unwrap context rejection, metadata tampering, KMS outage, unsafe wrappers, malformed envelopes, legacy dual-read, missing legacy keys, and key-version re-encryption\n',
+          )
+          replace_once(
+              '.ai-bridge/implementation-status.md',
+              '- The verified runtime-role and tenant-isolation change was squash-merged to `main` as `845749ce9570dc49558073808247e1dc1221669b`\n',
+              '- The verified runtime-role and tenant-isolation change was squash-merged to `main` as `845749ce9570dc49558073808247e1dc1221669b`\n- Managed-envelope source run `29579223561`, job `87880659693`: all repository gates passed with 19 typechecks, 28 test tasks and 96 assertions, 19 builds, and PHP lint at head `9dbd61eb84fa6d42958e120d5ce9e1e402bd6688`\n',
+          )
+          replace_once(
+              '.ai-bridge/implementation-status.md',
+              '- Local AES-GCM key configuration is not a replacement for managed KMS in production.\n',
+              '- The managed v2 boundary is implemented, but runtime call sites remain on local v1 until a reviewed provider adapter, service identities, access audits, and background rewrite procedure are provisioned.\n',
+          )
+          replace_once(
+              '.ai-bridge/implementation-status.md',
+              'Provision the accepted infrastructure baseline with distinct database identities and a production point-in-time restore drill, implement managed encryption, validate Steadfast, select and bundle the OTP provider adapter for the completed runner, and begin native-adapter shadow rollout.',
+              'Provision the accepted infrastructure baseline with distinct database identities and a production point-in-time restore drill, select and wire the managed KMS adapter plus audited re-encryption runner, validate Steadfast, select and bundle the OTP provider adapter, and begin native-adapter shadow rollout.',
+          )
+
+          replace_once(
+              '.ai-bridge/decisions.md',
+              '35. Production migrations and runtime queries use different PostgreSQL identities. An externally created non-owner runtime `LOGIN` without elevated attributes or inherited memberships receives only an explicit reviewed current-table DML policy from the migration owner; it cannot access migration history, DELETE, DDL, database/schema/relation ownership, or role management, and grants are reapplied after each migration release.\n',
+              '35. Production migrations and runtime queries use different PostgreSQL identities. An externally created non-owner runtime `LOGIN` without elevated attributes or inherited memberships receives only an explicit reviewed current-table DML policy from the migration owner; it cannot access migration history, DELETE, DDL, database/schema/relation ownership, or role management, and grants are reapplied after each migration release.\n36. Managed envelope v2 uses one random 32-byte data-encryption key per record, AES-256-GCM, a SHA-256 record-context digest, authenticated wrapped-key metadata, and a provider-neutral asynchronous wrap/unwrap contract. Plaintext data keys are zeroed after use; context mismatch, provider outage, malformed metadata, unsupported providers, and missing legacy keys fail closed with structured non-secret codes. Production writes remain on local v1 until a reviewed KMS adapter and service identities are provisioned; legacy dual-read is explicit and temporary.\n',
+          )
+
+          replace_once(
+              'README.md',
+              '- Authoritative organization/store revalidation across API keys, feature assembly, writes, dashboards, and secret-free webhook/verification administration\n',
+              '- Authoritative organization/store revalidation across API keys, feature assembly, writes, dashboards, and secret-free webhook/verification administration\n- Provider-neutral managed envelope v2 with per-record data keys, authenticated wrapped-key metadata, structured safe failures, legacy dual-read, and rotation/re-encryption primitives\n',
+          )
+          replace_once(
+              'README.md',
+              '- Production KMS/vault instead of the local AES-GCM key implementation\n',
+              '- A selected KMS/vault adapter, component service identities, access auditing, runtime wiring, and an audited background rewrite before replacing local v1 encryption in production\n',
+          )
+
+          replace_once(
+              'docs/adr/0009-managed-secrets-and-kms-envelope-encryption.md',
+              'No KMS or vault provider has been selected.\n',
+              'No KMS or vault provider has been selected. The repository now implements the provider-neutral managed-envelope v2 contract and migration primitives, but production runtime wiring remains intentionally disabled until provider and identity provisioning.\n',
+          )
+          replace_once(
+              'docs/adr/0009-managed-secrets-and-kms-envelope-encryption.md',
+              'Provider selection and key hierarchy implementation remain follow-up operational work under this accepted boundary.\n',
+              'The shared implementation uses one random 32-byte data key per record, AES-256-GCM, a SHA-256 digest of the authenticated record context, authenticated wrapped-key metadata, structured non-secret error codes, in-memory key zeroization, explicit legacy-key dual-read, and managed key-version re-encryption. Provider selection, adapter implementation, service-identity policy, access auditing, runtime wiring, and the production background rewrite runner remain follow-up operational work.\n',
+          )
+          replace_once(
+              'docs/adr/0009-managed-secrets-and-kms-envelope-encryption.md',
+              '2. Add a provider-neutral envelope-encryption interface behind the existing cipher boundary.\n3. Add a new ciphertext schema version; do not rewrite old migrations.\n4. Support dual-read of approved legacy ciphertext and new envelope ciphertext during migration.\n',
+              '2. Add a provider-neutral envelope-encryption interface behind the existing cipher boundary. **Complete.**\n3. Add a new ciphertext schema version; do not rewrite old migrations. **Complete in the shared envelope format; no numbered database migration was required.**\n4. Support dual-read of approved legacy ciphertext and new envelope ciphertext during migration. **Complete as an explicit configured-key primitive.**\n',
+          )
+          replace_once(
+              'docs/adr/0009-managed-secrets-and-kms-envelope-encryption.md',
+              '- Rotation and re-encryption preserve authorized access.\n',
+              '- Rotation and re-encryption preserve authorized access.\n- Context substitution is rejected before a managed unwrap call.\n- The implementation rejects a provider response that exposes the plaintext data key as the wrapped key.\n- Provider exception details are replaced with structured safe error codes.\n',
+          )
+
+          replace_once(
+              'docs/security/security-privacy.md',
+              'The local/self-hosted AES-256-GCM implementation is isolated in `@ozzyl/encryption`. Production key generation, wrapping, access policy, rotation, and decrypt authorization must move to the accepted managed KMS/vault boundary without changing caller contracts.\n',
+              'The local/self-hosted AES-256-GCM implementation is isolated in `@ozzyl/encryption`. The package also provides a provider-neutral managed v2 boundary with a random per-record data key, authenticated context digest and wrapped-key metadata, data-key zeroization, structured safe failures, explicit legacy dual-read, and key-version re-encryption. Production runtime call sites remain on local v1 until a selected KMS/vault adapter, component identities, access auditing, and an audited background rewrite are provisioned; there is no automatic local or plaintext fallback.\n',
+          )
+
+          replace_once(
+              'docs/testing/testing-strategy.md',
+              '- Envelope encryption, key-version handling, and authenticated-context binding\n',
+              '- Envelope encryption, per-record data-key zeroization, opaque key wrapping, key-version rotation, legacy dual-read, authenticated context/metadata, and structured fail-closed provider errors\n',
+          )
+          replace_once(
+              'docs/testing/testing-strategy.md',
+              '### Migration replay coverage\n',
+              '''### Managed envelope security coverage
+
+Default tests prove:
+
+- managed v2 creates a random 32-byte data key per record and zeroes it after use;
+- plaintext values and plaintext data keys are not serialized into the envelope;
+- context mismatch is rejected before provider unwrap;
+- wrapped-key metadata is authenticated and tampering fails closed;
+- provider outage produces a structured non-secret error;
+- a provider cannot pass the plaintext data key through as a wrapped key;
+- old managed key versions remain readable during rotation and can be re-encrypted under the current version;
+- legacy v1 ciphertext is read only through explicitly configured legacy keys and rewrites to managed v2;
+- malformed, unsupported, or unavailable-key envelopes fail closed.
+
+A real provider adapter, service-identity denial tests, access-audit verification, and PostgreSQL background rewrite integration remain production/provider validation work.
+
+### Migration replay coverage
+''',
+          )
+
+          replace_once(
+              'docs/operations/deployment.md',
+              '- clean PostgreSQL logical backup/restore rehearsal in CI\n',
+              '- clean PostgreSQL logical backup/restore rehearsal in CI\n- provider-neutral managed-envelope v2 primitives with per-record data keys, legacy dual-read, rotation detection, and structured safe failures\n',
+          )
+          replace_once(
+              'docs/operations/deployment.md',
+              '- Replace the local AES-GCM master-key environment variable with managed KMS/vault envelope encryption before production credential and webhook-secret migration.\n',
+              '- Select and wire a reviewed KMS/vault adapter and component service identities before switching runtime writes to managed-envelope v2; then run an audited background rewrite before retiring local v1 keys.\n',
+          )
+          replace_once(
+              'docs/operations/deployment.md',
+              'Production provider provisioning, controlled-egress smoke tests, managed-provider PITR/retention validation, managed KMS validation, and provider-specific OTP delivery remain pending.\n',
+              'Production provider provisioning, controlled-egress smoke tests, managed-provider PITR/retention validation, selected KMS adapter/service-identity/access-audit validation, audited ciphertext rewrite, and provider-specific OTP delivery remain pending.\n',
+          )
+
+          print('managed envelope documentation synchronized')
+          PY
+      - name: Format documentation
+        run: >-
+          npx prettier --write
+          tracker.yml
+          README.md
+          .ai-bridge/current-plan.md
+          .ai-bridge/implementation-status.md
+          .ai-bridge/decisions.md
+          docs/adr/0009-managed-secrets-and-kms-envelope-encryption.md
+          docs/security/security-privacy.md
+          docs/testing/testing-strategy.md
+          docs/operations/deployment.md
+      - run: npm run format:check
+      - run: npm run db:check
+      - name: Commit production documentation
+        run: |
+          rm -f .github/workflows/tmp-sync-managed-envelope-docs.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "docs: record managed envelope encryption boundary"
+          git push origin HEAD:${{ github.ref_name }}
