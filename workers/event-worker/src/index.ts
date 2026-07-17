@@ -45,7 +45,12 @@ export class WebhookDestinationError extends Error {
 }
 
 export function assertSafeWebhookUrl(rawUrl: string): URL {
-  const url = new URL(rawUrl);
+  let url: URL;
+  try {
+    url = new URL(rawUrl);
+  } catch {
+    throw new WebhookDestinationError('Webhook endpoint URL is invalid');
+  }
   if (url.protocol !== 'https:') {
     throw new WebhookDestinationError('Webhook endpoints must use HTTPS');
   }
@@ -73,14 +78,21 @@ export class EventWorker {
   private readonly fetcher: typeof fetch;
   private readonly timeoutMs: number;
   private readonly maxAttempts: number;
+  private readonly now: () => Date;
 
   constructor(
     private readonly repository: WebhookDeliveryRepository,
-    options?: { fetcher?: typeof fetch; timeoutMs?: number; maxAttempts?: number },
+    options?: {
+      fetcher?: typeof fetch;
+      timeoutMs?: number;
+      maxAttempts?: number;
+      now?: () => Date;
+    },
   ) {
     this.fetcher = options?.fetcher ?? fetch;
     this.timeoutMs = options?.timeoutMs ?? 5_000;
     this.maxAttempts = options?.maxAttempts ?? 5;
+    this.now = options?.now ?? (() => new Date());
   }
 
   async deliver(input: {
@@ -93,14 +105,27 @@ export class EventWorker {
         endpointId: input.endpoint.id,
         eventId: input.event.id,
         errorCode: 'ENDPOINT_INACTIVE',
-        at: new Date(),
+        at: this.now(),
       });
       return { status: 'failed', errorCode: 'ENDPOINT_INACTIVE' };
     }
 
-    const url = assertSafeWebhookUrl(input.endpoint.url);
+    let url: URL;
+    try {
+      url = assertSafeWebhookUrl(input.endpoint.url);
+    } catch (error) {
+      return this.retryOrFail({
+        endpointId: input.endpoint.id,
+        eventId: input.event.id,
+        attempt: input.attempt,
+        errorCode:
+          error instanceof WebhookDestinationError ? error.code : 'UNSAFE_WEBHOOK_DESTINATION',
+        retryable: false,
+      });
+    }
+
     const payload = JSON.stringify(input.event);
-    const timestamp = String(Math.floor(Date.now() / 1_000));
+    const timestamp = String(Math.floor(this.now().getTime() / 1_000));
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), this.timeoutMs);
 
@@ -124,7 +149,7 @@ export class EventWorker {
           endpointId: input.endpoint.id,
           eventId: input.event.id,
           responseStatus: response.status,
-          at: new Date(),
+          at: this.now(),
         });
         return { status: 'delivered', responseStatus: response.status };
       }
@@ -160,7 +185,7 @@ export class EventWorker {
     errorCode: string;
     retryable: boolean;
   }): Promise<DeliveryResult> {
-    const at = new Date();
+    const at = this.now();
     if (input.retryable && input.attempt < this.maxAttempts) {
       const delayMs = Math.min(60 * 60 * 1_000, 2 ** Math.max(0, input.attempt - 1) * 30_000);
       const nextAttemptAt = new Date(at.getTime() + delayMs);

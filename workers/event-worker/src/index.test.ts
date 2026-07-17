@@ -8,8 +8,18 @@ const repository = {
   markFailed: vi.fn(async () => undefined),
 };
 
+const event = {
+  id: 'evt_1',
+  type: 'assessment.completed' as const,
+  organizationId: 'org_1',
+  storeId: 'sto_1',
+  occurredAt: '2026-07-17T00:00:00.000Z',
+  payload: { assessmentId: 'ras_1' },
+};
+
 describe('webhook destination validation', () => {
-  it('rejects local and private destinations', () => {
+  it('rejects invalid, local, and private destinations', () => {
+    expect(() => assertSafeWebhookUrl('not-a-url')).toThrow();
     expect(() => assertSafeWebhookUrl('http://example.com/hook')).toThrow();
     expect(() => assertSafeWebhookUrl('https://127.0.0.1/hook')).toThrow();
     expect(() => assertSafeWebhookUrl('https://10.0.0.1/hook')).toThrow();
@@ -29,7 +39,10 @@ describe('EventWorker', () => {
       expect(headers.get('X-Ozzyl-Signature')).toBe(expected);
       return new Response(null, { status: 204 });
     });
-    const worker = new EventWorker(repository, { fetcher });
+    const worker = new EventWorker(repository, {
+      fetcher,
+      now: () => new Date('2026-07-17T00:00:00.000Z'),
+    });
     const result = await worker.deliver({
       endpoint: {
         id: 'we_1',
@@ -37,15 +50,36 @@ describe('EventWorker', () => {
         signingSecret: 'x'.repeat(32),
         active: true,
       },
-      event: {
-        id: 'evt_1',
-        type: 'assessment.completed',
-        organizationId: 'org_1',
-        occurredAt: new Date().toISOString(),
-        payload: { assessmentId: 'ras_1' },
-      },
+      event,
       attempt: 1,
     });
     expect(result.status).toBe('delivered');
+  });
+
+  it('fails an unsafe destination without retrying or fetching', async () => {
+    const isolatedRepository = {
+      markDelivered: vi.fn(async () => undefined),
+      markRetry: vi.fn(async () => undefined),
+      markFailed: vi.fn(async () => undefined),
+    };
+    const fetcher = vi.fn<typeof fetch>();
+    const worker = new EventWorker(isolatedRepository, { fetcher });
+    const result = await worker.deliver({
+      endpoint: {
+        id: 'we_unsafe',
+        url: 'https://127.0.0.1/hook',
+        signingSecret: 'x'.repeat(32),
+        active: true,
+      },
+      event,
+      attempt: 1,
+    });
+    expect(result).toEqual({
+      status: 'failed',
+      errorCode: 'UNSAFE_WEBHOOK_DESTINATION',
+    });
+    expect(fetcher).not.toHaveBeenCalled();
+    expect(isolatedRepository.markRetry).not.toHaveBeenCalled();
+    expect(isolatedRepository.markFailed).toHaveBeenCalledOnce();
   });
 });
