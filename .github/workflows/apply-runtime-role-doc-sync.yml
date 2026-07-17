@@ -1,0 +1,274 @@
+name: Apply runtime role documentation sync
+
+on:
+  pull_request:
+    types: [reopened]
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    if: github.head_ref == 'ai/runtime-role-isolation-20260717'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Sync tracker and documentation
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+
+          def replace_once(path: str, old: str, new: str) -> None:
+              file = Path(path)
+              text = file.read_text()
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f"Expected one match in {path}; found {count}: {old[:100]!r}")
+              file.write_text(text.replace(old, new, 1))
+
+          # tracker.yml
+          replace_once(
+              'tracker.yml',
+              '  - restore_rehearsal_requires_a_clean_distinct_target\n',
+              '  - restore_rehearsal_requires_a_clean_distinct_target\n  - tenant_scope_is_revalidated_against_active_relational_store_ownership\n  - runtime_database_role_is_non_owner_non_migration_and_explicitly_granted\n',
+          )
+          replace_once(
+              'tracker.yml',
+              '  - restored_schema_data_sequence_history_and_replay_comparison\n',
+              '  - restored_schema_data_sequence_history_and_replay_comparison\n  - authoritative_api_key_feature_assessment_and_outcome_tenant_scope_revalidation\n  - secret_free_tenant_scoped_webhook_and_verification_administration_repositories\n  - dashboard_and_platform_admin_repository_isolation_expansion\n  - least_privilege_postgresql_runtime_role_policy_grant_cli_and_ci_gate\n',
+          )
+          replace_once('tracker.yml', '    remote_assertions: 74_passed\n', '    remote_assertions: 87_passed\n')
+          replace_once(
+              'tracker.yml',
+              '    verification_payload_validation_tests: 3_of_3_passed\n',
+              '    verification_payload_validation_tests: 3_of_3_passed\n    postgresql_tenant_admin_isolation_tests: 7_of_7_passed\n    postgresql_runtime_role_tests: 6_of_6_passed\n',
+          )
+          replace_once(
+              'tracker.yml',
+              '  source_validation:\n    status: passed\n    run_id: 29556041278\n    job_id: 87808175661\n    tested_head: 0eb8f09bc5e91c18e7ee5933cedb0e78f618a972\n    completed: 2026-07-17\n    steps: audit_format_lint_manifest_nine_migrations_replay_history_integrity_clean_restore_architecture_typecheck_tests_build_php_all_passed\n    migration_integrity_tests: 7_of_7_passed\n',
+              '  source_validation:\n    status: passed\n    run_id: 29560049322\n    job_id: 87820368024\n    tested_head: 90a50b215b063d87f71725eb6a375cbb887345de\n    completed: 2026-07-17\n    steps: audit_format_lint_manifest_nine_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_typecheck_tests_build_php_all_passed\n    migration_integrity_tests: 7_of_7_passed\n    tenant_admin_isolation_tests: 7_of_7_passed\n    runtime_role_tests: 6_of_6_passed\n',
+          )
+          replace_once(
+              'tracker.yml',
+              '    - expand_additional_repository_webhook_admin_and_runtime_role_isolation_tests\n',
+              '',
+          )
+          replace_once(
+              'tracker.yml',
+              '  - managed_provider_point_in_time_restore_drill_remains_external\n',
+              '  - managed_provider_point_in_time_restore_drill_remains_external\n  - api_keys_feature_assembly_assessment_and_outcome_writes_fail_closed_on_relational_tenant_mismatch\n  - webhook_and_verification_administration_queries_reauthorize_active_owner_or_admin_scope_and_return_no_secret_material\n  - platform_admin_repository_rechecks_active_explicit_role_on_every_call\n  - runtime_role_grants_are_explicit_current_table_only_and_exclude_migration_history_delete_and_ddl\n  - runtime_role_must_be_externally_created_non_owner_login_without_elevated_privileges_or_memberships\n  - runtime_grants_must_be_reapplied_by_the_migration_owner_after_each_migration_release\n',
+          )
+
+          # current plan
+          replace_once(
+              '.ai-bridge/current-plan.md',
+              'A runnable standalone MVP foundation and seven production-hardening slices are complete:',
+              'A runnable standalone MVP foundation and eight production-hardening slices are complete:',
+          )
+          replace_once(
+              '.ai-bridge/current-plan.md',
+              '7. SHA-256-bound migration history integrity and a clean PostgreSQL logical backup/restore rehearsal with schema, data, sequence, history, and replay verification.\n',
+              '7. SHA-256-bound migration history integrity and a clean PostgreSQL logical backup/restore rehearsal with schema, data, sequence, history, and replay verification;\n8. authoritative tenant-scope revalidation across API keys, feature assembly, assessment/outcome writes, dashboards and administration, plus an explicit least-privilege PostgreSQL runtime-role grant boundary.\n',
+          )
+          replace_once(
+              '.ai-bridge/current-plan.md',
+              '- [x] CI restores a real `pg_dump` into a clean distinct PostgreSQL database and compares schema, full table data hashes, sequence state, migration history, and replay\n',
+              '- [x] CI restores a real `pg_dump` into a clean distinct PostgreSQL database and compares schema, full table data hashes, sequence state, migration history, and replay\n- [x] API-key resolution, feature assembly, assessment writes, and outcome writes fail closed when organization/store ownership does not match an active tenant\n- [x] Merchant dashboard, platform admin, webhook administration, and verification administration repositories reauthorize relational scope and isolate tenant data\n- [x] Webhook and verification administration records omit encrypted signing secrets, OTP hashes, encrypted job payloads, and raw phone material\n- [x] `db:runtime-grants` applies an explicit current-table DML policy from the migration owner to an externally created non-owner runtime login\n- [x] CI proves the runtime role cannot read migration history, delete rows, create/alter tables, create schema objects, own the database/schema/relations, or inherit elevated role privileges\n',
+          )
+          replace_once(
+              '.ai-bridge/current-plan.md',
+              'Repository assertions: 74 passed, including five courier lease tests, five webhook lease tests, five verification lease tests, three verification-payload validation tests, seven migration-integrity tests, transactional queues/outbox coverage, DNS SSRF tests, and envelope-cipher tests',
+              'Repository assertions: 87 passed, including five courier lease tests, five webhook lease tests, five verification lease tests, three verification-payload validation tests, seven migration-integrity tests, seven tenant/admin isolation tests, six runtime-role policy/permission tests, transactional queues/outbox coverage, DNS SSRF tests, and envelope-cipher tests',
+          )
+          replace_once(
+              '.ai-bridge/current-plan.md',
+              '- The verified restore-integrity change was squash-merged to `main` as `950d07069643f4e69d7570802091a600011f72df`\n',
+              '- The verified restore-integrity change was squash-merged to `main` as `950d07069643f4e69d7570802091a600011f72df`\n- Runtime-role/tenant-isolation source-head CI run `29560049322`, job `87820368024`: audit, formatting, lint, manifest validation, nine migrations, replay, history integrity, clean full-data-hash restore, runtime-role grant verification, architecture, 19 typechecks, 87 assertions, 19 builds, and PHP lint passed at head `90a50b215b063d87f71725eb6a375cbb887345de`\n',
+          )
+          replace_once(
+              '.ai-bridge/current-plan.md',
+              '1. Expand PostgreSQL isolation coverage for feature assembly, dashboards, webhook administration, verification administration, and runtime-role versus migration-role permissions.\n2. Select and provision the managed runtime, PostgreSQL, KMS/vault, and observability providers under ADRs 0006–0010.\n3. Replace local encryption-key handling with the accepted managed KMS envelope-encryption implementation.\n4. Add an authorized Steadfast test account, live opt-in tests, selector monitoring, and provider-terms approval.\n5. Select, review, bundle, and configure the production OTP provider adapter/account for the existing verification runner.\n6. Add distributed rate limiting/cache only when multiple replicas require it.\n7. Integrate the native multi-store adapter behind a shadow-comparison feature flag.\n8. Pilot with selected merchants, collect outcomes, calibrate confidence/thresholds, and keep broad automatic blocking disabled until reviewed.\n',
+              '1. Select and provision the managed runtime, PostgreSQL, KMS/vault, and observability providers under ADRs 0006–0010, including distinct production migration/runtime identities and a managed-provider point-in-time restore drill.\n2. Replace local encryption-key handling with the accepted managed KMS envelope-encryption implementation.\n3. Add an authorized Steadfast test account, live opt-in tests, selector monitoring, and provider-terms approval.\n4. Select, review, bundle, and configure the production OTP provider adapter/account for the existing verification runner.\n5. Add distributed rate limiting/cache only when multiple replicas require it.\n6. Integrate the native multi-store adapter behind a shadow-comparison feature flag.\n7. Pilot with selected merchants, collect outcomes, calibrate confidence/thresholds, and keep broad automatic blocking disabled until reviewed.\n',
+          )
+
+          # implementation status
+          replace_once(
+              '.ai-bridge/implementation-status.md',
+              '| CI                         | done     | PostgreSQL 16 manifest/apply/replay/history integrity, clean logical restore rehearsal, audit, format, lint, architecture, typecheck, tests, builds, PHP lint |',
+              '| CI                         | done     | PostgreSQL 16 manifest/apply/replay/history integrity, clean restore, runtime-role grants, audit, format, lint, architecture, tests, builds, PHP lint |',
+          )
+          replace_once(
+              '.ai-bridge/implementation-status.md',
+              '| PostgreSQL API repositories      | done     | Assessment/outcome winners emit outbox rows atomically; race losers resolve to scoped persisted winners                                       |',
+              '| PostgreSQL API repositories      | done     | API keys, feature assembly, assessment/outcome writes and replays enforce active relational organization/store ownership                      |',
+          )
+          replace_once(
+              '.ai-bridge/implementation-status.md',
+              '| Platform admin                   | done     | Explicit `platform_admin` role gate with authenticated live global operations data                                                            |',
+              '| Platform admin                   | done     | Explicit active `platform_admin` role is rechecked on every repository call before global operations data                                    |\n| Tenant administration             | done     | Owner/admin-scoped webhook and verification repositories reauthorize active org/store scope and return secret-free records                   |\n| PostgreSQL runtime role           | done     | Explicit current-table DML grants, no migration history/DELETE/DDL/ownership/elevated membership; managed-provider provisioning remains       |',
+          )
+          replace_once(
+              '.ai-bridge/implementation-status.md',
+              '- `npm run test`: 28/28 Turbo tasks passed; repository contains 74 assertions\n',
+              '- `npm run test`: 28/28 Turbo tasks passed; repository contains 87 assertions\n',
+          )
+          replace_once(
+              '.ai-bridge/implementation-status.md',
+              '- The verified restore-integrity change was squash-merged to `main` as `950d07069643f4e69d7570802091a600011f72df`\n',
+              '- The verified restore-integrity change was squash-merged to `main` as `950d07069643f4e69d7570802091a600011f72df`\n- Runtime-role/tenant-isolation source run `29560049322`, job `87820368024`: manifest/apply/replay/history, clean restore, runtime-role grants, architecture, 19 typechecks, 28 test tasks with 87 assertions, 19 builds, audit, formatting, lint, and PHP syntax passed at head `90a50b215b063d87f71725eb6a375cbb887345de`\n- Seven real-PostgreSQL tests cover API-key/feature/write tenant mismatch, dashboard aggregation isolation, platform-admin reauthorization, and secret-free webhook/verification administration\n- Six database-role tests cover identifier safety, explicit policy completeness, real allowed DML, migration-history/DELETE/DDL denial, elevated-role rejection, and inherited-role rejection\n',
+          )
+          replace_once(
+              '.ai-bridge/implementation-status.md',
+              '- Durable PostgreSQL work still needs broader dead-letter/replay operations, verification administration, and runtime-role permission tests.\n',
+              '- Durable PostgreSQL work still needs broader dead-letter/replay operations and future lease renewal for work whose bounded execution may exceed one lease.\n- The repository runtime-role policy is verified, but the selected managed PostgreSQL provider must still provision distinct credentials, run the grant command after migrations, and pass a production smoke test.\n',
+          )
+          replace_once(
+              '.ai-bridge/implementation-status.md',
+              'Broaden repository/runtime-role isolation, provision the accepted infrastructure baseline and production point-in-time restore drill, implement managed encryption, validate Steadfast, select and bundle the OTP provider adapter for the completed runner, and begin native-adapter shadow rollout.',
+              'Provision the accepted infrastructure baseline with distinct database identities and a production point-in-time restore drill, implement managed encryption, validate Steadfast, select and bundle the OTP provider adapter for the completed runner, and begin native-adapter shadow rollout.',
+          )
+
+          # decisions
+          replace_once(
+              '.ai-bridge/decisions.md',
+              '32. Restore rehearsal requires an explicitly separate clean target database. It uses credential-safe `pg_dump`/`pg_restore`, compares schema, table counts or opt-in full data hashes, sequence state, migration history, and replay, and never drops or overwrites the source database. Managed-provider PITR validation remains separate production work.\n',
+              '32. Restore rehearsal requires an explicitly separate clean target database. It uses credential-safe `pg_dump`/`pg_restore`, compares schema, table counts or opt-in full data hashes, sequence state, migration history, and replay, and never drops or overwrites the source database. Managed-provider PITR validation remains separate production work.\n33. API keys, feature assembly, assessment/outcome writes, dashboards, and tenant administration revalidate organization/store ownership through active relational records; caller-supplied matching identifiers alone are never authoritative.\n34. Webhook and verification administration require an active owner/admin membership for the requested active organization/store. Administrative records are purposefully secret-free and never return encrypted signing secrets, OTP hashes, encrypted delivery payloads, or raw phone data.\n35. Production migrations and runtime queries use different PostgreSQL identities. An externally created non-owner runtime `LOGIN` without elevated attributes or inherited memberships receives only an explicit reviewed current-table DML policy from the migration owner; it cannot access migration history, DELETE, DDL, database/schema/relation ownership, or role management, and grants are reapplied after each migration release.\n',
+          )
+
+          # testing strategy
+          replace_once(
+              'docs/testing/testing-strategy.md',
+              '- Migration manifest ordering and SHA-256 tamper detection\n',
+              '- Migration manifest ordering and SHA-256 tamper detection\n- Runtime-role identifier validation and explicit table-policy completeness\n',
+          )
+          replace_once(
+              'docs/testing/testing-strategy.md',
+              '- failing both the verification job and authoritative session on persisted scope mismatch.\n',
+              '- failing both the verification job and authoritative session on persisted scope mismatch;\n- rejecting API keys, feature assembly, assessment writes, and outcome writes when organization/store ownership does not match;\n- isolating merchant dashboard aggregates and rechecking active platform-admin role on every call;\n- listing and updating webhook administration only for an active owner/admin scope without exposing signing secrets;\n- listing verification administration only for the authorized store without exposing OTP hashes or encrypted job payloads;\n- allowing reviewed runtime DML while denying migration-history reads, DELETE, DDL, schema creation, database ownership, elevated attributes, and inherited privileges.\n',
+          )
+          replace_once(
+              'docs/testing/testing-strategy.md',
+              'Future PostgreSQL coverage must include:\n\n- lease renewal during future jobs whose bounded execution time can exceed the configured lease;\n- webhook endpoint administration, feature, and dashboard repository isolation cases;\n- runtime-role versus migration-role permission enforcement.\n',
+              'Future PostgreSQL coverage must include:\n\n- lease renewal during future jobs whose bounded execution time can exceed the configured lease;\n- selected-provider smoke tests for distinct API/worker runtime identities and migration-owner grant execution;\n- operational replay/dead-letter authorization and audit coverage.\n',
+          )
+          replace_once(
+              'docs/testing/testing-strategy.md',
+              '- Job payload scope, encryption-context, phone-HMAC, and OTP-hash tampering\n',
+              '- Job payload scope, encryption-context, phone-HMAC, and OTP-hash tampering\n- Runtime database role privilege escape, ownership, migration-history, DELETE, and DDL attempts\n',
+          )
+          replace_once(
+              'docs/testing/testing-strategy.md',
+              '- clean PostgreSQL backup/restore rehearsal\n',
+              '- clean PostgreSQL backup/restore rehearsal\n- least-privilege runtime database role grant and effective-permission verification\n',
+          )
+
+          # security
+          replace_once(
+              'docs/security/security-privacy.md',
+              'Every merchant-owned record includes organization/store scope. Repository methods require scope parameters rather than optional filters.\n',
+              'Every merchant-owned record includes organization/store scope. Repository methods require scope parameters rather than optional filters. API-key resolution, feature assembly, assessment/outcome writes, dashboards, and tenant administration revalidate that the store is active and belongs to the active organization; matching caller-supplied identifiers alone are not authoritative.\n',
+          )
+          replace_once(
+              'docs/security/security-privacy.md',
+              'Webhook delivery rows persist explicit organization/store scope and are revalidated against the endpoint and store relationships before claim. Mismatched rows fail closed instead of being sent.\n',
+              'Webhook delivery rows persist explicit organization/store scope and are revalidated against the endpoint and store relationships before claim. Mismatched rows fail closed instead of being sent. Webhook and verification administration require active owner/admin membership and return only operational metadata; signing-secret ciphertext, OTP hashes, encrypted job payloads, and raw phone values are excluded.\n\n## PostgreSQL role separation\n\n- The migration owner applies schema changes, owns relations, records migration history, and runs `npm run db:runtime-grants` after migrations.\n- Runtime services connect with an externally provisioned non-owner `LOGIN` that has no superuser, `CREATEDB`, `CREATEROLE`, replication, `BYPASSRLS`, inherited role memberships, database ownership, schema ownership, or relation ownership.\n- Runtime privileges are explicit current-table `SELECT`/`INSERT`/`UPDATE` grants only where required. Migration history, `DELETE`, DDL, schema creation, and role management remain denied.\n- The grant command verifies the complete current table inventory and effective privileges, so a new table or an implicit/public privilege fails closed until the policy is reviewed.\n- Production may split this reviewed baseline into narrower API and worker roles, but no runtime identity may become the migration owner.\n',
+          )
+
+          # deployment
+          replace_once(
+              'docs/operations/deployment.md',
+              '- clean PostgreSQL logical backup/restore rehearsal in CI\n',
+              '- clean PostgreSQL logical backup/restore rehearsal in CI\n- `db:runtime-grants` and CI effective-permission verification for an externally created non-owner runtime role\n',
+          )
+          replace_once(
+              'docs/operations/deployment.md',
+              '5. Run `npm run db:integrity` and fail the release on manifest, history, gap, null-checksum, or checksum mismatch.\n6. Restore a release-candidate backup into a separate clean staging/recovery database and verify schema/history/replay; use full data hashes when the dataset and maintenance window permit.\n7. Verify database and service readiness.\n8. Deploy API and private workers independently.\n9. Verify event-worker database, KMS/decrypt, DNS, and controlled-egress access.\n10. Deploy static dashboard/admin assets.\n11. Enable new engine/policy/integration behavior through a feature flag or merchant pilot.\n12. Compare decision, outcome, outbox, and delivery metrics before broader rollout.\n13. Roll back application artifacts without editing applied migrations when release validation fails.\n',
+              '5. Run `npm run db:integrity` and fail the release on manifest, history, gap, null-checksum, or checksum mismatch.\n6. As the migration owner, run `DATABASE_RUNTIME_ROLE=<external-runtime-role> npm run db:runtime-grants`; fail if the role is missing, elevated, inherited, owns database objects, the table policy is stale, or effective privileges exceed the reviewed policy.\n7. Restore a release-candidate backup into a separate clean staging/recovery database and verify schema/history/replay; use full data hashes when the dataset and maintenance window permit.\n8. Verify database and service readiness using runtime credentials rather than migration-owner credentials.\n9. Deploy API and private workers independently.\n10. Verify event-worker database, KMS/decrypt, DNS, and controlled-egress access.\n11. Deploy static dashboard/admin assets.\n12. Enable new engine/policy/integration behavior through a feature flag or merchant pilot.\n13. Compare decision, outcome, outbox, and delivery metrics before broader rollout.\n14. Roll back application artifacts without editing applied migrations when release validation fails.\n',
+          )
+          replace_once(
+              'docs/operations/deployment.md',
+              '- Give API, migration, session worker, sync worker, event worker, verification worker, and database distinct permissions.\n',
+              '- Give migration ownership and runtime access distinct PostgreSQL identities. The migration owner runs schema/history/grant operations; runtime services use non-owner explicit DML grants and never migration-owner credentials.\n- Split API, session worker, sync worker, event worker, and verification worker into narrower roles on the selected platform when supported; each must remain no more privileged than the reviewed repository runtime policy.\n',
+          )
+          replace_once(
+              'docs/operations/deployment.md',
+              '- runtime and migration database roles are separated;\n',
+              '- runtime and migration database roles are separated, the runtime role is externally provisioned as non-owner/non-elevated, and `db:runtime-grants` plus effective-permission checks pass after migrations;\n',
+          )
+          replace_once(
+              'docs/operations/deployment.md',
+              'Repository source-head CI run `29556041278`, job `87808175661`, verifies nine manifest-bound migrations, immediate replay, non-null history checksums, clean full-data-hash logical restore, architecture boundaries, 19 workspace typechecks, 28 test tasks with 74 assertions, 19 builds, dependency audit, formatting, lint, and WooCommerce PHP syntax.\n',
+              'Repository source-head CI run `29560049322`, job `87820368024`, verifies nine manifest-bound migrations, immediate replay, non-null history checksums, clean full-data-hash logical restore, runtime-role grants/effective permissions, architecture boundaries, 19 workspace typechecks, 28 test tasks with 87 assertions, 19 builds, dependency audit, formatting, lint, and WooCommerce PHP syntax.\n',
+          )
+
+          # database design
+          replace_once(
+              'docs/database/database-design.md',
+              'All merchant-owned repository methods must require an explicit organization/store scope. Scope filters must not be optional.\n',
+              'All merchant-owned repository methods must require an explicit organization/store scope. Scope filters must not be optional. API keys, feature assembly, writes, dashboards, and administrative repositories must join back to active `organizations` and `stores` so a syntactically matching but relationally mismatched scope fails closed.\n',
+          )
+          replace_once(
+              'docs/database/database-design.md',
+              'Raw API keys are shown once and never stored. Key prefixes are `ozg_test_` and `ozg_live_` followed by sufficient random material.\n',
+              'Raw API keys are shown once and never stored. Key prefixes are `ozg_test_` and `ozg_live_` followed by sufficient random material. Resolution accepts a key only when its active store belongs to its active organization.\n',
+          )
+          replace_once(
+              'docs/database/database-design.md',
+              'A store-scoped endpoint receives only events for that store. An organization-wide endpoint may receive events for any authorized store in the organization. Endpoint secrets are never stored as plaintext.\n',
+              'A store-scoped endpoint receives only events for that store. An organization-wide endpoint may receive events for any authorized store in the organization. Endpoint secrets are never stored as plaintext. Administration lists operational endpoint metadata only after active owner/admin reauthorization and never returns `secret_encrypted`.\n',
+          )
+          replace_once(
+              'docs/database/database-design.md',
+              'Repository CI applies the complete migration set twice, verifies the history table, and restores into a clean PostgreSQL 16 database. Managed-provider automated backup retention and point-in-time recovery must still be demonstrated separately before the merchant pilot.\n',
+              'Repository CI applies the complete migration set twice, verifies the history table, and restores into a clean PostgreSQL 16 database. Managed-provider automated backup retention and point-in-time recovery must still be demonstrated separately before the merchant pilot.\n\n## Runtime and migration database identities\n\n`packages/database/src/runtime-role.ts` defines the reviewed current-table runtime policy. The migration owner validates the full public base-table inventory, revokes prior direct table/schema/sequence privileges, grants explicit required `SELECT`/`INSERT`/`UPDATE`, and then verifies effective privileges. `ozzyl_guard_migrations` remains inaccessible.\n\nThe runtime role must already exist as a non-owner `LOGIN` without elevated attributes or inherited memberships. It cannot own the current database, public schema, or public relations and cannot receive `DELETE`, DDL, schema `CREATE`, migration-history access, or role-management privileges. Run `DATABASE_RUNTIME_ROLE=<role> npm run db:runtime-grants` after every migration release; an unreviewed new table causes the command to fail closed until the policy is updated.\n',
+          )
+
+          # README
+          replace_once(
+              'README.md',
+              '- Docker, Docker Compose, migration integrity verification, and clean logical restore rehearsal in CI\n',
+              '- Docker, Docker Compose, migration integrity verification, clean logical restore rehearsal, and least-privilege runtime-role verification in CI\n- Authoritative organization/store revalidation across API keys, feature assembly, writes, dashboards, and secret-free webhook/verification administration\n',
+          )
+          replace_once(
+              'README.md',
+              'npm run db:migrate\nnpm run db:integrity\n',
+              'npm run db:migrate\nnpm run db:integrity\n# After creating a separate non-owner PostgreSQL login outside the app:\nDATABASE_RUNTIME_ROLE=ozzyl_guard_runtime npm run db:runtime-grants\n',
+          )
+          replace_once(
+              'README.md',
+              'npm run db:integrity\n# Requires a separately created empty target database:\n',
+              'npm run db:integrity\n# Requires migration-owner credentials and an externally created non-owner runtime role:\nDATABASE_RUNTIME_ROLE=ozzyl_guard_runtime npm run db:runtime-grants\n# Requires a separately created empty target database:\n',
+          )
+
+          print('runtime role documentation synchronized')
+          PY
+      - name: Format documentation
+        run: >-
+          npx prettier --write
+          tracker.yml
+          README.md
+          .ai-bridge/current-plan.md
+          .ai-bridge/implementation-status.md
+          .ai-bridge/decisions.md
+          docs/testing/testing-strategy.md
+          docs/security/security-privacy.md
+          docs/operations/deployment.md
+          docs/database/database-design.md
+      - run: npm run format:check
+      - run: npm run db:check
+      - name: Commit documentation sync
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tracker.yml README.md .ai-bridge/current-plan.md .ai-bridge/implementation-status.md .ai-bridge/decisions.md docs/testing/testing-strategy.md docs/security/security-privacy.md docs/operations/deployment.md docs/database/database-design.md
+          git commit -m "docs: record runtime role and tenant isolation hardening"
+          git push origin HEAD:${{ github.head_ref }}
