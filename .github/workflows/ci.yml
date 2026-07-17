@@ -90,6 +90,26 @@ jobs:
           python3 <<'PY'
           from pathlib import Path
 
+          tracker = Path('tracker.yml')
+          lines = tracker.read_text().splitlines()
+          starts = [index for index, line in enumerate(lines) if line == '  remote_ci:']
+          ends = [index for index, line in enumerate(lines) if line == '  source_validation:']
+          if len(starts) != 1 or len(ends) != 1 or ends[0] <= starts[0]:
+              raise SystemExit('Unable to locate one remote_ci block')
+          replacement = [
+              '  remote_ci:',
+              '    status: passed',
+              '    run_id: 29580203487',
+              '    job_id: 87883814149',
+              '    job: verify',
+              '    tested_head: cae4d6ea9d101afe2e692819886fd149c5cf3b85',
+              '    merged_main_commit: ee24aa7faf41e14b04769434c74bc99d7a245de4',
+              '    completed: 2026-07-17',
+              '    steps: audit_format_lint_manifest_nine_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_typecheck_tests_build_php_all_passed',
+          ]
+          lines[starts[0]:ends[0]] = replacement
+          tracker.write_text('\n'.join(lines) + '\n')
+
           def replace_once(path: str, old: str, new: str) -> None:
               file = Path(path)
               text = file.read_text()
@@ -98,29 +118,6 @@ jobs:
                   raise SystemExit(f'Expected one match in {path}; found {count}')
               file.write_text(text.replace(old, new, 1))
 
-          replace_once(
-              'tracker.yml',
-              '''  remote_ci:
-            status: passed
-            run_id: 29574499372
-            job_id: 87865756151
-            job: verify
-            tested_head: 71588cb024f63c750ffae8212cd5911db08d1ced
-            merged_main_commit: 845749ce9570dc49558073808247e1dc1221669b
-            completed: 2026-07-17
-            steps: audit_format_lint_manifest_nine_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_typecheck_tests_build_php_all_passed
-          ''',
-              '''  remote_ci:
-            status: passed
-            run_id: 29580203487
-            job_id: 87883814149
-            job: verify
-            tested_head: cae4d6ea9d101afe2e692819886fd149c5cf3b85
-            merged_main_commit: ee24aa7faf41e14b04769434c74bc99d7a245de4
-            completed: 2026-07-17
-            steps: audit_format_lint_manifest_nine_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_typecheck_tests_build_php_all_passed
-          ''',
-          )
           replace_once(
               '.ai-bridge/current-plan.md',
               '- Managed-envelope source-head CI run `29579223561`, job `87880659693`: audit, formatting, lint, manifest validation, nine migrations, replay, history integrity, clean restore, runtime-role grants, architecture, 19 typechecks, 96 assertions, 19 builds, and PHP lint passed at head `9dbd61eb84fa6d42958e120d5ce9e1e402bd6688`\n',
