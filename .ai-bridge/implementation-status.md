@@ -29,7 +29,7 @@ Updated: 2026-07-17
 | Shared contracts                 | done     | Canonical request/response/error/outcome/event schemas                                                                                         |
 | Database/migrations              | done     | Eight append-only migrations; clean PostgreSQL 16 apply and immediate replay passed in CI                                                      |
 | Password/session primitives      | done     | Argon2id and opaque hashed session token utilities                                                                                             |
-| Shared envelope encryption       | done     | Provider-neutral local AES-256-GCM package with key-version and authenticated-context binding; managed KMS remains production work            |
+| Shared envelope encryption       | done     | Provider-neutral local AES-256-GCM package with key-version and authenticated-context binding; managed KMS remains production work             |
 | Organizations/stores/memberships | done     | Canonical relational schema and bootstrap transaction                                                                                          |
 | API keys/usage/plans             | done     | Atomic PostgreSQL quota reservation has duplicate-request and plan-limit concurrency coverage                                                  |
 | Courier adapter interface        | done     | Typed provider contract and structured errors                                                                                                  |
@@ -40,14 +40,14 @@ Updated: 2026-07-17
 | Durable work architecture        | baseline | PostgreSQL ownership/lease pattern proven for courier and webhook work; verification runner and broader operational dead-letter tooling remain |
 | Risk engine                      | done     | One pure deterministic engine, versioned policy, confidence, signals, unknown/degraded handling                                                |
 | Public API                       | done     | Assessment create/read, outcomes, courier refresh, OTP send/verify, auth/scopes/idempotency/rate limits                                        |
-| PostgreSQL API repositories      | done     | Assessment/outcome winners emit outbox rows atomically; race losers resolve to scoped persisted winners                                       |
+| PostgreSQL API repositories      | done     | Assessment/outcome winners emit outbox rows atomically; race losers resolve to scoped persisted winners                                        |
 | Outcome feedback                 | done     | API, WooCommerce, Shopify, custom, and native adapter paths                                                                                    |
-| Webhook delivery                 | done     | HMAC signing, timestamps, retry policy, HTTPS/credential checks, literal-IP and DNS-result SSRF validation, redirect rejection                |
+| Webhook delivery                 | done     | HMAC signing, timestamps, retry policy, HTTPS/credential checks, literal-IP and DNS-result SSRF validation, redirect rejection                 |
 | WooCommerce                      | baseline | Encrypted service key, async assessment, canonical parsing, safe failure behavior, admin panel, manual recheck, outcomes                       |
 | Shopify                          | baseline | Signed webhook helper, assessment/action mapping, outcome submission; app OAuth/webhook registration not implemented                           |
 | Custom server SDK                | done     | Server-only integration and checkout action mapping                                                                                            |
 | Native multi-store adapter       | baseline | Canonical client, shadow-comparison result, outcomes; source platform feature-flag wiring pending                                              |
-| OTP verification                 | baseline | Secure service abstraction and worker library; durable encrypted queue/runner and production provider remain                                  |
+| OTP verification                 | baseline | Secure service abstraction and worker library; durable encrypted queue/runner and production provider remain                                   |
 | Merchant dashboard               | done     | Argon2id login, opaque HttpOnly session, CSRF logout, authorized store switching, and live scoped operations data                              |
 | Platform admin                   | done     | Explicit `platform_admin` role gate with authenticated live global operations data                                                             |
 | Managed encryption               | baseline | KMS/vault envelope-encryption architecture accepted; provider and implementation remain                                                        |
