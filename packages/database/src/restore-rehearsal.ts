@@ -4,12 +4,24 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { promisify } from 'node:util';
 import { Pool } from 'pg';
+import type { QueryResultRow } from 'pg';
 import {
   loadVerifiedMigrations,
   migrationHistorySnapshot,
   sha256Hex,
   verifyMigrationHistory,
 } from './migration-integrity.js';
+
+interface SequenceStateRow extends QueryResultRow {
+  sequencename: string;
+  last_value: string | null;
+  start_value: string;
+  min_value: string;
+  max_value: string;
+  increment_by: string;
+  cycle: boolean;
+  cache_size: string;
+}
 
 const execFileAsync = promisify(execFile);
 const databaseUrl = process.env.DATABASE_URL;
@@ -232,9 +244,9 @@ async function tableState(
   return state;
 }
 
-async function sequenceState(pool: Pool): Promise<unknown[]> {
+async function sequenceState(pool: Pool): Promise<SequenceStateRow[]> {
   return (
-    await pool.query(`
+    await pool.query<SequenceStateRow>(`
       select sequencename, last_value::text, start_value::text, min_value::text,
              max_value::text, increment_by::text, cycle, cache_size::text
       from pg_sequences
