@@ -69,6 +69,9 @@ integration('PostgreSQL migration history integrity', () => {
     try {
       await client.query('begin');
       await client.query(
+        'alter table ozzyl_guard_migrations alter column checksum_sha256 drop not null',
+      );
+      await client.query(
         'update ozzyl_guard_migrations set checksum_sha256 = null where name = $1',
         [first.name],
       );
