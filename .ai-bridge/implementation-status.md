@@ -27,7 +27,7 @@ Updated: 2026-07-17
 | Area                             | Status   | Notes                                                                                                                                         |
 | -------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | Shared contracts                 | done     | Canonical request/response/error/outcome/event schemas                                                                                        |
-| Database/migrations              | done     | Nine append-only migrations; clean PostgreSQL 16 apply and immediate replay passed in targeted validation                                     |
+| Database/migrations              | done     | Nine append-only migrations; clean PostgreSQL 16 apply and immediate replay passed in full CI                                                 |
 | Password/session primitives      | done     | Argon2id and opaque hashed session token utilities                                                                                            |
 | Shared envelope encryption       | done     | Provider-neutral local AES-256-GCM package with key-version and authenticated-context binding; managed KMS remains production work            |
 | Organizations/stores/memberships | done     | Canonical relational schema and bootstrap transaction                                                                                         |
@@ -72,12 +72,12 @@ Applied migrations must remain immutable.
 
 - `npm run format:check`: passed
 - `npm run lint`: passed with zero warnings
-- targeted `npm run db:check`: nine migrations validated
+- `npm run db:check`: nine migrations validated
 - initial migration apply: passed
 - immediate migration replay: passed as a clean no-op
 - `npm run check:architecture`: passed
 - `npm run typecheck`: 19/19 workspaces passed
-- targeted and existing suites cover 67 assertions; full 28-task repository CI remains the merge gate
+- `npm run test`: 28/28 Turbo tasks passed; repository contains 67 assertions
 - `npm run build`: 19/19 workspace builds passed
 - `npm audit --audit-level=high`: passed; four moderate development-tooling findings remain
 - Webhook outbox final run `29550097719`, job `87790624617`: all gates passed at head `fb0a68bac4628a96f82413b5d71092e4f0367536`
@@ -87,7 +87,8 @@ Applied migrations must remain immutable.
 - Envelope-cipher tests cover context-bound round trips and wrong-context rejection
 - The verified webhook outbox change was squash-merged to `main` as `752d08776f35345e5ec002d9a9ca720f304df8cc`
 - Verification queue targeted run `29553255223`, job `87800077114`: migration 0009/replay, verification/API typechecks, five PostgreSQL lease tests, three encrypted-payload tests, API tests/builds, and Compose profile validation passed for source commit `5fce01ac98bc8115959276b1ffc636a1702d77a0`
-- Final full documentation-head CI remains pending before merge
+- Verification queue final run `29554260434`, job `87803061854`: audit, format, lint, nine migrations/replay, architecture, 19 workspace typechecks, 28 test tasks with 67 assertions, 19 builds, and PHP lint passed at head `7f24a7be544ae60d7a0a15b4a5020b4253e0d192`
+- The verified verification queue change was squash-merged to `main` as `146360ab40efe45bfa7332c1a42b6cac0e88d17b`
 - Previous canonical documentation checks found zero broken internal links
 - Prohibited insecure-pattern scan: zero matches
 
