@@ -39,7 +39,9 @@ jobs:
           cache: npm
       - run: npm ci --no-audit --no-fund
       - name: Apply implementation patch
-        run: python3 scripts/tmp-runtime-role-isolation.py
+        run: |
+          python3 scripts/tmp-runtime-role-isolation.py
+          python3 scripts/tmp-runtime-role-fixture-fix.py
       - name: Format changed sources
         run: >-
           npx prettier --write
@@ -97,6 +99,7 @@ jobs:
       - name: Commit production-only implementation
         run: |
           rm scripts/tmp-runtime-role-isolation.py
+          rm scripts/tmp-runtime-role-fixture-fix.py
           rm .github/workflows/capture-runtime-role-inventory.yml
           rm .github/workflows/apply-runtime-role-isolation.yml
           rm -f .ai-bridge/tmp-runtime-role-inventory.txt .ai-bridge/tmp-runtime-role-test.log
