@@ -109,7 +109,7 @@ implemented:
 verification:
   command: npm run verify
   last_verified: 2026-07-17
-  status: final_documentation_head_ci_running
+  status: passed
   results:
     migrations: 9_of_9_with_sha256_manifest
     migration_replay: passed
@@ -133,11 +133,14 @@ verification:
     - github_only_connector_cannot_run_repository_local_exporter
     - local_main_and_origin_main_sync_cannot_be_verified_from_this_connector_workspace
   remote_ci:
-    status: running_on_clean_documentation_head
-    previous_run_id: 29554260434
-    previous_job_id: 87803061854
-    previous_tested_head: 7f24a7be544ae60d7a0a15b4a5020b4253e0d192
-    previous_merged_main_commit: 146360ab40efe45bfa7332c1a42b6cac0e88d17b
+    status: passed
+    run_id: 29556722776
+    job_id: 87810268816
+    job: verify
+    tested_head: 6a7bd57fa4ef0d1f917ca83729691fbd25c0738c
+    merged_main_commit: 950d07069643f4e69d7570802091a600011f72df
+    completed: 2026-07-17
+    steps: audit_format_lint_manifest_nine_migrations_replay_history_integrity_clean_restore_architecture_typecheck_tests_build_php_all_passed
   source_validation:
     status: passed
     run_id: 29556041278
@@ -147,7 +150,6 @@ verification:
     steps: audit_format_lint_manifest_nine_migrations_replay_history_integrity_clean_restore_architecture_typecheck_tests_build_php_all_passed
     migration_integrity_tests: 7_of_7_passed
   pending_follow_up:
-    - final_documentation_head_ci
     - continuation_bundle_local_exporter_refresh
 
 migrations:
