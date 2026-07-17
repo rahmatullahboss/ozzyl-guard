@@ -1,4 +1,4 @@
-name: Diagnose envelope workspace typecheck
+name: Finalize envelope type correction
 
 on:
   push:
@@ -8,30 +8,61 @@ permissions:
   contents: write
 
 jobs:
-  diagnose:
+  finalize:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.ref_name }}
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
       - run: npm ci --no-audit --no-fund
-      - name: Capture workspace typecheck
+      - name: Preserve AES algorithm as a literal type
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+
+          path = Path('packages/encryption/src/index.ts')
+          text = path.read_text()
+          old = "const AES_ALGORITHM: CipherGCMTypes = 'aes-256-gcm';"
+          new = "const AES_ALGORITHM = 'aes-256-gcm' as const;"
+          if text.count(old) != 1:
+            raise SystemExit(f'Expected one AES algorithm declaration; found {text.count(old)}')
+          path.write_text(text.replace(old, new, 1))
+          PY
+      - run: npx prettier --write packages/encryption/src/index.ts
+      - name: Validate full workspace
         run: |
           set +e
-          npm run typecheck > .ai-bridge/tmp-envelope-typecheck.log 2>&1
+          {
+            npm run lint
+            npm run typecheck
+            npm run test
+            npm run build
+          } > /tmp/envelope-validation.log 2>&1
           status=$?
-          cat .ai-bridge/tmp-envelope-typecheck.log
+          cat /tmp/envelope-validation.log
           if [ "$status" -ne 0 ]; then
+            cp /tmp/envelope-validation.log .ai-bridge/tmp-envelope-validation.log
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add -f .ai-bridge/tmp-envelope-typecheck.log
-            git commit -m "test: capture envelope workspace typecheck failure"
+            git add -f .ai-bridge/tmp-envelope-validation.log
+            git commit -m "test: capture managed envelope validation failure"
             git push origin HEAD:${{ github.ref_name }}
+            exit "$status"
           fi
-          exit "$status"
+      - name: Commit production-only correction
+        run: |
+          rm -f .ai-bridge/tmp-envelope-typecheck.log
+          rm -f .ai-bridge/tmp-envelope-validation.log
+          rm -f .github/workflows/tmp-diagnose-envelope-typecheck.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "fix: preserve managed envelope algorithm literal type"
+          git push origin HEAD:${{ github.ref_name }}
