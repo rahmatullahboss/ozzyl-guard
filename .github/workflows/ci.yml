@@ -11,7 +11,7 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     services:
       postgres:
         image: postgres:16-alpine
@@ -28,6 +28,7 @@ jobs:
           --health-retries 10
     env:
       DATABASE_URL: postgresql://ozzyl_guard:ozzyl_guard@localhost:5432/ozzyl_guard_test
+      RESTORE_DATABASE_URL: postgresql://ozzyl_guard:ozzyl_guard@localhost:5432/ozzyl_guard_restore_test
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -46,6 +47,15 @@ jobs:
       - run: npm run db:migrate
       - name: Verify migration replay
         run: npm run db:migrate
+      - name: Verify migration history integrity
+        run: npm run db:integrity
+      - name: Create clean restore target
+        run: >-
+          psql postgresql://ozzyl_guard:ozzyl_guard@localhost:5432/postgres
+          --set ON_ERROR_STOP=1
+          --command 'create database ozzyl_guard_restore_test'
+      - name: Rehearse clean backup and restore
+        run: npm run db:restore-rehearsal
       - run: npm run check:architecture
       - run: npm run typecheck
       - run: npm run test
