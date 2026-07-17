@@ -1,20 +1,14 @@
 name: Apply webhook outbox patch
 
 on:
-  push:
-    branches: [ai/webhook-outbox-runner-20260717]
-    paths:
-      - scripts/tmp-webhook-outbox-patch.py
-      - .github/workflows/apply-webhook-outbox-patch.yml
   pull_request:
-    types: [opened]
+    types: [reopened]
 
 permissions:
   contents: write
 
 jobs:
   apply:
-    if: github.event_name == 'push' || github.event.action == 'opened'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     services:
@@ -44,7 +38,7 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - run: python3 scripts/tmp-webhook-outbox-patch.py
       - run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
-      - run: npx prettier --write packages/encryption packages/database/src/schema.ts packages/database/migrations/0008_webhook_delivery_leases.sql workers/courier-session-worker/src/index.ts workers/courier-session-worker/package.json workers/event-worker apps/api/src/postgres.ts apps/api/src/postgres-concurrency.test.ts config/environment.example docker-compose.yml package-lock.json
+      - run: npx prettier --write packages/encryption packages/database/src/schema.ts packages/database/migrations/0008_webhook_delivery_leases.sql workers/courier-session-worker/src/index.ts workers/courier-session-worker/package.json workers/event-worker apps/api/src/postgres.ts apps/api/src/postgres-concurrency.test.ts docker-compose.yml package-lock.json
       - run: npm run db:check
       - run: npm run db:migrate
       - name: Verify migration replay
