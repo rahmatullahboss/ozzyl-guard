@@ -65,42 +65,49 @@ invariants:
   - cache_state_is_non_authoritative
   - production_decryption_fails_closed
   - durable_worker_transitions_require_current_lease_ownership
+  - webhook_and_otp_network_delivery_stays_out_of_checkout_request_paths
+  - durable_event_payloads_require_explicit_organization_and_store_scope
 
 implemented:
   - typescript_monorepo_and_ci
-  - postgresql_schema_and_seven_migrations
+  - postgresql_schema_and_eight_migrations
   - organization_store_membership_and_plan_foundation
   - usage_metering_and_audit_foundation
   - opaque_browser_sessions_csrf_and_explicit_platform_admin_role
   - pure_versioned_explainable_risk_engine
   - canonical_v1_api_and_postgresql_repositories
+  - provider_neutral_shared_envelope_encryption_package
   - steadfast_adapter_and_browser_session_worker
   - postgresql_courier_sync_worker
   - verification_and_webhook_libraries
+  - durable_postgresql_webhook_outbox_and_event_worker
   - woocommerce_shopify_custom_and_native_adapters
   - authenticated_live_merchant_dashboard
   - authenticated_live_platform_admin
   - postgresql_browser_session_and_tenant_isolation_integration_tests
-  - docker_compose_baseline
+  - docker_compose_api_courier_and_event_worker_baseline
   - accepted_provider_neutral_production_infrastructure_adrs
   - postgresql_usage_assessment_outcome_and_operation_idempotency_race_hardening
   - postgresql_courier_worker_atomic_claim_and_lease_recovery
+  - postgresql_webhook_worker_atomic_claim_and_lease_recovery
   - migration_replay_ci_gate
+  - webhook_dns_destination_validation
 
 verification:
   command: npm run verify
   last_verified: 2026-07-17
-  status: passed
+  status: passed_for_webhook_outbox_code_head_pending_final_docs_ci
   results:
-    migrations: 7_of_7
+    migrations: 8_of_8
     migration_replay: passed
     architecture_boundaries: passed
-    typecheck: 18_of_18
-    test_tasks: 26_of_26
-    remote_assertions: 42_passed
-    postgresql_concurrency_tests: 5_of_5_passed
-    postgresql_worker_lease_tests: 5_of_5_passed
-    builds: 18_of_18
+    typecheck: 19_of_19
+    test_tasks: 28_of_28
+    remote_assertions: 53_passed
+    postgresql_concurrency_tests: 6_of_6_passed
+    postgresql_courier_worker_lease_tests: 5_of_5_passed
+    postgresql_webhook_worker_lease_tests: 5_of_5_passed
+    builds: 19_of_19
     php_syntax: passed
     high_critical_dependency_check: passed
     documentation_links: 54_reviewed_0_known_broken
@@ -109,15 +116,15 @@ verification:
     - local_main_and_origin_main_sync_cannot_be_verified_from_this_connector_workspace
   remote_ci:
     status: passed
-    run_id: 29545309665
-    job_id: 87776201468
+    run_id: 29549466931
+    job_id: 87788743529
     job: verify
-    tested_head: b886fcb57c9a5c9ebae3b23334966468ae1733c3
-    merged_main_commit: d748bde10920e5a35a7e90f3a00b3b3bf02b96f3
+    tested_head: d44a1104d27d3229cc31350726756d22ec085faf
     completed: 2026-07-17
-    steps: audit_format_lint_seven_migrations_migration_replay_architecture_typecheck_tests_build_php_all_passed
-    postgresql_worker_lease_tests: 5_of_5_passed
+    steps: audit_format_lint_eight_migrations_migration_replay_architecture_typecheck_tests_build_php_all_passed
+    postgresql_webhook_worker_lease_tests: 5_of_5_passed
   pending_follow_up:
+    - final_documentation_head_ci
     - continuation_bundle_local_exporter_refresh
 
 migrations:
@@ -130,6 +137,7 @@ migrations:
     - packages/database/migrations/0005_durable_operations.sql
     - packages/database/migrations/0006_browser_access.sql
     - packages/database/migrations/0007_worker_leases.sql
+    - packages/database/migrations/0008_webhook_delivery_leases.sql
 
 accepted_infrastructure_adrs:
   - docs/adr/0006-production-deployment-topology.md
@@ -151,14 +159,14 @@ external_dependencies:
 next_milestone:
   name: production-hardening-and-pilot-readiness
   tasks:
-    - implement_durable_webhook_outbox_runner_with_worker_leases
-    - implement_verification_queue_runner_with_worker_leases
+    - implement_encrypted_verification_queue_runner_with_worker_leases
+    - move_otp_provider_delivery_out_of_synchronous_api_requests
     - add_clean_restore_rehearsal_and_migration_integrity_checks
-    - expand_additional_repository_and_runtime_role_isolation_tests
+    - expand_additional_repository_webhook_admin_and_runtime_role_isolation_tests
     - select_and_provision_accepted_infrastructure_providers
     - implement_managed_envelope_encryption
     - validate_steadfast_with_an_authorized_account
-    - implement_the_selected_otp_runner
+    - implement_the_selected_otp_provider_adapter
     - add_distributed_cache_only_when_replica_coordination_requires_it
     - enable_native_adapter_shadow_mode
     - run_a_selected_merchant_pilot
@@ -182,11 +190,14 @@ notes:
   - infrastructure_architecture_is_accepted_but_provider_selection_is_pending
   - postgresql_remains_the_pilot_durable_job_and_outbox_source_of_truth
   - assessment_and_outcome_idempotency_races_resolve_to_the_scoped_persisted_winner
-  - duplicate_usage_reservations_and_plan_limit_races_are_covered_in_real_postgresql_ci
+  - assessment_and_outcome_winners_enqueue_matching_webhook_rows_transactionally
+  - webhook_event_payloads_do_not_include_raw_phone_values
   - courier_jobs_use_atomic_claims_expiring_leases_and_owner_checked_transitions
-  - courier_worker_scope_is_derived_from_relational_account_data_not_payload_fields
-  - exhausted_stale_courier_jobs_fail_closed_with_lease_expired
-  - expired_lease_owners_cannot_complete_or_fail_jobs
+  - webhook_deliveries_use_atomic_claims_expiring_leases_and_owner_checked_transitions
+  - webhook_worker_scope_is_revalidated_against_endpoint_and_store_relationships
+  - webhook_signing_secrets_are_decrypted_only_inside_the_event_worker
+  - webhook_destinations_require_https_public_dns_results_and_redirect_rejection
+  - production_egress_policy_is_still_required_for_dns_rebinding_defense
   - broad_automatic_blocking_remains_disabled_until_pilot_calibration
   - pro_context_requires_local_exporter_refresh_after_this_github_only_milestone
   - update_this_file_after_every_material_milestone
