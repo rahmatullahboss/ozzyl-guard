@@ -19,6 +19,8 @@ if (!restoreDatabaseUrl) throw new Error('RESTORE_DATABASE_URL is required');
 
 const sourcePool = new Pool({ connectionString: databaseUrl });
 const restorePool = new Pool({ connectionString: restoreDatabaseUrl });
+const sourceToolConnection = postgresToolConnection(databaseUrl);
+const restoreToolConnection = postgresToolConnection(restoreDatabaseUrl);
 const temporaryDirectory = await mkdtemp(path.join(tmpdir(), 'ozzyl-guard-restore-'));
 const dumpPath = path.join(temporaryDirectory, 'database.dump');
 
@@ -48,21 +50,25 @@ try {
   const sourceTableCounts = await tableCounts(sourcePool);
   const sourceHistory = await migrationHistorySnapshot(sourcePool);
 
-  await runPostgresTool('pg_dump', [
-    '--format=custom',
-    '--no-owner',
-    '--no-privileges',
-    '--file',
-    dumpPath,
-  ], databaseUrl, 'Database backup');
-  await runPostgresTool('pg_restore', [
-    '--exit-on-error',
-    '--no-owner',
-    '--no-privileges',
-    '--dbname',
-    restoreDatabaseUrl,
-    dumpPath,
-  ], restoreDatabaseUrl, 'Database restore');
+  await runPostgresTool(
+    'pg_dump',
+    ['--format=custom', '--no-owner', '--no-privileges', '--file', dumpPath],
+    sourceToolConnection.environment,
+    'Database backup',
+  );
+  await runPostgresTool(
+    'pg_restore',
+    [
+      '--exit-on-error',
+      '--no-owner',
+      '--no-privileges',
+      '--dbname',
+      restoreToolConnection.databaseName,
+      dumpPath,
+    ],
+    restoreToolConnection.environment,
+    'Database restore',
+  );
 
   await verifyMigrationHistory(restorePool, migrations, { requireComplete: true });
   const restoredSchemaFingerprint = await schemaFingerprint(restorePool);
@@ -205,12 +211,12 @@ function quoteIdentifier(value: string): string {
 async function runPostgresTool(
   executable: string,
   arguments_: string[],
-  connectionUrl: string,
+  postgresEnvironment: NodeJS.ProcessEnv,
   label: string,
 ): Promise<void> {
   try {
     await execFileAsync(executable, arguments_, {
-      env: { ...process.env, PGDATABASE: connectionUrl },
+      env: { ...process.env, ...postgresEnvironment },
       maxBuffer: 10 * 1024 * 1024,
     });
   } catch {
@@ -227,4 +233,26 @@ async function runNpmMigrationReplay(connectionUrl: string): Promise<void> {
   } catch {
     throw new Error('Migration replay failed on the restored database');
   }
+}
+
+function postgresToolConnection(connectionUrl: string): {
+  databaseName: string;
+  environment: NodeJS.ProcessEnv;
+} {
+  const url = new URL(connectionUrl);
+  if (url.protocol !== 'postgres:' && url.protocol !== 'postgresql:') {
+    throw new Error('PostgreSQL connection URL is required');
+  }
+  const databaseName = decodeURIComponent(url.pathname.replace(/^\//, ''));
+  if (!databaseName) throw new Error('PostgreSQL connection URL must include a database name');
+  const environment: NodeJS.ProcessEnv = {
+    PGHOST: url.hostname,
+    PGPORT: url.port || '5432',
+    PGUSER: decodeURIComponent(url.username),
+    PGPASSWORD: decodeURIComponent(url.password),
+    PGDATABASE: databaseName,
+  };
+  const sslMode = url.searchParams.get('sslmode');
+  if (sslMode) environment.PGSSLMODE = sslMode;
+  return { databaseName, environment };
 }

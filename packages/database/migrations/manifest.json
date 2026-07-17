@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "algorithm": "sha256",
+  "migrations": [
+    {
+      "name": "0001_foundation.sql",
+      "checksum_sha256": "c0f2060b45ff69dac94e79c60d6e9ef80063777ba2f5b752cb86a614e752a218"
+    },
+    {
+      "name": "0002_courier.sql",
+      "checksum_sha256": "cc052f00671d2380b0fa68fa473f8bc22d88d804d540638dc59ce849f9741133"
+    },
+    {
+      "name": "0003_risk.sql",
+      "checksum_sha256": "7ab29a70943c20a0905804336b760d8f2b6cd6f171b9dbdecff489e52d69352c"
+    },
+    {
+      "name": "0004_verification_events.sql",
+      "checksum_sha256": "bd1e45da14ce5145bee37003e0b7ed7ae46293aad64d252512979343c8baf589"
+    },
+    {
+      "name": "0005_durable_operations.sql",
+      "checksum_sha256": "d2ef2d5672cace94f896b8ab32c1fbfb9e5086ebb5a3bab134333d9de085e70a"
+    },
+    {
+      "name": "0006_browser_access.sql",
+      "checksum_sha256": "a0090ddd9c9d6312db83066ab2132d13807ddb6ce353269527ab3d0ec33f409a"
+    },
+    {
+      "name": "0007_worker_leases.sql",
+      "checksum_sha256": "ddb4b2681ade897e5750ff22d09f43198c82e74dffa407373e495635035af655"
+    },
+    {
+      "name": "0008_webhook_delivery_leases.sql",
+      "checksum_sha256": "9815df3bcc088a4c0b3e349f494c8e580e78fa60803d0358c1d762bc8ef923cb"
+    },
+    {
+      "name": "0009_verification_delivery_queue.sql",
+      "checksum_sha256": "de3520681106227c34b6ca145103a5f026a8f36cf983e8603ec484cdd99f1247"
+    }
+  ]
+}

@@ -26,7 +26,7 @@ export interface SqlQueryable {
   ): Promise<QueryResult<Row>>;
 }
 
-interface MigrationHistoryRow extends QueryResultRow {
+export interface MigrationHistoryRow extends QueryResultRow {
   name: string;
   checksum_sha256: string | null;
 }
@@ -39,10 +39,12 @@ export function sha256Hex(value: string | Buffer): string {
   return createHash('sha256').update(value).digest('hex');
 }
 
-export async function loadVerifiedMigrations(options: {
-  migrationsDir?: string;
-  manifestPath?: string;
-} = {}): Promise<VerifiedMigration[]> {
+export async function loadVerifiedMigrations(
+  options: {
+    migrationsDir?: string;
+    manifestPath?: string;
+  } = {},
+): Promise<VerifiedMigration[]> {
   const migrationsDir = options.migrationsDir ?? defaultMigrationsDir;
   const manifestPath = options.manifestPath ?? defaultManifestPath;
   const manifest = parseManifest(await readFile(manifestPath, 'utf8'));
@@ -50,7 +52,10 @@ export async function loadVerifiedMigrations(options: {
   const manifestNames = manifest.map((entry) => entry.name);
 
   if (files.length === 0) throw new Error('No migrations found');
-  if (files.length !== manifestNames.length || files.some((file, index) => file !== manifestNames[index])) {
+  if (
+    files.length !== manifestNames.length ||
+    files.some((file, index) => file !== manifestNames[index])
+  ) {
     throw new Error(
       `Migration manifest does not match migration files. Files=${files.join(',')} Manifest=${manifestNames.join(',')}`,
     );
@@ -117,7 +122,9 @@ export async function verifyMigrationHistory(
       continue;
     }
     if (encounteredGap) {
-      throw new Error(`Migration history is not a contiguous prefix; found ${migration.name} after a gap`);
+      throw new Error(
+        `Migration history is not a contiguous prefix; found ${migration.name} after a gap`,
+      );
     }
   }
 
@@ -160,7 +167,11 @@ export async function migrationHistorySnapshot(
 
 function parseManifest(content: string): MigrationManifestEntry[] {
   const parsed = JSON.parse(content) as Partial<MigrationManifestFile>;
-  if (parsed.schemaVersion !== 1 || parsed.algorithm !== 'sha256' || !Array.isArray(parsed.migrations)) {
+  if (
+    parsed.schemaVersion !== 1 ||
+    parsed.algorithm !== 'sha256' ||
+    !Array.isArray(parsed.migrations)
+  ) {
     throw new Error('Invalid migration manifest metadata');
   }
   const names = new Set<string>();

@@ -49,7 +49,9 @@ integration('PostgreSQL migration history integrity', () => {
         'Database contains unknown migration history row',
       );
       await client.query("delete from ozzyl_guard_migrations where name = '9999_unknown.sql'");
-      await client.query('delete from ozzyl_guard_migrations where name = $1', [migrations[1]?.name]);
+      await client.query('delete from ozzyl_guard_migrations where name = $1', [
+        migrations[1]?.name,
+      ]);
       await expect(verifyMigrationHistory(client, migrations)).rejects.toThrow(
         'Migration history is not a contiguous prefix',
       );
