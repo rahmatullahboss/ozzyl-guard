@@ -3,7 +3,8 @@ import { describe, expect, it } from 'vitest';
 import { AesGcmEnvelopeCipher } from '@ozzyl/encryption';
 import { hashOtp } from '@ozzyl/verification';
 import type { ClaimedVerificationDelivery } from './postgres.js';
-import { VerificationPayloadError, decryptAndValidateVerificationPayload } from './payload.js';
+import { decryptAndValidateVerificationPayload } from './payload.js';
+import type { VerificationPayloadError } from './payload.js';
 
 const phone = '01712345678';
 const otp = '123456';
