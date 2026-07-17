@@ -22,9 +22,24 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci --no-audit --no-fund
-      - run: python3 scripts/tmp-native-shadow-docs.py
+      - name: Apply milestone documentation patch
+        run: |
+          set +e
+          python3 scripts/tmp-native-shadow-docs.py > /tmp/native-shadow-docs.log 2>&1
+          status=$?
+          cat /tmp/native-shadow-docs.log
+          if [ "$status" -ne 0 ]; then
+            cp /tmp/native-shadow-docs.log .ai-bridge/tmp-native-shadow-docs.log
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add -f .ai-bridge/tmp-native-shadow-docs.log
+            git commit -m "test: capture native shadow docs sync failure"
+            git push origin HEAD:${{ github.head_ref }}
+            exit "$status"
+          fi
       - name: Remove temporary documentation tooling
         run: |
+          rm -f .ai-bridge/tmp-native-shadow-docs.log
           rm -f scripts/tmp-native-shadow-docs.py
           rm -f .github/workflows/tmp-native-shadow-docs.yml
       - name: Format canonical documentation
