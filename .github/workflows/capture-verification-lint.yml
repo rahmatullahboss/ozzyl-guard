@@ -1,0 +1,38 @@
+name: Capture verification lint
+
+on:
+  push:
+    branches: [ai/verification-queue-runner-20260717]
+    paths:
+      - .github/workflows/capture-verification-lint.yml
+
+permissions:
+  contents: write
+
+jobs:
+  capture:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ai/verification-queue-runner-20260717
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Capture lint output
+        run: |
+          set +e
+          npm run lint > /tmp/lint.log 2>&1
+          status=$?
+          cat /tmp/lint.log
+          if [ "$status" -ne 0 ]; then
+            tail -n 240 /tmp/lint.log > .ai-bridge/tmp-verification-lint.log
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add -f .ai-bridge/tmp-verification-lint.log
+            git commit -m "test: capture verification lint failure"
+            git push origin HEAD:ai/verification-queue-runner-20260717
+            exit "$status"
+          fi
