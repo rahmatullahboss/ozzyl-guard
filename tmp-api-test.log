@@ -1,0 +1,84 @@
+
+> @ozzyl/api@0.1.0 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/ozzyl-guard/ozzyl-guard/apps/api[39m
+
+ [31m❯[39m src/index.test.ts [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m src/postgres-concurrency.test.ts [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m src/browser.test.ts [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m src/postgres-browser.test.ts [2m([22m[2m0 test[22m[2m)[22m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Suites 4 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/browser.test.ts[2m [ src/browser.test.ts ][22m
+[31m[1mError[22m: Failed to resolve entry for package "@ozzyl/shared-types". The package may have incorrect main/module/exports specified in its package.json.[39m
+[36m [2m❯[22m src/browser.ts:[2m5:1[22m[39m
+    [90m  3|[39m [35mimport[39m { deleteCookie[33m,[39m getCookie[33m,[39m setCookie } [35mfrom[39m [32m'hono/cookie'[39m[33m;[39m
+    [90m  4|[39m [35mimport[39m { z } [35mfrom[39m [32m'zod'[39m[33m;[39m
+    [90m  5|[39m [35mimport[39m {
+    [90m   |[39m [31m^[39m
+    [90m  6|[39m   browserSessionResponseSchema[33m,[39m
+    [90m  7|[39m   merchantDashboardOverviewSchema[33m,[39m
+[90m [2m❯[22m src/browser.test.ts:[2m3:1[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/index.test.ts[2m [ src/index.test.ts ][22m
+[31m[1mError[22m: Failed to resolve entry for package "@ozzyl/billing". The package may have incorrect main/module/exports specified in its package.json.[39m
+[36m [2m❯[22m src/index.test.ts:[2m3:1[22m[39m
+    [90m  1|[39m [35mimport[39m { createHmac } [35mfrom[39m [32m'node:crypto'[39m[33m;[39m
+    [90m  2|[39m [35mimport[39m { describe[33m,[39m expect[33m,[39m it } [35mfrom[39m [32m'vitest'[39m[33m;[39m
+    [90m  3|[39m [35mimport[39m { [33mMemoryUsageLedger[39m } [35mfrom[39m [32m'@ozzyl/billing'[39m[33m;[39m
+    [90m   |[39m [31m^[39m
+    [90m  4|[39m [35mimport[39m {
+    [90m  5|[39m   createApiApp[33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/postgres-browser.test.ts[2m [ src/postgres-browser.test.ts ][22m
+[31m[1mError[22m: Failed to resolve entry for package "@ozzyl/authentication". The package may have incorrect main/module/exports specified in its package.json.[39m
+[36m [2m❯[22m src/postgres-browser.test.ts:[2m4:1[22m[39m
+    [90m  2|[39m [35mimport[39m { afterAll[33m,[39m beforeAll[33m,[39m describe[33m,[39m expect[33m,[39m it } [35mfrom[39m [32m'vitest'[39m[33m;[39m
+    [90m  3|[39m [35mimport[39m { [33mPool[39m } [35mfrom[39m [32m'pg'[39m[33m;[39m
+    [90m  4|[39m [35mimport[39m { hashPassword } [35mfrom[39m [32m'@ozzyl/authentication'[39m[33m;[39m
+    [90m   |[39m [31m^[39m
+    [90m  5|[39m [35mimport[39m {
+    [90m  6|[39m   [33mPostgresBrowserAuthService[39m[33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/postgres-concurrency.test.ts[2m [ src/postgres-concurrency.test.ts ][22m
+[31m[1mError[22m: Failed to resolve entry for package "@ozzyl/billing". The package may have incorrect main/module/exports specified in its package.json.[39m
+[36m [2m❯[22m src/postgres-concurrency.test.ts:[2m4:1[22m[39m
+    [90m  2|[39m [35mimport[39m { afterAll[33m,[39m beforeAll[33m,[39m describe[33m,[39m expect[33m,[39m it } [35mfrom[39m [32m'vitest'[39m[33m;[39m
+    [90m  3|[39m [35mimport[39m { [33mPool[39m } [35mfrom[39m [32m'pg'[39m[33m;[39m
+    [90m  4|[39m [35mimport[39m { [33mUsageLimitError[39m } [35mfrom[39m [32m'@ozzyl/billing'[39m[33m;[39m
+    [90m   |[39m [31m^[39m
+    [90m  5|[39m [35mimport[39m type { [33mStoredAssessment[39m } [35mfrom[39m [32m'./index.js'[39m[33m;[39m
+    [90m  6|[39m [35mimport[39m {
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m4 failed[39m[22m[90m (4)[39m
+[2m      Tests [22m [2mno tests[22m
+[2m   Start at [22m 01:59:36
+[2m   Duration [22m 572ms[2m (transform 289ms, setup 0ms, import 0ms, tests 0ms, environment 0ms)[22m
+
+
+::error file=/home/runner/work/ozzyl-guard/ozzyl-guard/apps/api/src/browser.ts,title=src/browser.test.ts,line=5,column=1::Error: Failed to resolve entry for package "@ozzyl/shared-types". The package may have incorrect main/module/exports specified in its package.json.%0A ❯ src/browser.ts:5:1%0A ❯ src/browser.test.ts:3:1%0A%0A
+
+::error file=/home/runner/work/ozzyl-guard/ozzyl-guard/apps/api/src/index.test.ts,title=src/index.test.ts,line=3,column=1::Error: Failed to resolve entry for package "@ozzyl/billing". The package may have incorrect main/module/exports specified in its package.json.%0A ❯ src/index.test.ts:3:1%0A%0A
+
+::error file=/home/runner/work/ozzyl-guard/ozzyl-guard/apps/api/src/postgres-browser.test.ts,title=src/postgres-browser.test.ts,line=4,column=1::Error: Failed to resolve entry for package "@ozzyl/authentication". The package may have incorrect main/module/exports specified in its package.json.%0A ❯ src/postgres-browser.test.ts:4:1%0A%0A
+
+::error file=/home/runner/work/ozzyl-guard/ozzyl-guard/apps/api/src/postgres-concurrency.test.ts,title=src/postgres-concurrency.test.ts,line=4,column=1::Error: Failed to resolve entry for package "@ozzyl/billing". The package may have incorrect main/module/exports specified in its package.json.%0A ❯ src/postgres-concurrency.test.ts:4:1%0A%0A
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /home/runner/work/ozzyl-guard/ozzyl-guard/apps/api
+npm error workspace @ozzyl/api@0.1.0
+npm error location /home/runner/work/ozzyl-guard/ozzyl-guard/apps/api
+npm error command failed
+npm error command sh -c vitest run
