@@ -36,7 +36,19 @@ jobs:
           body = source.split(start_marker, 1)[1].split(end_marker, 1)[0]
           Path('/tmp/sync-managed-envelope-docs.py').write_text(textwrap.dedent(body))
           PY
-          python3 /tmp/sync-managed-envelope-docs.py
+          set +e
+          python3 /tmp/sync-managed-envelope-docs.py > /tmp/managed-envelope-docs.log 2>&1
+          status=$?
+          cat /tmp/managed-envelope-docs.log
+          if [ "$status" -ne 0 ]; then
+            cp /tmp/managed-envelope-docs.log .ai-bridge/tmp-managed-envelope-docs.log
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add -f .ai-bridge/tmp-managed-envelope-docs.log
+            git commit -m "test: capture managed envelope docs sync failure"
+            git push origin HEAD:${{ github.head_ref }}
+            exit "$status"
+          fi
       - name: Format documentation
         run: >-
           npx prettier --write
@@ -53,6 +65,7 @@ jobs:
       - run: npm run db:check
       - name: Commit production documentation
         run: |
+          rm -f .ai-bridge/tmp-managed-envelope-docs.log
           rm -f .github/workflows/tmp-sync-managed-envelope-docs.yml
           rm -f .github/workflows/tmp-run-managed-envelope-docs.yml
           git config user.name "github-actions[bot]"
