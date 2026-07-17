@@ -15,15 +15,26 @@ const required = (name: string): string => {
   return value;
 };
 
+const positiveInteger = (name: string, fallback: number): number => {
+  const value = Number(process.env[name] ?? fallback);
+  if (!Number.isSafeInteger(value) || value <= 0) {
+    throw new Error(`${name} must be a positive integer`);
+  }
+  return value;
+};
+
 const pool = new Pool({ connectionString: required('DATABASE_URL'), max: 8 });
 const cipher = new AesGcmEnvelopeCipher(
   Buffer.from(required('CREDENTIAL_ENCRYPTION_KEY'), 'base64'),
   required('CREDENTIAL_ENCRYPTION_KEY_VERSION'),
 );
-const pollMs = Number(process.env.EVENT_WORKER_POLL_MS ?? 5_000);
-const leaseMs = Number(process.env.EVENT_WORKER_LEASE_MS ?? 60_000);
-const timeoutMs = Number(process.env.WEBHOOK_TIMEOUT_MS ?? 5_000);
-const maxAttempts = Number(process.env.EVENT_WORKER_MAX_ATTEMPTS ?? 5);
+const pollMs = positiveInteger('EVENT_WORKER_POLL_MS', 5_000);
+const leaseMs = positiveInteger('EVENT_WORKER_LEASE_MS', 60_000);
+const timeoutMs = positiveInteger('WEBHOOK_TIMEOUT_MS', 5_000);
+const maxAttempts = positiveInteger('EVENT_WORKER_MAX_ATTEMPTS', 5);
+if (leaseMs <= timeoutMs + 5_000) {
+  throw new Error('EVENT_WORKER_LEASE_MS must exceed WEBHOOK_TIMEOUT_MS by more than 5000ms');
+}
 const workerId = process.env.EVENT_WORKER_ID ?? `event-${randomUUID()}`;
 const queue = new PostgresWebhookDeliveryQueue(pool, { leaseMs, maxAttempts });
 let stopping = false;
@@ -46,6 +57,13 @@ async function run(): Promise<void> {
       const startedAt = new Date();
       await queue.started(delivery.id, workerId, startedAt);
       const event = parseEvent(delivery);
+      if (!delivery.endpointActive) {
+        await queue.failed(delivery.id, workerId, {
+          errorCode: 'ENDPOINT_INACTIVE',
+          at: new Date(),
+        });
+        continue;
+      }
       const signingSecret = decryptSigningSecret(delivery);
       const worker = new EventWorker(queue.repositoryFor(delivery, workerId), {
         timeoutMs,
@@ -56,14 +74,14 @@ async function run(): Promise<void> {
           id: delivery.endpointId,
           url: delivery.endpointUrl,
           signingSecret,
-          active: delivery.endpointActive,
+          active: true,
         },
         event,
         attempt: delivery.attempts + 1,
       });
     } catch (error) {
       if (!(error instanceof WebhookDeliveryLeaseError)) {
-        const code = errorCode(error);
+        const code = errorCode(error, 'EVENT_DELIVERY_FAILED');
         await queue
           .failed(delivery.id, workerId, { errorCode: code, at: new Date() })
           .catch((failure) => logError(failure, 'EVENT_FAILURE_STATE_LOST'));
@@ -129,10 +147,8 @@ function coded(code: string): Error & { code: string } {
   return Object.assign(new Error(code), { code });
 }
 
-function errorCode(error: unknown): string {
-  return error && typeof error === 'object' && 'code' in error
-    ? String(error.code)
-    : 'EVENT_DELIVERY_FAILED';
+function errorCode(error: unknown, fallback: string): string {
+  return error && typeof error === 'object' && 'code' in error ? String(error.code) : fallback;
 }
 
 function logError(error: unknown, fallback: string): void {
@@ -140,7 +156,7 @@ function logError(error: unknown, fallback: string): void {
     JSON.stringify({
       level: 'error',
       event: 'event.worker.error',
-      code: errorCode(error) || fallback,
+      code: errorCode(error, fallback),
     }),
   );
 }
