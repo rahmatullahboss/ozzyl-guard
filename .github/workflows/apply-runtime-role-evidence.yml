@@ -1,21 +1,20 @@
 name: Apply runtime role verification evidence
 
 on:
-  pull_request:
-    types: [opened]
+  push:
+    branches: [ai/runtime-role-evidence-20260717]
 
 permissions:
   contents: write
 
 jobs:
   sync:
-    if: github.head_ref == 'ai/runtime-role-evidence-20260717'
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref }}
           fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
@@ -27,51 +26,35 @@ jobs:
           python3 <<'PY'
           from pathlib import Path
 
-          def replace_once(path: str, old: str, new: str) -> None:
+          def replace_once(path, old, new):
               file = Path(path)
               text = file.read_text()
-              count = text.count(old)
-              if count != 1:
-                  raise SystemExit(f"Expected one match in {path}; found {count}")
+              if text.count(old) != 1:
+                  raise SystemExit(f'Expected one match in {path}')
               file.write_text(text.replace(old, new, 1))
 
-          replace_once(
-              'tracker.yml',
-              '''  remote_ci:
-    status: passed
-    run_id: 29556722776
-    job_id: 87810268816
-    job: verify
-    tested_head: 6a7bd57fa4ef0d1f917ca83729691fbd25c0738c
-    merged_main_commit: 950d07069643f4e69d7570802091a600011f72df
-    completed: 2026-07-17
-    steps: audit_format_lint_manifest_nine_migrations_replay_history_integrity_clean_restore_architecture_typecheck_tests_build_php_all_passed
-''',
-              '''  remote_ci:
-    status: passed
-    run_id: 29574499372
-    job_id: 87865756151
-    job: verify
-    tested_head: 71588cb024f63c750ffae8212cd5911db08d1ced
-    merged_main_commit: 845749ce9570dc49558073808247e1dc1221669b
-    completed: 2026-07-17
-    steps: audit_format_lint_manifest_nine_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_typecheck_tests_build_php_all_passed
-''',
-          )
-          replace_once(
-              '.ai-bridge/current-plan.md',
-              '- Runtime-role/tenant-isolation source-head CI run `29560049322`, job `87820368024`: audit, formatting, lint, manifest validation, nine migrations, replay, history integrity, clean full-data-hash restore, runtime-role grant verification, architecture, 19 typechecks, 87 assertions, 19 builds, and PHP lint passed at head `90a50b215b063d87f71725eb6a375cbb887345de`\n',
-              '- Runtime-role/tenant-isolation source-head CI run `29560049322`, job `87820368024`: audit, formatting, lint, manifest validation, nine migrations, replay, history integrity, clean full-data-hash restore, runtime-role grant verification, architecture, 19 typechecks, 87 assertions, 19 builds, and PHP lint passed at head `90a50b215b063d87f71725eb6a375cbb887345de`\n- Runtime-role/tenant-isolation final CI run `29574499372`, job `87865756151`: the same complete gate set passed at final documentation head `71588cb024f63c750ffae8212cd5911db08d1ced`\n- The verified runtime-role and tenant-isolation change was squash-merged to `main` as `845749ce9570dc49558073808247e1dc1221669b`\n',
-          )
-          replace_once(
-              '.ai-bridge/implementation-status.md',
-              '- Runtime-role/tenant-isolation source run `29560049322`, job `87820368024`: manifest/apply/replay/history, clean restore, runtime-role grants, architecture, 19 typechecks, 28 test tasks with 87 assertions, 19 builds, audit, formatting, lint, and PHP syntax passed at head `90a50b215b063d87f71725eb6a375cbb887345de`\n',
-              '- Runtime-role/tenant-isolation source run `29560049322`, job `87820368024`: manifest/apply/replay/history, clean restore, runtime-role grants, architecture, 19 typechecks, 28 test tasks with 87 assertions, 19 builds, audit, formatting, lint, and PHP syntax passed at head `90a50b215b063d87f71725eb6a375cbb887345de`\n- Runtime-role/tenant-isolation final run `29574499372`, job `87865756151`: the complete gate set passed at final documentation head `71588cb024f63c750ffae8212cd5911db08d1ced`\n- The verified runtime-role and tenant-isolation change was squash-merged to `main` as `845749ce9570dc49558073808247e1dc1221669b`\n',
-          )
-          print('runtime role final evidence recorded')
+          tracker = Path('tracker.yml')
+          text = tracker.read_text()
+          replacements = {
+              'run_id: 29556722776': 'run_id: 29574499372',
+              'job_id: 87810268816': 'job_id: 87865756151',
+              'tested_head: 6a7bd57fa4ef0d1f917ca83729691fbd25c0738c': 'tested_head: 71588cb024f63c750ffae8212cd5911db08d1ced',
+              'merged_main_commit: 950d07069643f4e69d7570802091a600011f72df': 'merged_main_commit: 845749ce9570dc49558073808247e1dc1221669b',
+              'steps: audit_format_lint_manifest_nine_migrations_replay_history_integrity_clean_restore_architecture_typecheck_tests_build_php_all_passed': 'steps: audit_format_lint_manifest_nine_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_typecheck_tests_build_php_all_passed',
+          }
+          for old, new in replacements.items():
+              if text.count(old) != 1:
+                  raise SystemExit(f'Expected one tracker match: {old}')
+              text = text.replace(old, new, 1)
+          tracker.write_text(text)
+
+          source_plan = '- Runtime-role/tenant-isolation source-head CI run `29560049322`, job `87820368024`: audit, formatting, lint, manifest validation, nine migrations, replay, history integrity, clean full-data-hash restore, runtime-role grant verification, architecture, 19 typechecks, 87 assertions, 19 builds, and PHP lint passed at head `90a50b215b063d87f71725eb6a375cbb887345de`\n'
+          replace_once('.ai-bridge/current-plan.md', source_plan, source_plan + '- Runtime-role/tenant-isolation final CI run `29574499372`, job `87865756151`: the same complete gate set passed at final documentation head `71588cb024f63c750ffae8212cd5911db08d1ced`\n- The verified runtime-role and tenant-isolation change was squash-merged to `main` as `845749ce9570dc49558073808247e1dc1221669b`\n')
+
+          source_status = '- Runtime-role/tenant-isolation source run `29560049322`, job `87820368024`: manifest/apply/replay/history, clean restore, runtime-role grants, architecture, 19 typechecks, 28 test tasks with 87 assertions, 19 builds, audit, formatting, lint, and PHP syntax passed at head `90a50b215b063d87f71725eb6a375cbb887345de`\n'
+          replace_once('.ai-bridge/implementation-status.md', source_status, source_status + '- Runtime-role/tenant-isolation final run `29574499372`, job `87865756151`: the complete gate set passed at final documentation head `71588cb024f63c750ffae8212cd5911db08d1ced`\n- The verified runtime-role and tenant-isolation change was squash-merged to `main` as `845749ce9570dc49558073808247e1dc1221669b`\n')
           PY
-      - name: Format evidence files
-        run: npx prettier --write tracker.yml .ai-bridge/current-plan.md .ai-bridge/implementation-status.md
+      - run: npx prettier --write tracker.yml .ai-bridge/current-plan.md .ai-bridge/implementation-status.md
       - run: npm run format:check
       - run: npm run db:check
       - name: Commit evidence
@@ -80,4 +63,4 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add tracker.yml .ai-bridge/current-plan.md .ai-bridge/implementation-status.md
           git commit -m "docs: record runtime role isolation verification evidence"
-          git push origin HEAD:${{ github.head_ref }}
+          git push origin HEAD:${GITHUB_REF_NAME}
