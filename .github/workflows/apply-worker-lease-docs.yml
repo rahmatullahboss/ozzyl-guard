@@ -1,0 +1,37 @@
+name: Apply worker lease docs
+
+on:
+  push:
+    branches: [ai/worker-lease-recovery-20260717]
+    paths:
+      - scripts/tmp-worker-lease-docs.py
+      - .github/workflows/apply-worker-lease-docs.yml
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.head_ref == 'ai/worker-lease-recovery-20260717' || github.ref_name == 'ai/worker-lease-recovery-20260717'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ai/worker-lease-recovery-20260717
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci --no-audit --no-fund >/dev/null
+      - run: python3 scripts/tmp-worker-lease-docs.py
+      - run: npx prettier --write tracker.yml .ai-bridge/current-plan.md .ai-bridge/implementation-status.md .ai-bridge/decisions.md docs/testing/testing-strategy.md docs/database/database-design.md config/environment.example docker-compose.yml
+      - name: Commit formatted worker lease docs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tracker.yml .ai-bridge/current-plan.md .ai-bridge/implementation-status.md .ai-bridge/decisions.md docs/testing/testing-strategy.md docs/database/database-design.md config/environment.example docker-compose.yml
+          git commit -m "docs: align worker lease operations"
+          git push origin HEAD:ai/worker-lease-recovery-20260717
