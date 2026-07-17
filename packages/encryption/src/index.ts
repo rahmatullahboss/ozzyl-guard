@@ -481,10 +481,7 @@ function digestContext(context: string): string {
   return createHash('sha256').update(context).digest('hex');
 }
 
-function serialize(
-  value: unknown,
-  operation: 'encrypt',
-): string {
+function serialize(value: unknown, operation: 'encrypt'): string {
   try {
     const serialized = JSON.stringify(value);
     if (serialized === undefined) throw new Error('not serializable');
@@ -494,10 +491,7 @@ function serialize(
   }
 }
 
-function parseObject(
-  payload: string,
-  operation: 'decrypt' | 'inspect',
-): Record<string, unknown> {
+function parseObject(payload: string, operation: 'decrypt' | 'inspect'): Record<string, unknown> {
   try {
     const value = JSON.parse(payload) as unknown;
     if (!value || typeof value !== 'object' || Array.isArray(value)) {
@@ -552,10 +546,7 @@ function decodeBase64(
   return decoded;
 }
 
-function assertContext(
-  context: string,
-  operation: 'encrypt' | 'decrypt' | 'reencrypt',
-): void {
+function assertContext(context: string, operation: 'encrypt' | 'decrypt' | 'reencrypt'): void {
   if (context.length === 0 || context.length > 2048 || hasControlCharacter(context)) {
     throw new EnvelopeEncryptionError('INVALID_CONTEXT', operation);
   }

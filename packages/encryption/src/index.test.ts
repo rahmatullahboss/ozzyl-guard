@@ -1,9 +1,4 @@
-import {
-  createCipheriv,
-  createDecipheriv,
-  randomBytes,
-  type CipherGCMTypes,
-} from 'node:crypto';
+import { createCipheriv, createDecipheriv, randomBytes, type CipherGCMTypes } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import {
   AesGcmEnvelopeCipher,
@@ -80,13 +75,14 @@ class TestKeyProvider implements KeyEncryptionKeyProvider {
       tag: string;
       data: string;
     };
-    const decipher = createDecipheriv(AES_ALGORITHM, wrappingKey, Buffer.from(encoded.iv, 'base64'));
+    const decipher = createDecipheriv(
+      AES_ALGORITHM,
+      wrappingKey,
+      Buffer.from(encoded.iv, 'base64'),
+    );
     decipher.setAAD(Buffer.from(context));
     decipher.setAuthTag(Buffer.from(encoded.tag, 'base64'));
-    return Buffer.concat([
-      decipher.update(Buffer.from(encoded.data, 'base64')),
-      decipher.final(),
-    ]);
+    return Buffer.concat([decipher.update(Buffer.from(encoded.data, 'base64')), decipher.final()]);
   }
 }
 
@@ -175,7 +171,9 @@ describe('ManagedEnvelopeCipher', () => {
     } & Record<string, unknown>;
     parsed.key = { ...parsed.key, keyId: 'projects/test/keys/substituted' };
 
-    await expect(cipher.decrypt(JSON.stringify(parsed), 'webhook-endpoint:we_1')).rejects.toMatchObject({
+    await expect(
+      cipher.decrypt(JSON.stringify(parsed), 'webhook-endpoint:we_1'),
+    ).rejects.toMatchObject({
       code: 'KEY_UNWRAP_FAILED',
       operation: 'decrypt',
     });
@@ -205,7 +203,9 @@ describe('ManagedEnvelopeCipher', () => {
 
     provider.rotate('key-v2', Buffer.alloc(32, 22));
     expect(cipher.needsReencryption(original)).toBe(true);
-    await expect(cipher.decrypt(original, context)).resolves.toEqual({ cookie: 'encrypted-cookie' });
+    await expect(cipher.decrypt(original, context)).resolves.toEqual({
+      cookie: 'encrypted-cookie',
+    });
 
     const rotated = await cipher.reencrypt(original, context);
     expect(rotated).not.toBe(original);
