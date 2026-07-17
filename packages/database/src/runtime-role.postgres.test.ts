@@ -64,12 +64,14 @@ integration('PostgreSQL runtime role isolation', () => {
           webhook_update: boolean;
           audit_update: boolean;
           schema_create: boolean;
+          database_create: boolean;
         }>(
           `
             select
               has_table_privilege($1, 'public.webhook_endpoints', 'UPDATE') as webhook_update,
               has_table_privilege($1, 'public.audit_events', 'UPDATE') as audit_update,
-              has_schema_privilege($1, 'public', 'CREATE') as schema_create
+              has_schema_privilege($1, 'public', 'CREATE') as schema_create,
+              has_database_privilege($1, current_database(), 'CREATE') as database_create
           `,
           [roleName],
         );
@@ -77,6 +79,7 @@ integration('PostgreSQL runtime role isolation', () => {
           webhook_update: true,
           audit_update: false,
           schema_create: false,
+          database_create: false,
         });
       } finally {
         await runtimePool.end();
