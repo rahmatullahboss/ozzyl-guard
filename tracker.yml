@@ -103,7 +103,7 @@ implemented:
 verification:
   command: npm run verify
   last_verified: 2026-07-17
-  status: passed_for_targeted_verification_queue_validation_pending_full_ci
+  status: final_full_ci_running
   results:
     migrations: 9_of_9
     migration_replay: passed
@@ -124,7 +124,7 @@ verification:
     - github_only_connector_cannot_run_repository_local_exporter
     - local_main_and_origin_main_sync_cannot_be_verified_from_this_connector_workspace
   remote_ci:
-    status: pending_full_documentation_head_ci
+    status: running_on_clean_documentation_head
     previous_run_id: 29550097719
     previous_job_id: 87790624617
     previous_tested_head: fb0a68bac4628a96f82413b5d71092e4f0367536
