@@ -71,12 +71,12 @@ Concrete provider selection and provisioning remain external production work.
 
 - Formatting check: passed
 - ESLint with zero warnings: passed
-- Nine migration files ordered/non-empty/non-destructive: passed in targeted validation
+- Nine migration files ordered/non-empty/non-destructive: passed
 - First migration apply and immediate migration replay: passed
 - Architecture import boundaries: passed
 - Typecheck: 19 of 19 workspaces passed
 - Test/build dependency tasks: 28 of 28 passed
-- Repository assertions: 67 covered across the existing and targeted suites, including five courier lease tests, five webhook lease tests, five verification lease tests, three verification-payload validation tests, transactional queues/outbox coverage, DNS SSRF tests, and envelope-cipher tests
+- Repository assertions: 67 passed, including five courier lease tests, five webhook lease tests, five verification lease tests, three verification-payload validation tests, transactional queues/outbox coverage, DNS SSRF tests, and envelope-cipher tests
 - Production builds: 19 of 19 workspaces passed
 - WooCommerce PHP syntax: passed
 - npm high/critical audit threshold: passed; four moderate development-tooling advisories remain
@@ -85,7 +85,8 @@ Concrete provider selection and provisioning remain external production work.
 - Webhook outbox final CI run `29550097719`, job `87790624617`: audit, formatting, lint, eight migrations, migration replay, architecture, 19 typechecks, 53 assertions, 19 builds, and PHP lint passed at head `fb0a68bac4628a96f82413b5d71092e4f0367536`
 - The verified webhook outbox change was squash-merged to `main` as `752d08776f35345e5ec002d9a9ca720f304df8cc`
 - Verification queue targeted run `29553255223`, job `87800077114`: nine migrations/replay, verification/API typechecks, lease/payload/API tests, builds, and Compose profile validation passed for source commit `5fce01ac98bc8115959276b1ffc636a1702d77a0`
-- Final full documentation-head CI remains required before merge
+- Verification queue final CI run `29554260434`, job `87803061854`: audit, formatting, lint, nine migrations, migration replay, architecture, 19 typechecks, 67 assertions, 19 builds, and PHP lint passed at head `7f24a7be544ae60d7a0a15b4a5020b4253e0d192`
+- The verified verification queue change was squash-merged to `main` as `146360ab40efe45bfa7332c1a42b6cac0e88d17b`
 - Canonical documentation links before this slice: zero known broken internal links
 - `tracker.yml` YAML structure remains valid
 - Prohibited source-pattern search: no matches
