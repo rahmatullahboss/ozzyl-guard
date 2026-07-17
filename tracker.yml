@@ -90,7 +90,7 @@ implemented:
 verification:
   command: npm run verify
   last_verified: 2026-07-17
-  status: passed_for_worker_lease_code_head_pending_final_docs_ci
+  status: passed
   results:
     migrations: 7_of_7
     migration_replay: passed
@@ -109,15 +109,15 @@ verification:
     - local_main_and_origin_main_sync_cannot_be_verified_from_this_connector_workspace
   remote_ci:
     status: passed
-    run_id: 29544434788
-    job_id: 87773443770
+    run_id: 29545309665
+    job_id: 87776201468
     job: verify
-    tested_head: e0c9f06bc90c6ab69d99225e545b9b4dde74a25c
+    tested_head: b886fcb57c9a5c9ebae3b23334966468ae1733c3
+    merged_main_commit: d748bde10920e5a35a7e90f3a00b3b3bf02b96f3
     completed: 2026-07-17
     steps: audit_format_lint_seven_migrations_migration_replay_architecture_typecheck_tests_build_php_all_passed
     postgresql_worker_lease_tests: 5_of_5_passed
   pending_follow_up:
-    - final_documentation_head_ci
     - continuation_bundle_local_exporter_refresh
 
 migrations:
@@ -186,6 +186,7 @@ notes:
   - courier_jobs_use_atomic_claims_expiring_leases_and_owner_checked_transitions
   - courier_worker_scope_is_derived_from_relational_account_data_not_payload_fields
   - exhausted_stale_courier_jobs_fail_closed_with_lease_expired
+  - expired_lease_owners_cannot_complete_or_fail_jobs
   - broad_automatic_blocking_remains_disabled_until_pilot_calibration
   - pro_context_requires_local_exporter_refresh_after_this_github_only_milestone
   - update_this_file_after_every_material_milestone
