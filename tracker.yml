@@ -154,13 +154,13 @@ verification:
     - local_main_and_origin_main_sync_cannot_be_verified_from_this_connector_workspace
   remote_ci:
     status: passed
-    run_id: 29580203487
-    job_id: 87883814149
+    run_id: 29610847711
+    job_id: 87984896681
     job: verify
-    tested_head: cae4d6ea9d101afe2e692819886fd149c5cf3b85
-    merged_main_commit: ee24aa7faf41e14b04769434c74bc99d7a245de4
-    completed: 2026-07-17
-    steps: audit_format_lint_manifest_nine_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_typecheck_tests_build_php_all_passed
+    tested_head: dc44c8b7df2bfa84cd8f372f9df0831d3c35beeb
+    merged_main_commit: 446d6eb47d042fe4f2834ba31bb3596e57c7ad54
+    completed: 2026-07-18
+    steps: audit_format_lint_manifest_ten_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_typecheck_tests_build_php_all_passed
   source_validation:
     status: passed
     run_id: 29610050179
