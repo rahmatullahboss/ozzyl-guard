@@ -1,0 +1,62 @@
+name: Run managed envelope documentation sync
+
+on:
+  pull_request:
+    types: [reopened]
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    if: github.head_ref == 'ai/managed-envelope-boundary-20260717'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Extract and run canonical documentation patch
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          import textwrap
+
+          source = Path('.github/workflows/tmp-sync-managed-envelope-docs.yml').read_text()
+          start_marker = "          python3 <<'PY'\n"
+          end_marker = "          PY\n"
+          if source.count(start_marker) != 1 or source.count(end_marker) != 1:
+              raise SystemExit('Unable to locate embedded documentation patch')
+          body = source.split(start_marker, 1)[1].split(end_marker, 1)[0]
+          Path('/tmp/sync-managed-envelope-docs.py').write_text(textwrap.dedent(body))
+          PY
+          python3 /tmp/sync-managed-envelope-docs.py
+      - name: Format documentation
+        run: >-
+          npx prettier --write
+          tracker.yml
+          README.md
+          .ai-bridge/current-plan.md
+          .ai-bridge/implementation-status.md
+          .ai-bridge/decisions.md
+          docs/adr/0009-managed-secrets-and-kms-envelope-encryption.md
+          docs/security/security-privacy.md
+          docs/testing/testing-strategy.md
+          docs/operations/deployment.md
+      - run: npm run format:check
+      - run: npm run db:check
+      - name: Commit production documentation
+        run: |
+          rm -f .github/workflows/tmp-sync-managed-envelope-docs.yml
+          rm -f .github/workflows/tmp-run-managed-envelope-docs.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "docs: record managed envelope encryption boundary"
+          git push origin HEAD:${{ github.head_ref }}
