@@ -1,21 +1,20 @@
 name: Capture runtime role isolation inventory
 
 on:
-  push:
-    branches: [ai/runtime-role-isolation-20260717]
-    paths:
-      - .github/workflows/capture-runtime-role-inventory.yml
+  pull_request:
+    types: [reopened]
 
 permissions:
   contents: write
 
 jobs:
   capture:
+    if: github.head_ref == 'ai/runtime-role-isolation-20260717'
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ai/runtime-role-isolation-20260717
+          ref: ${{ github.head_ref }}
       - name: Capture repository inventory
         run: |
           {
@@ -31,4 +30,4 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -f .ai-bridge/tmp-runtime-role-inventory.txt
           git commit -m "test: capture runtime role isolation inventory"
-          git push origin HEAD:ai/runtime-role-isolation-20260717
+          git push origin HEAD:${{ github.head_ref }}
