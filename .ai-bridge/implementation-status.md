@@ -1,6 +1,6 @@
 # Ozzyl Guard — Implementation Status
 
-Updated: 2026-07-17
+Updated: 2026-07-18
 
 ## Status legend
 
@@ -27,7 +27,7 @@ Updated: 2026-07-17
 | Area                             | Status   | Notes                                                                                                                                           |
 | -------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | Shared contracts                 | done     | Canonical request/response/error/outcome/event schemas                                                                                          |
-| Database/migrations              | done     | Nine append-only migrations bound to a committed SHA-256 manifest; history checksums are non-null and fail closed on mismatch                   |
+| Database/migrations              | done     | Ten append-only migrations bound to a committed SHA-256 manifest; history checksums are non-null and fail closed on mismatch                    |
 | Password/session primitives      | done     | Argon2id and opaque hashed session token utilities                                                                                              |
 | Shared envelope encryption       | done     | Local v1 plus provider-neutral managed v2 with per-record DEKs, authenticated wrapped-key metadata, legacy dual-read, rotation, and safe errors |
 | Organizations/stores/memberships | done     | Canonical relational schema and bootstrap transaction                                                                                           |
@@ -40,14 +40,14 @@ Updated: 2026-07-17
 | Durable work architecture        | baseline | PostgreSQL ownership/lease pattern proven for courier, webhook, and verification work; broader operational dead-letter tooling remains          |
 | Backup/restore integrity         | done     | Clean logical `pg_dump`/`pg_restore` rehearsal compares schema, full table data hashes, sequences, migration history, and replay in CI          |
 | Risk engine                      | done     | One pure deterministic engine, versioned policy, confidence, signals, unknown/degraded handling                                                 |
-| Public API                       | done     | Assessment create/read, outcomes, courier refresh, OTP send/verify, auth/scopes/idempotency/rate limits                                         |
+| Public API                       | done     | Assessment create/read, outcomes, courier refresh, OTP send/verify, and tenant-scoped native-shadow comparison reporting                        |
 | PostgreSQL API repositories      | done     | API keys, feature assembly, assessment/outcome writes and replays enforce active relational organization/store ownership                        |
 | Outcome feedback                 | done     | API, WooCommerce, Shopify, custom, and native adapter paths                                                                                     |
 | Webhook delivery                 | done     | HMAC signing, timestamps, retry policy, HTTPS/credential checks, literal-IP and DNS-result SSRF validation, redirect rejection                  |
 | WooCommerce                      | baseline | Encrypted service key, async assessment, canonical parsing, safe failure behavior, admin panel, manual recheck, outcomes                        |
 | Shopify                          | baseline | Signed webhook helper, assessment/action mapping, outcome submission; app OAuth/webhook registration not implemented                            |
 | Custom server SDK                | done     | Server-only integration and checkout action mapping                                                                                             |
-| Native multi-store adapter       | baseline | Canonical client, shadow-comparison result, outcomes; source platform feature-flag wiring pending                                               |
+| Native multi-store adapter       | baseline | Deterministic off/shadow controls, legacy-authoritative failures and durable comparison reporting done; selected source-platform pilot pending  |
 | OTP verification                 | baseline | Transactional encrypted queue, tenant-scoped verifier, lease-owned private runner, retries, and failure events done; provider account remains   |
 | Merchant dashboard               | done     | Argon2id login, opaque HttpOnly session, CSRF logout, authorized store switching, and live scoped operations data                               |
 | Platform admin                   | done     | Explicit active `platform_admin` role is rechecked on every repository call before global operations data                                       |
@@ -68,6 +68,7 @@ Updated: 2026-07-17
 7. `0007_worker_leases.sql`
 8. `0008_webhook_delivery_leases.sql`
 9. `0009_verification_delivery_queue.sql`
+10. `0010_native_shadow_comparisons.sql`
 
 Applied migrations must remain immutable.
 
@@ -75,14 +76,14 @@ Applied migrations must remain immutable.
 
 - `npm run format:check`: passed
 - `npm run lint`: passed with zero warnings
-- `npm run db:check`: nine migrations and committed SHA-256 manifest validated
+- `npm run db:check`: ten migrations and committed SHA-256 manifest validated
 - initial migration apply: passed with non-null history checksums
 - immediate migration replay: passed as a clean no-op
 - `npm run db:integrity`: complete contiguous history and checksums passed
 - `npm run db:restore-rehearsal`: clean logical restore, schema fingerprint, full table data hashes, sequence state, history, and replay passed
 - `npm run check:architecture`: passed
 - `npm run typecheck`: 19/19 workspaces passed
-- `npm run test`: 28/28 Turbo tasks passed; repository contains 96 assertions
+- `npm run test`: 28/28 Turbo tasks passed; repository contains 107 assertions
 - `npm run build`: 19/19 workspace builds passed
 - `npm audit --audit-level=high`: passed; four moderate development-tooling findings remain
 - Webhook outbox final run `29550097719`, job `87790624617`: all gates passed at head `fb0a68bac4628a96f82413b5d71092e4f0367536`
@@ -103,6 +104,10 @@ Applied migrations must remain immutable.
 - Managed-envelope source run `29579223561`, job `87880659693`: all repository gates passed with 19 typechecks, 28 test tasks and 96 assertions, 19 builds, and PHP lint at head `9dbd61eb84fa6d42958e120d5ce9e1e402bd6688`
 - Managed-envelope final run `29580203487`, job `87883814149`: the complete gate set passed at final documentation head `cae4d6ea9d101afe2e692819886fd149c5cf3b85`
 - The verified provider-neutral managed-envelope boundary was squash-merged to `main` as `ee24aa7faf41e14b04769434c74bc99d7a245de4`
+- Five native-adapter tests cover off mode, deterministic cohort selection, legacy-authoritative Guard disagreement, Guard failure, and comparison-persistence failure
+- Three API tests cover comparison idempotency, dedicated scope enforcement, and cross-store assessment rejection
+- Three PostgreSQL tests cover concurrent duplicate writes, immutable idempotency conflict rejection, and relational assessment/store isolation
+- Native-shadow source run `29610050179`, job `87982336996`: all repository gates passed with ten migrations, 19 typechecks, 28 test tasks and 107 assertions, 19 builds, and PHP lint at head `85cd9e2bafd0fc3605c97a461f01a6a87016b83b`
 - Seven real-PostgreSQL tests cover API-key/feature/write tenant mismatch, dashboard aggregation isolation, platform-admin reauthorization, and secret-free webhook/verification administration
 - Six database-role tests cover identifier safety, explicit policy completeness, real allowed DML, migration-history/DELETE/DDL denial, elevated-role rejection, and inherited-role rejection
 - Previous canonical documentation checks found zero broken internal links
@@ -136,8 +141,9 @@ The generated `.ai-bridge/pro-context.md` still requires the repository-local ex
 - GitHub currently reports public repository visibility although the expected policy is private.
 - Provider-specific infrastructure has not been provisioned or smoke-tested.
 - Four moderate development-tooling advisories remain; high/critical threshold is clear.
+- Native shadow mode is advisory only; a selected source platform still must invoke it after order persistence and pilot outcomes must be reviewed before any enforcement design.
 - Automatic blocking remains merchant-controlled and disabled by default until pilot calibration.
 
 ## Next milestone
 
-Provision the accepted infrastructure baseline with distinct database identities and a production point-in-time restore drill, select and wire the managed KMS adapter plus audited re-encryption runner, validate Steadfast, select and bundle the OTP provider adapter, and begin native-adapter shadow rollout.
+Provision the accepted infrastructure baseline with distinct database identities and a production point-in-time restore drill, select and wire the managed KMS adapter plus audited re-encryption runner, validate Steadfast, select and bundle the OTP provider adapter, and run an opt-in source-platform shadow pilot.

@@ -24,7 +24,7 @@ The full context bundle includes the important specifications, accepted ADRs, mi
 The repository now contains a runnable MVP foundation:
 
 - TypeScript npm/Turborepo monorepo
-- PostgreSQL schema, nine append-only migrations, committed SHA-256 manifest, and non-null history checksums
+- PostgreSQL schema, ten append-only migrations, committed SHA-256 manifest, and non-null history checksums
 - Argon2id user-password utilities and opaque user sessions
 - Hash-only `ozg_test_` / `ozg_live_` API-key lifecycle utilities
 - Organizations, stores, memberships, plans, usage events, audit events, and tenant scope
@@ -39,6 +39,7 @@ The repository now contains a runnable MVP foundation:
 - Docker, Docker Compose, migration integrity verification, clean logical restore rehearsal, and least-privilege runtime-role verification in CI
 - Authoritative organization/store revalidation across API keys, feature assembly, writes, dashboards, and secret-free webhook/verification administration
 - Provider-neutral managed envelope v2 with per-record data keys, authenticated wrapped-key metadata, structured safe failures, legacy dual-read, and rotation/re-encryption primitives
+- Native multi-store off/deterministic-shadow rollout with legacy-authoritative behavior and tenant-scoped immutable comparison evidence
 
 The following require external accounts or production decisions before live use:
 
@@ -47,7 +48,7 @@ The following require external accounts or production decisions before live use:
 - OTP provider selection and credentials
 - Authenticated dashboard/admin live data wiring is complete; production hosting, distributed rate limiting, account recovery, MFA, and managed identity supersession remain
 - Production queue/cache/observability providers
-- Pilot outcome calibration before broad automatic blocking
+- Selected source-platform shadow invocation and pilot outcome calibration before any enforcement or broad automatic blocking
 
 See [implementation status](.ai-bridge/implementation-status.md) and [risk register](docs/roadmap/risk-register.md).
 

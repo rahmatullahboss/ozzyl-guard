@@ -1,10 +1,10 @@
 # Ozzyl Guard — Current Implementation Plan
 
-Updated: 2026-07-17
+Updated: 2026-07-18
 
 ## Current state
 
-A runnable standalone MVP foundation and nine production-hardening slices are complete:
+A runnable standalone MVP foundation and ten production-hardening slices are complete:
 
 1. dashboard/admin browser authentication with live PostgreSQL data and tenant revalidation;
 2. accepted provider-neutral infrastructure ADRs for deployment, managed PostgreSQL, durable work/cache, KMS envelope encryption, and observability;
@@ -14,7 +14,8 @@ A runnable standalone MVP foundation and nine production-hardening slices are co
 6. transactional encrypted OTP delivery queues, tenant-scoped database verification, and a lease-owned private verification worker with no provider I/O in API requests;
 7. SHA-256-bound migration history integrity and a clean PostgreSQL logical backup/restore rehearsal with schema, data, sequence, history, and replay verification;
 8. authoritative tenant-scope revalidation across API keys, feature assembly, assessment/outcome writes, dashboards and administration, plus an explicit least-privilege PostgreSQL runtime-role grant boundary;
-9. provider-neutral managed envelope v2 with random per-record data keys, authenticated wrapped-key metadata, structured fail-closed errors, explicit legacy dual-read, and key-version re-encryption primitives.
+9. provider-neutral managed envelope v2 with random per-record data keys, authenticated wrapped-key metadata, structured fail-closed errors, explicit legacy dual-read, and key-version re-encryption primitives;
+10. native multi-store `off`/deterministic-shadow rollout controls with legacy-authoritative behavior and tenant-scoped immutable comparison evidence.
 
 Concrete provider selection and provisioning remain external production work.
 
@@ -23,7 +24,7 @@ Concrete provider selection and provisioning remain external production work.
 - [x] Repository, canonical GitHub remote, documentation, ADR, status, risk register, tracker, and continuation setup
 - [x] npm workspaces, Turborepo, TypeScript, formatting, linting, tests, and CI
 - [x] Canonical shared API/error/event contracts
-- [x] PostgreSQL/Drizzle schema and nine append-only migrations
+- [x] PostgreSQL/Drizzle schema and ten append-only migrations
 - [x] Users, organizations, stores, memberships, plans, audit events, hash-only API keys, and explicit platform role
 - [x] Argon2 password utilities and opaque hash-only browser sessions with CSRF protection
 - [x] Transaction-safe PostgreSQL usage reservation and durable idempotency
@@ -80,17 +81,20 @@ Concrete provider selection and provisioning remain external production work.
 - [x] Managed envelope v2 creates and zeroes a random AES-256 data key per record and wraps it only through a provider-neutral KMS/vault contract
 - [x] Ciphertext authenticates the context digest and wrapped-key metadata, rejects context substitution before unwrap, and returns structured non-secret failure codes
 - [x] Explicit legacy-key dual-read and managed key-version re-encryption preserve access during controlled rotation without plaintext fallback
+- [x] Native multi-store rollout supports only `off` and deterministic `shadow`; the legacy result stays authoritative even when Guard recommends block
+- [x] Selected shadow assessments and persistence failures return safe codes without changing checkout behavior
+- [x] Tenant-scoped comparison API derives Guard values from the referenced assessment and stores immutable idempotent evidence without phone or secret material
 
 ## Verified baseline
 
 - Formatting check: passed
 - ESLint with zero warnings: passed
-- Nine migration files ordered/non-empty/non-destructive: passed
+- Ten migration files ordered/non-empty/non-destructive: passed
 - First migration apply and immediate migration replay: passed
 - Architecture import boundaries: passed
 - Typecheck: 19 of 19 workspaces passed
 - Test/build dependency tasks: 28 of 28 passed
-- Repository assertions: 96 passed, including five courier lease tests, five webhook lease tests, five verification lease tests, three verification-payload validation tests, seven migration-integrity tests, seven tenant/admin isolation tests, six runtime-role policy/permission tests, eleven envelope-encryption tests, transactional queues/outbox coverage, and DNS SSRF tests
+- Repository assertions: 107 passed, including five courier lease tests, five webhook lease tests, five verification lease tests, three verification-payload validation tests, seven migration-integrity tests, seven tenant/admin isolation tests, six runtime-role policy/permission tests, eleven envelope-encryption tests, eleven native-shadow adapter/API/PostgreSQL tests, transactional queues/outbox coverage, and DNS SSRF tests
 - Production builds: 19 of 19 workspaces passed
 - WooCommerce PHP syntax: passed
 - npm high/critical audit threshold: passed; four moderate development-tooling advisories remain
@@ -110,6 +114,7 @@ Concrete provider selection and provisioning remain external production work.
 - Managed-envelope source-head CI run `29579223561`, job `87880659693`: audit, formatting, lint, manifest validation, nine migrations, replay, history integrity, clean restore, runtime-role grants, architecture, 19 typechecks, 96 assertions, 19 builds, and PHP lint passed at head `9dbd61eb84fa6d42958e120d5ce9e1e402bd6688`
 - Managed-envelope final CI run `29580203487`, job `87883814149`: the same complete gate set passed at final documentation head `cae4d6ea9d101afe2e692819886fd149c5cf3b85`
 - The verified provider-neutral managed-envelope boundary was squash-merged to `main` as `ee24aa7faf41e14b04769434c74bc99d7a245de4`
+- Native-shadow source CI run `29610050179`, job `87982336996`: audit, formatting, lint, ten migrations, replay, history integrity, clean restore, runtime-role grants, architecture, 19 typechecks, 107 assertions, 19 builds, and PHP lint passed at head `85cd9e2bafd0fc3605c97a461f01a6a87016b83b`
 - Canonical documentation links before this slice: zero known broken internal links
 - `tracker.yml` YAML structure remains valid
 - Prohibited source-pattern search: no matches
@@ -123,7 +128,7 @@ The current GitHub-only connector workspace cannot run the repository-local cont
 3. Add an authorized Steadfast test account, live opt-in tests, selector monitoring, and provider-terms approval.
 4. Select, review, bundle, and configure the production OTP provider adapter/account for the existing verification runner.
 5. Add distributed rate limiting/cache only when multiple replicas require it.
-6. Integrate the native multi-store adapter behind a shadow-comparison feature flag.
+6. Wire the selected source platform to invoke the verified shadow adapter after order persistence, then run an opt-in merchant pilot; do not use Guard as the effective decision source.
 7. Pilot with selected merchants, collect outcomes, calibrate confidence/thresholds, and keep broad automatic blocking disabled until reviewed.
 
 ## External blockers
