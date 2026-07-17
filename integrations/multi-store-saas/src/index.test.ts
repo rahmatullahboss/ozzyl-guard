@@ -17,10 +17,7 @@ class FakeClient implements MultiStoreGuardClient {
   failAssessment = false;
   failComparison = false;
 
-  async createRiskAssessment(
-    input: RiskAssessmentRequest,
-    options: { idempotencyKey: string },
-  ) {
+  async createRiskAssessment(input: RiskAssessmentRequest, options: { idempotencyKey: string }) {
     this.assessmentCalls.push({ input, idempotencyKey: options.idempotencyKey });
     if (this.failAssessment) throw new Error('network details must not escape');
     return {
@@ -112,10 +109,7 @@ describe('MultiStoreGuardAdapter shadow rollout', () => {
 
   it('persists selected comparisons while legacy remains authoritative even when Guard blocks', async () => {
     const client = new FakeClient();
-    const adapter = new MultiStoreGuardAdapter(
-      client,
-      () => new Date('2026-07-18T08:00:00.000Z'),
-    );
+    const adapter = new MultiStoreGuardAdapter(client, () => new Date('2026-07-18T08:00:00.000Z'));
     const result = await adapter.evaluateShadow(
       order,
       { score: 10, decision: 'ALLOW' },

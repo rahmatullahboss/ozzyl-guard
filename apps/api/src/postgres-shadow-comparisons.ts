@@ -154,9 +154,7 @@ export class PostgresShadowComparisonRepository implements ShadowComparisonRepos
       );
       const existing = existingResult.rows[0];
       if (!existing || !sameRequest(existing, input.comparison)) {
-        throw new ShadowComparisonPersistenceError(
-          'SHADOW_COMPARISON_IDEMPOTENCY_CONFLICT',
-        );
+        throw new ShadowComparisonPersistenceError('SHADOW_COMPARISON_IDEMPOTENCY_CONFLICT');
       }
       await client.query('commit');
       return { comparisonId: existing.id, replay: true };

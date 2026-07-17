@@ -321,6 +321,48 @@ export const riskAssessments = pgTable(
   ],
 );
 
+export const integrationShadowComparisons = pgTable(
+  'integration_shadow_comparisons',
+  {
+    id: text('id').primaryKey(),
+    organizationId: text('organization_id')
+      .notNull()
+      .references(() => organizations.id, { onDelete: 'cascade' }),
+    storeId: text('store_id')
+      .notNull()
+      .references(() => stores.id, { onDelete: 'cascade' }),
+    apiKeyId: text('api_key_id').references(() => apiKeys.id, { onDelete: 'set null' }),
+    integration: text('integration').notNull(),
+    externalOrderId: text('external_order_id').notNull(),
+    idempotencyKey: text('idempotency_key').notNull(),
+    assessmentId: text('assessment_id')
+      .notNull()
+      .references(() => riskAssessments.id, { onDelete: 'cascade' }),
+    legacyScore: integer('legacy_score').notNull(),
+    legacyDecision: text('legacy_decision').notNull(),
+    guardScore: integer('guard_score').notNull(),
+    guardDecision: text('guard_decision').notNull(),
+    guardConfidence: numeric('guard_confidence', { precision: 5, scale: 4 }).notNull(),
+    decisionChanged: boolean('decision_changed').notNull(),
+    scoreDelta: integer('score_delta').notNull(),
+    rolloutVersion: text('rollout_version').notNull(),
+    sampleBucket: integer('sample_bucket').notNull(),
+    sampleRateBps: integer('sample_rate_bps').notNull(),
+    evaluatedAt: timestamp('evaluated_at', { withTimezone: true }).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex('integration_shadow_comparisons_scope_idempotency_unique').on(
+      table.organizationId,
+      table.storeId,
+      table.integration,
+      table.idempotencyKey,
+    ),
+    index('integration_shadow_comparisons_store_created_idx').on(table.storeId, table.createdAt),
+    index('integration_shadow_comparisons_assessment_idx').on(table.assessmentId),
+  ],
+);
+
 export const riskSignals = pgTable(
   'risk_signals',
   {

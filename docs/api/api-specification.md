@@ -215,6 +215,34 @@ POST /v1/order-outcomes
 
 Outcome submissions require idempotency and evidence/source metadata. Integrations should send outcomes from the first MVP.
 
+## Record native shadow comparison
+
+```http
+POST /v1/integration-comparisons/native-shadow
+```
+
+This endpoint requires `comparisons:write` and `Idempotency-Key`. It is only for
+post-order native-client shadow evaluation; it must not determine checkout action.
+
+```json
+{
+  "external_order_id": "ORDER-100",
+  "assessment_id": "ras_123",
+  "legacy_score": 20,
+  "legacy_decision": "allow",
+  "rollout_version": "pilot-v1",
+  "sample_bucket": 140,
+  "sample_rate_bps": 1000,
+  "evaluated_at": "2026-07-18T08:00:00Z"
+}
+```
+
+The API loads the assessment from the authenticated organization/store scope and
+derives the Guard score, decision, confidence, delta, and decision-change flag
+server-side. The durable record contains no phone, API key, provider credential,
+or unrestricted order snapshot. Reusing an idempotency key with different
+comparison evidence returns a conflict.
+
 ## Webhooks
 
 Events:
