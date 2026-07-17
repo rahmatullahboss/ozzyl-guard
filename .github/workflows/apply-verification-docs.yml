@@ -1,0 +1,54 @@
+name: Apply verification queue documentation
+
+on:
+  pull_request:
+    types: [reopened]
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.head_ref == 'ai/verification-queue-runner-20260717'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: python3 scripts/tmp-verification-docs.py
+      - run: >-
+          npx prettier --write
+          tracker.yml
+          README.md
+          .ai-bridge/current-plan.md
+          .ai-bridge/implementation-status.md
+          .ai-bridge/decisions.md
+          docs/api/api-specification.md
+          docs/database/database-design.md
+          docs/security/security-privacy.md
+          docs/testing/testing-strategy.md
+          docs/operations/deployment.md
+          docs/operations/operations-observability.md
+      - run: npm run format:check
+      - run: npm run db:check
+      - name: Verify completed milestone wording
+        run: |
+          ! grep -R "durable verification runner is still pending" .ai-bridge docs README.md tracker.yml
+          ! grep -R "implement_encrypted_verification_queue_runner_with_worker_leases" tracker.yml
+          grep -q "0009_verification_delivery_queue.sql" tracker.yml
+          grep -q "OTP provider network call" docs/api/api-specification.md
+      - name: Commit verified documentation
+        run: |
+          rm scripts/tmp-verification-docs.py
+          rm .github/workflows/apply-verification-docs.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "docs: record durable verification queue milestone"
+          git push origin HEAD:${{ github.head_ref }}
