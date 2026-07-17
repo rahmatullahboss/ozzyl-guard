@@ -19,6 +19,25 @@ function createTestApp(input?: {
   identity?: ApiKeyIdentity;
   assessments?: AssessmentRepository;
   rawApiKey?: string;
+  verificationRequests?: {
+    enqueueSend(input: {
+      organizationId: string;
+      storeId: string;
+      assessmentId?: string;
+      phone: string;
+      phoneHash: string;
+      purpose: string;
+      idempotencyKey: string;
+    }): Promise<{ verificationId: string; expiresAt: string; replay: boolean }>;
+  };
+  otpVerifier?: {
+    verify(input: {
+      organizationId: string;
+      storeId: string;
+      verificationId: string;
+      otp: string;
+    }): Promise<{ verified: true }>;
+  };
 }) {
   let counter = 0;
   const identity =
@@ -46,6 +65,10 @@ function createTestApp(input?: {
     idempotency: new MemoryOperationIdempotencyStore(),
     rateLimiter: new MemoryRateLimiter(),
     hashPhone: (phone) => createHmac('sha256', 'x'.repeat(32)).update(phone).digest('hex'),
+    ...(input?.verificationRequests === undefined
+      ? {}
+      : { verificationRequests: input.verificationRequests }),
+    ...(input?.otpVerifier === undefined ? {} : { otpVerifier: input.otpVerifier }),
     idFactory: (prefix) => `${prefix}_${++counter}`,
     now: () => new Date('2026-07-16T10:00:00.000Z'),
   });
@@ -137,6 +160,65 @@ describe('Ozzyl Guard API', () => {
       { headers: { Authorization: `Bearer ${otherKey}` } },
     );
     expect(response.status).toBe(404);
+  });
+
+  it('queues OTP delivery without performing provider I/O in the request', async () => {
+    let enqueueCalls = 0;
+    const app = createTestApp({
+      verificationRequests: {
+        async enqueueSend(input) {
+          enqueueCalls += 1;
+          expect(input).toMatchObject({
+            organizationId: 'org_1',
+            storeId: 'store_1',
+            purpose: 'cod_order_confirmation',
+            idempotencyKey: 'otp-1001',
+          });
+          return {
+            verificationId: 'ver_queued',
+            expiresAt: '2026-07-16T10:05:00.000Z',
+            replay: false,
+          };
+        },
+      },
+    });
+    const response = await app.request('/v1/verifications/otp/send', {
+      method: 'POST',
+      headers: { ...authorizedHeaders, 'Idempotency-Key': 'otp-1001' },
+      body: JSON.stringify({ phone: '01712345678' }),
+    });
+    expect(response.status).toBe(202);
+    await expect(response.json()).resolves.toMatchObject({
+      success: true,
+      verification_id: 'ver_queued',
+      status: 'queued',
+    });
+    expect(enqueueCalls).toBe(1);
+  });
+
+  it('verifies OTP through the database verifier dependency', async () => {
+    let verifyCalls = 0;
+    const app = createTestApp({
+      otpVerifier: {
+        async verify(input) {
+          verifyCalls += 1;
+          expect(input).toEqual({
+            organizationId: 'org_1',
+            storeId: 'store_1',
+            verificationId: 'ver_queued',
+            otp: '123456',
+          });
+          return { verified: true };
+        },
+      },
+    });
+    const response = await app.request('/v1/verifications/otp/verify', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ verification_id: 'ver_queued', otp: '123456' }),
+    });
+    expect(response.status).toBe(200);
+    expect(verifyCalls).toBe(1);
   });
 
   it('records outcomes idempotently', async () => {

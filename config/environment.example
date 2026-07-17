@@ -21,6 +21,7 @@ SESSION_PEPPER=[REDACTED_SECRET]
 SESSION_CSRF_SECRET=[REDACTED_SECRET]
 API_KEY_PEPPER=[REDACTED_SECRET]
 PHONE_HMAC_KEY=[REDACTED_SECRET]
+OTP_HASH_SECRET=[REDACTED_SECRET]
 
 # Credential/session encryption
 # Use a Base64-encoded 32-byte key for the local AES-256-GCM implementation.
@@ -58,8 +59,14 @@ STEADFAST_LIVE_TESTS=false
 QUEUE_URL=[REDACTED_SECRET]
 CACHE_URL=[REDACTED_SECRET]
 
-# Verification provider — production remains disabled until a provider ADR/account exists
-OTP_PROVIDER=disabled
+# Durable verification worker. OTP_PROVIDER_MODULE must export createOtpDeliveryProvider().
+# No provider module is selected or bundled by this milestone.
+VERIFICATION_WORKER_ID=verification-local
+VERIFICATION_WORKER_POLL_MS=5000
+VERIFICATION_WORKER_LEASE_MS=60000
+VERIFICATION_WORKER_MAX_ATTEMPTS=5
+OTP_PROVIDER_TIMEOUT_MS=10000
+OTP_PROVIDER_MODULE=[REDACTED_PROVIDER_MODULE]
 OTP_SENDER_ID=[REDACTED_SECRET]
 OTP_PROVIDER_API_KEY=[REDACTED_SECRET]
 

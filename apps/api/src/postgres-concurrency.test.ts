@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { Pool } from 'pg';
 import { UsageLimitError } from '@ozzyl/billing';
+import { AesGcmEnvelopeCipher } from '@ozzyl/encryption';
 import type { StoredAssessment } from './index.js';
 import {
   PostgresAssessmentRepository,
@@ -9,6 +10,7 @@ import {
   PostgresOutcomeRepository,
   PostgresUsageLedger,
 } from './postgres.js';
+import { PostgresVerificationService } from './postgres-verification.js';
 
 const databaseUrl = process.env.DATABASE_URL;
 const integration = describe.skipIf(!databaseUrl);
@@ -53,7 +55,12 @@ integration('PostgreSQL concurrency and idempotency', () => {
         `,
         [apiKeyId, organizationId, storeId, `hash_${suffix}`, JSON.stringify(['*'])],
       );
-      const webhookEvents = JSON.stringify(['assessment.completed', 'order.outcome_recorded']);
+      const webhookEvents = JSON.stringify([
+        'assessment.completed',
+        'order.outcome_recorded',
+        'verification.verified',
+        'verification.failed',
+      ]);
       await client.query(
         `
           insert into webhook_endpoints (
@@ -271,6 +278,87 @@ integration('PostgreSQL concurrency and idempotency', () => {
     expect(JSON.stringify(stored.rows.map((row) => row.event_payload))).not.toContain(
       '01712345678',
     );
+  });
+
+  it('creates one encrypted verification job for concurrent duplicate requests and verifies it', async () => {
+    const cipher = new AesGcmEnvelopeCipher(Buffer.alloc(32, 7), 'test-v1');
+    const service = new PostgresVerificationService(pool, {
+      otpSecret: 'v'.repeat(32),
+      cipher,
+      now: () => new Date('2026-07-17T08:00:00.000Z'),
+    });
+    const input = {
+      organizationId,
+      storeId,
+      phone: '01712345678',
+      phoneHash: `verification-phone-${suffix}`,
+      purpose: 'cod_order_confirmation',
+      idempotencyKey: `verification-race-${suffix}`,
+    };
+    const results = await Promise.all([
+      service.enqueueSend(input),
+      service.enqueueSend(input),
+      service.enqueueSend(input),
+    ]);
+    expect(new Set(results.map((result) => result.verificationId)).size).toBe(1);
+    expect(results.filter((result) => !result.replay)).toHaveLength(1);
+    expect(results.filter((result) => result.replay)).toHaveLength(2);
+
+    const verificationId = results[0]?.verificationId ?? '';
+    const stored = await pool.query<{
+      sessions: number;
+      jobs: number;
+      job_id: string;
+      payload_encrypted: string;
+    }>(
+      `
+        select count(distinct vs.id)::int as sessions,
+          count(distinct vj.id)::int as jobs,
+          min(vj.id) as job_id,
+          min(vj.payload_encrypted) as payload_encrypted
+        from verification_sessions vs
+        join verification_jobs vj on vj.verification_session_id = vs.id
+        where vs.organization_id = $1 and vs.store_id = $2 and vs.idempotency_key = $3
+      `,
+      [organizationId, storeId, input.idempotencyKey],
+    );
+    expect(stored.rows[0]?.sessions).toBe(1);
+    expect(stored.rows[0]?.jobs).toBe(1);
+    expect(stored.rows[0]?.payload_encrypted).not.toContain(input.phone);
+    const decrypted = cipher.decrypt<{ otp: string }>(
+      stored.rows[0]?.payload_encrypted ?? '',
+      `verification-job:${stored.rows[0]?.job_id}`,
+    );
+
+    await pool.query(`update verification_sessions set status = 'pending' where id = $1`, [
+      verificationId,
+    ]);
+    await pool.query(
+      `update verification_jobs set status = 'delivered', completed_at = now() where verification_session_id = $1`,
+      [verificationId],
+    );
+    await expect(
+      service.verify({ organizationId, storeId, verificationId, otp: decrypted.otp }),
+    ).resolves.toEqual({ verified: true });
+    await expect(
+      service.verify({
+        organizationId: otherOrganizationId,
+        storeId: otherStoreId,
+        verificationId,
+        otp: decrypted.otp,
+      }),
+    ).rejects.toMatchObject({ code: 'NOT_FOUND' });
+
+    const verified = await pool.query<{ status: string; deliveries: number }>(
+      `
+        select vs.status,
+          (select count(*)::int from webhook_deliveries wd
+            where wd.event_id = 'evt_verification_verified_' || vs.id) as deliveries
+        from verification_sessions vs where vs.id = $1
+      `,
+      [verificationId],
+    );
+    expect(verified.rows[0]).toEqual({ status: 'verified', deliveries: 2 });
   });
 
   it('keeps operation idempotency values isolated by organization and store', async () => {
