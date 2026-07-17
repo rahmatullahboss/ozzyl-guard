@@ -171,7 +171,10 @@ export class PostgresCourierJobQueue {
           claimed_at = null,
           lease_expires_at = null,
           updated_at = now()
-        where id = $1 and claimed_by = $2 and status = 'processing'
+        where id = $1
+          and claimed_by = $2
+          and status = 'processing'
+          and lease_expires_at > $3
       `,
       [jobId, workerId, at],
     );
@@ -203,6 +206,7 @@ export class PostgresCourierJobQueue {
         where id = $1
           and claimed_by = $2
           and status in ('claimed', 'processing')
+          and lease_expires_at > $5
       `,
       [jobId, workerId, code, retryable, at, this.maxAttempts],
     );
