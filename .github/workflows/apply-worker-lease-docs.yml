@@ -10,7 +10,7 @@ on:
     types: [opened, synchronize, reopened]
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   apply:
@@ -28,10 +28,18 @@ jobs:
       - run: npm ci --no-audit --no-fund >/dev/null
       - run: python3 scripts/tmp-worker-lease-docs.py
       - run: npx prettier --write tracker.yml .ai-bridge/current-plan.md .ai-bridge/implementation-status.md .ai-bridge/decisions.md docs/testing/testing-strategy.md docs/database/database-design.md docker-compose.yml
-      - name: Commit formatted worker lease docs
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add tracker.yml .ai-bridge/current-plan.md .ai-bridge/implementation-status.md .ai-bridge/decisions.md docs/testing/testing-strategy.md docs/database/database-design.md config/environment.example docker-compose.yml
-          git commit -m "docs: align worker lease operations"
-          git push origin HEAD:ai/worker-lease-recovery-20260717
+      - name: Capture changed files
+        run: git diff --name-only > worker-lease-docs-changed.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: worker-lease-formatted-docs
+          path: |
+            worker-lease-docs-changed.txt
+            tracker.yml
+            .ai-bridge/current-plan.md
+            .ai-bridge/implementation-status.md
+            .ai-bridge/decisions.md
+            docs/testing/testing-strategy.md
+            docs/database/database-design.md
+            config/environment.example
+            docker-compose.yml
