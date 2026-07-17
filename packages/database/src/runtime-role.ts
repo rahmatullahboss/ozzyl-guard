@@ -129,9 +129,19 @@ export async function applyRuntimeRoleGrants(pool: Pool, inputRoleName: string):
       );
     }
 
-    const ownership = await client.query<{ owns_schema: boolean; owns_relation: boolean }>(
+    const ownership = await client.query<{
+      owns_database: boolean;
+      owns_schema: boolean;
+      owns_relation: boolean;
+    }>(
       `
         select
+          exists(
+            select 1
+            from pg_database d
+            join pg_roles r on r.oid = d.datdba
+            where d.datname = current_database() and r.rolname = $1
+          ) as owns_database,
           exists(
             select 1 from pg_namespace n join pg_roles r on r.oid = n.nspowner
             where n.nspname = 'public' and r.rolname = $1
@@ -146,9 +156,13 @@ export async function applyRuntimeRoleGrants(pool: Pool, inputRoleName: string):
       `,
       [roleName],
     );
-    if (ownership.rows[0]?.owns_schema || ownership.rows[0]?.owns_relation) {
+    if (
+      ownership.rows[0]?.owns_database ||
+      ownership.rows[0]?.owns_schema ||
+      ownership.rows[0]?.owns_relation
+    ) {
       throw new RuntimeRoleConfigurationError(
-        'Runtime role must not own the public schema or any public relation',
+        'Runtime role must not own the current database, public schema, or any public relation',
       );
     }
 
@@ -169,6 +183,7 @@ export async function applyRuntimeRoleGrants(pool: Pool, inputRoleName: string):
     await client.query(
       `revoke all privileges on table public.${quoteIdentifier(MIGRATION_HISTORY_TABLE)} from ${quotedRole}`,
     );
+    await verifyEffectiveRuntimePrivileges(client, roleName);
     await client.query('commit');
   } catch (error) {
     await client.query('rollback').catch(() => undefined);
@@ -194,6 +209,53 @@ async function verifyCurrentTablePolicy(client: PoolClient): Promise<void> {
   if (missing.length > 0 || unexpected.length > 0) {
     throw new RuntimeRoleConfigurationError(
       `Runtime role table policy is stale; missing=${missing.join(',') || 'none'}; unexpected=${unexpected.join(',') || 'none'}`,
+    );
+  }
+}
+
+async function verifyEffectiveRuntimePrivileges(
+  client: PoolClient,
+  roleName: string,
+): Promise<void> {
+  const result = await client.query<{
+    schema_usage: boolean;
+    schema_create: boolean;
+    database_create: boolean;
+    migration_history_access: boolean;
+    delete_access: boolean;
+  }>(
+    `
+      select
+        has_schema_privilege($1, 'public', 'USAGE') as schema_usage,
+        has_schema_privilege($1, 'public', 'CREATE') as schema_create,
+        has_database_privilege($1, current_database(), 'CREATE') as database_create,
+        has_table_privilege(
+          $1,
+          'public.${MIGRATION_HISTORY_TABLE}',
+          'SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER'
+        ) as migration_history_access,
+        exists(
+          select 1
+          from unnest($2::text[]) as scoped_table(table_name)
+          where has_table_privilege(
+            $1,
+            format('public.%I', scoped_table.table_name),
+            'DELETE'
+          )
+        ) as delete_access
+    `,
+    [roleName, [...runtimeRolePolicy.select]],
+  );
+  const effective = result.rows[0];
+  if (
+    !effective?.schema_usage ||
+    effective.schema_create ||
+    effective.database_create ||
+    effective.migration_history_access ||
+    effective.delete_access
+  ) {
+    throw new RuntimeRoleConfigurationError(
+      'Runtime role effective privileges violate the least-privilege policy',
     );
   }
 }
