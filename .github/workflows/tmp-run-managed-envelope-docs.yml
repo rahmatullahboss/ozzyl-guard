@@ -52,6 +52,11 @@ jobs:
             git push origin HEAD:${{ github.head_ref }}
             exit "$status"
           fi
+      - name: Remove temporary sync tooling
+        run: |
+          rm -f .ai-bridge/tmp-managed-envelope-docs.log
+          rm -f .github/workflows/tmp-sync-managed-envelope-docs.yml
+          rm -f .github/workflows/tmp-run-managed-envelope-docs.yml
       - name: Format documentation
         run: >-
           npx prettier --write
@@ -68,9 +73,6 @@ jobs:
       - run: npm run db:check
       - name: Commit production documentation
         run: |
-          rm -f .ai-bridge/tmp-managed-envelope-docs.log
-          rm -f .github/workflows/tmp-sync-managed-envelope-docs.yml
-          rm -f .github/workflows/tmp-run-managed-envelope-docs.yml
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
