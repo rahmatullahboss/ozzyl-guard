@@ -34,7 +34,7 @@ Updated: 2026-07-17
 | Courier adapter interface        | done     | Typed provider contract and structured errors                                                                                         |
 | Steadfast adapter                | baseline | Normalized internal endpoint adapter with bounded timeout/session errors; requires authorized live validation                         |
 | Steadfast session worker         | baseline | Playwright login, selector/CAPTCHA/2FA errors, encryption boundary, health state, runnable PostgreSQL polling                         |
-| Courier observation worker/cache | done     | Lease-owned atomic claims, stale recovery, retry/final failure transitions, relational scope, normalized observation persistence      |
+| Courier observation worker/cache | done     | Lease-owned atomic claims, expired-owner rejection, stale recovery, retry/final failure, relational scope, observation persistence    |
 | Durable work architecture        | baseline | PostgreSQL ownership/lease pattern proven for courier jobs; webhook and verification runners plus broader dead-letter handling remain |
 | Risk engine                      | done     | One pure deterministic engine, versioned policy, confidence, signals, unknown/degraded handling                                       |
 | Public API                       | done     | Assessment create/read, outcomes, courier refresh, OTP send/verify, auth/scopes/idempotency/rate limits                               |
@@ -73,11 +73,12 @@ Applied migrations must remain immutable.
 - immediate migration replay: passed as a clean no-op
 - `npm run check:architecture`: passed
 - `npm run typecheck`: 18/18 workspaces passed
-- `npm run test`: 26/26 Turbo tasks passed; PostgreSQL CI contains 42 assertions
+- `npm run test`: 26/26 Turbo tasks passed; PostgreSQL CI contains 42 tests
 - `npm run build`: 18/18 workspace builds passed
 - `npm audit --audit-level=high`: passed; four moderate development-tooling findings remain
-- Worker lease code run `29544434788`, job `87773443770`: all gates passed at head `e0c9f06bc90c6ab69d99225e545b9b4dde74a25c`
-- Five new real-PostgreSQL assertions cover competing `SKIP LOCKED` claims, fresh-lease protection, stale processing recovery with old-owner rejection, retry ownership cleanup, exhausted stale-job failure, and relational account scope
+- Worker lease final run `29545309665`, job `87776201468`: all gates passed at head `b886fcb57c9a5c9ebae3b23334966468ae1733c3`
+- Five real-PostgreSQL worker tests cover competing `SKIP LOCKED` claims, fresh-lease protection, expired-owner rejection and stale processing recovery, retry ownership cleanup, exhausted stale-job failure, and relational account scope
+- The verified worker lease change was squash-merged to `main` as `d748bde10920e5a35a7e90f3a00b3b3bf02b96f3`
 - Previous canonical documentation checks found zero broken internal links
 - Prohibited insecure-pattern scan: zero matches
 
