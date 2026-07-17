@@ -59,7 +59,21 @@ jobs:
       - run: npm run typecheck --workspace @ozzyl/verification-worker
       - run: npm run typecheck --workspace @ozzyl/api
       - run: npx turbo run test --filter=@ozzyl/verification-worker
-      - run: npx turbo run test --filter=@ozzyl/api
+      - name: Run API tests with captured output
+        run: |
+          set +e
+          npx turbo run test --filter=@ozzyl/api > /tmp/verification-api-test.log 2>&1
+          status=$?
+          cat /tmp/verification-api-test.log
+          if [ "$status" -ne 0 ]; then
+            tail -n 220 /tmp/verification-api-test.log > .ai-bridge/tmp-verification-api-test.log
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add -f .ai-bridge/tmp-verification-api-test.log
+            git commit -m "test: capture verification API failure"
+            git push origin HEAD:${{ github.head_ref }}
+            exit "$status"
+          fi
       - run: npm run build --workspace @ozzyl/verification
       - run: npm run build --workspace @ozzyl/verification-worker
       - run: npm run build --workspace @ozzyl/api
@@ -68,6 +82,7 @@ jobs:
           rm scripts/tmp-verification-queue-patch.py
           rm .github/workflows/apply-verification-queue-patch.yml
           rm -f .ai-bridge/tmp-verification-worker-test.log
+          rm -f .ai-bridge/tmp-verification-api-test.log
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
