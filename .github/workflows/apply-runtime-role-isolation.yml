@@ -96,23 +96,22 @@ jobs:
             git push origin HEAD:${{ github.head_ref }}
             exit "$status"
           fi
-      - name: Remove temporary tooling
+      - name: Remove temporary non-workflow tooling
         run: |
           rm -f scripts/tmp-runtime-role-isolation.py
           rm -f scripts/tmp-runtime-role-fixture-fix.py
-          rm -f .github/workflows/capture-runtime-role-inventory.yml
-          rm -f .github/workflows/apply-runtime-role-isolation.yml
           rm -f .ai-bridge/tmp-runtime-role-inventory.txt
           rm -f .ai-bridge/tmp-runtime-role-test.log
-      - name: Stage production diff
+          git checkout HEAD -- .github/workflows/ci.yml
+      - name: Stage production source diff
         run: |
           git add -A
           git diff --cached --stat
           ! git diff --cached --quiet
-      - name: Commit production diff
+      - name: Commit production source diff
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "test: harden runtime role and tenant isolation"
-      - name: Push production diff
+      - name: Push production source diff
         run: git push origin HEAD:${{ github.head_ref }}
