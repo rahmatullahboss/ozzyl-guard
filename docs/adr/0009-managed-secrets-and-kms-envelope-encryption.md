@@ -12,7 +12,7 @@ Accepted
 
 The current AES-GCM environment-key implementation is suitable for local development and the self-hosted foundation, but production courier credentials, session material, webhook secrets, API-key peppers, phone HMAC keys, and provider credentials require managed key custody, rotation, and least-privilege access.
 
-No KMS or vault provider has been selected.
+No KMS or vault provider has been selected. The repository now implements the provider-neutral managed-envelope v2 contract and migration primitives, but production runtime wiring remains intentionally disabled until provider and identity provisioning.
 
 ## Decision drivers
 
@@ -49,7 +49,7 @@ Production decryption must fail closed. There is no plaintext fallback. Access f
 
 Service identities receive only the decrypt/encrypt permissions required by their component. The API must not receive courier credential decryption permission unless a documented flow requires it; session workers own provider credential/session access.
 
-Provider selection and key hierarchy implementation remain follow-up operational work under this accepted boundary.
+The shared implementation uses one random 32-byte data key per record, AES-256-GCM, a SHA-256 digest of the authenticated record context, authenticated wrapped-key metadata, structured non-secret error codes, in-memory key zeroization, explicit legacy-key dual-read, and managed key-version re-encryption. Provider selection, adapter implementation, service-identity policy, access auditing, runtime wiring, and the production background rewrite runner remain follow-up operational work.
 
 ## Consequences
 
@@ -78,9 +78,9 @@ Provider selection and key hierarchy implementation remain follow-up operational
 ## Migration / rollout
 
 1. Select a managed secret store and KMS/vault.
-2. Add a provider-neutral envelope-encryption interface behind the existing cipher boundary.
-3. Add a new ciphertext schema version; do not rewrite old migrations.
-4. Support dual-read of approved legacy ciphertext and new envelope ciphertext during migration.
+2. Add a provider-neutral envelope-encryption interface behind the existing cipher boundary. **Complete.**
+3. Add a new ciphertext schema version; do not rewrite old migrations. **Complete in the shared envelope format; no numbered database migration was required.**
+4. Support dual-read of approved legacy ciphertext and new envelope ciphertext during migration. **Complete as an explicit configured-key primitive.**
 5. Re-encrypt existing production-sensitive records through an audited background job.
 6. Remove production use of `CREDENTIAL_ENCRYPTION_KEY`.
 7. Test key disable, rollback, reconnect, and rotation procedures.
@@ -91,6 +91,9 @@ Provider selection and key hierarchy implementation remain follow-up operational
 - Decryption fails closed when KMS access is unavailable.
 - Associated-context mismatch prevents decryption.
 - Rotation and re-encryption preserve authorized access.
+- Context substitution is rejected before a managed unwrap call.
+- The implementation rejects a provider response that exposes the plaintext data key as the wrapped key.
+- Provider exception details are replaced with structured safe error codes.
 - API and unrelated workers cannot decrypt courier credentials.
 - Secret-access audit events and alerts are verified.
 

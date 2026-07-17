@@ -74,6 +74,8 @@ invariants:
   - restore_rehearsal_requires_a_clean_distinct_target
   - tenant_scope_is_revalidated_against_active_relational_store_ownership
   - runtime_database_role_is_non_owner_non_migration_and_explicitly_granted
+  - managed_envelopes_use_random_per_record_data_keys_and_authenticated_context
+  - production_kms_failures_have_no_plaintext_or_local_fallback
 
 implemented:
   - typescript_monorepo_and_ci
@@ -111,6 +113,8 @@ implemented:
   - secret_free_tenant_scoped_webhook_and_verification_administration_repositories
   - dashboard_and_platform_admin_repository_isolation_expansion
   - least_privilege_postgresql_runtime_role_policy_grant_cli_and_ci_gate
+  - provider_neutral_managed_envelope_v2_with_random_per_record_data_keys
+  - managed_envelope_legacy_dual_read_key_rotation_and_safe_failure_tests
 
 verification:
   command: npm run verify
@@ -124,7 +128,7 @@ verification:
     architecture_boundaries: passed
     typecheck: 19_of_19
     test_tasks: 28_of_28
-    remote_assertions: 87_passed
+    remote_assertions: 96_passed
     migration_integrity_tests: 7_of_7_passed
     postgresql_concurrency_tests: 7_of_7_passed
     postgresql_courier_worker_lease_tests: 5_of_5_passed
@@ -133,6 +137,7 @@ verification:
     verification_payload_validation_tests: 3_of_3_passed
     postgresql_tenant_admin_isolation_tests: 7_of_7_passed
     postgresql_runtime_role_tests: 6_of_6_passed
+    managed_envelope_tests: 11_of_11_passed
     builds: 19_of_19
     php_syntax: passed
     high_critical_dependency_check: passed
@@ -151,14 +156,12 @@ verification:
     steps: audit_format_lint_manifest_nine_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_typecheck_tests_build_php_all_passed
   source_validation:
     status: passed
-    run_id: 29560049322
-    job_id: 87820368024
-    tested_head: 90a50b215b063d87f71725eb6a375cbb887345de
+    run_id: 29579223561
+    job_id: 87880659693
+    tested_head: 9dbd61eb84fa6d42958e120d5ce9e1e402bd6688
     completed: 2026-07-17
     steps: audit_format_lint_manifest_nine_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_typecheck_tests_build_php_all_passed
-    migration_integrity_tests: 7_of_7_passed
-    tenant_admin_isolation_tests: 7_of_7_passed
-    runtime_role_tests: 6_of_6_passed
+    managed_envelope_tests: 11_of_11_passed
   pending_follow_up:
     - continuation_bundle_local_exporter_refresh
 
@@ -198,7 +201,7 @@ next_milestone:
   name: production-hardening-and-pilot-readiness
   tasks:
     - select_and_provision_accepted_infrastructure_providers
-    - implement_managed_envelope_encryption
+    - select_and_wire_a_reviewed_managed_kms_adapter_and_audited_reencryption_runner
     - validate_steadfast_with_an_authorized_account
     - implement_the_selected_otp_provider_adapter
     - add_distributed_cache_only_when_replica_coordination_requires_it
@@ -250,6 +253,10 @@ notes:
   - runtime_role_grants_are_explicit_current_table_only_and_exclude_migration_history_delete_and_ddl
   - runtime_role_must_be_externally_created_non_owner_login_without_elevated_privileges_or_memberships
   - runtime_grants_must_be_reapplied_by_the_migration_owner_after_each_migration_release
+  - managed_envelope_v2_uses_one_random_dek_per_record_and_authenticated_wrapped_key_metadata
+  - managed_envelope_context_mismatch_is_rejected_before_key_unwrap
+  - legacy_ciphertext_is_dual_read_only_through_explicitly_configured_legacy_keys
+  - production_runtime_stays_on_local_v1_until_a_reviewed_kms_adapter_and_identity_policy_are_provisioned
   - broad_automatic_blocking_remains_disabled_until_pilot_calibration
   - pro_context_requires_local_exporter_refresh_after_this_github_only_milestone
   - update_this_file_after_every_material_milestone

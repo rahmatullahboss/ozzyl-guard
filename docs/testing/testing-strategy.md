@@ -8,7 +8,7 @@
 - Decision threshold mapping
 - Provider response normalization
 - Status mapping
-- Envelope encryption, key-version handling, and authenticated-context binding
+- Envelope encryption, per-record data-key zeroization, opaque key wrapping, key-version rotation, legacy dual-read, authenticated context/metadata, and structured fail-closed provider errors
 - OTP expiry and attempt limits
 - API key generation/prefix/hash verification
 - Policy parsing/versioning
@@ -120,6 +120,22 @@ Default tests prove:
 - provider rejection is terminal while structured retryable provider errors use bounded backoff;
 - reporter state and logs do not receive plaintext OTP values;
 - provider I/O is not invoked after payload, scope, expiry, or lease failure.
+
+### Managed envelope security coverage
+
+Default tests prove:
+
+- managed v2 creates a random 32-byte data key per record and zeroes it after use;
+- plaintext values and plaintext data keys are not serialized into the envelope;
+- context mismatch is rejected before provider unwrap;
+- wrapped-key metadata is authenticated and tampering fails closed;
+- provider outage produces a structured non-secret error;
+- a provider cannot pass the plaintext data key through as a wrapped key;
+- old managed key versions remain readable during rotation and can be re-encrypted under the current version;
+- legacy v1 ciphertext is read only through explicitly configured legacy keys and rewrites to managed v2;
+- malformed, unsupported, or unavailable-key envelopes fail closed.
+
+A real provider adapter, service-identity denial tests, access-audit verification, and PostgreSQL background rewrite integration remain production/provider validation work.
 
 ### Migration replay coverage
 
