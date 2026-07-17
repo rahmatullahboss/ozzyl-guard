@@ -154,3 +154,5 @@ docs/operations/deployment.md:71:- read access to the matching `webhook_endpoint
 .github/workflows/capture-runtime-role-inventory.yml:1:name: Capture runtime role isolation inventory
 .github/workflows/capture-runtime-role-inventory.yml:25:            grep -RInE 'webhook_endpoints|verification_sessions|PostgresAssessmentFeatureProvider|PostgresMerchantDashboardRepository|PostgresPlatformAdminRepository|GRANT |REVOKE |runtime role|migration role' apps packages workers docs .github package.json 2>/dev/null || true
 .github/workflows/capture-runtime-role-inventory.yml:32:          git commit -m "test: capture runtime role isolation inventory"
+.github/workflows/apply-runtime-role-isolation.yml:1:name: Apply runtime role isolation implementation
+.github/workflows/apply-runtime-role-isolation.yml:92:          git commit -m "test: harden runtime role and tenant isolation"
