@@ -26,6 +26,14 @@ replace(
 )
 
 replace(
+    "workers/courier-sync-worker/src/postgres.ts",
+    """              then $5 + (least(3600, power(2, greatest(attempts, 1)) * 30)::text || ' seconds')::interval
+""",
+    """              then $5::timestamptz + (least(3600, power(2, greatest(attempts, 1)) * 30)::text || ' seconds')::interval
+""",
+)
+
+replace(
     "workers/courier-sync-worker/src/postgres.test.ts",
     "import { afterAll, beforeAll, describe, expect, it } from 'vitest';",
     "import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';",
