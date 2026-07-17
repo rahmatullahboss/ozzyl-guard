@@ -13,17 +13,19 @@ try {
     throw new Error('Migration history table public.ozzyl_guard_migrations does not exist');
   }
 
-  const checksumColumn = await pool.query<{ present: boolean }>(`
-    select exists (
-      select 1
-      from information_schema.columns
-      where table_schema = 'public'
-        and table_name = 'ozzyl_guard_migrations'
-        and column_name = 'checksum_sha256'
-    ) as present
+  const checksumColumn = await pool.query<{ is_nullable: 'YES' | 'NO' }>(`
+    select is_nullable
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'ozzyl_guard_migrations'
+      and column_name = 'checksum_sha256'
   `);
-  if (!checksumColumn.rows[0]?.present) {
+  const checksumMetadata = checksumColumn.rows[0];
+  if (!checksumMetadata) {
     throw new Error('Migration history checksum column does not exist');
+  }
+  if (checksumMetadata.is_nullable !== 'NO') {
+    throw new Error('Migration history checksum column must be NOT NULL');
   }
 
   const migrations = await loadVerifiedMigrations();
