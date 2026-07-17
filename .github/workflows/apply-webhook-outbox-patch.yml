@@ -50,7 +50,21 @@ jobs:
       - run: npm run typecheck --workspace @ozzyl/api
       - run: npm run test --workspace @ozzyl/encryption
       - run: npm run test --workspace @ozzyl/event-worker
-      - run: npm run test --workspace @ozzyl/api
+      - name: Run API tests with captured output
+        id: api_tests
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          npm run test --workspace @ozzyl/api 2>&1 | tee tmp-api-test.log
+      - name: Publish API test failure
+        if: steps.api_tests.outcome != 'success'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f tmp-api-test.log
+          git commit -m "chore: capture webhook outbox API test failure"
+          git push origin HEAD:ai/webhook-outbox-runner-20260717
+          exit 1
       - run: npm run build --workspace @ozzyl/encryption
       - run: npm run build --workspace @ozzyl/courier-session-worker
       - run: npm run build --workspace @ozzyl/event-worker
