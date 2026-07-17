@@ -42,6 +42,9 @@ BOOTSTRAP_KEY_ENVIRONMENT=test
 COURIER_SESSION_REFRESH_HOURS=6
 COURIER_OBSERVATION_TTL_HOURS=12
 WORKER_POLL_MS=5000
+WORKER_LEASE_MS=300000
+# Set a stable unique identifier per replica in production. Local workers generate one when omitted.
+WORKER_ID=courier-sync-local
 STEADFAST_LIVE_TESTS=false
 
 # Queue/cache placeholders for later external infrastructure ADRs
