@@ -1,4 +1,4 @@
-name: Diagnose managed envelope lint
+name: Finalize managed envelope lint fix
 
 on:
   push:
@@ -8,10 +8,10 @@ permissions:
   contents: write
 
 jobs:
-  diagnose:
+  finalize:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
         with:
@@ -21,19 +21,39 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci --no-audit --no-fund
-      - name: Capture lint output
+      - name: Replace control-character regex
         run: |
-          set +e
-          npx eslint packages/encryption/src/index.ts packages/encryption/src/index.test.ts --max-warnings=0 > .ai-bridge/tmp-managed-envelope-lint.log 2>&1
-          status=$?
-          cat .ai-bridge/tmp-managed-envelope-lint.log
-          if [ "$status" -eq 0 ]; then
-            rm -f .ai-bridge/tmp-managed-envelope-lint.log
-            exit 0
-          fi
+          python3 <<'PY'
+          from pathlib import Path
+
+          path = Path('packages/encryption/src/index.ts')
+          text = path.read_text()
+          old = """function hasControlCharacter(value: string): boolean {
+            return /[\\u0000-\\u001f\\u007f]/.test(value);
+          }
+          """
+          new = """function hasControlCharacter(value: string): boolean {
+            for (let index = 0; index < value.length; index += 1) {
+              const code = value.charCodeAt(index);
+              if (code <= 31 || code === 127) return true;
+            }
+            return false;
+          }
+          """
+          if text.count(old) != 1:
+            raise SystemExit('Expected exactly one control-character helper')
+          path.write_text(text.replace(old, new, 1))
+          PY
+      - run: npx prettier --write packages/encryption/src/index.ts
+      - run: npx eslint packages/encryption/src/index.ts packages/encryption/src/index.test.ts --max-warnings=0
+      - run: npm run typecheck -w @ozzyl/encryption
+      - run: npm run test -w @ozzyl/encryption
+      - name: Commit production-only fix
+        run: |
+          rm -f .ai-bridge/tmp-managed-envelope-lint.log
+          rm -f .github/workflows/tmp-diagnose-managed-envelope-lint.yml
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -f .ai-bridge/tmp-managed-envelope-lint.log
-          git commit -m "test: capture managed envelope lint failure"
+          git add -A
+          git commit -m "fix: validate envelope identifiers without control regex"
           git push origin HEAD:${{ github.ref_name }}
-          exit "$status"
