@@ -2,6 +2,7 @@ import { createHmac } from 'node:crypto';
 import { serve } from '@hono/node-server';
 import { Pool } from 'pg';
 import { verifyApiKey } from '@ozzyl/authentication';
+import { AesGcmEnvelopeCipher } from '@ozzyl/encryption';
 import { MemoryUsageLedger, type PlanCode } from '@ozzyl/billing';
 import {
   createApiApp,
@@ -28,6 +29,7 @@ import {
   PostgresPlatformAdminRepository,
   PostgresUsageLedger,
 } from './postgres.js';
+import { PostgresVerificationService } from './postgres-verification.js';
 
 const required = (name: string): string => {
   const value = process.env[name];
@@ -90,6 +92,13 @@ if (databaseUrl) {
     connectionTimeoutMillis: 5_000,
     ssl: process.env.DATABASE_SSL === 'true' ? { rejectUnauthorized: true } : undefined,
   });
+  const verification = new PostgresVerificationService(pool, {
+    otpSecret: required('OTP_HASH_SECRET'),
+    cipher: new AesGcmEnvelopeCipher(
+      Buffer.from(required('CREDENTIAL_ENCRYPTION_KEY'), 'base64'),
+      required('CREDENTIAL_ENCRYPTION_KEY_VERSION'),
+    ),
+  });
   dependencies = {
     apiKeys: new PostgresApiKeyResolver(pool, apiKeyPepper),
     usage: new PostgresUsageLedger(pool),
@@ -100,6 +109,8 @@ if (databaseUrl) {
     idempotency: new PostgresOperationIdempotencyStore(pool),
     rateLimiter,
     hashPhone: (phone) => createHmac('sha256', phoneHmacKey).update(phone).digest('hex'),
+    verificationRequests: verification,
+    otpVerifier: verification,
     browser: {
       auth: new PostgresBrowserAuthService(pool, sessionPepper),
       dashboard: new PostgresMerchantDashboardRepository(pool),

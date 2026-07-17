@@ -417,11 +417,20 @@ export const verificationSessions = pgTable(
     purpose: text('purpose').notNull(),
     channel: text('channel').notNull(),
     status: text('status').notNull(),
+    idempotencyKey: text('idempotency_key'),
+    maxAttempts: integer('max_attempts').notNull().default(5),
     expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
     verifiedAt: timestamp('verified_at', { withTimezone: true }),
     ...timestamps(),
   },
-  (table) => [index('verification_sessions_scope_idx').on(table.storeId, table.createdAt)],
+  (table) => [
+    index('verification_sessions_scope_idx').on(table.storeId, table.createdAt),
+    uniqueIndex('verification_sessions_idempotency_unique').on(
+      table.organizationId,
+      table.storeId,
+      table.idempotencyKey,
+    ),
+  ],
 );
 
 export const otpAttempts = pgTable('otp_attempts', {
@@ -438,6 +447,46 @@ export const otpAttempts = pgTable('otp_attempts', {
   expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
   ...timestamps(),
 });
+
+export const verificationJobs = pgTable(
+  'verification_jobs',
+  {
+    id: text('id').primaryKey(),
+    verificationSessionId: text('verification_session_id')
+      .notNull()
+      .references(() => verificationSessions.id, { onDelete: 'cascade' }),
+    organizationId: text('organization_id')
+      .notNull()
+      .references(() => organizations.id, { onDelete: 'cascade' }),
+    storeId: text('store_id')
+      .notNull()
+      .references(() => stores.id, { onDelete: 'cascade' }),
+    jobType: text('job_type').notNull().default('send_otp'),
+    payloadEncrypted: text('payload_encrypted').notNull(),
+    status: text('status').notNull().default('queued'),
+    attempts: integer('attempts').notNull().default(0),
+    nextAttemptAt: timestamp('next_attempt_at', { withTimezone: true }),
+    providerMessageId: text('provider_message_id'),
+    errorCode: text('error_code'),
+    claimedBy: text('claimed_by'),
+    claimedAt: timestamp('claimed_at', { withTimezone: true }),
+    leaseExpiresAt: timestamp('lease_expires_at', { withTimezone: true }),
+    completedAt: timestamp('completed_at', { withTimezone: true }),
+    ...timestamps(),
+  },
+  (table) => [
+    uniqueIndex('verification_jobs_session_type_unique').on(
+      table.verificationSessionId,
+      table.jobType,
+    ),
+    index('verification_jobs_claim_idx').on(
+      table.status,
+      table.nextAttemptAt,
+      table.leaseExpiresAt,
+    ),
+    index('verification_jobs_scope_idx').on(table.organizationId, table.storeId, table.createdAt),
+  ],
+);
 
 export const webhookEndpoints = pgTable(
   'webhook_endpoints',

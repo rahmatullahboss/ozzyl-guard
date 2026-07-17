@@ -24,15 +24,16 @@ The full context bundle includes the important specifications, accepted ADRs, mi
 The repository now contains a runnable MVP foundation:
 
 - TypeScript npm/Turborepo monorepo
-- PostgreSQL schema and five append-only migrations
+- PostgreSQL schema and nine append-only migrations
 - Argon2id user-password utilities and opaque user sessions
 - Hash-only `ozg_test_` / `ozg_live_` API-key lifecycle utilities
 - Organizations, stores, memberships, plans, usage events, audit events, and tenant scope
 - Canonical `/v1/risk-assessments`, assessment read, outcome feedback, courier refresh, and OTP routes
 - Deterministic explainable risk engine with explicit unknown/degraded handling
 - Steadfast adapter, Playwright session driver, encrypted session storage, and runnable courier workers
-- OTP provider abstraction with hashing, expiry, attempt limits, rate limits, and tenant binding
-- Signed webhook delivery worker library with retry and SSRF protection
+- Transactional encrypted OTP delivery queue, tenant-scoped verification, and lease-owned private verification worker
+- Provider-neutral OTP adapter boundary with hashing, expiry, attempt/rate limits, payload validation, and no synchronous provider I/O
+- Durable signed webhook outbox/worker with retries, leases, encrypted secrets, and DNS-aware SSRF protection
 - Merchant dashboard and platform operations admin applications
 - WooCommerce plugin, Shopify adapter, custom JavaScript/server adapter, and native multi-store adapter
 - Docker, Docker Compose, and CI verification
@@ -119,11 +120,14 @@ Platform admin:
 npm run dev -w @ozzyl/admin
 ```
 
-Courier workers:
+Private workers:
 
 ```bash
 npm run start -w @ozzyl/courier-session-worker
 npm run start -w @ozzyl/courier-sync-worker
+npm run start -w @ozzyl/event-worker
+# Requires a reviewed provider module/account in addition to the standard secrets:
+npm run start -w @ozzyl/verification-worker
 ```
 
 ## Docker Compose
@@ -134,7 +138,7 @@ Provide the required variables in your shell or an ignored Compose environment f
 docker compose up --build
 ```
 
-The Compose topology separates PostgreSQL, migrations, API, Playwright session worker, and courier sync worker. Dashboard/admin static hosting is intentionally deployment-platform dependent.
+The Compose topology separates PostgreSQL, migrations, API, Playwright session, courier sync, and event workers. The verification worker is opt-in with `docker compose --profile verification up --build` because a reviewed provider module/account is not bundled. Dashboard/admin static hosting is deployment-platform dependent.
 
 ## Verification commands
 

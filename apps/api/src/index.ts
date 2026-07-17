@@ -21,7 +21,7 @@ import {
   type RiskAssessmentRequest,
   type RiskAssessmentResponse,
 } from '@ozzyl/shared-types';
-import { VerificationError, type OtpService } from '@ozzyl/verification';
+import { VerificationError } from '@ozzyl/verification';
 import { createBrowserApi, type BrowserApiDependencies } from './browser.js';
 
 export interface ApiKeyIdentity {
@@ -97,6 +97,27 @@ export interface CourierRefreshQueue {
   }): Promise<{ jobId: string }>;
 }
 
+export interface VerificationRequestQueue {
+  enqueueSend(input: {
+    organizationId: string;
+    storeId: string;
+    assessmentId?: string;
+    phone: string;
+    phoneHash: string;
+    purpose: string;
+    idempotencyKey: string;
+  }): Promise<{ verificationId: string; expiresAt: string; replay: boolean }>;
+}
+
+export interface OtpVerifier {
+  verify(input: {
+    organizationId: string;
+    storeId: string;
+    verificationId: string;
+    otp: string;
+  }): Promise<{ verified: true }>;
+}
+
 export interface OperationIdempotencyStore {
   get(key: string): Promise<unknown>;
   set(key: string, value: unknown): Promise<void>;
@@ -116,7 +137,8 @@ export interface ApiDependencies {
   idempotency: OperationIdempotencyStore;
   rateLimiter: RateLimiter;
   hashPhone(phone: string): string;
-  otpService?: OtpService;
+  verificationRequests?: VerificationRequestQueue;
+  otpVerifier?: OtpVerifier;
   browser?: BrowserApiDependencies;
   now?: () => Date;
   idFactory?: (prefix: string) => string;
@@ -410,7 +432,7 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
     const identity = context.get('identity');
     const scopeError = requireScope(identity, 'verification:write', requestId);
     if (scopeError) return scopeError;
-    if (!dependencies.otpService) {
+    if (!dependencies.verificationRequests) {
       return apiError(
         requestId,
         503,
@@ -437,20 +459,25 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
       );
     }
     try {
-      const sent = await dependencies.otpService.send({
+      const queued = await dependencies.verificationRequests.enqueueSend({
         organizationId: identity.organizationId,
         storeId: identity.storeId,
+        ...(parsedBody.value.assessment_id === undefined
+          ? {}
+          : { assessmentId: parsedBody.value.assessment_id }),
         phone,
         phoneHash: dependencies.hashPhone(phone),
         purpose: parsedBody.value.purpose,
+        idempotencyKey,
       });
       const response = {
         success: true as const,
-        verification_id: sent.verificationId,
-        expires_at: sent.expiresAt,
+        verification_id: queued.verificationId,
+        expires_at: queued.expiresAt,
+        status: 'queued' as const,
       };
       await dependencies.idempotency.set(operationKey, response);
-      return context.json(response, 202);
+      return context.json(response, queued.replay ? 200 : 202);
     } catch (error) {
       return verificationApiError(requestId, error);
     }
@@ -461,7 +488,7 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
     const identity = context.get('identity');
     const scopeError = requireScope(identity, 'verification:write', requestId);
     if (scopeError) return scopeError;
-    if (!dependencies.otpService) {
+    if (!dependencies.otpVerifier) {
       return apiError(
         requestId,
         503,
@@ -472,7 +499,7 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
     const parsedBody = await parseJson(context.req.raw, otpVerifySchema);
     if (!parsedBody.success) return apiError(requestId, 400, 'INVALID_REQUEST', parsedBody.message);
     try {
-      await dependencies.otpService.verify({
+      await dependencies.otpVerifier.verify({
         organizationId: identity.organizationId,
         storeId: identity.storeId,
         verificationId: parsedBody.value.verification_id,
@@ -654,7 +681,14 @@ function apiError(
 
 function verificationApiError(requestId: string, error: unknown): Response {
   if (error instanceof VerificationError) {
-    const status = error.code === 'RATE_LIMITED' ? 429 : error.code === 'NOT_FOUND' ? 404 : 400;
+    const status =
+      error.code === 'RATE_LIMITED'
+        ? 429
+        : error.code === 'NOT_FOUND'
+          ? 404
+          : error.code === 'DELIVERY_PENDING' || error.code === 'DELIVERY_FAILED'
+            ? 409
+            : 400;
     return apiError(requestId, status, error.code, error.message);
   }
   return apiError(

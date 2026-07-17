@@ -1,10 +1,26 @@
 import { createHmac, randomInt, timingSafeEqual } from 'node:crypto';
 
 export interface OtpDeliveryProvider {
-  send(input: { phone: string; message: string; idempotencyKey: string }): Promise<{
+  send(input: {
+    phone: string;
+    message: string;
+    idempotencyKey: string;
+    signal?: AbortSignal;
+  }): Promise<{
     providerMessageId: string;
     accepted: boolean;
   }>;
+}
+
+export class OtpProviderError extends Error {
+  constructor(
+    readonly code: string,
+    readonly retryable: boolean,
+    message: string,
+  ) {
+    super(message);
+    this.name = 'OtpProviderError';
+  }
 }
 
 export interface VerificationRecord {
@@ -30,7 +46,12 @@ export interface VerificationStore {
 export class VerificationError extends Error {
   constructor(
     readonly code:
-      'RATE_LIMITED' | 'INVALID_OR_EXPIRED_OTP' | 'MAX_ATTEMPTS' | 'DELIVERY_FAILED' | 'NOT_FOUND',
+      | 'RATE_LIMITED'
+      | 'INVALID_OR_EXPIRED_OTP'
+      | 'MAX_ATTEMPTS'
+      | 'DELIVERY_PENDING'
+      | 'DELIVERY_FAILED'
+      | 'NOT_FOUND',
     message: string,
   ) {
     super(message);
@@ -101,7 +122,7 @@ export class OtpService {
 
     const delivery = await this.options.provider.send({
       phone: input.phone,
-      message: `Your Ozzyl Guard verification code is ${otp}. It expires in 5 minutes.`,
+      message: formatOtpMessage(otp),
       idempotencyKey: id,
     });
     if (!delivery.accepted) {
@@ -150,6 +171,11 @@ export class OtpService {
     await this.options.store.update(record);
     return { verified: true };
   }
+}
+
+export function formatOtpMessage(otp: string, expiryMinutes = 5): string {
+  if (!/^\d{6}$/.test(otp)) throw new Error('OTP must contain exactly six digits');
+  return `Your Ozzyl Guard verification code is ${otp}. It expires in ${expiryMinutes} minutes.`;
 }
 
 export function hashOtp(verificationId: string, otp: string, secret: string): string {

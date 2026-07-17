@@ -64,7 +64,7 @@ All exception/error serialization must pass through a central redaction layer. W
 - Master keys outside database
 - Rotation procedure
 - Strict service identity permissions
-- Separate authenticated encryption context for credentials, sessions, webhook endpoints, and future verification jobs
+- Separate authenticated encryption context for credentials, sessions, webhook endpoints, and verification jobs
 - Audit credential reads and decrypt operations
 - Decryption failure must fail closed
 - No plaintext compatibility fallback
@@ -77,7 +77,7 @@ Webhook signing secrets are stored only as encrypted endpoint material. The even
 
 Every merchant-owned record includes organization/store scope. Repository methods require scope parameters rather than optional filters.
 
-Tests must prove that one organization/store cannot read, mutate, infer, or enumerate another tenant's data through IDs, external references, caches, jobs, webhooks, or logs.
+Tests must prove that one organization/store cannot read, mutate, infer, or enumerate another tenant's data through IDs, external references, caches, jobs, webhooks, verifications, or logs.
 
 Webhook delivery rows persist explicit organization/store scope and are revalidated against the endpoint and store relationships before claim. Mismatched rows fail closed instead of being sent.
 
@@ -102,9 +102,13 @@ Webhook delivery rows persist explicit organization/store scope and are revalida
 - Bind OTP to verification session/order/purpose
 - Do not expose delivery success when provider actually failed
 - Do not log OTP values
-- Move provider delivery out of synchronous API handling
-- Encrypt any future durable job material that must contain the delivery phone or OTP
-- Bind future verification-job ciphertext to the job/session scope through authenticated encryption context
+- Provider delivery runs only in the private verification worker, never synchronous API handling
+- Persist phone and OTP for delivery only inside an encrypted job payload; queue columns and logs remain non-sensitive
+- Bind ciphertext to `verification-job:<job-id>` authenticated context
+- Validate organization, store, purpose, phone HMAC, and OTP hash before provider I/O
+- Require current unexpired lease ownership for start, retry, delivery, and failure transitions
+- Fail both the job and authoritative session closed on relational scope mismatch
+- Pass a stable verification idempotency key to provider adapters to reduce duplicate sends after uncertain outcomes
 
 ## Webhook security
 

@@ -304,6 +304,9 @@ export class PostgresOutcomeRepository implements OutcomeRepository {
     const client = await this.pool.connect();
     try {
       await client.query('begin');
+      await client.query('select pg_advisory_xact_lock(hashtext($1))', [
+        `${input.organizationId}:${input.storeId}:outcome:${input.idempotencyKey}`,
+      ]);
       let phoneHash: string | null = null;
       if (input.outcome.assessment_id) {
         const assessment = await client.query<{ phone_hash: string }>(

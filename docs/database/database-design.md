@@ -297,6 +297,8 @@ Materialized/derived score by phone hash:
 - purpose
 - channel
 - status
+- idempotency key
+- maximum verification attempts
 - expiry
 - verified at
 
@@ -309,7 +311,23 @@ Materialized/derived score by phone hash:
 - sent/delivered/failed times
 - expiry
 
-Never store OTP plaintext. The next durable-work milestone must introduce encrypted provider-delivery job material rather than adding raw phone or OTP values to these records.
+Never store OTP plaintext in sessions or attempts.
+
+### `verification_jobs`
+
+- verification session
+- explicit organization/store scope
+- job type
+- job-context-encrypted phone/OTP/purpose payload
+- status and attempts
+- next attempt time
+- provider message id and structured error code
+- `claimed_by`, `claimed_at`, and `lease_expires_at`
+- completion and standard timestamps
+
+OTP send creation inserts the verification session, hash-only OTP attempt, and encrypted job in one transaction. The API never delivers the provider message synchronously. Workers claim due jobs with `FOR UPDATE SKIP LOCKED`; every transition requires the current unexpired owner and revalidates the job scope against the authoritative session/store relationship. Scope mismatch, stale exhaustion, payload mismatch, or decryption failure fails closed.
+
+The ciphertext context is `verification-job:<job-id>`. Before provider I/O, the worker validates tenant, purpose, phone HMAC, and OTP hash. Queue rows and logs never contain plaintext phone or OTP values.
 
 ## Initial migration boundaries
 
@@ -337,11 +355,14 @@ Current ordered migrations:
 6. `0006_browser_access.sql` — explicit platform role plus browser dashboard/admin query indexes.
 7. `0007_worker_leases.sql` — explicit courier-worker ownership, claim/lease timestamps, stale-job recovery support, and claim scheduling index.
 8. `0008_webhook_delivery_leases.sql` — scoped canonical webhook event payloads, event-worker ownership/lease timestamps, completion state, and claim/scope indexes.
+9. `0009_verification_delivery_queue.sql` — verification idempotency/attempt controls plus encrypted delivery jobs, owner leases, completion state, and claim/scope indexes.
 
 Migration 0006 does not store raw session material. `user_sessions.token_hash` remains the only persisted session-token representation. The merchant dashboard repository authorizes with `(user_id, organization_id, store_id)` before running any aggregate query.
 
 Migration 0007 is append-only and does not rewrite prior migration files. Courier jobs use explicit owner leases and relational account scope.
 
 Migration 0008 backfills endpoint-derived scope for prior delivery rows. Legacy rows whose canonical event payload cannot be reconstructed are terminalized with `LEGACY_EVENT_PAYLOAD_MISSING` rather than delivered with invented data.
+
+Migration 0009 leaves prior verification records valid, adds nullable idempotency keys for legacy rows, and introduces a separate encrypted delivery queue without placing plaintext phone or OTP material in existing tables.
 
 CI applies the complete migration set twice against the same PostgreSQL service to verify replay safety. Applied migration files remain immutable.

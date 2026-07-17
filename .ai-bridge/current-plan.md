@@ -4,13 +4,14 @@ Updated: 2026-07-17
 
 ## Current state
 
-A runnable standalone MVP foundation and five production-hardening slices are complete:
+A runnable standalone MVP foundation and six production-hardening slices are complete:
 
 1. dashboard/admin browser authentication with live PostgreSQL data and tenant revalidation;
 2. accepted provider-neutral infrastructure ADRs for deployment, managed PostgreSQL, durable work/cache, KMS envelope encryption, and observability;
 3. PostgreSQL concurrency and idempotency hardening for usage reservations, assessments, outcomes, and tenant-scoped operation records;
 4. lease-owned PostgreSQL courier-worker claims with stale-job recovery, authoritative account scope, and migration replay verification;
-5. transactional PostgreSQL webhook outbox emission and a lease-owned event worker with encrypted signing-secret access and DNS-aware SSRF controls.
+5. transactional PostgreSQL webhook outbox emission and a lease-owned event worker with encrypted signing-secret access and DNS-aware SSRF controls;
+6. transactional encrypted OTP delivery queues, tenant-scoped database verification, and a lease-owned private verification worker with no provider I/O in API requests.
 
 Concrete provider selection and provisioning remain external production work.
 
@@ -19,7 +20,7 @@ Concrete provider selection and provisioning remain external production work.
 - [x] Repository, canonical GitHub remote, documentation, ADR, status, risk register, tracker, and continuation setup
 - [x] npm workspaces, Turborepo, TypeScript, formatting, linting, tests, and CI
 - [x] Canonical shared API/error/event contracts
-- [x] PostgreSQL/Drizzle schema and eight append-only migrations
+- [x] PostgreSQL/Drizzle schema and nine append-only migrations
 - [x] Users, organizations, stores, memberships, plans, audit events, hash-only API keys, and explicit platform role
 - [x] Argon2 password utilities and opaque hash-only browser sessions with CSRF protection
 - [x] Transaction-safe PostgreSQL usage reservation and durable idempotency
@@ -30,12 +31,14 @@ Concrete provider selection and provisioning remain external production work.
 - [x] Runnable PostgreSQL courier session and observation workers
 - [x] Versioned risk assessment, assessment-read, outcome, courier-refresh, and OTP routes
 - [x] PostgreSQL assessment/signal/outcome persistence and tenant-scoped reads
-- [x] OTP hashing, expiry, rate/attempt limits, and tenant binding
+- [x] OTP hashing, expiry, rate/attempt limits, tenant binding, and transactional encrypted delivery jobs
+- [x] API OTP send returns queued work without provider network I/O
+- [x] Tenant-scoped PostgreSQL OTP verification with verified/failed webhook outbox events
 - [x] WooCommerce, Shopify, custom-server, and multi-store adapters using one API contract
 - [x] Authenticated merchant dashboard with live tenant-scoped PostgreSQL data
 - [x] Explicit-role platform admin with live global operations data
 - [x] Browser/API security tests plus PostgreSQL session and tenant-isolation integration tests
-- [x] Docker/API/Playwright worker/courier/event separation and PostgreSQL CI service
+- [x] Docker/API/Playwright worker/courier/event/verification separation and PostgreSQL CI service
 - [x] Architecture dependency-boundary CI guard
 - [x] Provider-neutral production deployment topology ADR
 - [x] Managed PostgreSQL production baseline ADR
@@ -58,18 +61,22 @@ Concrete provider selection and provisioning remain external production work.
 - [x] Webhook leases reject expired owners, recover stale work, schedule retryable failures, and fail exhausted work closed
 - [x] Event delivery decrypts endpoint signing secrets only inside the worker with endpoint-bound authenticated context
 - [x] Webhook destinations require HTTPS, reject credentials/local/non-public addresses, and validate DNS results before fetch
+- [x] Competing verification workers atomically claim different due jobs with `SKIP LOCKED`
+- [x] Verification leases reject expired owners, recover stale work, clear retry ownership, and fail exhausted work closed
+- [x] Verification scope mismatch fails both the job and authoritative session closed
+- [x] Job-bound encrypted payloads validate tenant, purpose, phone HMAC, and OTP hash before provider I/O
 - [x] CI applies the ordered migration set twice to prove migration replay is a clean no-op
 
 ## Verified baseline
 
 - Formatting check: passed
 - ESLint with zero warnings: passed
-- Eight migration files ordered/non-empty/non-destructive: passed
+- Nine migration files ordered/non-empty/non-destructive: passed in targeted validation
 - First migration apply and immediate migration replay: passed
 - Architecture import boundaries: passed
 - Typecheck: 19 of 19 workspaces passed
 - Test/build dependency tasks: 28 of 28 passed
-- Repository assertions: 53 passed, including five courier lease tests, five webhook lease tests, transactional outbox coverage, DNS SSRF tests, and envelope-cipher tests
+- Repository assertions: 67 covered across the existing and targeted suites, including five courier lease tests, five webhook lease tests, five verification lease tests, three verification-payload validation tests, transactional queues/outbox coverage, DNS SSRF tests, and envelope-cipher tests
 - Production builds: 19 of 19 workspaces passed
 - WooCommerce PHP syntax: passed
 - npm high/critical audit threshold: passed; four moderate development-tooling advisories remain
@@ -77,6 +84,8 @@ Concrete provider selection and provisioning remain external production work.
 - The verified worker lease change was squash-merged to `main` as `d748bde10920e5a35a7e90f3a00b3b3bf02b96f3`
 - Webhook outbox final CI run `29550097719`, job `87790624617`: audit, formatting, lint, eight migrations, migration replay, architecture, 19 typechecks, 53 assertions, 19 builds, and PHP lint passed at head `fb0a68bac4628a96f82413b5d71092e4f0367536`
 - The verified webhook outbox change was squash-merged to `main` as `752d08776f35345e5ec002d9a9ca720f304df8cc`
+- Verification queue targeted run `29553255223`, job `87800077114`: nine migrations/replay, verification/API typechecks, lease/payload/API tests, builds, and Compose profile validation passed for source commit `5fce01ac98bc8115959276b1ffc636a1702d77a0`
+- Final full documentation-head CI remains required before merge
 - Canonical documentation links before this slice: zero known broken internal links
 - `tracker.yml` YAML structure remains valid
 - Prohibited source-pattern search: no matches
@@ -85,17 +94,15 @@ The current GitHub-only connector workspace cannot run the repository-local cont
 
 ## Next production milestone
 
-1. Implement the durable verification queue runner with encrypted phone/OTP job material and the accepted PostgreSQL ownership/lease pattern.
-2. Move OTP provider delivery fully out of the synchronous API request path while preserving rate, expiry, attempt, and tenant controls.
-3. Add clean backup/restore rehearsal and migration-table integrity verification.
-4. Expand PostgreSQL isolation coverage for feature assembly, dashboards, webhook administration, and runtime-role versus migration-role permissions.
-5. Select and provision the managed runtime, PostgreSQL, KMS/vault, and observability providers under ADRs 0006–0010.
-6. Replace local encryption-key handling with the accepted managed KMS envelope-encryption implementation.
-7. Add an authorized Steadfast test account, live opt-in tests, selector monitoring, and provider-terms approval.
-8. Select the production OTP provider account and credentials for the verification runner.
-9. Add distributed rate limiting/cache only when multiple replicas require it.
-10. Integrate the native multi-store adapter behind a shadow-comparison feature flag.
-11. Pilot with selected merchants, collect outcomes, calibrate confidence/thresholds, and keep broad automatic blocking disabled until reviewed.
+1. Add clean backup/restore rehearsal and migration-table integrity verification.
+2. Expand PostgreSQL isolation coverage for feature assembly, dashboards, webhook administration, verification administration, and runtime-role versus migration-role permissions.
+3. Select and provision the managed runtime, PostgreSQL, KMS/vault, and observability providers under ADRs 0006–0010.
+4. Replace local encryption-key handling with the accepted managed KMS envelope-encryption implementation.
+5. Add an authorized Steadfast test account, live opt-in tests, selector monitoring, and provider-terms approval.
+6. Select, review, bundle, and configure the production OTP provider adapter/account for the existing verification runner.
+7. Add distributed rate limiting/cache only when multiple replicas require it.
+8. Integrate the native multi-store adapter behind a shadow-comparison feature flag.
+9. Pilot with selected merchants, collect outcomes, calibrate confidence/thresholds, and keep broad automatic blocking disabled until reviewed.
 
 ## External blockers
 

@@ -48,12 +48,15 @@ Instrumentation belongs at API, repository, provider-adapter, and worker boundar
 
 - OTP queued/sent/delivered/failed
 - Verification success rate
-- Provider latency
-- Resend rate
-- Abuse blocks
-- Queue lag and dead-letter count
+- Provider latency and timeout rate
+- Claim throughput by verification-worker replica
+- Fresh/recovered/lost lease counts
+- Retry rate and attempts distribution
+- Payload decryption/validation and scope-mismatch failures
+- Resend rate and abuse blocks
+- Queue lag, oldest due job, exhausted `LEASE_EXPIRED`, and dead-letter count
 
-The durable verification runner is still pending. Until it is implemented, production readiness must not claim asynchronous OTP delivery.
+The durable runner is implemented, but production delivery remains disabled until a reviewed provider adapter/account is selected, bundled, configured, and validated in staging.
 
 ### Webhooks and events
 
@@ -98,7 +101,7 @@ Use structured logs with:
 
 Redact all secrets and sensitive values before export. Full phone numbers, raw provider responses, credentials, cookies, OTPs, access tokens, raw API keys, decrypted payloads, webhook signing secrets, destination URL credentials, and unrestricted request/event bodies are prohibited.
 
-The event worker currently emits startup and structured error records. Production instrumentation must add counters, histograms, and correlation spans without serializing signing secrets, canonical payload bodies, or DNS answer details that disclose internal topology.
+Event and verification workers emit startup and structured error records. Production instrumentation must add counters, histograms, and correlation spans without serializing signing secrets, encrypted/decrypted payload bodies, phone/OTP values, provider credentials, or DNS answer details that disclose internal topology.
 
 Recommended event-worker error codes include:
 
@@ -129,7 +132,7 @@ Recommended span boundaries:
 - durable job/delivery claim and completion;
 - provider adapter call;
 - webhook DNS validation and HTTP attempt without sensitive attributes;
-- future OTP attempt.
+- verification queue transaction, job claim, payload validation, provider attempt, and completion without phone/OTP attributes.
 
 The event ID links API persistence and asynchronous delivery. The delivery ID links claim, attempt, retry, and completion operations. Telemetry export failure must not break scoring, persistence, or synchronous checkout handling.
 
@@ -146,7 +149,7 @@ The event ID links API persistence and asynchronous delivery. The delivery ID li
 - Webhook secret-decryption or scope-mismatch failure
 - Unsafe webhook destination spike
 - DNS resolution failure spike
-- OTP delivery failure spike after the verification runner exists
+- OTP delivery/retry, payload-validation, scope-mismatch, or lease-expiry spike
 - Usage counter/entitlement drift
 - Reconnect-required account spike
 - Secret scanning or redaction regression
@@ -159,7 +162,7 @@ Create and exercise runbooks for:
 - Steadfast login/selector break
 - Expired, disabled, or rotated encryption key
 - KMS/vault outage
-- OTP provider outage
+- OTP provider outage, credential rejection, payload validation failure, and uncertain provider acceptance
 - Courier provider outage
 - Database restore and failover
 - API key compromise
