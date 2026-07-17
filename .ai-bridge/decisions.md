@@ -31,25 +31,30 @@ Updated: 2026-07-17
 25. Webhook deliveries persist explicit organization/store scope and canonical event payloads. Endpoint signing secrets remain encrypted at rest and are decrypted only inside the event worker with endpoint-bound authenticated context.
 26. Webhook workers require HTTPS destinations without embedded credentials, reject local/non-public literal addresses, validate all DNS results before fetch, reject redirects, and rely on production egress policy as an additional DNS-rebinding boundary.
 27. The reusable local AES-256-GCM envelope implementation lives in `@ozzyl/encryption`; provider-specific managed KMS implementation will supersede key handling without changing caller boundaries.
+28. OTP send requests create the verification session, OTP hash, and job-context-encrypted delivery payload inside one PostgreSQL transaction. The API returns queued state and performs no OTP provider network call.
+29. Verification delivery jobs use atomic `SKIP LOCKED` claims, explicit owners, expiring leases, owner-checked transitions, stale recovery, bounded retry, and terminal failure. Scope mismatch fails both the job and authoritative session closed.
+30. The private verification worker decrypts job material only with `verification-job:<job-id>` context and validates organization, store, purpose, phone HMAC, and OTP hash before provider I/O. The production provider adapter/account remains an explicit external selection.
 
 ## Source SaaS conflict resolutions
 
-| Conflict                                                                 | Decision                                                                                 |
-| ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
-| Cloudflare D1/SQLite source schema vs standalone relational requirements | Use PostgreSQL as the canonical production database; adapt concepts, not schema directly |
-| Generic `ozg_` and `og_live_` source key formats                         | Standardize on `ozg_test_` and `ozg_live_`                                               |
-| Raw API key stored in metadata and login cookie                          | Prohibited; dedicated secure user sessions and hash-only API keys                        |
-| Custom SHA-256 password hashing                                          | Prohibited; use Argon2id or managed authentication                                       |
-| Risk engine performs external fetches                                    | Prohibited; feature assembly/adapters perform I/O before pure scoring                    |
-| No history represented as 100% success/zero risk                         | Replace with unknown risk and low confidence                                             |
-| Blacklist logging stubs                                                  | Do not copy; later evidence-backed reputation subsystem                                  |
-| Hardcoded KV namespace and shell-based session writes                    | Replace with typed encrypted storage service/configuration                               |
-| Decryption error falls back to plaintext                                 | Fail closed and record a structured reconnect/configuration failure                      |
-| Workflow/per-store errors silently succeed                               | Fail visibly, persist job health, alert, and use dead-letter/reconnect handling          |
-| WooCommerce uppercase levels and `signals[].type`                        | Use lowercase canonical enums and `signals[].code`                                       |
-| Cross-store system store lookup                                          | Replace with explicit authorized datasets and strict tenant boundaries                   |
-| Synchronous merchant webhook delivery                                    | Persist an outbox row transactionally and deliver only from the private event worker     |
-| Plaintext webhook signing secret in worker configuration                 | Persist encrypted endpoint material and decrypt only at the worker boundary              |
+| Conflict                                                                 | Decision                                                                                   |
+| ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
+| Cloudflare D1/SQLite source schema vs standalone relational requirements | Use PostgreSQL as the canonical production database; adapt concepts, not schema directly   |
+| Generic `ozg_` and `og_live_` source key formats                         | Standardize on `ozg_test_` and `ozg_live_`                                                 |
+| Raw API key stored in metadata and login cookie                          | Prohibited; dedicated secure user sessions and hash-only API keys                          |
+| Custom SHA-256 password hashing                                          | Prohibited; use Argon2id or managed authentication                                         |
+| Risk engine performs external fetches                                    | Prohibited; feature assembly/adapters perform I/O before pure scoring                      |
+| No history represented as 100% success/zero risk                         | Replace with unknown risk and low confidence                                               |
+| Blacklist logging stubs                                                  | Do not copy; later evidence-backed reputation subsystem                                    |
+| Hardcoded KV namespace and shell-based session writes                    | Replace with typed encrypted storage service/configuration                                 |
+| Decryption error falls back to plaintext                                 | Fail closed and record a structured reconnect/configuration failure                        |
+| Workflow/per-store errors silently succeed                               | Fail visibly, persist job health, alert, and use dead-letter/reconnect handling            |
+| WooCommerce uppercase levels and `signals[].type`                        | Use lowercase canonical enums and `signals[].code`                                         |
+| Cross-store system store lookup                                          | Replace with explicit authorized datasets and strict tenant boundaries                     |
+| Synchronous merchant webhook delivery                                    | Persist an outbox row transactionally and deliver only from the private event worker       |
+| Plaintext webhook signing secret in worker configuration                 | Persist encrypted endpoint material and decrypt only at the worker boundary                |
+| Synchronous OTP provider delivery from the API                           | Persist an encrypted delivery job transactionally and deliver only from the private worker |
+| Plaintext phone or OTP in durable verification jobs                      | Encrypt with job-bound context and validate against phone HMAC and OTP hash before use     |
 
 ## Approved reuse scope
 
@@ -77,6 +82,6 @@ These require provider selection, provisioning, or separate ADRs before producti
 
 ## External requirements
 
-No credentials are needed for the documented infrastructure architecture or local webhook outbox implementation.
+No credentials are needed for the documented infrastructure architecture, webhook outbox, or provider-neutral verification runner implementation.
 
 Provider-specific provisioning requires approved accounts, budgets, regions, and access policies. Live Steadfast testing requires an authorized test/merchant account. Commercial scale additionally requires review of provider terms and merchant authorization evidence.

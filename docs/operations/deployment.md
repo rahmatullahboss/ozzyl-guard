@@ -16,15 +16,16 @@ These ADRs select the architecture and minimum operational controls without inve
 
 The repository includes:
 
-- `Dockerfile` for API, migration, courier-sync, and event workers
+- `Dockerfile` for API, migration, courier-sync, event, and verification workers
 - `Dockerfile.playwright` for the isolated browser/session worker
-- `docker-compose.yml` for PostgreSQL, migration job, API, session worker, courier-sync worker, and event worker
+- `docker-compose.yml` for PostgreSQL, migration job, API, session worker, courier-sync worker, event worker, and an opt-in verification profile
 - GitHub Actions CI with PostgreSQL 16
 - API health check
 - graceful API and worker shutdown
 - migration execution separated from API startup
 - migration apply/replay verification
 - independently runnable `workers/event-worker/dist/runner.js`
+- independently runnable `workers/verification-worker/dist/runner.js` after a reviewed provider module is bundled/configured
 
 Dashboard and admin build to static assets and may be hosted separately from the API.
 
@@ -39,12 +40,12 @@ Deploy independently:
 - courier session worker with Playwright/browser dependencies
 - courier sync worker
 - event/webhook outbox worker
-- verification runner after the encrypted queue implementation and provider selection
+- verification runner; provider adapter/account selection remains required before enabling delivery
 - managed PostgreSQL
 - optional Redis-compatible cache when distributed coordination is required
 - selected managed secret/KMS and observability services
 
-The Playwright, courier-sync, event, and future verification workers must not receive public traffic and must never run inside checkout request handling. Merchant webhook delivery and OTP provider delivery remain asynchronous.
+The Playwright, courier-sync, event, and verification workers must not receive public traffic and must never run inside checkout request handling. Merchant webhook delivery and OTP provider delivery are asynchronous.
 
 ## Event-worker runtime
 
@@ -73,6 +74,19 @@ The event worker needs:
 - no access to raw API keys, OTPs, courier credentials, or unrestricted merchant records.
 
 Production egress policy must deny private, metadata, link-local, and unauthorized networks even though application code validates literal and resolved destination addresses. Use a controlled resolver, egress proxy, firewall policy, or equivalent infrastructure boundary to reduce DNS-rebinding and route-change risk.
+
+## Verification-worker runtime
+
+The verification worker requires:
+
+- `DATABASE_URL`;
+- local/self-hosted `CREDENTIAL_ENCRYPTION_KEY` and `CREDENTIAL_ENCRYPTION_KEY_VERSION` until managed KMS supersedes them;
+- `PHONE_HMAC_KEY` and `OTP_HASH_SECRET` matching the API deployment;
+- a reviewed, bundled `OTP_PROVIDER_MODULE` exporting `createOtpDeliveryProvider()`;
+- provider-specific secrets such as sender ID/API key supplied only through the approved secret manager;
+- optional worker ID, poll, lease, max-attempt, and provider-timeout settings.
+
+`VERIFICATION_WORKER_LEASE_MS` must exceed `OTP_PROVIDER_TIMEOUT_MS` by more than five seconds. Each replica needs a stable unique worker ID, private ingress, least-privilege database/KMS access, and only the egress required by the selected provider. The Compose service is behind the `verification` profile because no provider is selected or bundled in this milestone.
 
 ## Environment stages
 
@@ -106,7 +120,7 @@ Staging and production require separate:
 10. Compare decision, outcome, outbox, and delivery metrics before broader rollout.
 11. Roll back application artifacts without editing applied migrations when release validation fails.
 
-Migration 0008 is append-only and immutable after application. Future webhook-delivery schema changes require a new migration.
+Migrations 0008 and 0009 are append-only and immutable after application. Future webhook or verification-delivery schema changes require a new migration.
 
 ## Provider-selection work still required
 
@@ -137,13 +151,13 @@ The Docker Compose setup is a development/self-hosted baseline, not the final pr
 - Keep API keys separate from dashboard user sessions.
 - Keep PostgreSQL authoritative for sessions, idempotency, usage, audit records, jobs, and webhook outbox state.
 - Do not expose worker services or the database publicly unless no private option exists and compensating controls are documented.
-- Fail closed when endpoint-secret decryption, event scope validation, or worker lease ownership fails.
+- Fail closed when endpoint/job decryption, event/verification scope validation, payload assertions, or worker lease ownership fails.
 
 ## Production validation gates
 
 Before a selected merchant pilot:
 
-- all eight migrations apply to a clean managed PostgreSQL 16+ database;
+- all nine migrations apply to a clean managed PostgreSQL 16+ database;
 - migration replay is a clean no-op;
 - runtime and migration database roles are separated;
 - point-in-time restore is demonstrated;

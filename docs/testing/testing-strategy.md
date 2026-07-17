@@ -49,7 +49,8 @@ Webhook delivery contract tests cover:
 - API key creation, one-time reveal, authentication, revocation, and rotation
 - Atomic quota enforcement under concurrency
 - Assessment persistence
-- OTP send/verify
+- Transactional encrypted OTP queue creation and tenant-scoped verification
+- Lease-owned OTP provider delivery and retry/failure state
 - Courier session refresh
 - Transactional assessment/outcome webhook outbox emission
 - Lease-owned webhook delivery and retry
@@ -82,7 +83,13 @@ The CI PostgreSQL service runs real-database integration tests for:
 - reclaiming stale webhook deliveries and incrementing attempts only when processing starts;
 - clearing webhook ownership when a retry is scheduled;
 - moving exhausted stale webhook deliveries to terminal failure with `LEASE_EXPIRED`;
-- failing webhook deliveries whose persisted organization/store scope does not match the endpoint relationship.
+- failing webhook deliveries whose persisted organization/store scope does not match the endpoint relationship;
+- serializing concurrent duplicate OTP send requests into one verification session, hash, and encrypted job;
+- verifying OTP only within the authoritative organization/store scope and emitting one verified outbox event per endpoint;
+- competing verification workers claiming different due jobs with `FOR UPDATE SKIP LOCKED`;
+- protecting fresh verification leases and rejecting expired owners;
+- reclaiming stale verification work, clearing retry ownership, and terminalizing exhausted leases;
+- failing both the verification job and authoritative session on persisted scope mismatch.
 
 ### Webhook destination security coverage
 
@@ -97,6 +104,16 @@ Default tests use injected DNS and fetch boundaries. They prove:
 
 Production must add controlled egress and network policy because application-level DNS validation alone cannot eliminate DNS-rebinding or route-change risk.
 
+### Verification payload security coverage
+
+Default tests prove:
+
+- job-bound encrypted payloads decrypt only under `verification-job:<job-id>` context;
+- tenant, purpose, phone HMAC, and OTP hash must all match persisted assertions;
+- provider rejection is terminal while structured retryable provider errors use bounded backoff;
+- reporter state and logs do not receive plaintext OTP values;
+- provider I/O is not invoked after payload, scope, expiry, or lease failure.
+
 ### Migration replay coverage
 
 CI runs the migration command twice against the same PostgreSQL service:
@@ -109,7 +126,6 @@ The migration history table remains the replay source of truth. Applied migratio
 Future PostgreSQL coverage must include:
 
 - clean backup/restore rehearsal and migration-table integrity checks;
-- encrypted verification-queue claims, leases, retries, provider delivery, and terminal-failure transitions;
 - lease renewal during future jobs whose bounded execution time can exceed the configured lease;
 - webhook endpoint administration, feature, and dashboard repository isolation cases;
 - runtime-role versus migration-role permission enforcement.
@@ -143,7 +159,7 @@ Future PostgreSQL coverage must include:
 - Session fixation/rotation
 - Credential decryption failure
 - Worker lease ownership and stale-owner rejection
-- Job/event payload scope tampering
+- Job payload scope, encryption-context, phone-HMAC, and OTP-hash tampering
 
 ## Scraper tests
 

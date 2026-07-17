@@ -168,6 +168,19 @@ POST /v1/verifications/otp/send
 }
 ```
 
+`Idempotency-Key` is required. A new request returns `202 Accepted`:
+
+```json
+{
+  "success": true,
+  "verification_id": "ver_123",
+  "expires_at": "2026-07-17T10:05:00.000Z",
+  "status": "queued"
+}
+```
+
+The API creates the scoped verification session, OTP hash, and encrypted provider-delivery job transactionally. It does not call the OTP provider. An idempotent replay returns the same logical response with `200 OK`.
+
 ## Verify OTP
 
 ```http
@@ -180,6 +193,8 @@ POST /v1/verifications/otp/verify
   "otp": "123456"
 }
 ```
+
+Verification is tenant-scoped and database-only. While provider delivery is still queued, the API returns `409 DELIVERY_PENDING`; terminal delivery failure returns `409 DELIVERY_FAILED`; expired/invalid OTP and attempt-limit behavior remain explicit. Successful verification emits `verification.verified` through the durable webhook outbox.
 
 ## Submit outcome
 
@@ -243,3 +258,4 @@ Webhook requirements:
 - API key environment and store scope must be enforced server-side.
 - Quota/entitlement enforcement must be safe under concurrency.
 - Idempotent retries return the original logically equivalent result.
+- Webhook and OTP provider network delivery never run in the synchronous API or checkout request path.
