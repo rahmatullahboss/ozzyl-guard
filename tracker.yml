@@ -109,7 +109,7 @@ implemented:
 verification:
   command: npm run verify
   last_verified: 2026-07-17
-  status: passed_for_restore_integrity_source_head_pending_documentation_ci
+  status: final_documentation_head_ci_running
   results:
     migrations: 9_of_9_with_sha256_manifest
     migration_replay: passed
@@ -133,7 +133,7 @@ verification:
     - github_only_connector_cannot_run_repository_local_exporter
     - local_main_and_origin_main_sync_cannot_be_verified_from_this_connector_workspace
   remote_ci:
-    status: pending_documentation_head_ci
+    status: running_on_clean_documentation_head
     previous_run_id: 29554260434
     previous_job_id: 87803061854
     previous_tested_head: 7f24a7be544ae60d7a0a15b4a5020b4253e0d192
