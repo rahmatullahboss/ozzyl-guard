@@ -2,6 +2,7 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 
 export * from './schema.js';
+export * from './runtime-role.js';
 
 export function createDatabase(databaseUrl: string) {
   const pool = new Pool({ connectionString: databaseUrl, max: 10 });

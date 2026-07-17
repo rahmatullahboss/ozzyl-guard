@@ -43,6 +43,14 @@ import type {
   UserSessionIdentity,
 } from './browser.js';
 
+export class TenantScopeMismatchError extends Error {
+  readonly code = 'TENANT_SCOPE_MISMATCH';
+
+  constructor() {
+    super('Organization and store scope do not match an active tenant');
+  }
+}
+
 export class PostgresApiKeyResolver implements ApiKeyResolver {
   constructor(
     private readonly pool: Pool,
@@ -69,7 +77,9 @@ export class PostgresApiKeyResolver implements ApiKeyResolver {
           p.code as plan_code
         from api_keys ak
         join organizations o on o.id = ak.organization_id and o.status = 'active'
-        join stores s on s.id = ak.store_id and s.status = 'active'
+        join stores s on s.id = ak.store_id
+          and s.organization_id = ak.organization_id
+          and s.status = 'active'
         left join plans p on p.id = o.plan_id
         where ak.key_hash = $1
           and ak.revoked_at is null
@@ -199,6 +209,7 @@ export class PostgresAssessmentRepository implements AssessmentRepository {
     const client = await this.pool.connect();
     try {
       await client.query('begin');
+      await assertActiveStoreScope(client, record.identity.organizationId, record.identity.storeId);
       const inserted = await client.query<{ id: string }>(
         `
           insert into risk_assessments (
@@ -304,6 +315,7 @@ export class PostgresOutcomeRepository implements OutcomeRepository {
     const client = await this.pool.connect();
     try {
       await client.query('begin');
+      await assertActiveStoreScope(client, input.organizationId, input.storeId);
       await client.query('select pg_advisory_xact_lock(hashtext($1))', [
         `${input.organizationId}:${input.storeId}:outcome:${input.idempotencyKey}`,
       ]);
@@ -498,18 +510,21 @@ export class PostgresAssessmentFeatureProvider implements AssessmentFeatureProvi
   constructor(private readonly pool: Pool) {}
 
   async load(input: Parameters<AssessmentFeatureProvider['load']>[0]) {
+    await assertActiveStoreScope(this.pool, input.identity.organizationId, input.identity.storeId);
     const [observationsResult, merchantResult, verificationResult, networkResult, policyResult] =
       await Promise.all([
         this.pool.query<ObservationRow>(
           `
-            select distinct on (provider)
-              provider, total_orders, delivered_orders, returned_orders,
-              cancelled_before_shipping, confidence, expires_at
-            from courier_observations
-            where store_id = $1 and phone_hash = $2
-            order by provider, observed_at desc
+            select distinct on (co.provider)
+              co.provider, co.total_orders, co.delivered_orders, co.returned_orders,
+              co.cancelled_before_shipping, co.confidence, co.expires_at
+            from courier_observations co
+            join stores s on s.id = co.store_id
+            where co.store_id = $1 and s.organization_id = $2 and s.status = 'active'
+              and co.phone_hash = $3
+            order by co.provider, co.observed_at desc
           `,
-          [input.identity.storeId, input.phoneHash],
+          [input.identity.storeId, input.identity.organizationId, input.phoneHash],
         ),
         this.pool.query<{
           delivered: number;
@@ -525,24 +540,25 @@ export class PostgresAssessmentFeatureProvider implements AssessmentFeatureProvi
                   and occurred_at > now() - interval '30 days'
               )::int as cancelled
             from order_outcomes
-            where store_id = $1 and phone_hash = $2
+            where organization_id = $1 and store_id = $2 and phone_hash = $3
           `,
-          [input.identity.storeId, input.phoneHash],
+          [input.identity.organizationId, input.identity.storeId, input.phoneHash],
         ),
         this.pool.query<{ verified: boolean; attempts: number }>(
           `
             select
               exists(
                 select 1 from verification_sessions
-                where store_id = $1 and phone_hash = $2 and status = 'verified'
+                where organization_id = $1 and store_id = $2 and phone_hash = $3
+                  and status = 'verified'
                   and verified_at > now() - interval '90 days'
               ) as verified,
               coalesce(sum(oa.attempt_count), 0)::int as attempts
             from verification_sessions vs
             left join otp_attempts oa on oa.verification_session_id = vs.id
-            where vs.store_id = $1 and vs.phone_hash = $2
+            where vs.organization_id = $1 and vs.store_id = $2 and vs.phone_hash = $3
           `,
-          [input.identity.storeId, input.phoneHash],
+          [input.identity.organizationId, input.identity.storeId, input.phoneHash],
         ),
         this.pool.query<{
           negative: number;
@@ -561,8 +577,15 @@ export class PostgresAssessmentFeatureProvider implements AssessmentFeatureProvi
           [input.identity.organizationId, input.phoneHash],
         ),
         this.pool.query<{ policy: unknown }>(
-          `select policy from risk_policies where store_id = $1 and active = true limit 1`,
-          [input.identity.storeId],
+          `
+            select rp.policy
+            from risk_policies rp
+            join stores s on s.id = rp.store_id
+            where rp.store_id = $1 and s.organization_id = $2 and s.status = 'active'
+              and rp.active = true
+            limit 1
+          `,
+          [input.identity.storeId, input.identity.organizationId],
         ),
       ]);
 
@@ -1213,6 +1236,25 @@ function nullableIso(value: Date | string | null): string | null {
 
 function isPlatformRole(value: string): value is PlatformRole {
   return value === 'merchant' || value === 'platform_admin';
+}
+
+async function assertActiveStoreScope(
+  database: Pool | PoolClient,
+  organizationId: string,
+  storeId: string,
+): Promise<void> {
+  const result = await database.query(
+    `
+      select 1
+      from stores s
+      join organizations o on o.id = s.organization_id
+      where s.id = $1 and s.organization_id = $2
+        and s.status = 'active' and o.status = 'active'
+      limit 1
+    `,
+    [storeId, organizationId],
+  );
+  if (result.rowCount !== 1) throw new TenantScopeMismatchError();
 }
 
 async function currentUsage(
