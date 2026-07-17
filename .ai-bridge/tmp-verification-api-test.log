@@ -1,0 +1,195 @@
+
+   • Packages in scope: @ozzyl/api
+   • Running test in 1 packages
+   • Remote caching disabled
+
+::group::@ozzyl/encryption:build
+cache hit, replaying logs ef8b43f7936e7009
+
+> @ozzyl/encryption@0.1.0 build
+> tsup src/index.ts --format esm --dts --sourcemap --clean
+
+[34mCLI[39m Building entry: src/index.ts
+[34mCLI[39m Using tsconfig: tsconfig.json
+[34mCLI[39m tsup v8.5.1
+[34mCLI[39m Target: es2022
+[34mCLI[39m Cleaning output folder
+[34mESM[39m Build start
+[32mESM[39m [1mdist/index.js     [22m[32m1.49 KB[39m
+[32mESM[39m [1mdist/index.js.map [22m[32m3.01 KB[39m
+[32mESM[39m ⚡️ Build success in 40ms
+[34mDTS[39m Build start
+[32mDTS[39m ⚡️ Build success in 3315ms
+[32mDTS[39m [1mdist/index.d.ts [22m[32m537.00 B[39m
+::endgroup::
+::group::@ozzyl/verification:build
+cache hit, replaying logs f6d48821e818cc0e
+
+> @ozzyl/verification@0.1.0 build
+> tsup src/index.ts --format esm --dts --sourcemap --clean
+
+[34mCLI[39m Building entry: src/index.ts
+[34mCLI[39m Using tsconfig: tsconfig.json
+[34mCLI[39m tsup v8.5.1
+[34mCLI[39m Target: es2022
+[34mCLI[39m Cleaning output folder
+[34mESM[39m Build start
+[32mESM[39m [1mdist/index.js     [22m[32m5.19 KB[39m
+[32mESM[39m [1mdist/index.js.map [22m[32m10.80 KB[39m
+[32mESM[39m ⚡️ Build success in 43ms
+[34mDTS[39m Build start
+[32mDTS[39m ⚡️ Build success in 2982ms
+[32mDTS[39m [1mdist/index.d.ts [22m[32m3.16 KB[39m
+::endgroup::
+::group::@ozzyl/shared-types:build
+cache hit, replaying logs 07524b32bf088584
+
+> @ozzyl/shared-types@0.1.0 build
+> tsup src/index.ts --format esm --dts --sourcemap --clean
+
+[34mCLI[39m Building entry: src/index.ts
+[34mCLI[39m Using tsconfig: tsconfig.json
+[34mCLI[39m tsup v8.5.1
+[34mCLI[39m Target: es2022
+[34mCLI[39m Cleaning output folder
+[34mESM[39m Build start
+[32mESM[39m [1mdist/index.js     [22m[32m6.33 KB[39m
+[32mESM[39m [1mdist/index.js.map [22m[32m14.16 KB[39m
+[32mESM[39m ⚡️ Build success in 45ms
+[34mDTS[39m Build start
+[32mDTS[39m ⚡️ Build success in 3952ms
+[32mDTS[39m [1mdist/index.d.ts [22m[32m26.64 KB[39m
+::endgroup::
+::group::@ozzyl/authentication:build
+cache miss, executing c1088b0de1ada4a2
+
+> @ozzyl/authentication@0.1.0 build
+> tsup src/index.ts --format esm --dts --sourcemap --clean
+
+[34mCLI[39m Building entry: src/index.ts
+[34mCLI[39m Using tsconfig: tsconfig.json
+[34mCLI[39m tsup v8.5.1
+[34mCLI[39m Target: es2022
+[34mCLI[39m Cleaning output folder
+[34mESM[39m Build start
+[32mESM[39m [1mdist/index.js     [22m[32m2.00 KB[39m
+[32mESM[39m [1mdist/index.js.map [22m[32m3.75 KB[39m
+[32mESM[39m ⚡️ Build success in 30ms
+[34mDTS[39m Build start
+[32mDTS[39m ⚡️ Build success in 2652ms
+[32mDTS[39m [1mdist/index.d.ts [22m[32m1.00 KB[39m
+::endgroup::
+::group::@ozzyl/billing:build
+cache miss, executing cee7838dbe689fb2
+
+> @ozzyl/billing@0.1.0 build
+> tsup src/index.ts --format esm --dts --sourcemap --clean
+
+[34mCLI[39m Building entry: src/index.ts
+[34mCLI[39m Using tsconfig: tsconfig.json
+[34mCLI[39m tsup v8.5.1
+[34mCLI[39m Target: es2022
+[34mCLI[39m Cleaning output folder
+[34mESM[39m Build start
+[32mESM[39m [1mdist/index.js     [22m[32m1.43 KB[39m
+[32mESM[39m [1mdist/index.js.map [22m[32m3.20 KB[39m
+[32mESM[39m ⚡️ Build success in 44ms
+[34mDTS[39m Build start
+[32mDTS[39m ⚡️ Build success in 2674ms
+[32mDTS[39m [1mdist/index.d.ts [22m[32m1.10 KB[39m
+::endgroup::
+::group::@ozzyl/risk-engine:build
+cache miss, executing 6c2198a9e9865d51
+
+> @ozzyl/risk-engine@0.1.0 build
+> tsup src/index.ts --format esm --dts --sourcemap --clean
+
+[34mCLI[39m Building entry: src/index.ts
+[34mCLI[39m Using tsconfig: tsconfig.json
+[34mCLI[39m tsup v8.5.1
+[34mCLI[39m Target: es2022
+[34mCLI[39m Cleaning output folder
+[34mESM[39m Build start
+[32mESM[39m [1mdist/index.js     [22m[32m7.00 KB[39m
+[32mESM[39m [1mdist/index.js.map [22m[32m13.55 KB[39m
+[32mESM[39m ⚡️ Build success in 40ms
+[34mDTS[39m Build start
+[32mDTS[39m ⚡️ Build success in 3387ms
+[32mDTS[39m [1mdist/index.d.ts [22m[32m2.33 KB[39m
+::endgroup::
+[;31m@ozzyl/api:test[;0m
+cache miss, executing 85ff96c49f3d1b3c
+
+> @ozzyl/api@0.1.0 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/runner/work/ozzyl-guard/ozzyl-guard/apps/api[39m
+
+ [32m✓[39m src/browser.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 68[2mms[22m[39m
+ [32m✓[39m src/index.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 74[2mms[22m[39m
+ [31m❯[39m src/postgres-concurrency.test.ts [2m([22m[2m7 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[32m 220[2mms[22m[39m
+     [32m✓[39m serializes duplicate usage reservations into one charge and replay responses[32m 58[2mms[22m[39m
+     [32m✓[39m prevents concurrent reservations from exceeding the plan limit[32m 9[2mms[22m[39m
+     [32m✓[39m returns the persisted assessment for concurrent idempotent saves[32m 20[2mms[22m[39m
+[31m     [31m×[31m resolves concurrent outcome writes as one insert and one replay[39m[32m 18[2mms[22m[39m
+     [32m✓[39m enqueues one scoped webhook delivery per matching endpoint and persisted winner[32m 12[2mms[22m[39m
+[31m     [31m×[31m creates one encrypted verification job for concurrent duplicate requests and verifies it[39m[32m 23[2mms[22m[39m
+     [32m✓[39m keeps operation idempotency values isolated by organization and store[32m 7[2mms[22m[39m
+ [32m✓[39m src/postgres-browser.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 161[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 2 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/postgres-concurrency.test.ts[2m > [22mPostgreSQL concurrency and idempotency[2m > [22mresolves concurrent outcome writes as one insert and one replay
+[31m[1merror[22m: duplicate key value violates unique constraint "order_outcomes_store_id_external_order_id_outcome_occurred__key"[39m
+[90m [2m❯[22m ../../node_modules/pg/lib/client.js:[2m652:17[22m[39m
+[36m [2m❯[22m PostgresOutcomeRepository.save src/postgres.ts:[2m321:24[22m[39m
+    [90m319|[39m
+    [90m320|[39m       [35mconst[39m outcomeId [33m=[39m [32m`out_[39m[36m${[39m[34mrandomUUID[39m()[36m}[39m[32m`[39m[33m;[39m
+    [90m321|[39m       [35mconst[39m inserted [33m=[39m [35mawait[39m client[33m.[39mquery[33m<[39m{ id[33m:[39m string }[33m>[39m(
+    [90m   |[39m                        [31m^[39m
+    [90m322|[39m         [32m`
+    [90m323|[39m           insert into order_outcomes (
+[90m [2m❯[22m src/postgres-concurrency.test.ts:[2m216:21[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/postgres-concurrency.test.ts[2m > [22mPostgreSQL concurrency and idempotency[2m > [22mcreates one encrypted verification job for concurrent duplicate requests and verifies it
+[31m[1merror[22m: cannot insert multiple commands into a prepared statement[39m
+[90m [2m❯[22m ../../node_modules/pg-pool/index.js:[2m45:11[22m[39m
+[36m [2m❯[22m src/postgres-concurrency.test.ts:[2m333:5[22m[39m
+    [90m331|[39m     )[33m;[39m
+    [90m332|[39m
+    [90m333|[39m     [35mawait[39m pool[33m.[39m[34mquery[39m(
+    [90m   |[39m     [31m^[39m
+    [90m334|[39m       [32m`
+    [90m335|[39m         update verification_sessions set status = 'pending' where id =…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m3 passed[39m[22m[90m (4)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m20 passed[39m[22m[90m (22)[39m
+[2m   Start at [22m 03:37:24
+[2m   Duration [22m 893ms[2m (transform 355ms, setup 0ms, import 782ms, tests 522ms, environment 1ms)[22m
+
+
+::error file=/home/runner/work/ozzyl-guard/ozzyl-guard/apps/api/src/postgres.ts,title=src/postgres-concurrency.test.ts > PostgreSQL concurrency and idempotency > resolves concurrent outcome writes as one insert and one replay,line=321,column=24::error: duplicate key value violates unique constraint "order_outcomes_store_id_external_order_id_outcome_occurred__key"%0A ❯ ../../node_modules/pg/lib/client.js:652:17%0A ❯ PostgresOutcomeRepository.save src/postgres.ts:321:24%0A ❯ src/postgres-concurrency.test.ts:216:21%0A%0A⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯%0ASerialized Error: { length: 472, severity: 'ERROR', code: '23505', detail: 'Key (store_id, external_order_id, outcome, occurred_at)=(sto_concurrency_fc22ced1-9b01-4476-9536-5ec8696d3fd8, ORDER-fc22ced1-9b01-4476-9536-5ec8696d3fd8, delivered, 2026-07-16 18:00:00+00) already exists.', hint: undefined, position: undefined, internalPosition: undefined, internalQuery: undefined, where: undefined, schema: 'public', table: 'order_outcomes', dataType: undefined, constraint: 'order_outcomes_store_id_external_order_id_outcome_occurred__key', file: 'nbtinsert.c', routine: '_bt_check_unique' }%0A
+
+::error file=/home/runner/work/ozzyl-guard/ozzyl-guard/apps/api/src/postgres-concurrency.test.ts,title=src/postgres-concurrency.test.ts > PostgreSQL concurrency and idempotency > creates one encrypted verification job for concurrent duplicate requests and verifies it,line=333,column=5::error: cannot insert multiple commands into a prepared statement%0A ❯ ../../node_modules/pg-pool/index.js:45:11%0A ❯ src/postgres-concurrency.test.ts:333:5%0A%0A⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯%0ASerialized Error: { length: 123, severity: 'ERROR', code: '42601', detail: undefined, hint: undefined, position: undefined, internalPosition: undefined, internalQuery: undefined, where: undefined, schema: undefined, table: undefined, dataType: undefined, constraint: undefined, file: 'postgres.c', routine: 'exec_parse_message' }%0A
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /home/runner/work/ozzyl-guard/ozzyl-guard/apps/api
+npm error workspace @ozzyl/api@0.1.0
+npm error location /home/runner/work/ozzyl-guard/ozzyl-guard/apps/api
+npm error command failed
+npm error command sh -c vitest run
+::error::command (/home/runner/work/ozzyl-guard/ozzyl-guard/apps/api) /opt/hostedtoolcache/node/20.20.2/x64/bin/npm run test exited (1)
+@ozzyl/api#test:  ERROR  command (/home/runner/work/ozzyl-guard/ozzyl-guard/apps/api) /opt/hostedtoolcache/node/20.20.2/x64/bin/npm run test exited (1)
+
+ Tasks:    6 successful, 7 total
+Cached:    3 cached, 7 total
+  Time:    5.863s 
+Failed:    @ozzyl/api#test
+
+ ERROR  run failed: command  exited (1)
