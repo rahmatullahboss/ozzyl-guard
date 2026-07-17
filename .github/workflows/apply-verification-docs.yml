@@ -57,7 +57,7 @@ jobs:
           ! grep -R "durable verification runner is still pending" .ai-bridge docs README.md tracker.yml
           ! grep -R "implement_encrypted_verification_queue_runner_with_worker_leases" tracker.yml
           grep -q "0009_verification_delivery_queue.sql" tracker.yml
-          grep -q "OTP provider network call" docs/api/api-specification.md
+          grep -q "does not call the OTP provider" docs/api/api-specification.md
       - name: Commit verified documentation
         run: |
           rm scripts/tmp-verification-docs.py
