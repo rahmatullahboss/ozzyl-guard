@@ -36,7 +36,8 @@ The repository now contains a runnable MVP foundation:
 - Durable signed webhook outbox/worker with retries, leases, encrypted secrets, and DNS-aware SSRF protection
 - Merchant dashboard and platform operations admin applications
 - WooCommerce plugin, Shopify adapter, custom JavaScript/server adapter, and native multi-store adapter
-- Docker, Docker Compose, migration integrity verification, and clean logical restore rehearsal in CI
+- Docker, Docker Compose, migration integrity verification, clean logical restore rehearsal, and least-privilege runtime-role verification in CI
+- Authoritative organization/store revalidation across API keys, feature assembly, writes, dashboards, and secret-free webhook/verification administration
 
 The following require external accounts or production decisions before live use:
 
@@ -101,6 +102,8 @@ npm install
 npm run db:check
 npm run db:migrate
 npm run db:integrity
+# After creating a separate non-owner PostgreSQL login outside the app:
+DATABASE_RUNTIME_ROLE=ozzyl_guard_runtime npm run db:runtime-grants
 npm run bootstrap -w @ozzyl/api
 npm run dev:api
 ```
@@ -148,6 +151,8 @@ npm run format:check
 npm run lint
 npm run db:check
 npm run db:integrity
+# Requires migration-owner credentials and an externally created non-owner runtime role:
+DATABASE_RUNTIME_ROLE=ozzyl_guard_runtime npm run db:runtime-grants
 # Requires a separately created empty target database:
 RESTORE_DATABASE_URL=postgresql://... RESTORE_REHEARSAL_VERIFY_DATA_HASHES=true npm run db:restore-rehearsal
 npm run typecheck

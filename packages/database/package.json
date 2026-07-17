@@ -11,7 +11,7 @@
     }
   },
   "scripts": {
-    "build": "tsup src/index.ts src/migrate.ts src/check-migrations.ts src/check-database-integrity.ts src/restore-rehearsal.ts --format esm --dts --sourcemap --clean",
+    "build": "tsup src/index.ts src/migrate.ts src/check-migrations.ts src/check-database-integrity.ts src/restore-rehearsal.ts src/apply-runtime-grants.ts --format esm --dts --sourcemap --clean",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run --passWithNoTests"
   },

@@ -24,6 +24,8 @@ import {
 import { VerificationError } from '@ozzyl/verification';
 import { createBrowserApi, type BrowserApiDependencies } from './browser.js';
 
+export * from './postgres-administration.js';
+
 export interface ApiKeyIdentity {
   apiKeyId: string;
   organizationId: string;

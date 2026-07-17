@@ -72,6 +72,8 @@ invariants:
   - migration_files_match_the_committed_sha256_manifest
   - migration_history_checksums_are_non_null_and_fail_closed
   - restore_rehearsal_requires_a_clean_distinct_target
+  - tenant_scope_is_revalidated_against_active_relational_store_ownership
+  - runtime_database_role_is_non_owner_non_migration_and_explicitly_granted
 
 implemented:
   - typescript_monorepo_and_ci
@@ -105,6 +107,10 @@ implemented:
   - postgresql_migration_manifest_and_history_checksum_integrity
   - clean_postgresql_backup_restore_rehearsal
   - restored_schema_data_sequence_history_and_replay_comparison
+  - authoritative_api_key_feature_assessment_and_outcome_tenant_scope_revalidation
+  - secret_free_tenant_scoped_webhook_and_verification_administration_repositories
+  - dashboard_and_platform_admin_repository_isolation_expansion
+  - least_privilege_postgresql_runtime_role_policy_grant_cli_and_ci_gate
 
 verification:
   command: npm run verify
@@ -118,13 +124,15 @@ verification:
     architecture_boundaries: passed
     typecheck: 19_of_19
     test_tasks: 28_of_28
-    remote_assertions: 74_passed
+    remote_assertions: 87_passed
     migration_integrity_tests: 7_of_7_passed
     postgresql_concurrency_tests: 7_of_7_passed
     postgresql_courier_worker_lease_tests: 5_of_5_passed
     postgresql_webhook_worker_lease_tests: 5_of_5_passed
     postgresql_verification_worker_lease_tests: 5_of_5_passed
     verification_payload_validation_tests: 3_of_3_passed
+    postgresql_tenant_admin_isolation_tests: 7_of_7_passed
+    postgresql_runtime_role_tests: 6_of_6_passed
     builds: 19_of_19
     php_syntax: passed
     high_critical_dependency_check: passed
@@ -143,12 +151,14 @@ verification:
     steps: audit_format_lint_manifest_nine_migrations_replay_history_integrity_clean_restore_architecture_typecheck_tests_build_php_all_passed
   source_validation:
     status: passed
-    run_id: 29556041278
-    job_id: 87808175661
-    tested_head: 0eb8f09bc5e91c18e7ee5933cedb0e78f618a972
+    run_id: 29560049322
+    job_id: 87820368024
+    tested_head: 90a50b215b063d87f71725eb6a375cbb887345de
     completed: 2026-07-17
-    steps: audit_format_lint_manifest_nine_migrations_replay_history_integrity_clean_restore_architecture_typecheck_tests_build_php_all_passed
+    steps: audit_format_lint_manifest_nine_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_typecheck_tests_build_php_all_passed
     migration_integrity_tests: 7_of_7_passed
+    tenant_admin_isolation_tests: 7_of_7_passed
+    runtime_role_tests: 6_of_6_passed
   pending_follow_up:
     - continuation_bundle_local_exporter_refresh
 
@@ -187,7 +197,6 @@ external_dependencies:
 next_milestone:
   name: production-hardening-and-pilot-readiness
   tasks:
-    - expand_additional_repository_webhook_admin_and_runtime_role_isolation_tests
     - select_and_provision_accepted_infrastructure_providers
     - implement_managed_envelope_encryption
     - validate_steadfast_with_an_authorized_account
@@ -235,6 +244,12 @@ notes:
   - migration_execution_uses_one_session_advisory_lock
   - ci_restores_pg_dump_into_a_clean_distinct_database_and_compares_schema_data_sequences_history_and_replay
   - managed_provider_point_in_time_restore_drill_remains_external
+  - api_keys_feature_assembly_assessment_and_outcome_writes_fail_closed_on_relational_tenant_mismatch
+  - webhook_and_verification_administration_queries_reauthorize_active_owner_or_admin_scope_and_return_no_secret_material
+  - platform_admin_repository_rechecks_active_explicit_role_on_every_call
+  - runtime_role_grants_are_explicit_current_table_only_and_exclude_migration_history_delete_and_ddl
+  - runtime_role_must_be_externally_created_non_owner_login_without_elevated_privileges_or_memberships
+  - runtime_grants_must_be_reapplied_by_the_migration_owner_after_each_migration_release
   - broad_automatic_blocking_remains_disabled_until_pilot_calibration
   - pro_context_requires_local_exporter_refresh_after_this_github_only_milestone
   - update_this_file_after_every_material_milestone

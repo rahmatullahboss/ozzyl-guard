@@ -4,7 +4,7 @@ Updated: 2026-07-17
 
 ## Current state
 
-A runnable standalone MVP foundation and seven production-hardening slices are complete:
+A runnable standalone MVP foundation and eight production-hardening slices are complete:
 
 1. dashboard/admin browser authentication with live PostgreSQL data and tenant revalidation;
 2. accepted provider-neutral infrastructure ADRs for deployment, managed PostgreSQL, durable work/cache, KMS envelope encryption, and observability;
@@ -12,7 +12,8 @@ A runnable standalone MVP foundation and seven production-hardening slices are c
 4. lease-owned PostgreSQL courier-worker claims with stale-job recovery, authoritative account scope, and migration replay verification;
 5. transactional PostgreSQL webhook outbox emission and a lease-owned event worker with encrypted signing-secret access and DNS-aware SSRF controls;
 6. transactional encrypted OTP delivery queues, tenant-scoped database verification, and a lease-owned private verification worker with no provider I/O in API requests;
-7. SHA-256-bound migration history integrity and a clean PostgreSQL logical backup/restore rehearsal with schema, data, sequence, history, and replay verification.
+7. SHA-256-bound migration history integrity and a clean PostgreSQL logical backup/restore rehearsal with schema, data, sequence, history, and replay verification;
+8. authoritative tenant-scope revalidation across API keys, feature assembly, assessment/outcome writes, dashboards and administration, plus an explicit least-privilege PostgreSQL runtime-role grant boundary.
 
 Concrete provider selection and provisioning remain external production work.
 
@@ -70,6 +71,11 @@ Concrete provider selection and provisioning remain external production work.
 - [x] Every migration file is bound to a committed SHA-256 manifest and a non-null database history checksum
 - [x] Unknown, gapped, missing-checksum, or checksum-mismatched migration history fails closed
 - [x] CI restores a real `pg_dump` into a clean distinct PostgreSQL database and compares schema, full table data hashes, sequence state, migration history, and replay
+- [x] API-key resolution, feature assembly, assessment writes, and outcome writes fail closed when organization/store ownership does not match an active tenant
+- [x] Merchant dashboard, platform admin, webhook administration, and verification administration repositories reauthorize relational scope and isolate tenant data
+- [x] Webhook and verification administration records omit encrypted signing secrets, OTP hashes, encrypted job payloads, and raw phone material
+- [x] `db:runtime-grants` applies an explicit current-table DML policy from the migration owner to an externally created non-owner runtime login
+- [x] CI proves the runtime role cannot read migration history, delete rows, create/alter tables, create schema objects, own the database/schema/relations, or inherit elevated role privileges
 
 ## Verified baseline
 
@@ -80,7 +86,7 @@ Concrete provider selection and provisioning remain external production work.
 - Architecture import boundaries: passed
 - Typecheck: 19 of 19 workspaces passed
 - Test/build dependency tasks: 28 of 28 passed
-- Repository assertions: 74 passed, including five courier lease tests, five webhook lease tests, five verification lease tests, three verification-payload validation tests, seven migration-integrity tests, transactional queues/outbox coverage, DNS SSRF tests, and envelope-cipher tests
+- Repository assertions: 87 passed, including five courier lease tests, five webhook lease tests, five verification lease tests, three verification-payload validation tests, seven migration-integrity tests, seven tenant/admin isolation tests, six runtime-role policy/permission tests, transactional queues/outbox coverage, DNS SSRF tests, and envelope-cipher tests
 - Production builds: 19 of 19 workspaces passed
 - WooCommerce PHP syntax: passed
 - npm high/critical audit threshold: passed; four moderate development-tooling advisories remain
@@ -94,6 +100,7 @@ Concrete provider selection and provisioning remain external production work.
 - Restore-integrity source-head CI run `29556041278`, job `87808175661`: audit, formatting, lint, manifest validation, nine migrations, replay, history integrity, clean full-data-hash restore rehearsal, architecture, 19 typechecks, 74 assertions, 19 builds, and PHP lint passed at head `0eb8f09bc5e91c18e7ee5933cedb0e78f618a972`
 - Restore-integrity final CI run `29556722776`, job `87810268816`: the same complete gate set passed at final documentation head `6a7bd57fa4ef0d1f917ca83729691fbd25c0738c`
 - The verified restore-integrity change was squash-merged to `main` as `950d07069643f4e69d7570802091a600011f72df`
+- Runtime-role/tenant-isolation source-head CI run `29560049322`, job `87820368024`: audit, formatting, lint, manifest validation, nine migrations, replay, history integrity, clean full-data-hash restore, runtime-role grant verification, architecture, 19 typechecks, 87 assertions, 19 builds, and PHP lint passed at head `90a50b215b063d87f71725eb6a375cbb887345de`
 - Canonical documentation links before this slice: zero known broken internal links
 - `tracker.yml` YAML structure remains valid
 - Prohibited source-pattern search: no matches
@@ -102,14 +109,13 @@ The current GitHub-only connector workspace cannot run the repository-local cont
 
 ## Next production milestone
 
-1. Expand PostgreSQL isolation coverage for feature assembly, dashboards, webhook administration, verification administration, and runtime-role versus migration-role permissions.
-2. Select and provision the managed runtime, PostgreSQL, KMS/vault, and observability providers under ADRs 0006–0010.
-3. Replace local encryption-key handling with the accepted managed KMS envelope-encryption implementation.
-4. Add an authorized Steadfast test account, live opt-in tests, selector monitoring, and provider-terms approval.
-5. Select, review, bundle, and configure the production OTP provider adapter/account for the existing verification runner.
-6. Add distributed rate limiting/cache only when multiple replicas require it.
-7. Integrate the native multi-store adapter behind a shadow-comparison feature flag.
-8. Pilot with selected merchants, collect outcomes, calibrate confidence/thresholds, and keep broad automatic blocking disabled until reviewed.
+1. Select and provision the managed runtime, PostgreSQL, KMS/vault, and observability providers under ADRs 0006–0010, including distinct production migration/runtime identities and a managed-provider point-in-time restore drill.
+2. Replace local encryption-key handling with the accepted managed KMS envelope-encryption implementation.
+3. Add an authorized Steadfast test account, live opt-in tests, selector monitoring, and provider-terms approval.
+4. Select, review, bundle, and configure the production OTP provider adapter/account for the existing verification runner.
+5. Add distributed rate limiting/cache only when multiple replicas require it.
+6. Integrate the native multi-store adapter behind a shadow-comparison feature flag.
+7. Pilot with selected merchants, collect outcomes, calibrate confidence/thresholds, and keep broad automatic blocking disabled until reviewed.
 
 ## External blockers
 

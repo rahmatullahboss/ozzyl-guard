@@ -57,6 +57,22 @@ jobs:
           --command 'create database ozzyl_guard_restore_test'
       - name: Rehearse clean backup and restore
         run: npm run db:restore-rehearsal
+      - name: Verify runtime database role grants
+        env:
+          PGHOST: localhost
+          PGPORT: '5432'
+          PGUSER: ozzyl_guard
+          PGPASSWORD: ozzyl_guard
+          PGDATABASE: ozzyl_guard_test
+          DATABASE_RUNTIME_ROLE: ozzyl_guard_runtime_ci
+        run: |
+          cleanup() {
+            psql --set ON_ERROR_STOP=1 --command 'drop owned by ozzyl_guard_runtime_ci' >/dev/null 2>&1 || true
+            psql --set ON_ERROR_STOP=1 --command 'drop role if exists ozzyl_guard_runtime_ci' >/dev/null 2>&1 || true
+          }
+          trap cleanup EXIT
+          psql --set ON_ERROR_STOP=1 --command 'create role ozzyl_guard_runtime_ci login nosuperuser nocreatedb nocreaterole noinherit noreplication nobypassrls'
+          npm run db:runtime-grants
       - run: npm run check:architecture
       - run: npm run typecheck
       - run: npm run test
