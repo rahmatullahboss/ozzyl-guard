@@ -49,6 +49,7 @@ Concrete provider selection and provisioning remain external production work.
 - [x] Operation idempotency records remain isolated by organization and store
 - [x] Competing courier workers atomically claim different due jobs with `SKIP LOCKED`
 - [x] Fresh worker leases cannot be stolen and expired leases can be reclaimed
+- [x] Expired or previous worker owners cannot complete or fail jobs
 - [x] State transitions require the current worker owner and exhausted stale jobs fail closed
 - [x] Retryable courier failures clear ownership and return jobs to the durable queue with backoff
 - [x] Courier job organization/store/provider scope is derived from account relationships, not trusted payload fields
@@ -63,13 +64,14 @@ Concrete provider selection and provisioning remain external production work.
 - Architecture import boundaries: passed
 - Typecheck: 18 of 18 workspaces passed
 - Test/build dependency tasks: 26 of 26 passed
-- PostgreSQL CI assertions: 42 passed, including five worker lease/claim/recovery assertions
+- PostgreSQL CI assertions: 42 passed, including five worker lease/claim/recovery tests
 - Production builds: 18 of 18 workspaces passed
 - WooCommerce PHP syntax: passed
 - npm high/critical audit threshold: passed; four moderate development-tooling advisories remain
 - PostgreSQL hardening CI run `29524629662`, job `87709833186`: all gates passed at final head `c2330563b041b8c8d0fef2e382c0d4eb7cc7b40c`, including 37 assertions
 - The verified PostgreSQL hardening change was squash-merged to `main` as `43bedadd6fdd238bbe9ecf9cae68a4c592bfd361`
-- Worker lease code CI run `29544434788`, job `87773443770`: audit, formatting, lint, seven migrations, migration replay, architecture, 18 typechecks, 42 assertions, 18 builds, and PHP lint passed at head `e0c9f06bc90c6ab69d99225e545b9b4dde74a25c`
+- Worker lease final CI run `29545309665`, job `87776201468`: audit, formatting, lint, seven migrations, migration replay, architecture, 18 typechecks, 42 assertions, 18 builds, and PHP lint passed at head `b886fcb57c9a5c9ebae3b23334966468ae1733c3`
+- The verified worker lease change was squash-merged to `main` as `d748bde10920e5a35a7e90f3a00b3b3bf02b96f3`
 - Canonical documentation links before this slice: zero known broken internal links
 - `tracker.yml` YAML structure remains valid
 - Prohibited source-pattern search: no matches
