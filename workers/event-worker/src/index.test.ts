@@ -1,10 +1,6 @@
 import { createHmac } from 'node:crypto';
 import { describe, expect, it, vi } from 'vitest';
-import {
-  EventWorker,
-  assertSafeWebhookDestination,
-  assertSafeWebhookUrl,
-} from './index.js';
+import { EventWorker, assertSafeWebhookDestination, assertSafeWebhookUrl } from './index.js';
 
 const repository = {
   markDelivered: vi.fn(async () => undefined),

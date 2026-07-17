@@ -62,11 +62,7 @@ export function assertSafeWebhookUrl(rawUrl: string): URL {
     throw new WebhookDestinationError('Webhook endpoints must use HTTPS');
   }
   const hostname = normalizedHostname(url.hostname);
-  if (
-    hostname === 'localhost' ||
-    hostname.endsWith('.localhost') ||
-    hostname.endsWith('.local')
-  ) {
+  if (hostname === 'localhost' || hostname.endsWith('.localhost') || hostname.endsWith('.local')) {
     throw new WebhookDestinationError('Local webhook destinations are not allowed');
   }
   if (isIP(hostname) && isNonPublicIp(hostname)) {
