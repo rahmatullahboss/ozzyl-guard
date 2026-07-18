@@ -23,7 +23,9 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Apply implementation patch
-        run: python3 .github/scripts/apply-browser-dead-letter-operations.py
+        run: |
+          python3 .github/scripts/apply-browser-dead-letter-operations.py
+          python3 .github/scripts/fix-browser-dead-letter-runtime-import.py
       - name: Refresh workspace lockfile
         run: npm install --package-lock-only
       - run: npm run format
@@ -57,6 +59,7 @@ jobs:
         run: |
           rm .github/workflows/browser-dead-letter-implementation.yml
           rm .github/scripts/apply-browser-dead-letter-operations.py
+          rm .github/scripts/fix-browser-dead-letter-runtime-import.py
           rm -f browser-dead-letter-test.log
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
