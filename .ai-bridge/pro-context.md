@@ -1,5 +1,7 @@
 # Ozzyl Guard — Selected Source Shadow Pilot Continuation Context
 
+> Refresh pending (2026-07-18): this GitHub-only milestone could not run the repository-local exporter. Canonical tracker, plan, status, decisions, ADR 0012, runbook, tests, and migration evidence are current through feature merge `2d686206456960bf9b3e14571e3bf2c9169d94f9`; regenerate this bundle locally before relying on embedded repository snapshots.
+
 Generated: 2026-07-18T04:10:13.573Z
 Workspace: /Users/rahmatullahzisan/Desktop/Dev/Ozzyl Guard
 Workspace ID: ws_dfece19fe5040cc4a5675d02

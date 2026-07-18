@@ -4,7 +4,7 @@ Updated: 2026-07-18
 
 ## Current state
 
-A runnable standalone MVP foundation and eleven production-hardening slices are complete:
+A runnable standalone MVP foundation and twelve production-hardening slices are complete:
 
 1. dashboard/admin browser authentication with live PostgreSQL data and tenant revalidation;
 2. accepted provider-neutral infrastructure ADRs for deployment, managed PostgreSQL, durable work/cache, KMS envelope encryption, and observability;
@@ -16,7 +16,8 @@ A runnable standalone MVP foundation and eleven production-hardening slices are 
 8. authoritative tenant-scope revalidation across API keys, feature assembly, assessment/outcome writes, dashboards and administration, plus an explicit least-privilege PostgreSQL runtime-role grant boundary;
 9. provider-neutral managed envelope v2 with random per-record data keys, authenticated wrapped-key metadata, structured fail-closed errors, explicit legacy dual-read, and key-version re-encryption primitives;
 10. native multi-store `off`/deterministic-shadow rollout controls with legacy-authoritative behavior and tenant-scoped immutable comparison evidence;
-11. selected-source post-persist shadow integration with authoritative source-order reload, explicit store opt-in, immutable sampled-attempt evidence, and tenant-scoped pilot reporting.
+11. selected-source post-persist shadow integration with authoritative source-order reload, explicit store opt-in, immutable sampled-attempt evidence, and tenant-scoped pilot reporting;
+12. tenant-scoped durable-work dead-letter inspection and explicit idempotent replay with lease reset, structural failure guards, immutable evidence, and audit records.
 
 Concrete provider selection and provisioning remain external production work.
 
@@ -25,7 +26,7 @@ Concrete provider selection and provisioning remain external production work.
 - [x] Repository, canonical GitHub remote, documentation, ADR, status, risk register, tracker, and continuation setup
 - [x] npm workspaces, Turborepo, TypeScript, formatting, linting, tests, and CI
 - [x] Canonical shared API/error/event contracts
-- [x] PostgreSQL/Drizzle schema and eleven append-only migrations
+- [x] PostgreSQL/Drizzle schema and twelve append-only migrations
 - [x] Users, organizations, stores, memberships, plans, audit events, hash-only API keys, and explicit platform role
 - [x] Argon2 password utilities and opaque hash-only browser sessions with CSRF protection
 - [x] Transaction-safe PostgreSQL usage reservation and durable idempotency
@@ -90,17 +91,22 @@ Concrete provider selection and provisioning remain external production work.
 - [x] Sampled success, assessment failure, timeout, and comparison persistence failure are stored as immutable tenant-scoped attempt evidence
 - [x] Merchant and platform views expose secret-free sampled-order, failure, disagreement-rate, and bounded score-delta reporting
 - [x] Source retries use stable idempotency keys while the legacy decision remains effective through every failure path
+- [x] Owner/admin operators can inspect secret-free failed courier, webhook, and verification work only inside an exact active organization/store
+- [x] Controlled replay revalidates relational scope, locks the failed row, clears stale leases, and returns only replayable work to the existing private worker queue
+- [x] Concurrent duplicate replay resolves to one queue reset, one immutable replay ledger record, and one audit event
+- [x] Structural webhook failures plus expired, scope-mismatched, invalid, or undecryptable verification work remain failed and require reviewed remediation or a new verification request
+- [x] Replay operations never expose payloads/secrets or perform courier, webhook, browser, or OTP provider network I/O
 
 ## Verified baseline
 
 - Formatting check: passed
 - ESLint with zero warnings: passed
-- Eleven migration files ordered/non-empty/non-destructive: passed
+- Twelve migration files ordered/non-empty/non-destructive: passed
 - First migration apply and immediate migration replay: passed
 - Architecture import boundaries: passed
 - Typecheck: 19 of 19 workspaces passed
 - Test/build dependency tasks: 28 of 28 passed
-- Repository assertions: 120 passed, including five courier lease tests, five webhook lease tests, five verification lease tests, three verification-payload validation tests, seven migration-integrity tests, seven tenant/admin isolation tests, six runtime-role policy/permission tests, eleven envelope-encryption tests, twenty-eight native-shadow adapter/API/SDK/browser/PostgreSQL tests, transactional queues/outbox coverage, and DNS SSRF tests
+- Repository assertions: 126 passed, including five courier lease tests, five webhook lease tests, five verification lease tests, three verification-payload validation tests, seven migration-integrity tests, seven tenant/admin isolation tests, seven runtime-role policy/permission tests, five durable-work dead-letter PostgreSQL tests, eleven envelope-encryption tests, twenty-eight native-shadow adapter/API/SDK/browser/PostgreSQL tests, transactional queues/outbox coverage, and DNS SSRF tests
 - Production builds: 19 of 19 workspaces passed
 - WooCommerce PHP syntax: passed
 - npm high/critical audit threshold: passed; four moderate development-tooling advisories remain
@@ -125,11 +131,13 @@ Concrete provider selection and provisioning remain external production work.
 - The verified native shadow rollout milestone was squash-merged to `main` as `446d6eb47d042fe4f2834ba31bb3596e57c7ad54`
 - Selected-source shadow pilot final CI run `29629751800`, job `88040964883`: audit, formatting, lint, eleven migrations, replay, history integrity, clean restore, runtime-role grants, architecture, 19 typechecks, 120 assertions, 19 builds, and PHP lint passed at head `57e6b296617549e923fc80ab80b0317f109f5ee8`
 - The verified selected-source shadow pilot foundation was squash-merged through PR #20 to `main` as `c478170c7dadbeafa576a62ae989df682e052d4e`
+- Durable-work dead-letter final CI run `29644234591`, job `88079650134`: audit, formatting, lint, twelve migrations, replay, history integrity, clean restore, runtime-role grants, architecture, 19 typechecks, 126 assertions, 19 builds, and PHP lint passed at head `a1419a2889701bcb6c05b686ac4b1eeb6e9d5d12`
+- The verified durable-work dead-letter operations milestone was squash-merged through PR #22 to `main` as `2d686206456960bf9b3e14571e3bf2c9169d94f9`
 - Canonical documentation links before this slice: zero known broken internal links
 - `tracker.yml` YAML structure remains valid
 - Prohibited source-pattern search: no matches
 
-The repository-local continuation exporter was run after the feature merge from canonical `main`; `.ai-bridge/pro-context.md`, tracker, plan, status, decisions, and milestone documentation are refreshed.
+The current GitHub-only environment cannot run the repository-local continuation exporter. Tracker, plan, status, decisions, ADRs, runbook, testing notes, and migration evidence are current; `.ai-bridge/pro-context.md` is marked for local refresh before relying on its embedded snapshots.
 
 ## Next production milestone
 

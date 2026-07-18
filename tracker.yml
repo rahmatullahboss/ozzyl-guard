@@ -81,10 +81,14 @@ invariants:
   - native_shadow_rollout_defaults_off_and_requires_explicit_store_opt_in
   - native_shadow_attempt_evidence_is_tenant_scoped_immutable_and_idempotent
   - shadow_comparison_guard_values_are_derived_from_the_scoped_assessment
+  - durable_dead_letter_operations_require_active_owner_or_admin_scope
+  - durable_work_replay_is_explicit_idempotent_and_audited
+  - structural_or_expired_durable_failures_are_not_replayed
+  - durable_replay_evidence_is_secret_free_and_immutable
 
 implemented:
   - typescript_monorepo_and_ci
-  - postgresql_schema_and_eleven_migrations
+  - postgresql_schema_and_twelve_migrations
   - organization_store_membership_and_plan_foundation
   - usage_metering_and_audit_foundation
   - opaque_browser_sessions_csrf_and_explicit_platform_admin_role
@@ -125,20 +129,23 @@ implemented:
   - selected_source_post_persist_native_shadow_integration
   - store_scoped_native_shadow_opt_in_and_pilot_reporting
   - tenant_scoped_immutable_native_shadow_attempt_evidence
+  - tenant_scoped_durable_work_dead_letter_inspection
+  - idempotent_controlled_durable_work_replay
+  - immutable_secret_free_durable_work_replay_evidence
 
 verification:
   command: npm run verify
   last_verified: 2026-07-18
   status: passed
   results:
-    migrations: 11_of_11_with_sha256_manifest
+    migrations: 12_of_12_with_sha256_manifest
     migration_replay: passed
     migration_history_integrity: passed
     clean_restore_rehearsal: passed_with_schema_data_sequence_history_and_replay
     architecture_boundaries: passed
     typecheck: 19_of_19
     test_tasks: 28_of_28
-    remote_assertions: 120_passed
+    remote_assertions: 126_passed
     migration_integrity_tests: 7_of_7_passed
     postgresql_concurrency_tests: 7_of_7_passed
     postgresql_courier_worker_lease_tests: 5_of_5_passed
@@ -146,7 +153,7 @@ verification:
     postgresql_verification_worker_lease_tests: 5_of_5_passed
     verification_payload_validation_tests: 3_of_3_passed
     postgresql_tenant_admin_isolation_tests: 7_of_7_passed
-    postgresql_runtime_role_tests: 6_of_6_passed
+    postgresql_runtime_role_tests: 7_of_7_passed
     managed_envelope_tests: 11_of_11_passed
     native_shadow_adapter_tests: 10_of_10_passed
     native_shadow_api_tests: 7_of_7_passed
@@ -154,31 +161,34 @@ verification:
     native_shadow_browser_tests: 2_of_2_passed
     native_shadow_sdk_tests: 2_of_2_passed
     native_shadow_total_tests: 28_of_28_passed
+    durable_dead_letter_postgresql_tests: 5_of_5_passed
     builds: 19_of_19
     php_syntax: passed
     high_critical_dependency_check: passed
-    documentation_links: 60_reviewed_0_known_broken
+    documentation_links: 56_reviewed_0_known_broken
   continuation_bundle:
-    status: refreshed_locally
-    canonical_main_sync: verified
+    status: pending_local_refresh
+    canonical_main_sync: github_verified
+    reason: github_only_environment_cannot_run_repository_local_exporter
   remote_ci:
     status: passed
-    run_id: 29629751800
-    job_id: 88040964883
+    run_id: 29644234591
+    job_id: 88079650134
     job: verify
-    tested_head: 57e6b296617549e923fc80ab80b0317f109f5ee8
-    merged_main_commit: c478170c7dadbeafa576a62ae989df682e052d4e
+    tested_head: a1419a2889701bcb6c05b686ac4b1eeb6e9d5d12
+    merged_main_commit: 2d686206456960bf9b3e14571e3bf2c9169d94f9
     completed: 2026-07-18
-    steps: audit_format_lint_manifest_eleven_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_typecheck_tests_build_php_all_passed
+    steps: audit_format_lint_manifest_twelve_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_typecheck_tests_build_php_all_passed
   source_validation:
     status: passed
-    run_id: 29629751800
-    job_id: 88040964883
-    tested_head: 57e6b296617549e923fc80ab80b0317f109f5ee8
+    run_id: 29644234591
+    job_id: 88079650134
+    tested_head: a1419a2889701bcb6c05b686ac4b1eeb6e9d5d12
     completed: 2026-07-18
-    steps: audit_format_lint_manifest_eleven_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_typecheck_tests_build_php_all_passed
-    native_shadow_tests: 28_of_28_passed
+    steps: audit_format_lint_manifest_twelve_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_typecheck_tests_build_php_all_passed
+    durable_dead_letter_postgresql_tests: 5_of_5_passed
   pending_follow_up:
+    - continuation_bundle_local_exporter_refresh
     - production_source_hook_deployment_and_explicit_pilot_store_selection
     - pilot_outcome_collection_and_calibration
 
@@ -198,6 +208,7 @@ migrations:
     - packages/database/migrations/0009_verification_delivery_queue.sql
     - packages/database/migrations/0010_native_shadow_comparisons.sql
     - packages/database/migrations/0011_native_shadow_pilot.sql
+    - packages/database/migrations/0012_durable_work_replays.sql
 
 accepted_adrs:
   - docs/adr/0006-production-deployment-topology.md
@@ -206,6 +217,7 @@ accepted_adrs:
   - docs/adr/0009-managed-secrets-and-kms-envelope-encryption.md
   - docs/adr/0010-vendor-neutral-production-observability.md
   - docs/adr/0011-selected-source-shadow-pilot.md
+  - docs/adr/0012-durable-work-dead-letter-operations.md
 
 external_dependencies:
   - authorized_steadfast_test_account
@@ -284,5 +296,9 @@ notes:
   - native_shadow_dashboard_and_admin_reporting_is_secret_free_and_tenant_scoped
   - native_shadow_enforcement_is_not_implemented_and_requires_pilot_review
   - broad_automatic_blocking_remains_disabled_until_pilot_calibration
-  - pro_context_was_refreshed_with_the_repository_local_exporter_after_feature_merge
+  - durable_dead_letter_listing_is_secret_free_and_exact_store_scoped
+  - durable_replay_resets_only_failed_replayable_work_and_clears_old_leases
+  - durable_replay_ledger_is_insert_only_for_the_runtime_role
+  - durable_replay_never_performs_provider_or_webhook_network_io
+  - pro_context_requires_local_exporter_refresh_after_this_github_only_milestone
   - update_this_file_after_every_material_milestone
