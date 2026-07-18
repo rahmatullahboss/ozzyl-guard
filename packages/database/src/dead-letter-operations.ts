@@ -1,11 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import type { Pool, PoolClient } from 'pg';
 
-export const durableWorkTypes = [
-  'courier_job',
-  'webhook_delivery',
-  'verification_job',
-] as const;
+export const durableWorkTypes = ['courier_job', 'webhook_delivery', 'verification_job'] as const;
 
 export type DurableWorkType = (typeof durableWorkTypes)[number];
 
