@@ -147,6 +147,33 @@ function createTestApp(identity: UserSessionIdentity = merchantIdentity) {
       samplingKey: 'scoped-sampling-key',
     }),
   );
+  const listDeadLetters = vi.fn(async () => [
+    {
+      workType: 'webhook_delivery' as const,
+      workId: 'whd_failed_1',
+      organizationId: 'org_1',
+      storeId: 'store_1',
+      status: 'failed' as const,
+      attempts: 5,
+      errorCode: 'TIMEOUT',
+      failedAt: now.toISOString(),
+      replayable: true,
+      replayBlockedReason: null,
+    },
+  ]);
+  const replayDeadLetter = vi.fn(async () => ({
+    replayId: 'dwr_1',
+    organizationId: 'org_1',
+    storeId: 'store_1',
+    workType: 'webhook_delivery' as const,
+    workId: 'whd_failed_1',
+    previousStatus: 'failed',
+    previousErrorCode: 'TIMEOUT',
+    previousAttempts: 5,
+    replayedStatus: 'queued' as const,
+    replayedAt: now.toISOString(),
+    replay: false,
+  }));
   const audit = vi.fn(async () => undefined);
   return {
     app: createBrowserApi({
@@ -154,6 +181,7 @@ function createTestApp(identity: UserSessionIdentity = merchantIdentity) {
       dashboard: { loadOverview },
       admin: { loadOverview: loadAdminOverview },
       nativeShadowRollouts: { setForStore },
+      durableWorkOperations: { listDeadLetters, replayDeadLetter },
       audit: { record: audit },
       rateLimiter: new MemoryRateLimiter(),
       csrfSecret: csrfFixture,
@@ -162,6 +190,8 @@ function createTestApp(identity: UserSessionIdentity = merchantIdentity) {
     loadOverview,
     loadAdminOverview,
     setForStore,
+    listDeadLetters,
+    replayDeadLetter,
     audit,
   };
 }
@@ -333,6 +363,139 @@ describe('browser authentication and live data API', () => {
     expect(response.status).toBe(403);
     expect(setForStore).not.toHaveBeenCalled();
   });
+
+  it('lists only secret-free dead letters for an exact owner or admin store scope', async () => {
+    const { app, listDeadLetters, audit } = createTestApp();
+    const loggedIn = await login(app);
+    const allowed = await app.request(
+      '/dashboard/v1/dead-letters?organization_id=org_1&store_id=store_1&limit=20',
+      { headers: { Cookie: loggedIn.cookie } },
+    );
+    expect(allowed.status).toBe(200);
+    const body = await allowed.json();
+    expect(body).toMatchObject({
+      success: true,
+      organization_id: 'org_1',
+      store_id: 'store_1',
+      dead_letters: [
+        {
+          work_type: 'webhook_delivery',
+          work_id: 'whd_failed_1',
+          attempts: 5,
+          error_code: 'TIMEOUT',
+          replayable: true,
+        },
+      ],
+    });
+    expect(JSON.stringify(body)).not.toMatch(/payload|secret|phone|otp/i);
+    expect(listDeadLetters).toHaveBeenCalledWith({
+      requestedByUserId: 'usr_1',
+      organizationId: 'org_1',
+      storeId: 'store_1',
+      limit: 20,
+      at: now,
+    });
+    expect(audit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        organizationId: 'org_1',
+        action: 'durable_work.dead_letters_viewed',
+        metadata: expect.objectContaining({ resultCount: 1 }),
+      }),
+    );
+
+    const wrongScope = await app.request(
+      '/dashboard/v1/dead-letters?organization_id=org_2&store_id=store_2',
+      { headers: { Cookie: loggedIn.cookie } },
+    );
+    expect(wrongScope.status).toBe(404);
+    expect(listDeadLetters).toHaveBeenCalledTimes(1);
+  });
+
+  it('requires owner or admin membership for dead-letter inspection', async () => {
+    const memberIdentity: UserSessionIdentity = {
+      ...merchantIdentity,
+      organizations: merchantIdentity.organizations.map((organization) => ({
+        ...organization,
+        role: 'member',
+      })),
+    };
+    const { app, listDeadLetters } = createTestApp(memberIdentity);
+    const loggedIn = await login(app);
+    const response = await app.request(
+      '/dashboard/v1/dead-letters?organization_id=org_1&store_id=store_1',
+      { headers: { Cookie: loggedIn.cookie } },
+    );
+    expect(response.status).toBe(403);
+    expect(listDeadLetters).not.toHaveBeenCalled();
+  });
+
+  it('requires CSRF and maps controlled replay results and failures without leaking data', async () => {
+    const { app, replayDeadLetter } = createTestApp();
+    const loggedIn = await login(app);
+    const requestBody = JSON.stringify({
+      organization_id: 'org_1',
+      store_id: 'store_1',
+      work_type: 'webhook_delivery',
+      work_id: 'whd_failed_1',
+      idempotency_key: 'dlr_stable_browser_retry_1',
+    });
+    const missingCsrf = await app.request('/dashboard/v1/dead-letter-replays', {
+      method: 'POST',
+      headers: { Cookie: loggedIn.cookie, 'Content-Type': 'application/json' },
+      body: requestBody,
+    });
+    expect(missingCsrf.status).toBe(403);
+    expect(replayDeadLetter).not.toHaveBeenCalled();
+
+    const proofHeader = ['X', 'CSRF', 'Token'].join('-');
+    const allowed = await app.request('/dashboard/v1/dead-letter-replays', {
+      method: 'POST',
+      headers: {
+        Cookie: loggedIn.cookie,
+        'Content-Type': 'application/json',
+        [proofHeader]: loggedIn.body.csrf_token,
+      },
+      body: requestBody,
+    });
+    expect(allowed.status).toBe(200);
+    await expect(allowed.json()).resolves.toMatchObject({
+      replay_id: 'dwr_1',
+      work_type: 'webhook_delivery',
+      work_id: 'whd_failed_1',
+      previous_status: 'failed',
+      replayed_status: 'queued',
+      replay: false,
+    });
+    expect(replayDeadLetter).toHaveBeenCalledWith({
+      requestedByUserId: 'usr_1',
+      organizationId: 'org_1',
+      storeId: 'store_1',
+      workType: 'webhook_delivery',
+      workId: 'whd_failed_1',
+      idempotencyKey: 'dlr_stable_browser_retry_1',
+      at: now,
+    });
+
+    replayDeadLetter.mockRejectedValueOnce(
+      Object.assign(new Error('Durable work cannot be replayed: STRUCTURAL_WEBHOOK_FAILURE'), {
+        code: 'DEAD_LETTER_NOT_REPLAYABLE' as const,
+      }),
+    );
+    const blocked = await app.request('/dashboard/v1/dead-letter-replays', {
+      method: 'POST',
+      headers: {
+        Cookie: loggedIn.cookie,
+        'Content-Type': 'application/json',
+        [proofHeader]: loggedIn.body.csrf_token,
+      },
+      body: requestBody,
+    });
+    expect(blocked.status).toBe(409);
+    await expect(blocked.json()).resolves.toMatchObject({
+      error: { code: 'DEAD_LETTER_NOT_REPLAYABLE' },
+    });
+  });
+
   it('requires an explicit platform-admin role and keeps broad blocking disabled', async () => {
     const merchant = createTestApp();
     const merchantLogin = await login(merchant.app);

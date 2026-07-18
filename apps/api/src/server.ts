@@ -2,6 +2,7 @@ import { createHmac } from 'node:crypto';
 import { serve } from '@hono/node-server';
 import { Pool } from 'pg';
 import { verifyApiKey } from '@ozzyl/authentication';
+import { PostgresDurableWorkOperations } from '@ozzyl/database';
 import { AesGcmEnvelopeCipher } from '@ozzyl/encryption';
 import { MemoryUsageLedger, type PlanCode } from '@ozzyl/billing';
 import {
@@ -106,6 +107,7 @@ if (databaseUrl) {
     ),
   });
   const nativeShadowRollouts = new PostgresNativeShadowRolloutRepository(pool);
+  const durableWorkOperations = new PostgresDurableWorkOperations(pool);
   dependencies = {
     apiKeys: new PostgresApiKeyResolver(pool, apiKeyPepper),
     usage: new PostgresUsageLedger(pool),
@@ -126,6 +128,7 @@ if (databaseUrl) {
       dashboard: new PostgresMerchantDashboardRepository(pool),
       admin: new PostgresPlatformAdminRepository(pool),
       nativeShadowRollouts,
+      durableWorkOperations,
       audit: new PostgresBrowserAuditRepository(pool),
       rateLimiter,
       csrfSecret: sessionCsrfSecret,

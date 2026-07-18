@@ -1,11 +1,14 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import type {
   BrowserSessionResponse,
   DashboardReview,
+  DurableDeadLetter,
+  DurableDeadLetterListResponse,
+  DurableWorkReplayResponse,
   MerchantDashboardOverview,
 } from '@ozzyl/shared-types';
 
-type View = 'overview' | 'reviews' | 'couriers' | 'policies' | 'usage' | 'settings';
+type View = 'overview' | 'reviews' | 'couriers' | 'operations' | 'policies' | 'usage' | 'settings';
 
 type StoreOption = {
   organizationId: string;
@@ -13,12 +16,14 @@ type StoreOption = {
   storeId: string;
   storeName: string;
   platform: string;
+  role: string;
 };
 
 const navItems: Array<{ id: View; label: string; description: string }> = [
   { id: 'overview', label: 'Overview', description: 'Live risk summary' },
   { id: 'reviews', label: 'Review queue', description: 'Orders requiring action' },
   { id: 'couriers', label: 'Courier accounts', description: 'Connection health' },
+  { id: 'operations', label: 'Failed work', description: 'Inspect and replay' },
   { id: 'policies', label: 'Risk policies', description: 'Pilot safety state' },
   { id: 'usage', label: 'API usage', description: 'Current entitlement' },
   { id: 'settings', label: 'Settings', description: 'Session and scope' },
@@ -30,10 +35,22 @@ export function App() {
   const [selectedStore, setSelectedStore] = useState<StoreOption | null>(null);
   const [selectedReview, setSelectedReview] = useState<DashboardReview | null>(null);
   const [view, setView] = useState<View>('overview');
+  const [deadLetters, setDeadLetters] = useState<DurableDeadLetter[]>([]);
+  const [operationsLoading, setOperationsLoading] = useState(false);
+  const [replayingWork, setReplayingWork] = useState<string | null>(null);
+  const [operationMessage, setOperationMessage] = useState<string | null>(null);
+  const replayKeys = useRef<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const stores = useMemo(() => flattenStores(session), [session]);
+  const visibleNavItems = useMemo(
+    () =>
+      navItems.filter(
+        (item) => item.id !== 'operations' || isStoreAdministrator(selectedStore?.role),
+      ),
+    [selectedStore],
+  );
   const activeNav = useMemo(() => navItems.find((item) => item.id === view), [view]);
 
   useEffect(() => {
@@ -49,6 +66,15 @@ export function App() {
     if (!selectedStore) return;
     void loadOverview(selectedStore);
   }, [selectedStore]);
+
+  useEffect(() => {
+    if (view !== 'operations' || !selectedStore) return;
+    if (!isStoreAdministrator(selectedStore.role)) {
+      setView('overview');
+      return;
+    }
+    void loadDeadLetters(selectedStore);
+  }, [view, selectedStore]);
 
   async function loadSession() {
     setLoading(true);
@@ -87,10 +113,89 @@ export function App() {
       const body = await readJson<MerchantDashboardOverview>(response);
       setOverview(body);
       setSelectedReview(body.reviews[0] ?? null);
+      setDeadLetters([]);
+      replayKeys.current = {};
+      setOperationMessage(null);
     } catch (caught) {
       setError(errorMessage(caught));
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function loadDeadLetters(store: StoreOption) {
+    setOperationsLoading(true);
+    setOperationMessage(null);
+    setError(null);
+    try {
+      const params = new URLSearchParams({
+        organization_id: store.organizationId,
+        store_id: store.storeId,
+        limit: '100',
+      });
+      const response = await fetch(`/dashboard/v1/dead-letters?${params.toString()}`, {
+        credentials: 'include',
+      });
+      if (response.status === 401) {
+        setSession(null);
+        setOverview(null);
+        return;
+      }
+      const body = await readJson<DurableDeadLetterListResponse>(response);
+      setDeadLetters(body.dead_letters);
+    } catch (caught) {
+      setError(errorMessage(caught));
+    } finally {
+      setOperationsLoading(false);
+    }
+  }
+
+  async function handleReplay(item: DurableDeadLetter) {
+    if (!session || !selectedStore || !item.replayable) return;
+    const itemKey = durableWorkKey(item);
+    let idempotencyKey = replayKeys.current[itemKey];
+    if (!idempotencyKey) {
+      idempotencyKey = `dlr_${crypto.randomUUID()}`;
+      replayKeys.current[itemKey] = idempotencyKey;
+    }
+    setReplayingWork(itemKey);
+    setOperationMessage(null);
+    setError(null);
+    try {
+      const response = await fetch('/dashboard/v1/dead-letter-replays', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': session.csrf_token,
+        },
+        body: JSON.stringify({
+          organization_id: selectedStore.organizationId,
+          store_id: selectedStore.storeId,
+          work_type: item.work_type,
+          work_id: item.work_id,
+          idempotency_key: idempotencyKey,
+        }),
+      });
+      if (response.status === 401) {
+        setSession(null);
+        setOverview(null);
+        return;
+      }
+      const replay = await readJson<DurableWorkReplayResponse>(response);
+      setDeadLetters((current) =>
+        current.filter((candidate) => durableWorkKey(candidate) !== itemKey),
+      );
+      delete replayKeys.current[itemKey];
+      setOperationMessage(
+        replay.replay
+          ? `${workTypeLabel(item.work_type)} replay was already accepted.`
+          : `${workTypeLabel(item.work_type)} returned to the private worker queue.`,
+      );
+    } catch (caught) {
+      setError(errorMessage(caught));
+    } finally {
+      setReplayingWork(null);
     }
   }
 
@@ -129,6 +234,7 @@ export function App() {
       setOverview(null);
       setSelectedStore(null);
       setSelectedReview(null);
+      replayKeys.current = {};
     } catch (caught) {
       setError(errorMessage(caught));
     } finally {
@@ -155,7 +261,7 @@ export function App() {
           </div>
         </div>
         <nav aria-label="Dashboard navigation">
-          {navItems.map((item) => (
+          {visibleNavItems.map((item) => (
             <button
               className={view === item.id ? 'nav-item active' : 'nav-item'}
               key={item.id}
@@ -231,6 +337,16 @@ export function App() {
               />
             )}
             {view === 'couriers' && <CourierAccounts overview={overview} />}
+            {view === 'operations' && (
+              <DurableOperations
+                items={deadLetters}
+                loading={operationsLoading}
+                message={operationMessage}
+                replayingWork={replayingWork}
+                onRefresh={() => selectedStore && void loadDeadLetters(selectedStore)}
+                onReplay={(item) => void handleReplay(item)}
+              />
+            )}
             {view === 'policies' && <RiskPolicies overview={overview} />}
             {view === 'usage' && <Usage overview={overview} />}
             {view === 'settings' && <Settings session={session} overview={overview} />}
@@ -635,6 +751,92 @@ function RiskPolicies({ overview }: { overview: MerchantDashboardOverview }) {
   );
 }
 
+function DurableOperations({
+  items,
+  loading,
+  message,
+  replayingWork,
+  onRefresh,
+  onReplay,
+}: {
+  items: DurableDeadLetter[];
+  loading: boolean;
+  message: string | null;
+  replayingWork: string | null;
+  onRefresh(): void;
+  onReplay(item: DurableDeadLetter): void;
+}) {
+  return (
+    <section className="content-stack">
+      <article className="panel notice-panel">
+        <p className="eyebrow">Controlled PostgreSQL operations</p>
+        <h2>Failed durable work</h2>
+        <p>
+          Only failed courier refresh, webhook delivery, and verification delivery records are
+          listed. Payloads, destination URLs, phone data, OTP material, credentials, and signing
+          secrets are never returned to this page.
+        </p>
+      </article>
+      <article className="panel">
+        <div className="panel-heading">
+          <div>
+            <p className="eyebrow">Exact active store scope</p>
+            <h3>{items.length} dead-letter records</h3>
+          </div>
+          <button className="secondary-button" disabled={loading} onClick={onRefresh} type="button">
+            {loading ? 'Refreshing…' : 'Refresh'}
+          </button>
+        </div>
+        {message && <div className="live-banner">{message}</div>}
+        <div className="compact-list">
+          {items.map((item) => {
+            const itemKey = durableWorkKey(item);
+            const replaying = replayingWork === itemKey;
+            return (
+              <div className="compact-row" key={itemKey}>
+                <div>
+                  <strong>{workTypeLabel(item.work_type)}</strong>
+                  <span>
+                    {item.error_code ?? 'No structured error code'} · {item.attempts} attempts ·{' '}
+                    {formatDate(item.failed_at)}
+                  </span>
+                  <small>{item.work_id}</small>
+                </div>
+                <div>
+                  <span className={item.replayable ? 'pill success' : 'pill neutral'}>
+                    {item.replayable
+                      ? 'Replayable'
+                      : (item.replay_blocked_reason ?? 'Manual remediation required')}
+                  </span>
+                  <button
+                    className="secondary-button"
+                    disabled={!item.replayable || replaying}
+                    onClick={() => onReplay(item)}
+                    type="button"
+                  >
+                    {replaying ? 'Replaying…' : 'Replay safely'}
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+          {!loading && items.length === 0 && (
+            <div className="empty-state">No failed durable work is visible for this store.</div>
+          )}
+        </div>
+      </article>
+      <article className="panel notice-panel">
+        <strong>Replay safety</strong>
+        <p>
+          Replay is explicit, idempotent, and audited. Structural failures and expired verification
+          work remain blocked. The browser never calls a courier, webhook destination, or OTP
+          provider directly.
+        </p>
+      </article>
+    </section>
+  );
+}
+
 function Usage({ overview }: { overview: MerchantDashboardOverview }) {
   const limit = overview.summary.usage_limit;
   const percentage = limit ? Math.min(100, (overview.summary.usage_month / limit) * 100) : 0;
@@ -771,8 +973,23 @@ function flattenStores(session: BrowserSessionResponse | null): StoreOption[] {
       storeId: store.id,
       storeName: store.name,
       platform: store.platform,
+      role: organization.role,
     })),
   );
+}
+
+function isStoreAdministrator(role: string | undefined): boolean {
+  return role === 'owner' || role === 'admin';
+}
+
+function durableWorkKey(item: DurableDeadLetter): string {
+  return `${item.work_type}:${item.work_id}`;
+}
+
+function workTypeLabel(workType: DurableDeadLetter['work_type']): string {
+  if (workType === 'courier_job') return 'Courier refresh';
+  if (workType === 'webhook_delivery') return 'Webhook delivery';
+  return 'Verification delivery';
 }
 
 function storeKey(store: StoreOption): string {

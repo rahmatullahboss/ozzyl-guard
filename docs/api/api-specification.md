@@ -356,3 +356,12 @@ Webhook requirements:
 - Quota/entitlement enforcement must be safe under concurrency.
 - Idempotent retries return the original logically equivalent result.
 - Webhook and OTP provider network delivery never run in the synchronous API or checkout request path.
+
+## Merchant browser durable-work operations
+
+Authenticated browser sessions expose two exact-store owner/admin operations:
+
+- `GET /dashboard/v1/dead-letters?organization_id=<id>&store_id=<id>&limit=<1-100>` returns at most 100 failed courier refresh, webhook delivery, and verification delivery records. The response contains only typed work identity, attempt/error state, failure time, and replayability metadata.
+- `POST /dashboard/v1/dead-letter-replays` requires `X-CSRF-Token` and accepts `organization_id`, `store_id`, `work_type`, `work_id`, and a stable `idempotency_key`.
+
+Both routes recheck the opaque browser session, session-visible scope, active owner/admin role, and the repository's authoritative relational organization/store scope. Replay responses report the immutable replay evidence identifier and whether the idempotency key returned an existing replay. Payloads, URLs, phone/OTP material, encrypted values, credentials, cookies, tokens, and signing secrets are outside these contracts.

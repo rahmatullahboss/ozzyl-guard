@@ -271,3 +271,7 @@ Do not promote automatic blocking until false-positive behavior is understood an
 - dependency audit
 - secret scanning
 - architecture/dependency-boundary tests
+
+## Browser dead-letter operations coverage
+
+Browser API tests must prove session enforcement, exact-store hiding, owner/admin authorization, member rejection, CSRF protection, stable idempotency forwarding, secret-free list serialization, replay-result serialization, and structured conflict mapping. The existing real-PostgreSQL durable-work suite remains authoritative for concurrent duplicate replay, tenant isolation, structural/expiry rejection, lease reset, immutable evidence, and audit atomicity.

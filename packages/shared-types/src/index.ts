@@ -167,6 +167,60 @@ export const nativeShadowPilotReportSchema = z.object({
 });
 export type NativeShadowPilotReport = z.infer<typeof nativeShadowPilotReportSchema>;
 
+export const durableWorkTypeSchema = z.enum([
+  'courier_job',
+  'webhook_delivery',
+  'verification_job',
+]);
+export type DurableWorkType = z.infer<typeof durableWorkTypeSchema>;
+
+export const durableDeadLetterSchema = z.object({
+  work_type: durableWorkTypeSchema,
+  work_id: z.string().min(1).max(200),
+  organization_id: z.string().min(1).max(200),
+  store_id: z.string().min(1).max(200),
+  status: z.literal('failed'),
+  attempts: z.number().int().nonnegative(),
+  error_code: z.string().min(1).max(200).nullable(),
+  failed_at: z.string().datetime(),
+  replayable: z.boolean(),
+  replay_blocked_reason: z.string().min(1).max(200).nullable(),
+});
+export type DurableDeadLetter = z.infer<typeof durableDeadLetterSchema>;
+
+export const durableDeadLetterListResponseSchema = z.object({
+  success: z.literal(true),
+  organization_id: z.string().min(1).max(200),
+  store_id: z.string().min(1).max(200),
+  dead_letters: z.array(durableDeadLetterSchema).max(100),
+});
+export type DurableDeadLetterListResponse = z.infer<typeof durableDeadLetterListResponseSchema>;
+
+export const durableWorkReplayRequestSchema = z.object({
+  organization_id: z.string().min(1).max(200),
+  store_id: z.string().min(1).max(200),
+  work_type: durableWorkTypeSchema,
+  work_id: z.string().min(1).max(200),
+  idempotency_key: z.string().trim().min(8).max(200),
+});
+export type DurableWorkReplayRequest = z.infer<typeof durableWorkReplayRequestSchema>;
+
+export const durableWorkReplayResponseSchema = z.object({
+  success: z.literal(true),
+  replay_id: z.string().min(1).max(200),
+  organization_id: z.string().min(1).max(200),
+  store_id: z.string().min(1).max(200),
+  work_type: durableWorkTypeSchema,
+  work_id: z.string().min(1).max(200),
+  previous_status: z.string().min(1).max(100),
+  previous_error_code: z.string().min(1).max(200).nullable(),
+  previous_attempts: z.number().int().nonnegative(),
+  replayed_status: z.literal('queued'),
+  replayed_at: z.string().datetime(),
+  replay: z.boolean(),
+});
+export type DurableWorkReplayResponse = z.infer<typeof durableWorkReplayResponseSchema>;
+
 export const apiErrorSchema = z.object({
   success: z.literal(false),
   error: z.object({

@@ -2,8 +2,17 @@ import { createHmac, randomUUID, timingSafeEqual } from 'node:crypto';
 import { Hono, type Context } from 'hono';
 import { deleteCookie, getCookie, setCookie } from 'hono/cookie';
 import { z } from 'zod';
+import type {
+  DurableDeadLetterRecord,
+  DurableWorkOperationErrorCode,
+  DurableWorkReplayResult,
+  DurableWorkType,
+} from '@ozzyl/database';
 import {
   browserSessionResponseSchema,
+  durableDeadLetterListResponseSchema,
+  durableWorkReplayRequestSchema,
+  durableWorkReplayResponseSchema,
   merchantDashboardOverviewSchema,
   nativeShadowRolloutModeSchema,
   nativeShadowRolloutResponseSchema,
@@ -29,6 +38,16 @@ const loginSchema = z.object({
 const dashboardScopeSchema = z.object({
   organization_id: z.string().min(1).max(200),
   store_id: z.string().min(1).max(200),
+});
+const durableWorkOperationErrorCodes = new Set<DurableWorkOperationErrorCode>([
+  'STORE_ADMIN_REQUIRED',
+  'DEAD_LETTER_NOT_FOUND',
+  'DEAD_LETTER_NOT_REPLAYABLE',
+  'DEAD_LETTER_IDEMPOTENCY_CONFLICT',
+  'DEAD_LETTER_STATE_CHANGED',
+]);
+const deadLetterScopeSchema = dashboardScopeSchema.extend({
+  limit: z.coerce.number().int().min(1).max(100).default(50),
 });
 const nativeShadowRolloutUpdateSchema = dashboardScopeSchema
   .extend({
@@ -95,6 +114,25 @@ export interface NativeShadowRolloutAdministrationRepository {
   } | null>;
 }
 
+export interface DurableWorkOperationsRepository {
+  listDeadLetters(input: {
+    requestedByUserId: string;
+    organizationId: string;
+    storeId: string;
+    limit?: number;
+    at?: Date;
+  }): Promise<DurableDeadLetterRecord[]>;
+  replayDeadLetter(input: {
+    requestedByUserId: string;
+    organizationId: string;
+    storeId: string;
+    workType: DurableWorkType;
+    workId: string;
+    idempotencyKey: string;
+    at?: Date;
+  }): Promise<DurableWorkReplayResult>;
+}
+
 export interface BrowserAuditRepository {
   record(input: {
     organizationId: string | null;
@@ -111,6 +149,7 @@ export interface BrowserApiDependencies {
   dashboard: MerchantDashboardRepository;
   admin: PlatformAdminRepository;
   nativeShadowRollouts?: NativeShadowRolloutAdministrationRepository;
+  durableWorkOperations?: DurableWorkOperationsRepository;
   audit: BrowserAuditRepository;
   rateLimiter: RateLimiter;
   csrfSecret: string;
@@ -324,6 +363,129 @@ export function createBrowserApi(dependencies: BrowserApiDependencies): Hono<Bro
     );
   });
 
+  app.get('/dashboard/v1/dead-letters', async (context) => {
+    const authenticated = await authenticateBrowserRequest(context, dependencies);
+    if (!authenticated.success) return authenticated.response;
+    if (!dependencies.durableWorkOperations) {
+      return browserError(
+        context.get('requestId'),
+        503,
+        'DURABLE_WORK_OPERATIONS_UNAVAILABLE',
+        'Durable work operations are unavailable',
+      );
+    }
+    const parsedScope = deadLetterScopeSchema.safeParse({
+      organization_id: context.req.query('organization_id'),
+      store_id: context.req.query('store_id'),
+      limit: context.req.query('limit'),
+    });
+    if (!parsedScope.success) {
+      return browserError(
+        context.get('requestId'),
+        400,
+        'INVALID_SCOPE',
+        'organization_id, store_id, and an optional limit between 1 and 100 are required',
+      );
+    }
+    const allowedScope = findMerchantScope(
+      authenticated.identity,
+      parsedScope.data.organization_id,
+      parsedScope.data.store_id,
+    );
+    if (!allowedScope) {
+      return browserError(context.get('requestId'), 404, 'STORE_NOT_FOUND', 'Store not found');
+    }
+    if (allowedScope.organization.role !== 'owner' && allowedScope.organization.role !== 'admin') {
+      return browserError(
+        context.get('requestId'),
+        403,
+        'STORE_ADMIN_REQUIRED',
+        'Store owner or administrator access is required',
+      );
+    }
+    try {
+      const deadLetters = await dependencies.durableWorkOperations.listDeadLetters({
+        requestedByUserId: authenticated.identity.userId,
+        organizationId: allowedScope.organization.id,
+        storeId: allowedScope.store.id,
+        limit: parsedScope.data.limit,
+        at: now(),
+      });
+      await dependencies.audit.record({
+        organizationId: allowedScope.organization.id,
+        actorId: authenticated.identity.userId,
+        action: 'durable_work.dead_letters_viewed',
+        targetType: 'store',
+        targetId: allowedScope.store.id,
+        metadata: {
+          requestId: context.get('requestId'),
+          resultCount: deadLetters.length,
+        },
+      });
+      return context.json(
+        durableDeadLetterListResponseSchema.parse({
+          success: true,
+          organization_id: allowedScope.organization.id,
+          store_id: allowedScope.store.id,
+          dead_letters: deadLetters.map(serializeDeadLetter),
+        }),
+      );
+    } catch (error) {
+      return durableWorkBrowserError(context.get('requestId'), error);
+    }
+  });
+
+  app.post('/dashboard/v1/dead-letter-replays', async (context) => {
+    const authenticated = await authenticateBrowserRequest(context, dependencies);
+    if (!authenticated.success) return authenticated.response;
+    const csrfHeader = context.req.header('X-CSRF-Token');
+    if (!verifyCsrfToken(authenticated.rawToken, csrfHeader, dependencies.csrfSecret)) {
+      return browserError(context.get('requestId'), 403, 'CSRF_REJECTED', 'CSRF token is invalid');
+    }
+    if (!dependencies.durableWorkOperations) {
+      return browserError(
+        context.get('requestId'),
+        503,
+        'DURABLE_WORK_OPERATIONS_UNAVAILABLE',
+        'Durable work operations are unavailable',
+      );
+    }
+    const parsed = await parseJson(context.req.raw, durableWorkReplayRequestSchema);
+    if (!parsed.success) {
+      return browserError(context.get('requestId'), 400, 'INVALID_REQUEST', parsed.message);
+    }
+    const allowedScope = findMerchantScope(
+      authenticated.identity,
+      parsed.value.organization_id,
+      parsed.value.store_id,
+    );
+    if (!allowedScope) {
+      return browserError(context.get('requestId'), 404, 'STORE_NOT_FOUND', 'Store not found');
+    }
+    if (allowedScope.organization.role !== 'owner' && allowedScope.organization.role !== 'admin') {
+      return browserError(
+        context.get('requestId'),
+        403,
+        'STORE_ADMIN_REQUIRED',
+        'Store owner or administrator access is required',
+      );
+    }
+    try {
+      const replay = await dependencies.durableWorkOperations.replayDeadLetter({
+        requestedByUserId: authenticated.identity.userId,
+        organizationId: allowedScope.organization.id,
+        storeId: allowedScope.store.id,
+        workType: parsed.value.work_type,
+        workId: parsed.value.work_id,
+        idempotencyKey: parsed.value.idempotency_key,
+        at: now(),
+      });
+      return context.json(durableWorkReplayResponseSchema.parse(serializeReplay(replay)));
+    } catch (error) {
+      return durableWorkBrowserError(context.get('requestId'), error);
+    }
+  });
+
   app.get('/admin/v1/overview', async (context) => {
     const authenticated = await authenticateBrowserRequest(context, dependencies);
     if (!authenticated.success) return authenticated.response;
@@ -476,6 +638,58 @@ async function parseJson<TOutput, TInput>(
   } catch {
     return { success: false, message: 'Request body must be valid JSON' };
   }
+}
+
+function serializeDeadLetter(record: DurableDeadLetterRecord) {
+  return {
+    work_type: record.workType,
+    work_id: record.workId,
+    organization_id: record.organizationId,
+    store_id: record.storeId,
+    status: record.status,
+    attempts: record.attempts,
+    error_code: record.errorCode,
+    failed_at: record.failedAt,
+    replayable: record.replayable,
+    replay_blocked_reason: record.replayBlockedReason,
+  };
+}
+
+function serializeReplay(result: DurableWorkReplayResult) {
+  return {
+    success: true as const,
+    replay_id: result.replayId,
+    organization_id: result.organizationId,
+    store_id: result.storeId,
+    work_type: result.workType,
+    work_id: result.workId,
+    previous_status: result.previousStatus,
+    previous_error_code: result.previousErrorCode,
+    previous_attempts: result.previousAttempts,
+    replayed_status: result.replayedStatus,
+    replayed_at: result.replayedAt,
+    replay: result.replay,
+  };
+}
+
+function durableWorkBrowserError(requestId: string, error: unknown): Response {
+  if (
+    !(error instanceof Error) ||
+    !('code' in error) ||
+    typeof error.code !== 'string' ||
+    !durableWorkOperationErrorCodes.has(error.code as DurableWorkOperationErrorCode)
+  ) {
+    return browserError(
+      requestId,
+      500,
+      'DURABLE_WORK_OPERATION_FAILED',
+      'Durable work operation failed',
+    );
+  }
+  const code = error.code as DurableWorkOperationErrorCode;
+  const status =
+    code === 'STORE_ADMIN_REQUIRED' ? 403 : code === 'DEAD_LETTER_NOT_FOUND' ? 404 : 409;
+  return browserError(requestId, status, code, error.message);
 }
 
 function browserError(requestId: string, status: number, code: string, message: string): Response {
