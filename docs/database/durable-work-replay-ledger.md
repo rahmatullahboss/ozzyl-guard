@@ -14,21 +14,21 @@ The source rows remain authoritative:
 
 ## Columns
 
-| Column | Meaning |
-| --- | --- |
-| `id` | Internal replay evidence ID |
-| `organization_id` | Authoritative tenant organization |
-| `store_id` | Exact active store scope |
+| Column                 | Meaning                                                                                  |
+| ---------------------- | ---------------------------------------------------------------------------------------- |
+| `id`                   | Internal replay evidence ID                                                              |
+| `organization_id`      | Authoritative tenant organization                                                        |
+| `store_id`             | Exact active store scope                                                                 |
 | `requested_by_user_id` | Owner/admin user who requested replay; retained as nullable if the user is later removed |
-| `work_type` | `courier_job`, `webhook_delivery`, or `verification_job` |
-| `work_id` | Internal source work ID; no payload is copied |
-| `idempotency_key` | Operator-supplied stable replay decision key |
-| `previous_status` | Source status before replay; currently `failed` |
-| `previous_error_code` | Structured source failure code |
-| `previous_attempts` | Attempt count before the explicit replay reset |
-| `replayed_status` | Resulting queue status; constrained to `queued` |
-| `replayed_at` | Transaction time of the queue reset |
-| `created_at` | Ledger insertion time |
+| `work_type`            | `courier_job`, `webhook_delivery`, or `verification_job`                                 |
+| `work_id`              | Internal source work ID; no payload is copied                                            |
+| `idempotency_key`      | Operator-supplied stable replay decision key                                             |
+| `previous_status`      | Source status before replay; currently `failed`                                          |
+| `previous_error_code`  | Structured source failure code                                                           |
+| `previous_attempts`    | Attempt count before the explicit replay reset                                           |
+| `replayed_status`      | Resulting queue status; constrained to `queued`                                          |
+| `replayed_at`          | Transaction time of the queue reset                                                      |
+| `created_at`           | Ledger insertion time                                                                    |
 
 ## Constraints
 
