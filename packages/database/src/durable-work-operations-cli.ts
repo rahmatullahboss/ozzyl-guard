@@ -16,48 +16,53 @@ class CliInputError extends Error {
   }
 }
 
-const databaseUrl = requiredEnvironment('DATABASE_URL');
-const [command, ...rawArguments] = process.argv.slice(2);
-const argumentsByName = parseArguments(rawArguments);
-const pool = new Pool({ connectionString: databaseUrl, max: 2 });
-const operations = new PostgresDurableWorkOperations(pool);
+async function run(): Promise<void> {
+  let pool: Pool | undefined;
+  try {
+    const databaseUrl = requiredEnvironment('DATABASE_URL');
+    const [command, ...rawArguments] = process.argv.slice(2);
+    const argumentsByName = parseArguments(rawArguments);
+    pool = new Pool({ connectionString: databaseUrl, max: 2 });
+    const operations = new PostgresDurableWorkOperations(pool);
 
-try {
-  if (command === 'list') {
-    const limit = optionalPositiveInteger(argumentsByName, 'limit');
-    const records = await operations.listDeadLetters({
-      requestedByUserId: requiredArgument(argumentsByName, 'requested-by-user-id'),
-      organizationId: requiredArgument(argumentsByName, 'organization-id'),
-      storeId: requiredArgument(argumentsByName, 'store-id'),
-      ...(limit === undefined ? {} : { limit }),
-    });
-    console.log(JSON.stringify({ dead_letters: records }, null, 2));
-  } else if (command === 'replay') {
-    const result = await operations.replayDeadLetter({
-      requestedByUserId: requiredArgument(argumentsByName, 'requested-by-user-id'),
-      organizationId: requiredArgument(argumentsByName, 'organization-id'),
-      storeId: requiredArgument(argumentsByName, 'store-id'),
-      workType: requiredWorkType(argumentsByName),
-      workId: requiredArgument(argumentsByName, 'work-id'),
-      idempotencyKey: requiredArgument(argumentsByName, 'idempotency-key'),
-    });
-    console.log(JSON.stringify(result, null, 2));
-  } else {
-    throw new CliInputError(
-      'COMMAND_REQUIRED',
-      'Use list or replay. Run through npm scripts documented in operations-observability.md.',
-    );
+    if (command === 'list') {
+      const limit = optionalPositiveInteger(argumentsByName, 'limit');
+      const records = await operations.listDeadLetters({
+        requestedByUserId: requiredArgument(argumentsByName, 'requested-by-user-id'),
+        organizationId: requiredArgument(argumentsByName, 'organization-id'),
+        storeId: requiredArgument(argumentsByName, 'store-id'),
+        ...(limit === undefined ? {} : { limit }),
+      });
+      console.log(JSON.stringify({ dead_letters: records }, null, 2));
+    } else if (command === 'replay') {
+      const result = await operations.replayDeadLetter({
+        requestedByUserId: requiredArgument(argumentsByName, 'requested-by-user-id'),
+        organizationId: requiredArgument(argumentsByName, 'organization-id'),
+        storeId: requiredArgument(argumentsByName, 'store-id'),
+        workType: requiredWorkType(argumentsByName),
+        workId: requiredArgument(argumentsByName, 'work-id'),
+        idempotencyKey: requiredArgument(argumentsByName, 'idempotency-key'),
+      });
+      console.log(JSON.stringify(result, null, 2));
+    } else {
+      throw new CliInputError(
+        'COMMAND_REQUIRED',
+        'Use list or replay. Run through npm scripts documented in operations-observability.md.',
+      );
+    }
+  } catch (error) {
+    const code =
+      error instanceof DurableWorkOperationError || error instanceof CliInputError
+        ? error.code
+        : 'DURABLE_WORK_OPERATION_FAILED';
+    console.error(JSON.stringify({ level: 'error', code }));
+    process.exitCode = 1;
+  } finally {
+    await pool?.end();
   }
-} catch (error) {
-  const code =
-    error instanceof DurableWorkOperationError || error instanceof CliInputError
-      ? error.code
-      : 'DURABLE_WORK_OPERATION_FAILED';
-  console.error(JSON.stringify({ level: 'error', code }));
-  process.exitCode = 1;
-} finally {
-  await pool.end();
 }
+
+await run();
 
 function requiredEnvironment(name: string): string {
   const value = process.env[name];
