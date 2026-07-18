@@ -85,6 +85,9 @@ invariants:
   - durable_work_replay_is_explicit_idempotent_and_audited
   - structural_or_expired_durable_failures_are_not_replayed
   - durable_replay_evidence_is_secret_free_and_immutable
+  - browser_dead_letter_access_requires_opaque_session_exact_store_and_owner_or_admin
+  - browser_dead_letter_replay_requires_csrf_and_a_stable_idempotency_key
+  - browser_dead_letter_responses_exclude_payloads_and_secret_material
 
 implemented:
   - typescript_monorepo_and_ci
@@ -132,6 +135,9 @@ implemented:
   - tenant_scoped_durable_work_dead_letter_inspection
   - idempotent_controlled_durable_work_replay
   - immutable_secret_free_durable_work_replay_evidence
+  - authenticated_merchant_browser_dead_letter_operations
+  - csrf_protected_browser_durable_work_replay
+  - synchronous_per_work_item_browser_replay_key_cache
 
 verification:
   command: npm run verify
@@ -145,7 +151,7 @@ verification:
     architecture_boundaries: passed
     typecheck: 19_of_19
     test_tasks: 28_of_28
-    remote_assertions: 126_passed
+    remote_assertions: 129_passed
     migration_integrity_tests: 7_of_7_passed
     postgresql_concurrency_tests: 7_of_7_passed
     postgresql_courier_worker_lease_tests: 5_of_5_passed
@@ -162,31 +168,32 @@ verification:
     native_shadow_sdk_tests: 2_of_2_passed
     native_shadow_total_tests: 28_of_28_passed
     durable_dead_letter_postgresql_tests: 5_of_5_passed
+    browser_dead_letter_api_tests: 3_of_3_passed
     builds: 19_of_19
     php_syntax: passed
     high_critical_dependency_check: passed
-    documentation_links: 56_reviewed_0_known_broken
+    documentation_links: 57_reviewed_0_known_broken
   continuation_bundle:
     status: pending_local_refresh
     canonical_main_sync: github_verified
     reason: github_only_environment_cannot_run_repository_local_exporter
   remote_ci:
     status: passed
-    run_id: 29644234591
-    job_id: 88079650134
+    run_id: 29645967968
+    job_id: 88084164235
     job: verify
-    tested_head: a1419a2889701bcb6c05b686ac4b1eeb6e9d5d12
-    merged_main_commit: 2d686206456960bf9b3e14571e3bf2c9169d94f9
+    tested_head: 2129b51ca7393b3c942f2f5c074cb3990b615b89
+    merged_main_commit: 27cff21a9fd024e7b8094da3397c79387c83ea02
     completed: 2026-07-18
     steps: audit_format_lint_manifest_twelve_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_typecheck_tests_build_php_all_passed
   source_validation:
     status: passed
-    run_id: 29644234591
-    job_id: 88079650134
-    tested_head: a1419a2889701bcb6c05b686ac4b1eeb6e9d5d12
+    run_id: 29645967968
+    job_id: 88084164235
+    tested_head: 2129b51ca7393b3c942f2f5c074cb3990b615b89
     completed: 2026-07-18
     steps: audit_format_lint_manifest_twelve_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_typecheck_tests_build_php_all_passed
-    durable_dead_letter_postgresql_tests: 5_of_5_passed
+    browser_dead_letter_api_tests: 3_of_3_passed
   pending_follow_up:
     - continuation_bundle_local_exporter_refresh
     - production_source_hook_deployment_and_explicit_pilot_store_selection
@@ -300,5 +307,9 @@ notes:
   - durable_replay_resets_only_failed_replayable_work_and_clears_old_leases
   - durable_replay_ledger_is_insert_only_for_the_runtime_role
   - durable_replay_never_performs_provider_or_webhook_network_io
+  - merchant_dead_letter_browser_routes_reauthorize_session_visible_owner_or_admin_scope
+  - merchant_dead_letter_replay_requires_csrf_and_forwards_one_stable_idempotency_key
+  - browser_replay_key_is_assigned_synchronously_before_network_io_and_retained_on_failure
+  - merchant_dead_letter_ui_hides_operations_from_non_admin_members
   - pro_context_requires_local_exporter_refresh_after_this_github_only_milestone
   - update_this_file_after_every_material_milestone
