@@ -31,7 +31,13 @@ jobs:
         run: npm run typecheck -w @ozzyl/shared-types
       - name: API typecheck
         run: npm run typecheck -w @ozzyl/api
-      - name: Browser API tests
+      - name: Dead-letter list browser test
+        run: npx vitest run apps/api/src/browser.test.ts -t "lists only secret-free dead letters" --reporter=verbose
+      - name: Dead-letter member rejection browser test
+        run: npx vitest run apps/api/src/browser.test.ts -t "requires owner or admin membership" --reporter=verbose
+      - name: Dead-letter replay browser test
+        run: npx vitest run apps/api/src/browser.test.ts -t "requires CSRF and maps controlled replay" --reporter=verbose
+      - name: Full browser API tests
         run: npx vitest run apps/api/src/browser.test.ts --reporter=verbose
       - name: Dashboard build
         run: npm run build -w @ozzyl/dashboard
