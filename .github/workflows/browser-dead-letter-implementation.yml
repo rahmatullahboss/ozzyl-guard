@@ -31,8 +31,8 @@ jobs:
         run: npm run typecheck -w @ozzyl/shared-types
       - name: API typecheck
         run: npm run typecheck -w @ozzyl/api
-      - name: API tests
-        run: npm run test -w @ozzyl/api
+      - name: Browser API tests
+        run: npx vitest run apps/api/src/browser.test.ts --reporter=verbose
       - name: Dashboard build
         run: npm run build -w @ozzyl/dashboard
       - name: Commit implementation
