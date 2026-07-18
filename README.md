@@ -24,7 +24,7 @@ The full context bundle includes the important specifications, accepted ADRs, mi
 The repository now contains a runnable MVP foundation:
 
 - TypeScript npm/Turborepo monorepo
-- PostgreSQL schema, ten append-only migrations, committed SHA-256 manifest, and non-null history checksums
+- PostgreSQL schema, eleven append-only migrations, committed SHA-256 manifest, and non-null history checksums
 - Argon2id user-password utilities and opaque user sessions
 - Hash-only `ozg_test_` / `ozg_live_` API-key lifecycle utilities
 - Organizations, stores, memberships, plans, usage events, audit events, and tenant scope

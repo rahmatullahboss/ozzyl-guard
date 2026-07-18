@@ -13,8 +13,8 @@ Updated: 2026-07-18
 
 | Area                       | Status   | Notes                                                                                                                                                 |
 | -------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Documentation and ADRs     | done     | Architecture, API, database, courier, risk, integrations, security, testing, operations, roadmap, and ten accepted ADRs                               |
-| Continuation documentation | baseline | Tracker, plan, status, and decisions updated; generated `pro-context.md` requires local exporter refresh after this milestone                         |
+| Documentation and ADRs     | done     | Architecture, API, database, courier, risk, integrations, security, testing, operations, roadmap, and eleven accepted ADRs                            |
+| Continuation documentation | done     | Tracker, plan, status, decisions, and repository-local generated `pro-context.md` refreshed after the feature merge                                   |
 | Git repository             | baseline | `main` is canonical; GitHub currently reports public visibility although the expected policy is private                                               |
 | Monorepo/tooling           | done     | 19 npm workspaces with Turborepo, TypeScript, ESLint, Prettier, Vitest, Vite, and tsup                                                                |
 | CI                         | done     | PostgreSQL 16 manifest/apply/replay/history integrity, clean restore, runtime-role grants, audit, format, lint, architecture, tests, builds, PHP lint |
@@ -24,38 +24,38 @@ Updated: 2026-07-18
 
 ## Product implementation
 
-| Area                             | Status   | Notes                                                                                                                                           |
-| -------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| Shared contracts                 | done     | Canonical request/response/error/outcome/event schemas                                                                                          |
-| Database/migrations              | done     | Ten append-only migrations bound to a committed SHA-256 manifest; history checksums are non-null and fail closed on mismatch                    |
-| Password/session primitives      | done     | Argon2id and opaque hashed session token utilities                                                                                              |
-| Shared envelope encryption       | done     | Local v1 plus provider-neutral managed v2 with per-record DEKs, authenticated wrapped-key metadata, legacy dual-read, rotation, and safe errors |
-| Organizations/stores/memberships | done     | Canonical relational schema and bootstrap transaction                                                                                           |
-| API keys/usage/plans             | done     | Atomic PostgreSQL quota reservation has duplicate-request and plan-limit concurrency coverage                                                   |
-| Courier adapter interface        | done     | Typed provider contract and structured errors                                                                                                   |
-| Steadfast adapter                | baseline | Normalized internal endpoint adapter with bounded timeout/session errors; requires authorized live validation                                   |
-| Steadfast session worker         | baseline | Playwright login, selector/CAPTCHA/2FA errors, shared encryption boundary, health state, runnable PostgreSQL polling                            |
-| Courier observation worker/cache | done     | Lease-owned atomic claims, expired-owner rejection, stale recovery, retry/final failure, relational scope, observation persistence              |
-| Durable webhook outbox           | done     | Assessment/outcome transaction emission, scoped event payloads, lease-owned event worker, retries, stale recovery, encrypted secret access      |
-| Durable work architecture        | baseline | PostgreSQL ownership/lease pattern proven for courier, webhook, and verification work; broader operational dead-letter tooling remains          |
-| Backup/restore integrity         | done     | Clean logical `pg_dump`/`pg_restore` rehearsal compares schema, full table data hashes, sequences, migration history, and replay in CI          |
-| Risk engine                      | done     | One pure deterministic engine, versioned policy, confidence, signals, unknown/degraded handling                                                 |
-| Public API                       | done     | Assessment create/read, outcomes, courier refresh, OTP send/verify, and tenant-scoped native-shadow comparison reporting                        |
-| PostgreSQL API repositories      | done     | API keys, feature assembly, assessment/outcome writes and replays enforce active relational organization/store ownership                        |
-| Outcome feedback                 | done     | API, WooCommerce, Shopify, custom, and native adapter paths                                                                                     |
-| Webhook delivery                 | done     | HMAC signing, timestamps, retry policy, HTTPS/credential checks, literal-IP and DNS-result SSRF validation, redirect rejection                  |
-| WooCommerce                      | baseline | Encrypted service key, async assessment, canonical parsing, safe failure behavior, admin panel, manual recheck, outcomes                        |
-| Shopify                          | baseline | Signed webhook helper, assessment/action mapping, outcome submission; app OAuth/webhook registration not implemented                            |
-| Custom server SDK                | done     | Server-only integration and checkout action mapping                                                                                             |
-| Native multi-store adapter       | baseline | Deterministic off/shadow controls, legacy-authoritative failures and durable comparison reporting done; selected source-platform pilot pending  |
-| OTP verification                 | baseline | Transactional encrypted queue, tenant-scoped verifier, lease-owned private runner, retries, and failure events done; provider account remains   |
-| Merchant dashboard               | done     | Argon2id login, opaque HttpOnly session, CSRF logout, authorized store switching, and live scoped operations data                               |
-| Platform admin                   | done     | Explicit active `platform_admin` role is rechecked on every repository call before global operations data                                       |
-| Tenant administration            | done     | Owner/admin-scoped webhook and verification repositories reauthorize active org/store scope and return secret-free records                      |
-| PostgreSQL runtime role          | done     | Explicit current-table DML grants, no migration history/DELETE/DDL/ownership/elevated membership; managed-provider provisioning remains         |
-| Managed encryption               | baseline | Provider-neutral v2 primitive is implemented; selected KMS adapter, service identities, audits, runtime wiring, and rewrite job remain          |
-| Observability                    | baseline | OpenTelemetry-compatible boundary accepted; shared helpers, backend, dashboards, alerts, and redaction tests remain                             |
-| Shared reputation                | deferred | Cross-merchant reputation/dispute system requires legal/privacy review and pilot evidence                                                       |
+| Area                             | Status   | Notes                                                                                                                                                                         |
+| -------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Shared contracts                 | done     | Canonical request/response/error/outcome/event schemas                                                                                                                        |
+| Database/migrations              | done     | Eleven append-only migrations bound to a committed SHA-256 manifest; history checksums are non-null and fail closed on mismatch                                               |
+| Password/session primitives      | done     | Argon2id and opaque hashed session token utilities                                                                                                                            |
+| Shared envelope encryption       | done     | Local v1 plus provider-neutral managed v2 with per-record DEKs, authenticated wrapped-key metadata, legacy dual-read, rotation, and safe errors                               |
+| Organizations/stores/memberships | done     | Canonical relational schema and bootstrap transaction                                                                                                                         |
+| API keys/usage/plans             | done     | Atomic PostgreSQL quota reservation has duplicate-request and plan-limit concurrency coverage                                                                                 |
+| Courier adapter interface        | done     | Typed provider contract and structured errors                                                                                                                                 |
+| Steadfast adapter                | baseline | Normalized internal endpoint adapter with bounded timeout/session errors; requires authorized live validation                                                                 |
+| Steadfast session worker         | baseline | Playwright login, selector/CAPTCHA/2FA errors, shared encryption boundary, health state, runnable PostgreSQL polling                                                          |
+| Courier observation worker/cache | done     | Lease-owned atomic claims, expired-owner rejection, stale recovery, retry/final failure, relational scope, observation persistence                                            |
+| Durable webhook outbox           | done     | Assessment/outcome transaction emission, scoped event payloads, lease-owned event worker, retries, stale recovery, encrypted secret access                                    |
+| Durable work architecture        | baseline | PostgreSQL ownership/lease pattern proven for courier, webhook, and verification work; broader operational dead-letter tooling remains                                        |
+| Backup/restore integrity         | done     | Clean logical `pg_dump`/`pg_restore` rehearsal compares schema, full table data hashes, sequences, migration history, and replay in CI                                        |
+| Risk engine                      | done     | One pure deterministic engine, versioned policy, confidence, signals, unknown/degraded handling                                                                               |
+| Public API                       | done     | Assessment create/read, outcomes, courier refresh, OTP send/verify, plus scoped native-shadow rollout, comparison, and attempt contracts                                      |
+| PostgreSQL API repositories      | done     | API keys, feature assembly, assessment/outcome writes and replays enforce active relational organization/store ownership                                                      |
+| Outcome feedback                 | done     | API, WooCommerce, Shopify, custom, and native adapter paths                                                                                                                   |
+| Webhook delivery                 | done     | HMAC signing, timestamps, retry policy, HTTPS/credential checks, literal-IP and DNS-result SSRF validation, redirect rejection                                                |
+| WooCommerce                      | baseline | Encrypted service key, async assessment, canonical parsing, safe failure behavior, admin panel, manual recheck, outcomes                                                      |
+| Shopify                          | baseline | Signed webhook helper, assessment/action mapping, outcome submission; app OAuth/webhook registration not implemented                                                          |
+| Custom server SDK                | done     | Server-only integration and checkout action mapping                                                                                                                           |
+| Native multi-store integration   | done     | Concrete post-persist source reload, default-off store opt-in, stable retries, legacy-authoritative advisory failures, immutable attempt evidence, and scoped pilot reporting |
+| OTP verification                 | baseline | Transactional encrypted queue, tenant-scoped verifier, lease-owned private runner, retries, and failure events done; provider account remains                                 |
+| Merchant dashboard               | done     | Authenticated scoped operations plus CSRF-protected owner/admin native-shadow rollout control and secret-free pilot reporting                                                 |
+| Platform admin                   | done     | Explicit active `platform_admin` role is rechecked on every repository call before global operations data                                                                     |
+| Tenant administration            | done     | Owner/admin-scoped webhook and verification repositories reauthorize active org/store scope and return secret-free records                                                    |
+| PostgreSQL runtime role          | done     | Explicit current-table DML grants, no migration history/DELETE/DDL/ownership/elevated membership; managed-provider provisioning remains                                       |
+| Managed encryption               | baseline | Provider-neutral v2 primitive is implemented; selected KMS adapter, service identities, audits, runtime wiring, and rewrite job remain                                        |
+| Observability                    | baseline | OpenTelemetry-compatible boundary accepted; shared helpers, backend, dashboards, alerts, and redaction tests remain                                                           |
+| Shared reputation                | deferred | Cross-merchant reputation/dispute system requires legal/privacy review and pilot evidence                                                                                     |
 
 ## Migrations
 
@@ -69,6 +69,7 @@ Updated: 2026-07-18
 8. `0008_webhook_delivery_leases.sql`
 9. `0009_verification_delivery_queue.sql`
 10. `0010_native_shadow_comparisons.sql`
+11. `0011_native_shadow_pilot.sql`
 
 Applied migrations must remain immutable.
 
@@ -76,14 +77,14 @@ Applied migrations must remain immutable.
 
 - `npm run format:check`: passed
 - `npm run lint`: passed with zero warnings
-- `npm run db:check`: ten migrations and committed SHA-256 manifest validated
+- `npm run db:check`: eleven migrations and committed SHA-256 manifest validated
 - initial migration apply: passed with non-null history checksums
 - immediate migration replay: passed as a clean no-op
 - `npm run db:integrity`: complete contiguous history and checksums passed
 - `npm run db:restore-rehearsal`: clean logical restore, schema fingerprint, full table data hashes, sequence state, history, and replay passed
 - `npm run check:architecture`: passed
 - `npm run typecheck`: 19/19 workspaces passed
-- `npm run test`: 28/28 Turbo tasks passed; repository contains 107 assertions
+- `npm run test`: 28/28 Turbo tasks passed; repository contains 120 assertions
 - `npm run build`: 19/19 workspace builds passed
 - `npm audit --audit-level=high`: passed; four moderate development-tooling findings remain
 - Webhook outbox final run `29550097719`, job `87790624617`: all gates passed at head `fb0a68bac4628a96f82413b5d71092e4f0367536`
@@ -110,12 +111,18 @@ Applied migrations must remain immutable.
 - Native-shadow source run `29610050179`, job `87982336996`: all repository gates passed with ten migrations, 19 typechecks, 28 test tasks and 107 assertions, 19 builds, and PHP lint at head `85cd9e2bafd0fc3605c97a461f01a6a87016b83b`
 - Native-shadow final run `29610847711`, job `87984896681`: the complete gate set passed at final documentation head `dc44c8b7df2bfa84cd8f372f9df0831d3c35beeb`
 - The verified native shadow rollout milestone was squash-merged to `main` as `446d6eb47d042fe4f2834ba31bb3596e57c7ad54`
+- Ten native source tests cover authoritative post-persist reload, off mode, deterministic sampling, scope mismatch, timeout, legacy-authoritative disagreement, comparison failure, attempt failure, and stable evidence mapping
+- Seven native-shadow API tests cover dedicated scope, rollout reads, attempt validation/idempotency, comparison persistence, and secret-free failure responses
+- Seven real-PostgreSQL native-shadow tests cover concurrent comparison/attempt writes, default-off and explicit opt-in, negative tenant references, advisory failure evidence, bounded reporting, and immediate opt-out
+- Two SDK tests and two browser-control tests cover rollout/attempt contracts plus CSRF, owner/admin, and exact-store authorization
+- Selected-source shadow pilot final run `29629751800`, job `88040964883`: eleven migrations, 19 typechecks, 28 test tasks with 120 assertions, 19 builds, audit, formatting, lint, clean restore, runtime-role grants, architecture, and PHP lint passed at head `57e6b296617549e923fc80ab80b0317f109f5ee8`
+- The verified selected-source shadow pilot foundation was squash-merged through PR #20 to `main` as `c478170c7dadbeafa576a62ae989df682e052d4e`
 - Seven real-PostgreSQL tests cover API-key/feature/write tenant mismatch, dashboard aggregation isolation, platform-admin reauthorization, and secret-free webhook/verification administration
 - Six database-role tests cover identifier safety, explicit policy completeness, real allowed DML, migration-history/DELETE/DDL denial, elevated-role rejection, and inherited-role rejection
 - Previous canonical documentation checks found zero broken internal links
 - Prohibited insecure-pattern scan: zero matches
 
-The generated `.ai-bridge/pro-context.md` still requires the repository-local exporter because the current GitHub-only connector cannot run that workspace tool.
+The repository-local exporter refreshed `.ai-bridge/pro-context.md` after canonical `main` advanced to the selected-source shadow pilot merge.
 
 ## External blockers and production requirements
 
@@ -143,9 +150,9 @@ The generated `.ai-bridge/pro-context.md` still requires the repository-local ex
 - GitHub currently reports public repository visibility although the expected policy is private.
 - Provider-specific infrastructure has not been provisioned or smoke-tested.
 - Four moderate development-tooling advisories remain; high/critical threshold is clear.
-- Native shadow mode is advisory only; a selected source platform still must invoke it after order persistence and pilot outcomes must be reviewed before any enforcement design.
+- Native shadow mode is advisory only; the verified post-persist hook still requires production deployment to explicitly selected stores, and pilot outcomes must be reviewed before any enforcement design.
 - Automatic blocking remains merchant-controlled and disabled by default until pilot calibration.
 
 ## Next milestone
 
-Provision the accepted infrastructure baseline with distinct database identities and a production point-in-time restore drill, select and wire the managed KMS adapter plus audited re-encryption runner, validate Steadfast, select and bundle the OTP provider adapter, and run an opt-in source-platform shadow pilot.
+Provision the accepted infrastructure baseline with distinct database identities and a production point-in-time restore drill, select and wire the managed KMS adapter plus audited re-encryption runner, validate Steadfast, select and bundle the OTP provider adapter, deploy the verified source hook to explicit pilot stores, and collect outcomes for calibration.

@@ -2,6 +2,10 @@
 
 This directory is the long-term product and engineering source of truth. New developers and AI agents should start with `../tracker.yml`, `../AGENTS.md`, and the handoff files under `../.ai-bridge/`, then read the documents relevant to the change.
 
+## Current verified milestone
+
+The selected-source post-persist native shadow pilot foundation is merged on `main` as `c478170c7dadbeafa576a62ae989df682e052d4e`. Final feature CI run `29629751800`, job `88040964883`, passed eleven migrations, 19 typechecks, 28 test tasks with 120 assertions, 19 builds, and PHP syntax at tested head `57e6b296617549e923fc80ab80b0317f109f5ee8`. Production rollout remains default `off`; the next operational step is explicit pilot-store deployment and outcome calibration, not enforcement.
+
 ## Architecture
 
 - [Project overview](architecture/project-overview.md)
