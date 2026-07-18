@@ -24,7 +24,7 @@ The full context bundle includes the important specifications, accepted ADRs, mi
 The repository now contains a runnable MVP foundation:
 
 - TypeScript npm/Turborepo monorepo
-- PostgreSQL schema, eleven append-only migrations, committed SHA-256 manifest, and non-null history checksums
+- PostgreSQL schema, twelve append-only migrations, committed SHA-256 manifest, and non-null history checksums
 - Argon2id user-password utilities and opaque user sessions
 - Hash-only `ozg_test_` / `ozg_live_` API-key lifecycle utilities
 - Organizations, stores, memberships, plans, usage events, audit events, and tenant scope
@@ -34,6 +34,7 @@ The repository now contains a runnable MVP foundation:
 - Transactional encrypted OTP delivery queue, tenant-scoped verification, and lease-owned private verification worker
 - Provider-neutral OTP adapter boundary with hashing, expiry, attempt/rate limits, payload validation, and no synchronous provider I/O
 - Durable signed webhook outbox/worker with retries, leases, encrypted secrets, and DNS-aware SSRF protection
+- Tenant-scoped, owner/admin-authorized dead-letter inspection and idempotent controlled replay for courier, webhook, and verification work, with immutable replay/audit evidence
 - Merchant dashboard and platform operations admin applications
 - WooCommerce plugin, Shopify adapter, custom JavaScript/server adapter, and native multi-store adapter
 - Docker, Docker Compose, migration integrity verification, clean logical restore rehearsal, and least-privilege runtime-role verification in CI
@@ -114,6 +115,8 @@ Use `config/environment.example` as the variable checklist. Put real values only
 
 The bootstrap command creates the first owner, organization, store, and API key. The raw key is printed once; the database receives only its hash and display prefix.
 
+Dead-letter operations are documented in the [durable work runbook](docs/operations/durable-work-dead-letter-runbook.md). They require a trusted environment, `DATABASE_URL`, an active owner/admin user ID, and exact organization/store scope.
+
 Merchant dashboard:
 
 ```bash
@@ -137,71 +140,3 @@ npm run start -w @ozzyl/verification-worker
 ```
 
 ## Docker Compose
-
-Provide the required variables in your shell or an ignored Compose environment file, then run:
-
-```bash
-docker compose up --build
-```
-
-The Compose topology separates PostgreSQL, migrations, API, Playwright session, courier sync, and event workers. The verification worker is opt-in with `docker compose --profile verification up --build` because a reviewed provider module/account is not bundled. Dashboard/admin static hosting is deployment-platform dependent.
-
-## Verification commands
-
-```bash
-npm run format:check
-npm run lint
-npm run db:check
-npm run db:integrity
-# Requires migration-owner credentials and an externally created non-owner runtime role:
-DATABASE_RUNTIME_ROLE=ozzyl_guard_runtime npm run db:runtime-grants
-# Requires a separately created empty target database:
-RESTORE_DATABASE_URL=postgresql://... RESTORE_REHEARSAL_VERIFY_DATA_HASHES=true npm run db:restore-rehearsal
-npm run typecheck
-npm run test
-npm run build
-npm audit --audit-level=high
-php -l integrations/woocommerce/ozzyl-guard.php
-```
-
-## Canonical assessment response
-
-```json
-{
-  "success": true,
-  "assessment_id": "ras_123",
-  "risk_score": 72,
-  "risk_level": "high",
-  "decision": "verify",
-  "confidence": 0.82,
-  "signals": [
-    {
-      "code": "low_delivery_rate",
-      "score": 30,
-      "description": "Customer delivery rate is 28%"
-    }
-  ],
-  "courier_summary": {
-    "total": 12,
-    "delivered": 5,
-    "returned": 4,
-    "cancelled_before_shipping": 3
-  }
-}
-```
-
-## Documentation
-
-- [System architecture](docs/architecture/system-architecture.md)
-- [Public API specification](docs/api/api-specification.md)
-- [Database design](docs/database/database-design.md)
-- [Courier intelligence](docs/courier/courier-intelligence.md)
-- [Risk engine](docs/risk-engine/risk-engine.md)
-- [Integrations](docs/integrations/integrations.md)
-- [Security and privacy](docs/security/security-privacy.md)
-- [Testing strategy](docs/testing/testing-strategy.md)
-- [Operations](docs/operations/operations-observability.md)
-- [Roadmap](docs/roadmap/implementation-roadmap.md)
-- [ADRs](docs/adr/README.md)
-
-Before changing code, read `AGENTS.md`, the relevant domain documents, `.ai-bridge/current-plan.md`, `.ai-bridge/implementation-status.md`, and accepted ADRs.
