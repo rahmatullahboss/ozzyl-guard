@@ -27,6 +27,12 @@ describe('runtime role policy', () => {
     expect(runtimeRolePolicy).not.toHaveProperty('delete');
   });
 
+  it('keeps durable replay evidence readable and insert-only', () => {
+    expect(runtimeRolePolicy.select).toContain('durable_work_replays');
+    expect(runtimeRolePolicy.insert).toContain('durable_work_replays');
+    expect(runtimeRolePolicy.update).not.toContain('durable_work_replays');
+  });
+
   it('requires every writable table to remain explicitly readable', () => {
     const readable = new Set<string>(runtimeRolePolicy.select);
     expect(runtimeRolePolicy.insert.every((table) => readable.has(table))).toBe(true);
