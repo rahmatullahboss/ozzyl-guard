@@ -17,6 +17,29 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
+      - uses: actions/upload-artifact@v4
+        with:
+          name: original-dead-letter-files
+          if-no-files-found: error
+          path: |
+            README.md
+            package.json
+            docs/README.md
+            docs/adr/README.md
+            docs/adr/0012-durable-work-dead-letter-operations.md
+            docs/database/durable-work-replay-ledger.md
+            docs/operations/durable-work-dead-letter-runbook.md
+            docs/testing/durable-work-dead-letter-testing.md
+            packages/database/package.json
+            packages/database/migrations/0012_durable_work_replays.sql
+            packages/database/migrations/manifest.json
+            packages/database/src/dead-letter-operations.postgres.test.ts
+            packages/database/src/dead-letter-operations.ts
+            packages/database/src/durable-work-operations-cli.ts
+            packages/database/src/durable-work-schema.ts
+            packages/database/src/index.ts
+            packages/database/src/runtime-role.test.ts
+            packages/database/src/runtime-role.ts
       - run: npm run format
       - uses: actions/upload-artifact@v4
         with:
