@@ -1,4 +1,5 @@
 import {
+  foreignKey,
   index,
   integer,
   pgTable,
@@ -32,6 +33,11 @@ export const durableWorkReplays = pgTable(
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
+    foreignKey({
+      columns: [table.storeId, table.organizationId],
+      foreignColumns: [stores.id, stores.organizationId],
+      name: 'durable_work_replays_store_scope_fk',
+    }).onDelete('cascade'),
     uniqueIndex('durable_work_replays_idempotency_unique').on(
       table.organizationId,
       table.storeId,
