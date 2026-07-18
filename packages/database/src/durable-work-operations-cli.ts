@@ -98,10 +98,7 @@ function optionalPositiveInteger(values: Map<string, string>, name: string): num
   if (raw === undefined) return undefined;
   const value = Number(raw);
   if (!Number.isSafeInteger(value) || value <= 0 || value > 100) {
-    throw new CliInputError(
-      'INVALID_ARGUMENT',
-      `--${name} must be an integer between 1 and 100`,
-    );
+    throw new CliInputError('INVALID_ARGUMENT', `--${name} must be an integer between 1 and 100`);
   }
   return value;
 }
