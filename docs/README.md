@@ -4,7 +4,7 @@ This directory is the long-term product and engineering source of truth. New dev
 
 ## Current verified milestone
 
-The authenticated merchant browser dead-letter operations surface is merged on `main` as `27cff21a9fd024e7b8094da3397c79387c83ea02`. Final feature CI run `29645967968`, job `88084164235`, passed twelve migrations, 19 typechecks, 28 test tasks with 129 assertions, 19 builds, and PHP syntax at tested head `2129b51ca7393b3c942f2f5c074cb3990b615b89`. Listing remains exact-store, owner/admin-only, and secret-free; replay remains CSRF-protected, idempotent, audited, and provider-I/O-free. The generated continuation bundle remains marked for repository-local refresh.
+The authenticated merchant browser dead-letter operations surface is merged on `main` as `27cff21a9fd024e7b8094da3397c79387c83ea02`. Final feature CI run `29645967968`, job `88084164235`, passed twelve migrations, 19 typechecks, 28 test tasks with 129 assertions, 19 builds, and PHP syntax at tested head `2129b51ca7393b3c942f2f5c074cb3990b615b89`. Listing remains exact-store, owner/admin-only, and secret-free; replay remains CSRF-protected, idempotent, audited, and provider-I/O-free. This slice reused migration `0012` and introduced no schema change or automatic retry loop. The generated continuation bundle remains marked for repository-local refresh.
 
 ## Architecture
 
