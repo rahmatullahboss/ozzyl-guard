@@ -22,7 +22,10 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
-      - run: python3 .github/scripts/sync-browser-dead-letter-evidence.py
+      - name: Apply evidence sync
+        run: |
+          python3 .github/scripts/fix-browser-evidence-sync.py
+          python3 .github/scripts/sync-browser-dead-letter-evidence.py
       - name: Format evidence
         run: |
           npx prettier --write tracker.yml
@@ -35,6 +38,7 @@ jobs:
         run: |
           rm .github/workflows/browser-dead-letter-evidence-sync.yml
           rm .github/scripts/sync-browser-dead-letter-evidence.py
+          rm .github/scripts/fix-browser-evidence-sync.py
       - run: npm run format:check && npm run db:check
       - name: Commit evidence
         run: |
