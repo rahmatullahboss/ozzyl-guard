@@ -23,9 +23,21 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Apply evidence sync
+        id: evidence_sync
+        continue-on-error: true
         run: |
-          python3 .github/scripts/fix-browser-evidence-sync.py
-          python3 .github/scripts/sync-browser-dead-letter-evidence.py
+          python3 .github/scripts/fix-browser-evidence-sync.py > browser-evidence-sync.log 2>&1
+          python3 .github/scripts/sync-browser-dead-letter-evidence.py >> browser-evidence-sync.log 2>&1
+      - name: Upload evidence sync output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-evidence-sync-output
+          path: browser-evidence-sync.log
+          if-no-files-found: error
+      - name: Fail after captured sync error
+        if: steps.evidence_sync.outcome == 'failure'
+        run: exit 1
       - name: Format evidence
         run: |
           npx prettier --write tracker.yml
@@ -39,6 +51,7 @@ jobs:
           rm .github/workflows/browser-dead-letter-evidence-sync.yml
           rm .github/scripts/sync-browser-dead-letter-evidence.py
           rm .github/scripts/fix-browser-evidence-sync.py
+          rm -f browser-evidence-sync.log
       - run: npm run format:check && npm run db:check
       - name: Commit evidence
         run: |
