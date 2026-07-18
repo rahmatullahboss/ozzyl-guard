@@ -11,7 +11,7 @@ jobs:
   implement:
     if: github.event.pull_request.head.ref == 'feat/browser-dead-letter-operations'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
         with:
@@ -33,10 +33,8 @@ jobs:
         run: npm run typecheck -w @ozzyl/shared-types
       - name: API typecheck
         run: npm run typecheck -w @ozzyl/api
-      - name: Build browser test dependencies
-        run: |
-          npm run build -w @ozzyl/shared-types
-          npm run build -w @ozzyl/database
+      - name: Build workspace dependency graph
+        run: npm run build
       - name: Dead-letter list browser test
         id: list_test
         continue-on-error: true
@@ -57,8 +55,6 @@ jobs:
         run: npx vitest run apps/api/src/browser.test.ts -t "requires CSRF and maps controlled replay" --reporter=verbose
       - name: Full browser API tests
         run: npx vitest run apps/api/src/browser.test.ts --reporter=verbose
-      - name: Dashboard build
-        run: npm run build -w @ozzyl/dashboard
       - name: Commit implementation
         run: |
           rm .github/workflows/browser-dead-letter-implementation.yml
