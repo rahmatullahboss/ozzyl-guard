@@ -1,0 +1,44 @@
+name: Browser Dead Letter Implementation
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  implement:
+    if: github.event.pull_request.head.ref == 'feat/browser-dead-letter-operations'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/browser-dead-letter-operations
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Apply implementation patch
+        run: python3 .github/scripts/apply-browser-dead-letter-operations.py
+      - name: Refresh workspace lockfile
+        run: npm install --package-lock-only
+      - run: npm run format
+      - name: Targeted verification
+        run: |
+          npm run typecheck -w @ozzyl/shared-types
+          npm run typecheck -w @ozzyl/api
+          npm run test -w @ozzyl/api
+          npm run build -w @ozzyl/dashboard
+      - name: Commit implementation
+        run: |
+          rm .github/workflows/browser-dead-letter-implementation.yml
+          rm .github/scripts/apply-browser-dead-letter-operations.py
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "feat: add browser dead-letter operations"
+          git push origin HEAD:feat/browser-dead-letter-operations
