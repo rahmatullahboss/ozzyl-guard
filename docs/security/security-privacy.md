@@ -190,3 +190,7 @@ Application-level URL and DNS validation is not sufficient by itself against eve
 - Broad unaudited cross-store lookup
 - Synchronous webhook delivery in checkout handling
 - Plaintext webhook signing secrets in configuration or logs
+
+## Browser durable-work administration
+
+Dead-letter listing and replay require an opaque authenticated browser session, exact session-visible organization/store scope, active owner/admin membership, repository-level relational reauthorization, and CSRF proof for replay. Service API keys are not accepted as browser sessions. The response contract excludes raw payloads, destination URLs, phone numbers or hashes, OTP values or hashes, encrypted material, credentials, cookies, tokens, provider responses, and webhook signing secrets.
