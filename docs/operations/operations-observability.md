@@ -85,6 +85,23 @@ The durable runner is implemented, but production delivery remains disabled unti
 - Unknown/degraded distribution
 - Savings estimate accuracy
 
+### Native shadow pilot
+
+- Explicitly opted-in stores
+- Sampled orders
+- Successful comparisons
+- Guard assessment failures and timeouts
+- Comparison and sampled-attempt persistence failures
+- Decision disagreement rate
+- Bounded score-delta minimum, maximum, average, and lower/equal/higher counts
+- Rollout reads, updates, idempotent replays, conflicts, and tenant-scope rejections
+
+Merchant views must query only the authorized organization/store and a bounded
+window. Platform administration may aggregate across active stores but must not
+expose customer identifiers, external order IDs, raw request payloads, API keys,
+provider credentials, cookies, OTPs, or signing secrets. Reporting failure must
+not affect source checkout or the effective legacy decision.
+
 ## Logging
 
 Use structured logs with:

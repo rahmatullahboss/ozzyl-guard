@@ -135,6 +135,11 @@ function AdminApp() {
           value={number(overview.summary.failed_webhooks)}
           detail="Current failed delivery state"
         />
+        <Stat
+          label="Shadow pilot stores"
+          value={number(overview.shadow_pilot.opted_in_stores)}
+          detail={`${number(overview.shadow_pilot.sampled_orders)} sampled orders in 30 days`}
+        />
       </section>
 
       <section className="grid">
@@ -171,6 +176,24 @@ function AdminApp() {
             <i style={{ width: '0%' }} />
           </div>
           <p className="note">{overview.automatic_blocking.reason}</p>
+          <div className="policy">
+            <strong>Native shadow comparisons</strong>
+            <span>{number(overview.shadow_pilot.successful_comparisons)}</span>
+          </div>
+          <div className="policy">
+            <strong>Assessment / persistence failures</strong>
+            <span>
+              {number(overview.shadow_pilot.assessment_failures)} /{' '}
+              {number(overview.shadow_pilot.persistence_failures)}
+            </span>
+          </div>
+          <p className="note">
+            Decision disagreement:{' '}
+            {overview.shadow_pilot.decision_disagreement_rate === null
+              ? 'no successful sample yet'
+              : `${Math.round(overview.shadow_pilot.decision_disagreement_rate * 10000) / 100}%`}
+            . Score delta average: {overview.shadow_pilot.score_delta.average ?? 'n/a'}.
+          </p>
         </article>
       </section>
 

@@ -30,6 +30,7 @@ ADRs capture durable architectural decisions, alternatives, consequences, and su
 - [0008 — PostgreSQL-first durable work and cache boundary](0008-postgresql-first-durable-work-and-cache.md)
 - [0009 — Managed secrets and KMS envelope encryption](0009-managed-secrets-and-kms-envelope-encryption.md)
 - [0010 — Vendor-neutral production observability](0010-vendor-neutral-production-observability.md)
+- [0011 — Selected source-platform shadow pilot](0011-selected-source-shadow-pilot.md)
 
 ## Pending ADRs
 

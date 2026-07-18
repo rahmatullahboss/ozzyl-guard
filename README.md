@@ -39,7 +39,7 @@ The repository now contains a runnable MVP foundation:
 - Docker, Docker Compose, migration integrity verification, clean logical restore rehearsal, and least-privilege runtime-role verification in CI
 - Authoritative organization/store revalidation across API keys, feature assembly, writes, dashboards, and secret-free webhook/verification administration
 - Provider-neutral managed envelope v2 with per-record data keys, authenticated wrapped-key metadata, structured safe failures, legacy dual-read, and rotation/re-encryption primitives
-- Native multi-store off/deterministic-shadow rollout with legacy-authoritative behavior and tenant-scoped immutable comparison evidence
+- Native multi-store post-persist shadow integration with authoritative source-order revalidation, explicit store opt-in, immutable success/failure attempt evidence, tenant-scoped pilot reporting, and legacy-authoritative behavior
 
 The following require external accounts or production decisions before live use:
 
@@ -48,7 +48,7 @@ The following require external accounts or production decisions before live use:
 - OTP provider selection and credentials
 - Authenticated dashboard/admin live data wiring is complete; production hosting, distributed rate limiting, account recovery, MFA, and managed identity supersession remain
 - Production queue/cache/observability providers
-- Selected source-platform shadow invocation and pilot outcome calibration before any enforcement or broad automatic blocking
+- Production source-platform hook deployment, explicit pilot-store selection, and outcome calibration before any enforcement or broad automatic blocking
 
 See [implementation status](.ai-bridge/implementation-status.md) and [risk register](docs/roadmap/risk-register.md).
 

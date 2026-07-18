@@ -243,6 +243,75 @@ server-side. The durable record contains no phone, API key, provider credential,
 or unrestricted order snapshot. Reusing an idempotency key with different
 comparison evidence returns a conflict.
 
+## Read native shadow rollout
+
+```http
+GET /v1/integration-rollouts/native-shadow
+```
+
+This service endpoint requires `comparisons:write`. It returns only the active
+organization/store rollout for the authenticated service API key. A missing
+rollout row is represented as `mode: "off"`, `rollout_version: "off"`, and
+`sample_rate_bps: 0`. The returned sampling key is a deterministic scoped
+identifier, not a credential.
+
+```json
+{
+  "success": true,
+  "organization_id": "org_123",
+  "store_id": "store_123",
+  "integration": "multi-store-saas",
+  "mode": "shadow",
+  "rollout_version": "pilot-v1",
+  "sample_rate_bps": 1000,
+  "sampling_key": "scoped-deterministic-key"
+}
+```
+
+## Record native shadow attempt
+
+```http
+POST /v1/integration-attempts/native-shadow
+```
+
+This endpoint requires `comparisons:write` and `Idempotency-Key`. It records one
+immutable sampled-order state after the source order has been persisted.
+Allowed states are:
+
+- `comparison_succeeded`, with matching scoped assessment and comparison IDs;
+- `assessment_failed`, with `GUARD_ASSESSMENT_FAILED` or `GUARD_TIMEOUT`;
+- `comparison_persist_failed`, with the scoped assessment ID and
+  `COMPARISON_PERSIST_FAILED`.
+
+```json
+{
+  "external_order_id": "ORDER-100",
+  "rollout_version": "pilot-v1",
+  "sample_bucket": 140,
+  "sample_rate_bps": 1000,
+  "status": "assessment_failed",
+  "failure_code": "GUARD_TIMEOUT",
+  "evaluated_at": "2026-07-18T08:00:00Z"
+}
+```
+
+The repository revalidates the active store rollout plus every assessment and
+comparison reference. Duplicate retries return the same attempt ID; conflicting
+reuse of the idempotency key is rejected. Database errors return a structured,
+secret-free advisory error and must not alter source checkout behavior.
+
+## Administer store rollout
+
+```http
+PUT /dashboard/v1/native-shadow-rollout
+```
+
+This browser endpoint is separate from service API-key authentication. It
+requires an authenticated dashboard session, CSRF proof, an active owner/admin
+membership, and exact organization/store scope. Valid configurations are only
+`off` with zero sampling or `shadow` with a positive bounded sample rate. No
+enforcement mode is accepted.
+
 ## Webhooks
 
 Events:

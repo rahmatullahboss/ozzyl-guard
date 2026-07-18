@@ -41,6 +41,10 @@
     {
       "name": "0010_native_shadow_comparisons.sql",
       "checksum_sha256": "3d88f4196b83b723a3f6f2a2fc5c85b33800c180081ab7e5b731821d823f0821"
+    },
+    {
+      "name": "0011_native_shadow_pilot.sql",
+      "checksum_sha256": "be0ec47b3ba2c95b33706aec78e570fb7399524cbddd10680aaf511549fdaca9"
     }
   ]
 }

@@ -81,6 +81,15 @@ Tests must prove that one organization/store cannot read, mutate, infer, or enum
 
 Webhook delivery rows persist explicit organization/store scope and are revalidated against the endpoint and store relationships before claim. Mismatched rows fail closed instead of being sent. Webhook and verification administration require active owner/admin membership and return only operational metadata; signing-secret ciphertext, OTP hashes, encrypted job payloads, and raw phone values are excluded.
 
+Native shadow rollout and attempt evidence follow the same boundary:
+
+- source order scope is reloaded and verified before Guard evaluation;
+- service API keys require `comparisons:write` and remain separate from browser sessions;
+- rollout mutation requires CSRF proof plus active owner/admin membership;
+- rollout, assessment, comparison, and attempt repositories revalidate exact organization/store relationships;
+- merchant and platform reports contain bounded aggregates only;
+- phone numbers, request snapshots, raw API keys, provider payloads, credentials, cookies, OTPs, and signing secrets are prohibited from rollout, attempt, dashboard, audit, and error payloads.
+
 ## PostgreSQL role separation
 
 - The migration owner applies schema changes, owns relations, records migration history, and runs `npm run db:runtime-grants` after migrations.

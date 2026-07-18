@@ -93,6 +93,17 @@ Treat the existing platform as the first native client.
 - Persist successful comparisons through
   `POST /v1/integration-comparisons/native-shadow`; the API derives Guard values
   from the scoped assessment and rejects cross-store or mismatched-order data.
+- The concrete post-persist hook must reload the durable source order through
+  `PersistedCommerceOrderReader` and verify organization, store, and order IDs
+  before fetching rollout configuration or calling Guard.
+- Fetch authoritative rollout state from
+  `GET /v1/integration-rollouts/native-shadow`. Missing configuration behaves as
+  `off`; a store runs shadow only after an explicit owner/admin opt-in.
+- Record every sampled success, assessment failure, timeout, or comparison
+  persistence failure through `POST /v1/integration-attempts/native-shadow`.
+  Source retries reuse stable idempotency keys.
+- Failure to read rollout state or write attempt evidence is advisory only. The
+  normalized legacy result remains the effective decision.
 - Do not enable enforcement or broad automatic blocking until pilot outcomes
   have been reviewed and thresholds calibrated.
 

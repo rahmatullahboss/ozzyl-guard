@@ -363,6 +363,78 @@ export const integrationShadowComparisons = pgTable(
   ],
 );
 
+export const integrationShadowRollouts = pgTable(
+  'integration_shadow_rollouts',
+  {
+    organizationId: text('organization_id')
+      .notNull()
+      .references(() => organizations.id, { onDelete: 'cascade' }),
+    storeId: text('store_id')
+      .notNull()
+      .references(() => stores.id, { onDelete: 'cascade' }),
+    integration: text('integration').notNull(),
+    mode: text('mode').notNull(),
+    rolloutVersion: text('rollout_version').notNull(),
+    sampleRateBps: integer('sample_rate_bps').notNull(),
+    updatedByUserId: text('updated_by_user_id').references(() => users.id, {
+      onDelete: 'set null',
+    }),
+    ...timestamps(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.organizationId, table.storeId, table.integration] }),
+    index('integration_shadow_rollouts_mode_idx').on(
+      table.integration,
+      table.mode,
+      table.updatedAt,
+    ),
+  ],
+);
+
+export const integrationShadowAttempts = pgTable(
+  'integration_shadow_attempts',
+  {
+    id: text('id').primaryKey(),
+    organizationId: text('organization_id')
+      .notNull()
+      .references(() => organizations.id, { onDelete: 'cascade' }),
+    storeId: text('store_id')
+      .notNull()
+      .references(() => stores.id, { onDelete: 'cascade' }),
+    apiKeyId: text('api_key_id').references(() => apiKeys.id, { onDelete: 'set null' }),
+    integration: text('integration').notNull(),
+    externalOrderId: text('external_order_id').notNull(),
+    idempotencyKey: text('idempotency_key').notNull(),
+    rolloutVersion: text('rollout_version').notNull(),
+    sampleBucket: integer('sample_bucket').notNull(),
+    sampleRateBps: integer('sample_rate_bps').notNull(),
+    status: text('status').notNull(),
+    failureCode: text('failure_code'),
+    assessmentId: text('assessment_id').references(() => riskAssessments.id, {
+      onDelete: 'cascade',
+    }),
+    comparisonId: text('comparison_id').references(() => integrationShadowComparisons.id, {
+      onDelete: 'cascade',
+    }),
+    evaluatedAt: timestamp('evaluated_at', { withTimezone: true }).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex('integration_shadow_attempts_scope_idempotency_unique').on(
+      table.organizationId,
+      table.storeId,
+      table.integration,
+      table.idempotencyKey,
+    ),
+    index('integration_shadow_attempts_store_created_idx').on(table.storeId, table.createdAt),
+    index('integration_shadow_attempts_status_created_idx').on(
+      table.integration,
+      table.status,
+      table.createdAt,
+    ),
+  ],
+);
+
 export const riskSignals = pgTable(
   'risk_signals',
   {

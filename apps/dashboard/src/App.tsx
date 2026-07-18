@@ -231,7 +231,7 @@ export function App() {
               />
             )}
             {view === 'couriers' && <CourierAccounts overview={overview} />}
-            {view === 'policies' && <RiskPolicies />}
+            {view === 'policies' && <RiskPolicies overview={overview} />}
             {view === 'usage' && <Usage overview={overview} />}
             {view === 'settings' && <Settings session={session} overview={overview} />}
           </>
@@ -350,6 +350,49 @@ function Overview({
           note="Organization entitlement"
         />
       </div>
+
+      <article className="panel">
+        <div className="panel-heading">
+          <div>
+            <p className="eyebrow">Native source shadow · last 30 days</p>
+            <h3>Post-persist pilot comparison</h3>
+          </div>
+          <span
+            className={overview.shadow_pilot.mode === 'shadow' ? 'pill success' : 'pill neutral'}
+          >
+            {overview.shadow_pilot.mode}
+          </span>
+        </div>
+        <div className="metric-grid">
+          <Metric
+            title="Sampled orders"
+            value={number(overview.shadow_pilot.sampled_orders)}
+            note={`${overview.shadow_pilot.sample_rate_bps / 100}% configured sample`}
+          />
+          <Metric
+            title="Comparisons"
+            value={number(overview.shadow_pilot.successful_comparisons)}
+            note="Successfully persisted"
+          />
+          <Metric
+            title="Advisory failures"
+            value={number(
+              overview.shadow_pilot.assessment_failures +
+                overview.shadow_pilot.persistence_failures,
+            )}
+            note="Checkout remained legacy-authoritative"
+          />
+          <Metric
+            title="Decision disagreement"
+            value={
+              overview.shadow_pilot.decision_disagreement_rate === null
+                ? 'No data'
+                : `${Math.round(overview.shadow_pilot.decision_disagreement_rate * 10000) / 100}%`
+            }
+            note={`Score delta avg ${overview.shadow_pilot.score_delta.average ?? 'n/a'}`}
+          />
+        </div>
+      </article>
 
       <div className="two-column">
         <article className="panel">
@@ -544,7 +587,8 @@ function CourierAccounts({ overview }: { overview: MerchantDashboardOverview }) 
   );
 }
 
-function RiskPolicies() {
+function RiskPolicies({ overview }: { overview: MerchantDashboardOverview }) {
+  const pilot = overview.shadow_pilot;
   return (
     <section className="content-stack">
       <article className="panel notice-panel">
@@ -554,6 +598,37 @@ function RiskPolicies() {
           The existing versioned policy and single canonical Risk Engine remain unchanged. Broad
           automatic blocking will not be enabled before selected-merchant pilot review and
           confidence calibration.
+        </p>
+      </article>
+      <article className="panel">
+        <div className="panel-heading">
+          <div>
+            <p className="eyebrow">Store-scoped rollout</p>
+            <h3>Native shadow is {pilot.mode}</h3>
+          </div>
+          <span className={pilot.mode === 'shadow' ? 'pill success' : 'pill neutral'}>
+            {pilot.rollout_version}
+          </span>
+        </div>
+        <div className="detail-metrics">
+          <Metric
+            title="Sample rate"
+            value={`${pilot.sample_rate_bps / 100}%`}
+            note="Explicit opt-in only"
+          />
+          <Metric
+            title="Score delta range"
+            value={
+              pilot.score_delta.minimum === null
+                ? 'No data'
+                : `${pilot.score_delta.minimum} to ${pilot.score_delta.maximum}`
+            }
+            note={`${pilot.score_delta.lower} lower · ${pilot.score_delta.equal} equal · ${pilot.score_delta.higher} higher`}
+          />
+        </div>
+        <p className="note">
+          Rollout changes require an authenticated owner/admin browser session and CSRF-protected
+          store scope. Service API keys cannot act as dashboard sessions.
         </p>
       </article>
     </section>

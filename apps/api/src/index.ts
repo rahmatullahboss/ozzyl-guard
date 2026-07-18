@@ -14,12 +14,17 @@ import {
   type VerificationFeatures,
 } from '@ozzyl/risk-engine';
 import {
+  nativeShadowAttemptInputSchema,
+  nativeShadowAttemptResponseSchema,
   nativeShadowComparisonInputSchema,
   nativeShadowComparisonResponseSchema,
+  nativeShadowRolloutResponseSchema,
   orderOutcomeSchema,
   riskAssessmentRequestSchema,
   riskAssessmentResponseSchema,
+  type NativeShadowAttemptInput,
   type NativeShadowComparisonInput,
+  type NativeShadowRolloutMode,
   type OrderOutcomeInput,
   type RiskAssessmentRequest,
   type RiskAssessmentResponse,
@@ -28,6 +33,7 @@ import { VerificationError } from '@ozzyl/verification';
 import { createBrowserApi, type BrowserApiDependencies } from './browser.js';
 
 export * from './postgres-administration.js';
+export * from './postgres-native-shadow-pilot.js';
 export * from './postgres-shadow-comparisons.js';
 
 export interface ApiKeyIdentity {
@@ -103,6 +109,47 @@ export interface ShadowComparisonRepository {
   }): Promise<{ comparisonId: string; replay: boolean }>;
 }
 
+export interface NativeShadowRolloutRepository {
+  load(input: { organizationId: string; storeId: string }): Promise<{
+    organizationId: string;
+    storeId: string;
+    integration: 'multi-store-saas';
+    mode: NativeShadowRolloutMode;
+    rolloutVersion: string;
+    sampleRateBps: number;
+    samplingKey: string;
+  } | null>;
+}
+
+export interface NativeShadowRolloutAdministrationRepository {
+  setForStore(input: {
+    userId: string;
+    organizationId: string;
+    storeId: string;
+    mode: NativeShadowRolloutMode;
+    rolloutVersion: string;
+    sampleRateBps: number;
+  }): Promise<{
+    organizationId: string;
+    storeId: string;
+    integration: 'multi-store-saas';
+    mode: NativeShadowRolloutMode;
+    rolloutVersion: string;
+    sampleRateBps: number;
+    samplingKey: string;
+  } | null>;
+}
+
+export interface NativeShadowAttemptRepository {
+  save(input: {
+    organizationId: string;
+    storeId: string;
+    apiKeyId: string;
+    idempotencyKey: string;
+    attempt: NativeShadowAttemptInput;
+  }): Promise<{ attemptId: string; replay: boolean }>;
+}
+
 export interface CourierRefreshQueue {
   enqueue(input: {
     organizationId: string;
@@ -151,6 +198,8 @@ export interface ApiDependencies {
   assessments: AssessmentRepository;
   outcomes: OutcomeRepository;
   shadowComparisons?: ShadowComparisonRepository;
+  nativeShadowRollouts?: NativeShadowRolloutRepository;
+  nativeShadowAttempts?: NativeShadowAttemptRepository;
   refreshQueue: CourierRefreshQueue;
   idempotency: OperationIdempotencyStore;
   rateLimiter: RateLimiter;
@@ -198,7 +247,9 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
       endpoints: {
         assessments: 'POST /v1/risk-assessments',
         outcomes: 'POST /v1/order-outcomes',
+        nativeShadowRollout: 'GET /v1/integration-rollouts/native-shadow',
         nativeShadowComparisons: 'POST /v1/integration-comparisons/native-shadow',
+        nativeShadowAttempts: 'POST /v1/integration-attempts/native-shadow',
         refresh: 'POST /v1/courier-observations/refresh',
         otpSend: 'POST /v1/verifications/otp/send',
         otpVerify: 'POST /v1/verifications/otp/verify',
@@ -396,6 +447,40 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
     );
   });
 
+  app.get('/v1/integration-rollouts/native-shadow', async (context) => {
+    const requestId = context.get('requestId');
+    const identity = context.get('identity');
+    const scopeError = requireScope(identity, 'comparisons:write', requestId);
+    if (scopeError) return scopeError;
+    if (!dependencies.nativeShadowRollouts) {
+      return apiError(
+        requestId,
+        503,
+        'NATIVE_SHADOW_ROLLOUT_UNAVAILABLE',
+        'Native shadow rollout configuration is not available',
+      );
+    }
+    const rollout = await dependencies.nativeShadowRollouts.load({
+      organizationId: identity.organizationId,
+      storeId: identity.storeId,
+    });
+    if (!rollout) {
+      return apiError(requestId, 400, 'TENANT_SCOPE_MISMATCH', 'Store scope is not active');
+    }
+    return context.json(
+      nativeShadowRolloutResponseSchema.parse({
+        success: true,
+        organization_id: rollout.organizationId,
+        store_id: rollout.storeId,
+        integration: rollout.integration,
+        mode: rollout.mode,
+        rollout_version: rollout.rolloutVersion,
+        sample_rate_bps: rollout.sampleRateBps,
+        sampling_key: rollout.samplingKey,
+      }),
+    );
+  });
+
   app.post('/v1/integration-comparisons/native-shadow', async (context) => {
     const requestId = context.get('requestId');
     const identity = context.get('identity');
@@ -471,6 +556,63 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
         status === 503
           ? 'Native shadow comparison could not be persisted'
           : 'Native shadow comparison was rejected',
+      );
+    }
+  });
+
+  app.post('/v1/integration-attempts/native-shadow', async (context) => {
+    const requestId = context.get('requestId');
+    const identity = context.get('identity');
+    const scopeError = requireScope(identity, 'comparisons:write', requestId);
+    if (scopeError) return scopeError;
+    if (!dependencies.nativeShadowAttempts) {
+      return apiError(
+        requestId,
+        503,
+        'NATIVE_SHADOW_ATTEMPT_UNAVAILABLE',
+        'Native shadow attempt persistence is not configured',
+      );
+    }
+    const idempotencyKey = readIdempotencyKey(context.req.header('Idempotency-Key'));
+    if (!idempotencyKey) {
+      return apiError(requestId, 400, 'IDEMPOTENCY_KEY_REQUIRED', 'Idempotency-Key is required');
+    }
+    const parsedBody = await parseJson(context.req.raw, nativeShadowAttemptInputSchema);
+    if (!parsedBody.success) return apiError(requestId, 400, 'INVALID_REQUEST', parsedBody.message);
+    try {
+      const saved = await dependencies.nativeShadowAttempts.save({
+        organizationId: identity.organizationId,
+        storeId: identity.storeId,
+        apiKeyId: identity.apiKeyId,
+        idempotencyKey,
+        attempt: parsedBody.value,
+      });
+      return context.json(
+        nativeShadowAttemptResponseSchema.parse({
+          success: true,
+          attempt_id: saved.attemptId,
+          replay: saved.replay,
+        }),
+        saved.replay ? 200 : 201,
+      );
+    } catch (error) {
+      const code =
+        error && typeof error === 'object' && 'code' in error && typeof error.code === 'string'
+          ? error.code
+          : 'NATIVE_SHADOW_ATTEMPT_UNAVAILABLE';
+      const status =
+        code === 'NATIVE_SHADOW_ATTEMPT_IDEMPOTENCY_CONFLICT'
+          ? 409
+          : code === 'NATIVE_SHADOW_ATTEMPT_UNAVAILABLE'
+            ? 503
+            : 400;
+      return apiError(
+        requestId,
+        status,
+        code,
+        status === 503
+          ? 'Native shadow attempt could not be persisted'
+          : 'Native shadow attempt was rejected',
       );
     }
   });
