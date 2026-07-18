@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import type {
   BrowserSessionResponse,
   DashboardReview,
@@ -39,7 +39,7 @@ export function App() {
   const [operationsLoading, setOperationsLoading] = useState(false);
   const [replayingWork, setReplayingWork] = useState<string | null>(null);
   const [operationMessage, setOperationMessage] = useState<string | null>(null);
-  const [replayKeys, setReplayKeys] = useState<Record<string, string>>({});
+  const replayKeys = useRef<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -114,6 +114,7 @@ export function App() {
       setOverview(body);
       setSelectedReview(body.reviews[0] ?? null);
       setDeadLetters([]);
+      replayKeys.current = {};
       setOperationMessage(null);
     } catch (caught) {
       setError(errorMessage(caught));
@@ -152,10 +153,10 @@ export function App() {
   async function handleReplay(item: DurableDeadLetter) {
     if (!session || !selectedStore || !item.replayable) return;
     const itemKey = durableWorkKey(item);
-    let idempotencyKey = replayKeys[itemKey];
+    let idempotencyKey = replayKeys.current[itemKey];
     if (!idempotencyKey) {
       idempotencyKey = `dlr_${crypto.randomUUID()}`;
-      setReplayKeys((current) => ({ ...current, [itemKey]: idempotencyKey as string }));
+      replayKeys.current[itemKey] = idempotencyKey;
     }
     setReplayingWork(itemKey);
     setOperationMessage(null);
@@ -185,11 +186,7 @@ export function App() {
       setDeadLetters((current) =>
         current.filter((candidate) => durableWorkKey(candidate) !== itemKey),
       );
-      setReplayKeys((current) => {
-        const next = { ...current };
-        delete next[itemKey];
-        return next;
-      });
+      delete replayKeys.current[itemKey];
       setOperationMessage(
         replay.replay
           ? `${workTypeLabel(item.work_type)} replay was already accepted.`
@@ -237,6 +234,7 @@ export function App() {
       setOverview(null);
       setSelectedStore(null);
       setSelectedReview(null);
+      replayKeys.current = {};
     } catch (caught) {
       setError(errorMessage(caught));
     } finally {
