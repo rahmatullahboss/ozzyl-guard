@@ -4,7 +4,7 @@ Updated: 2026-07-18
 
 ## Current state
 
-A runnable standalone MVP foundation and twelve production-hardening slices are complete:
+A runnable standalone MVP foundation and thirteen production-hardening slices are complete:
 
 1. dashboard/admin browser authentication with live PostgreSQL data and tenant revalidation;
 2. accepted provider-neutral infrastructure ADRs for deployment, managed PostgreSQL, durable work/cache, KMS envelope encryption, and observability;
@@ -17,7 +17,8 @@ A runnable standalone MVP foundation and twelve production-hardening slices are 
 9. provider-neutral managed envelope v2 with random per-record data keys, authenticated wrapped-key metadata, structured fail-closed errors, explicit legacy dual-read, and key-version re-encryption primitives;
 10. native multi-store `off`/deterministic-shadow rollout controls with legacy-authoritative behavior and tenant-scoped immutable comparison evidence;
 11. selected-source post-persist shadow integration with authoritative source-order reload, explicit store opt-in, immutable sampled-attempt evidence, and tenant-scoped pilot reporting;
-12. tenant-scoped durable-work dead-letter inspection and explicit idempotent replay with lease reset, structural failure guards, immutable evidence, and audit records.
+12. tenant-scoped durable-work dead-letter inspection and explicit idempotent replay with lease reset, structural failure guards, immutable evidence, and audit records;
+13. authenticated merchant browser dead-letter operations with exact owner/admin store scope, secret-free listing, CSRF-protected replay, and synchronous stable replay keys.
 
 Concrete provider selection and provisioning remain external production work.
 
@@ -96,6 +97,11 @@ Concrete provider selection and provisioning remain external production work.
 - [x] Concurrent duplicate replay resolves to one queue reset, one immutable replay ledger record, and one audit event
 - [x] Structural webhook failures plus expired, scope-mismatched, invalid, or undecryptable verification work remain failed and require reviewed remediation or a new verification request
 - [x] Replay operations never expose payloads/secrets or perform courier, webhook, browser, or OTP provider network I/O
+- [x] Merchant owner/admin sessions can list exact-store failed durable work through a typed secret-free browser contract
+- [x] Merchant replay requires valid CSRF proof and delegates to the existing transactional PostgreSQL operations repository
+- [x] Non-admin members cannot see the failed-work navigation or call its browser operations successfully
+- [x] The dashboard assigns one replay key synchronously per visible work item and retains it after failed network requests
+- [x] Browser replay responses map replay, conflict, not-found, and structural-blocked states without exposing internal payloads or credentials
 
 ## Verified baseline
 
@@ -106,7 +112,7 @@ Concrete provider selection and provisioning remain external production work.
 - Architecture import boundaries: passed
 - Typecheck: 19 of 19 workspaces passed
 - Test/build dependency tasks: 28 of 28 passed
-- Repository assertions: 126 passed, including five courier lease tests, five webhook lease tests, five verification lease tests, three verification-payload validation tests, seven migration-integrity tests, seven tenant/admin isolation tests, seven runtime-role policy/permission tests, five durable-work dead-letter PostgreSQL tests, eleven envelope-encryption tests, twenty-eight native-shadow adapter/API/SDK/browser/PostgreSQL tests, transactional queues/outbox coverage, and DNS SSRF tests
+- Repository assertions: 129 passed, including five courier lease tests, five webhook lease tests, five verification lease tests, three verification-payload validation tests, seven migration-integrity tests, seven tenant/admin isolation tests, seven runtime-role policy/permission tests, five durable-work dead-letter PostgreSQL tests, three browser dead-letter authorization/replay tests, eleven envelope-encryption tests, twenty-eight native-shadow adapter/API/SDK/browser/PostgreSQL tests, transactional queues/outbox coverage, and DNS SSRF tests
 - Production builds: 19 of 19 workspaces passed
 - WooCommerce PHP syntax: passed
 - npm high/critical audit threshold: passed; four moderate development-tooling advisories remain
@@ -133,6 +139,8 @@ Concrete provider selection and provisioning remain external production work.
 - The verified selected-source shadow pilot foundation was squash-merged through PR #20 to `main` as `c478170c7dadbeafa576a62ae989df682e052d4e`
 - Durable-work dead-letter final CI run `29644234591`, job `88079650134`: audit, formatting, lint, twelve migrations, replay, history integrity, clean restore, runtime-role grants, architecture, 19 typechecks, 126 assertions, 19 builds, and PHP lint passed at head `a1419a2889701bcb6c05b686ac4b1eeb6e9d5d12`
 - The verified durable-work dead-letter operations milestone was squash-merged through PR #22 to `main` as `2d686206456960bf9b3e14571e3bf2c9169d94f9`
+- Browser dead-letter operations final CI run `29645967968`, job `88084164235`: audit, formatting, lint, twelve migrations, replay, history integrity, clean restore, runtime-role grants, architecture, 19 typechecks, 129 assertions, 19 builds, and PHP lint passed at head `2129b51ca7393b3c942f2f5c074cb3990b615b89`
+- The verified browser dead-letter operations milestone was squash-merged through PR #24 to `main` as `27cff21a9fd024e7b8094da3397c79387c83ea02`
 - Canonical documentation links before this slice: zero known broken internal links
 - `tracker.yml` YAML structure remains valid
 - Prohibited source-pattern search: no matches

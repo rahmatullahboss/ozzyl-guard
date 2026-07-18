@@ -4,7 +4,7 @@ This directory is the long-term product and engineering source of truth. New dev
 
 ## Current verified milestone
 
-The durable-work dead-letter operations foundation is merged on `main` as `2d686206456960bf9b3e14571e3bf2c9169d94f9`. Final feature CI run `29644234591`, job `88079650134`, passed twelve migrations, 19 typechecks, 28 test tasks with 126 assertions, 19 builds, and PHP syntax at tested head `a1419a2889701bcb6c05b686ac4b1eeb6e9d5d12`. Controlled replay remains explicit, tenant-authorized, audited, and provider-I/O-free; production source-pilot deployment and outcome calibration remain separate next steps. The generated continuation bundle is marked for repository-local refresh because this GitHub-only milestone could not run its exporter.
+The authenticated merchant browser dead-letter operations surface is merged on `main` as `27cff21a9fd024e7b8094da3397c79387c83ea02`. Final feature CI run `29645967968`, job `88084164235`, passed twelve migrations, 19 typechecks, 28 test tasks with 129 assertions, 19 builds, and PHP syntax at tested head `2129b51ca7393b3c942f2f5c074cb3990b615b89`. Listing remains exact-store, owner/admin-only, and secret-free; replay remains CSRF-protected, idempotent, audited, and provider-I/O-free. The generated continuation bundle remains marked for repository-local refresh.
 
 ## Architecture
 
@@ -29,6 +29,7 @@ The durable-work dead-letter operations foundation is merged on `main` as `2d686
 - [Durable work dead-letter testing](testing/durable-work-dead-letter-testing.md)
 - [Operations and observability](operations/operations-observability.md)
 - [Durable work dead-letter runbook](operations/durable-work-dead-letter-runbook.md)
+- [Browser dead-letter operations](operations/browser-dead-letter-operations.md)
 - [Development environment](operations/development-environment.md)
 - [Deployment](operations/deployment.md)
 
