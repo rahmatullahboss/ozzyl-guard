@@ -47,14 +47,16 @@ jobs:
         run: npx prettier --write docs/README.md
       - name: Format continuation bundle note
         run: npx prettier --write .ai-bridge/pro-context.md
-      - run: npm run format:check && npm run db:check
-      - name: Commit final evidence files
+      - name: Remove temporary sync files
         run: |
           rm .github/workflows/evidence-sync.yml
           rm .github/workflows/evidence-sync-pr.yml
           rm .ai-bridge/evidence-sync-trigger
+      - run: npm run format:check && npm run db:check
+      - name: Commit final evidence files
+        run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add tracker.yml README.md docs .ai-bridge .github/workflows/evidence-sync.yml .github/workflows/evidence-sync-pr.yml
+          git add -A
           git commit -m "docs: sync durable work dead-letter evidence"
           git push origin HEAD:docs/durable-work-dead-letter-evidence
