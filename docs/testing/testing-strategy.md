@@ -15,7 +15,7 @@
 - Webhook HMAC signing, retry classification, and DNS destination validation
 - Migration manifest ordering and SHA-256 tamper detection
 - Runtime-role identifier validation and explicit table-policy completeness
-- Native shadow off mode, deterministic sampling, legacy-authoritative disagreement, and safe assessment/persistence failures
+- Native shadow off mode, deterministic sampling, post-persist source revalidation, legacy-authoritative disagreement, timeout classification, and safe assessment/persistence failures
 
 ## Contract tests
 
@@ -60,7 +60,7 @@ Webhook delivery contract tests cover:
 - Lease-owned webhook delivery and retry
 - Multi-tenant isolation
 - Organization/store membership authorization
-- Concurrent tenant-scoped native shadow comparison persistence and idempotency-conflict rejection
+- Concurrent tenant-scoped native shadow comparison and sampled-attempt persistence, default-off rollout, owner/admin opt-in, idempotency-conflict rejection, negative tenant references, and bounded pilot reporting
 
 ### PostgreSQL concurrency and idempotency coverage
 
@@ -113,10 +113,15 @@ Default tests prove:
 - the legacy score and decision remain the effective result even when Guard recommends block;
 - Guard assessment and comparison-persistence failures return safe codes without leaking provider or database details;
 - the API requires `comparisons:write`, idempotency, matching order identity, and the authenticated organization/store assessment scope;
-- PostgreSQL stores one immutable comparison winner under concurrent duplicate writes and derives Guard score, decision, and confidence server-side;
-- the comparison table contains no raw phone, API key, credential, or unrestricted order snapshot.
+- the concrete post-persist hook reloads the authoritative source order and stops before Guard on organization/store/order mismatch;
+- default-off rollout and deterministic sampling prevent unapproved stores from running shadow;
+- CSRF-protected browser mutation permits only active owner/admin store scope;
+- timeout, assessment failure, comparison persistence failure, and sampled-attempt persistence failure remain advisory while legacy stays effective;
+- PostgreSQL stores one immutable comparison and sampled-attempt winner under concurrent duplicate writes, rejects negative tenant references, and derives Guard comparison values server-side;
+- merchant and platform reports expose sampled counts, failure counts, disagreement rate, and bounded score deltas without secret-bearing fields;
+- comparison, rollout, and attempt tables contain no raw phone, API key, credential, or unrestricted order snapshot.
 
-Live source-platform invocation and enforcement remain outside this milestone. Any enforcement design requires opt-in pilot outcomes and explicit review.
+Selected source-platform post-persist shadow invocation is covered. Enforcement remains outside this milestone and requires opt-in pilot outcomes plus explicit review.
 
 ### Webhook destination security coverage
 

@@ -5,10 +5,13 @@ import { z } from 'zod';
 import {
   browserSessionResponseSchema,
   merchantDashboardOverviewSchema,
+  nativeShadowRolloutModeSchema,
+  nativeShadowRolloutResponseSchema,
   platformAdminOverviewSchema,
   type BrowserOrganization,
   type BrowserSessionResponse,
   type MerchantDashboardOverview,
+  type NativeShadowRolloutMode,
   type PlatformAdminOverview,
   type PlatformRole,
 } from '@ozzyl/shared-types';
@@ -27,6 +30,18 @@ const dashboardScopeSchema = z.object({
   organization_id: z.string().min(1).max(200),
   store_id: z.string().min(1).max(200),
 });
+const nativeShadowRolloutUpdateSchema = dashboardScopeSchema
+  .extend({
+    mode: nativeShadowRolloutModeSchema,
+    rollout_version: z.string().trim().min(1).max(100),
+    sample_rate_bps: z.number().int().min(0).max(10000),
+  })
+  .refine(
+    (value) =>
+      (value.mode === 'off' && value.sample_rate_bps === 0) ||
+      (value.mode === 'shadow' && value.sample_rate_bps > 0),
+    { message: 'off requires zero sampling; shadow requires positive sampling' },
+  );
 
 export interface UserSessionIdentity {
   sessionId: string;
@@ -61,6 +76,25 @@ export interface PlatformAdminRepository {
   loadOverview(input: { userId: string; now: Date }): Promise<PlatformAdminOverview | null>;
 }
 
+export interface NativeShadowRolloutAdministrationRepository {
+  setForStore(input: {
+    userId: string;
+    organizationId: string;
+    storeId: string;
+    mode: NativeShadowRolloutMode;
+    rolloutVersion: string;
+    sampleRateBps: number;
+  }): Promise<{
+    organizationId: string;
+    storeId: string;
+    integration: 'multi-store-saas';
+    mode: NativeShadowRolloutMode;
+    rolloutVersion: string;
+    sampleRateBps: number;
+    samplingKey: string;
+  } | null>;
+}
+
 export interface BrowserAuditRepository {
   record(input: {
     organizationId: string | null;
@@ -76,6 +110,7 @@ export interface BrowserApiDependencies {
   auth: BrowserAuthService;
   dashboard: MerchantDashboardRepository;
   admin: PlatformAdminRepository;
+  nativeShadowRollouts?: NativeShadowRolloutAdministrationRepository;
   audit: BrowserAuditRepository;
   rateLimiter: RateLimiter;
   csrfSecret: string;
@@ -214,6 +249,79 @@ export function createBrowserApi(dependencies: BrowserApiDependencies): Hono<Bro
       metadata: { requestId: context.get('requestId') },
     });
     return context.json(merchantDashboardOverviewSchema.parse(overview));
+  });
+
+  app.put('/dashboard/v1/native-shadow-rollout', async (context) => {
+    const authenticated = await authenticateBrowserRequest(context, dependencies);
+    if (!authenticated.success) return authenticated.response;
+    const csrfHeader = context.req.header('X-CSRF-Token');
+    if (!verifyCsrfToken(authenticated.rawToken, csrfHeader, dependencies.csrfSecret)) {
+      return browserError(context.get('requestId'), 403, 'CSRF_REJECTED', 'CSRF token is invalid');
+    }
+    if (!dependencies.nativeShadowRollouts) {
+      return browserError(
+        context.get('requestId'),
+        503,
+        'NATIVE_SHADOW_ROLLOUT_UNAVAILABLE',
+        'Native shadow rollout administration is unavailable',
+      );
+    }
+    const parsed = await parseJson(context.req.raw, nativeShadowRolloutUpdateSchema);
+    if (!parsed.success) {
+      return browserError(context.get('requestId'), 400, 'INVALID_REQUEST', parsed.message);
+    }
+    const allowedScope = findMerchantScope(
+      authenticated.identity,
+      parsed.value.organization_id,
+      parsed.value.store_id,
+    );
+    if (!allowedScope) {
+      return browserError(context.get('requestId'), 404, 'STORE_NOT_FOUND', 'Store not found');
+    }
+    if (allowedScope.organization.role !== 'owner' && allowedScope.organization.role !== 'admin') {
+      return browserError(
+        context.get('requestId'),
+        403,
+        'STORE_ADMIN_REQUIRED',
+        'Store owner or administrator access is required',
+      );
+    }
+    const rollout = await dependencies.nativeShadowRollouts.setForStore({
+      userId: authenticated.identity.userId,
+      organizationId: allowedScope.organization.id,
+      storeId: allowedScope.store.id,
+      mode: parsed.value.mode,
+      rolloutVersion: parsed.value.rollout_version,
+      sampleRateBps: parsed.value.sample_rate_bps,
+    });
+    if (!rollout) {
+      return browserError(context.get('requestId'), 404, 'STORE_NOT_FOUND', 'Store not found');
+    }
+    await dependencies.audit.record({
+      organizationId: allowedScope.organization.id,
+      actorId: authenticated.identity.userId,
+      action: 'native_shadow.rollout_updated',
+      targetType: 'store',
+      targetId: allowedScope.store.id,
+      metadata: {
+        requestId: context.get('requestId'),
+        mode: rollout.mode,
+        rolloutVersion: rollout.rolloutVersion,
+        sampleRateBps: rollout.sampleRateBps,
+      },
+    });
+    return context.json(
+      nativeShadowRolloutResponseSchema.parse({
+        success: true,
+        organization_id: rollout.organizationId,
+        store_id: rollout.storeId,
+        integration: rollout.integration,
+        mode: rollout.mode,
+        rollout_version: rollout.rolloutVersion,
+        sample_rate_bps: rollout.sampleRateBps,
+        sampling_key: rollout.samplingKey,
+      }),
+    );
   });
 
   app.get('/admin/v1/overview', async (context) => {

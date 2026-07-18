@@ -31,6 +31,10 @@ import {
   PostgresUsageLedger,
 } from './postgres.js';
 import { PostgresVerificationService } from './postgres-verification.js';
+import {
+  PostgresNativeShadowAttemptRepository,
+  PostgresNativeShadowRolloutRepository,
+} from './postgres-native-shadow-pilot.js';
 import { PostgresShadowComparisonRepository } from './postgres-shadow-comparisons.js';
 
 const required = (name: string): string => {
@@ -101,6 +105,7 @@ if (databaseUrl) {
       required('CREDENTIAL_ENCRYPTION_KEY_VERSION'),
     ),
   });
+  const nativeShadowRollouts = new PostgresNativeShadowRolloutRepository(pool);
   dependencies = {
     apiKeys: new PostgresApiKeyResolver(pool, apiKeyPepper),
     usage: new PostgresUsageLedger(pool),
@@ -108,6 +113,8 @@ if (databaseUrl) {
     assessments: new PostgresAssessmentRepository(pool),
     outcomes: new PostgresOutcomeRepository(pool),
     shadowComparisons: new PostgresShadowComparisonRepository(pool),
+    nativeShadowRollouts,
+    nativeShadowAttempts: new PostgresNativeShadowAttemptRepository(pool),
     refreshQueue: new PostgresCourierRefreshQueue(pool),
     idempotency: new PostgresOperationIdempotencyStore(pool),
     rateLimiter,
@@ -118,6 +125,7 @@ if (databaseUrl) {
       auth: new PostgresBrowserAuthService(pool, sessionPepper),
       dashboard: new PostgresMerchantDashboardRepository(pool),
       admin: new PostgresPlatformAdminRepository(pool),
+      nativeShadowRollouts,
       audit: new PostgresBrowserAuditRepository(pool),
       rateLimiter,
       csrfSecret: sessionCsrfSecret,

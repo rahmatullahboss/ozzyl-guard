@@ -195,6 +195,35 @@ API key, provider credential, or unrestricted order snapshot is stored.
 Idempotency is unique by organization, store, integration, and key; conflicting
 reuse fails closed.
 
+### `integration_shadow_rollouts`
+
+- one authoritative row per organization, store, and integration
+- `off` or `shadow` mode only
+- rollout version and bounded basis-point sample rate
+- optional owner/admin user reference for the last update
+- composite store/organization foreign key
+- timestamps for audit and rollout review
+
+No row is equivalent to `off`. Database constraints require zero sampling for
+`off` and positive sampling for `shadow`. This table contains no provider or
+service credential.
+
+### `integration_shadow_attempts`
+
+- immutable organization/store/integration sampled-order evidence
+- source API-key record reference, never the raw key
+- external order ID and stable idempotency key
+- rollout version, deterministic bucket, and sample rate
+- status: successful comparison, assessment failure, or comparison persistence
+  failure
+- bounded failure code plus scoped assessment/comparison references when required
+- evaluation and creation timestamps
+
+Composite foreign keys ensure referenced assessments and comparisons belong to
+the same organization/store. Check constraints enforce valid status/reference
+combinations. Concurrent retries serialize through the repository and the
+unique organization/store/integration/idempotency boundary.
+
 ### `risk_signals`
 
 - assessment id

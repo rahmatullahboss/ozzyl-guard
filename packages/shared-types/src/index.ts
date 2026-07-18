@@ -103,6 +103,70 @@ export const nativeShadowComparisonResponseSchema = z.object({
 });
 export type NativeShadowComparisonResponse = z.infer<typeof nativeShadowComparisonResponseSchema>;
 
+export const nativeShadowRolloutModeSchema = z.enum(['off', 'shadow']);
+export type NativeShadowRolloutMode = z.infer<typeof nativeShadowRolloutModeSchema>;
+
+export const nativeShadowRolloutResponseSchema = z.object({
+  success: z.literal(true),
+  organization_id: z.string().min(1),
+  store_id: z.string().min(1),
+  integration: z.literal('multi-store-saas'),
+  mode: nativeShadowRolloutModeSchema,
+  rollout_version: z.string().min(1).max(100),
+  sample_rate_bps: z.number().int().min(0).max(10000),
+  sampling_key: z.string().min(1).max(200),
+});
+export type NativeShadowRolloutResponse = z.infer<typeof nativeShadowRolloutResponseSchema>;
+
+export const nativeShadowAttemptStatusSchema = z.enum([
+  'comparison_succeeded',
+  'assessment_failed',
+  'comparison_persist_failed',
+]);
+export type NativeShadowAttemptStatus = z.infer<typeof nativeShadowAttemptStatusSchema>;
+
+export const nativeShadowAttemptInputSchema = z.object({
+  external_order_id: z.string().min(1).max(200),
+  rollout_version: z.string().trim().min(1).max(100),
+  sample_bucket: z.number().int().min(0).max(9999),
+  sample_rate_bps: z.number().int().min(1).max(10000),
+  status: nativeShadowAttemptStatusSchema,
+  failure_code: z
+    .enum(['GUARD_ASSESSMENT_FAILED', 'GUARD_TIMEOUT', 'COMPARISON_PERSIST_FAILED'])
+    .optional(),
+  assessment_id: z.string().min(1).max(200).optional(),
+  comparison_id: z.string().min(1).max(200).optional(),
+  evaluated_at: z.string().datetime(),
+});
+export type NativeShadowAttemptInput = z.infer<typeof nativeShadowAttemptInputSchema>;
+
+export const nativeShadowAttemptResponseSchema = z.object({
+  success: z.literal(true),
+  attempt_id: z.string().min(1),
+  replay: z.boolean(),
+});
+export type NativeShadowAttemptResponse = z.infer<typeof nativeShadowAttemptResponseSchema>;
+
+export const nativeShadowPilotReportSchema = z.object({
+  mode: nativeShadowRolloutModeSchema,
+  rollout_version: z.string().min(1).max(100),
+  sample_rate_bps: z.number().int().min(0).max(10000),
+  sampled_orders: z.number().int().nonnegative(),
+  successful_comparisons: z.number().int().nonnegative(),
+  assessment_failures: z.number().int().nonnegative(),
+  persistence_failures: z.number().int().nonnegative(),
+  decision_disagreement_rate: z.number().min(0).max(1).nullable(),
+  score_delta: z.object({
+    minimum: z.number().int().min(-100).max(100).nullable(),
+    maximum: z.number().int().min(-100).max(100).nullable(),
+    average: z.number().min(-100).max(100).nullable(),
+    lower: z.number().int().nonnegative(),
+    equal: z.number().int().nonnegative(),
+    higher: z.number().int().nonnegative(),
+  }),
+});
+export type NativeShadowPilotReport = z.infer<typeof nativeShadowPilotReportSchema>;
+
 export const apiErrorSchema = z.object({
   success: z.literal(false),
   error: z.object({
@@ -201,6 +265,7 @@ export const merchantDashboardOverviewSchema = z.object({
       failure_code: z.string().nullable(),
     }),
   ),
+  shadow_pilot: nativeShadowPilotReportSchema,
 });
 export type MerchantDashboardOverview = z.infer<typeof merchantDashboardOverviewSchema>;
 
@@ -233,6 +298,9 @@ export const platformAdminOverviewSchema = z.object({
   automatic_blocking: z.object({
     broadly_enabled: z.literal(false),
     reason: z.string().min(1),
+  }),
+  shadow_pilot: nativeShadowPilotReportSchema.extend({
+    opted_in_stores: z.number().int().nonnegative(),
   }),
 });
 export type PlatformAdminOverview = z.infer<typeof platformAdminOverviewSchema>;

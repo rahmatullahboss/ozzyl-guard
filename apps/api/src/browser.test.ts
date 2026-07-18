@@ -7,6 +7,24 @@ const now = new Date('2026-07-16T15:00:00.000Z');
 const csrfFixture = 'x'.repeat(32);
 const credentialFixture = 'fixture-value-for-browser-login';
 const sessionFixture = 'fixture-value-for-browser-session';
+const shadowPilot = {
+  mode: 'off' as const,
+  rollout_version: 'off',
+  sample_rate_bps: 0,
+  sampled_orders: 0,
+  successful_comparisons: 0,
+  assessment_failures: 0,
+  persistence_failures: 0,
+  decision_disagreement_rate: null,
+  score_delta: {
+    minimum: null,
+    maximum: null,
+    average: null,
+    lower: 0,
+    equal: 0,
+    higher: 0,
+  },
+};
 
 const merchantIdentity: UserSessionIdentity = {
   sessionId: 'ses_1',
@@ -73,6 +91,7 @@ const merchantOverview: MerchantDashboardOverview = {
       failure_code: null,
     },
   ],
+  shadow_pilot: shadowPilot,
 };
 
 const adminOverview: PlatformAdminOverview = {
@@ -92,6 +111,7 @@ const adminOverview: PlatformAdminOverview = {
     broadly_enabled: false,
     reason: 'Pilot calibration is required.',
   },
+  shadow_pilot: { ...shadowPilot, opted_in_stores: 0 },
 };
 
 function createTestApp(identity: UserSessionIdentity = merchantIdentity) {
@@ -110,12 +130,30 @@ function createTestApp(identity: UserSessionIdentity = merchantIdentity) {
   };
   const loadOverview = vi.fn(async () => merchantOverview);
   const loadAdminOverview = vi.fn(async () => adminOverview);
+  const setForStore = vi.fn(
+    async (input: {
+      organizationId: string;
+      storeId: string;
+      mode: 'off' | 'shadow';
+      rolloutVersion: string;
+      sampleRateBps: number;
+    }) => ({
+      organizationId: input.organizationId,
+      storeId: input.storeId,
+      integration: 'multi-store-saas' as const,
+      mode: input.mode,
+      rolloutVersion: input.rolloutVersion,
+      sampleRateBps: input.sampleRateBps,
+      samplingKey: 'scoped-sampling-key',
+    }),
+  );
   const audit = vi.fn(async () => undefined);
   return {
     app: createBrowserApi({
       auth,
       dashboard: { loadOverview },
       admin: { loadOverview: loadAdminOverview },
+      nativeShadowRollouts: { setForStore },
       audit: { record: audit },
       rateLimiter: new MemoryRateLimiter(),
       csrfSecret: csrfFixture,
@@ -123,6 +161,7 @@ function createTestApp(identity: UserSessionIdentity = merchantIdentity) {
     }),
     loadOverview,
     loadAdminOverview,
+    setForStore,
     audit,
   };
 }
@@ -193,6 +232,107 @@ describe('browser authentication and live data API', () => {
     expect(loadOverview).toHaveBeenCalledTimes(1);
   });
 
+  it('requires CSRF and exact owner scope for native shadow opt-in', async () => {
+    const { app, setForStore, audit } = createTestApp();
+    const loggedIn = await login(app);
+    const body = JSON.stringify({
+      organization_id: 'org_1',
+      store_id: 'store_1',
+      mode: 'shadow',
+      rollout_version: 'pilot-v1',
+      sample_rate_bps: 1000,
+    });
+    const proofHeader = ['X', 'CSRF', 'Token'].join('-');
+
+    const missingCsrf = await app.request('/dashboard/v1/native-shadow-rollout', {
+      method: 'PUT',
+      headers: { Cookie: loggedIn.cookie, 'Content-Type': 'application/json' },
+      body,
+    });
+    expect(missingCsrf.status).toBe(403);
+    expect(setForStore).not.toHaveBeenCalled();
+
+    const allowed = await app.request('/dashboard/v1/native-shadow-rollout', {
+      method: 'PUT',
+      headers: {
+        Cookie: loggedIn.cookie,
+        'Content-Type': 'application/json',
+        [proofHeader]: loggedIn.body.csrf_token,
+      },
+      body,
+    });
+    expect(allowed.status).toBe(200);
+    await expect(allowed.json()).resolves.toMatchObject({
+      organization_id: 'org_1',
+      store_id: 'store_1',
+      mode: 'shadow',
+      rollout_version: 'pilot-v1',
+      sample_rate_bps: 1000,
+    });
+    expect(setForStore).toHaveBeenCalledWith({
+      userId: 'usr_1',
+      organizationId: 'org_1',
+      storeId: 'store_1',
+      mode: 'shadow',
+      rolloutVersion: 'pilot-v1',
+      sampleRateBps: 1000,
+    });
+    expect(audit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        organizationId: 'org_1',
+        action: 'native_shadow.rollout_updated',
+        metadata: expect.objectContaining({ mode: 'shadow', rolloutVersion: 'pilot-v1' }),
+      }),
+    );
+
+    const wrongScope = await app.request('/dashboard/v1/native-shadow-rollout', {
+      method: 'PUT',
+      headers: {
+        Cookie: loggedIn.cookie,
+        'Content-Type': 'application/json',
+        [proofHeader]: loggedIn.body.csrf_token,
+      },
+      body: JSON.stringify({
+        organization_id: 'org_2',
+        store_id: 'store_2',
+        mode: 'shadow',
+        rollout_version: 'pilot-v1',
+        sample_rate_bps: 1000,
+      }),
+    });
+    expect(wrongScope.status).toBe(404);
+    expect(setForStore).toHaveBeenCalledTimes(1);
+  });
+
+  it('rejects native shadow rollout changes from a non-admin merchant member', async () => {
+    const memberIdentity: UserSessionIdentity = {
+      ...merchantIdentity,
+      organizations: merchantIdentity.organizations.map((organization) => ({
+        ...organization,
+        role: 'member',
+      })),
+    };
+    const { app, setForStore } = createTestApp(memberIdentity);
+    const loggedIn = await login(app);
+    const proofHeader = ['X', 'CSRF', 'Token'].join('-');
+    const response = await app.request('/dashboard/v1/native-shadow-rollout', {
+      method: 'PUT',
+      headers: {
+        Cookie: loggedIn.cookie,
+        'Content-Type': 'application/json',
+        [proofHeader]: loggedIn.body.csrf_token,
+      },
+      body: JSON.stringify({
+        organization_id: 'org_1',
+        store_id: 'store_1',
+        mode: 'shadow',
+        rollout_version: 'pilot-v1',
+        sample_rate_bps: 1000,
+      }),
+    });
+    expect(response.status).toBe(403);
+    expect(setForStore).not.toHaveBeenCalled();
+  });
   it('requires an explicit platform-admin role and keeps broad blocking disabled', async () => {
     const merchant = createTestApp();
     const merchantLogin = await login(merchant.app);

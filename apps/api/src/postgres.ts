@@ -42,6 +42,10 @@ import type {
   PlatformAdminRepository,
   UserSessionIdentity,
 } from './browser.js';
+import {
+  loadPlatformNativeShadowPilotReport,
+  loadStoreNativeShadowPilotReport,
+} from './postgres-native-shadow-pilot.js';
 
 export class TenantScopeMismatchError extends Error {
   readonly code = 'TENANT_SCOPE_MISMATCH';
@@ -901,6 +905,11 @@ export class PostgresMerchantDashboardRepository implements MerchantDashboardRep
           [input.organizationId, input.storeId],
         ),
       ]);
+    const shadowPilot = await loadStoreNativeShadowPilotReport(this.pool, {
+      organizationId: input.organizationId,
+      storeId: input.storeId,
+      now: input.now,
+    });
 
     const assessment = assessmentResult.rows[0] ?? emptyAssessmentAggregate();
     const plan = isPlanCode(scope.plan_code) ? scope.plan_code : 'free';
@@ -938,6 +947,7 @@ export class PostgresMerchantDashboardRepository implements MerchantDashboardRep
         last_failure_at: nullableIso(row.last_failure_at),
         failure_code: row.failure_code,
       })),
+      shadow_pilot: shadowPilot,
     });
   }
 }
@@ -995,6 +1005,7 @@ export class PostgresPlatformAdminRepository implements PlatformAdminRepository 
         order by provider
       `),
     ]);
+    const shadowPilot = await loadPlatformNativeShadowPilotReport(this.pool, { now: input.now });
 
     const summary = summaryResult.rows[0] ?? {
       active_organizations: 0,
@@ -1066,6 +1077,7 @@ export class PostgresPlatformAdminRepository implements PlatformAdminRepository 
         reason:
           'Broad automatic blocking remains disabled until merchant pilot calibration is reviewed.',
       },
+      shadow_pilot: shadowPilot,
     });
   }
 }
