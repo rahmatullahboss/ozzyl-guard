@@ -1,0 +1,45 @@
+name: Browser Dead Letter Evidence Sync
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    if: github.event.pull_request.head.ref == 'docs/browser-dead-letter-evidence'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: docs/browser-dead-letter-evidence
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: python3 .github/scripts/sync-browser-dead-letter-evidence.py
+      - name: Format evidence
+        run: |
+          npx prettier --write tracker.yml
+          npx prettier --write .ai-bridge/current-plan.md
+          npx prettier --write .ai-bridge/implementation-status.md
+          npx prettier --write .ai-bridge/decisions.md
+          npx prettier --write .ai-bridge/pro-context.md
+          npx prettier --write docs/README.md
+      - name: Remove temporary evidence files
+        run: |
+          rm .github/workflows/browser-dead-letter-evidence-sync.yml
+          rm .github/scripts/sync-browser-dead-letter-evidence.py
+      - run: npm run format:check && npm run db:check
+      - name: Commit evidence
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "docs: sync browser dead-letter evidence"
+          git push origin HEAD:docs/browser-dead-letter-evidence
