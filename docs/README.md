@@ -17,6 +17,7 @@ The selected-source post-persist native shadow pilot foundation is merged on `ma
 
 - [Public API specification](api/api-specification.md)
 - [Database design](database/database-design.md)
+- [Durable work replay ledger](database/durable-work-replay-ledger.md)
 - [Courier intelligence](courier/courier-intelligence.md)
 - [Canonical risk engine](risk-engine/risk-engine.md)
 - [Integrations](integrations/integrations.md)
@@ -25,7 +26,9 @@ The selected-source post-persist native shadow pilot foundation is merged on `ma
 
 - [Security and privacy](security/security-privacy.md)
 - [Testing strategy](testing/testing-strategy.md)
+- [Durable work dead-letter testing](testing/durable-work-dead-letter-testing.md)
 - [Operations and observability](operations/operations-observability.md)
+- [Durable work dead-letter runbook](operations/durable-work-dead-letter-runbook.md)
 - [Development environment](operations/development-environment.md)
 - [Deployment](operations/deployment.md)
 
