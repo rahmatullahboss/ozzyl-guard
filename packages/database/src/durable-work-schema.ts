@@ -48,10 +48,6 @@ export const durableWorkReplays = pgTable(
       table.storeId,
       table.createdAt,
     ),
-    index('durable_work_replays_target_idx').on(
-      table.workType,
-      table.workId,
-      table.createdAt,
-    ),
+    index('durable_work_replays_target_idx').on(table.workType, table.workId, table.createdAt),
   ],
 );
