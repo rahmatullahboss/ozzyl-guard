@@ -23,7 +23,7 @@ The source rows remain authoritative:
 | `work_type`            | `courier_job`, `webhook_delivery`, or `verification_job`                                 |
 | `work_id`              | Internal source work ID; no payload is copied                                            |
 | `idempotency_key`      | Operator-supplied stable replay decision key                                             |
-| `previous_status`      | Source status before replay; currently `failed`                                          |
+| `previous_status`      | Source status before replay; constrained to `failed`                                     |
 | `previous_error_code`  | Structured source failure code                                                           |
 | `previous_attempts`    | Attempt count before the explicit replay reset                                           |
 | `replayed_status`      | Resulting queue status; constrained to `queued`                                          |
@@ -35,6 +35,7 @@ The source rows remain authoritative:
 - `(store_id, organization_id)` references the authoritative composite store scope from migration `0011`.
 - `(organization_id, store_id, idempotency_key)` is unique, so concurrent duplicates produce one durable replay decision.
 - `work_type` is constrained to the three supported durable-work categories.
+- `previous_status` is constrained to `failed`.
 - `previous_attempts` cannot be negative.
 - `replayed_status` is constrained to `queued`.
 
