@@ -28,10 +28,10 @@ integration('PostgreSQL native shadow pilot', () => {
   let comparisonId = '';
 
   beforeAll(async () => {
-    await pool.query(`insert into users (id, email) values ($1, $2)`, [
-      userId,
-      `pilot-${suffix}@example.com`,
-    ]);
+    await pool.query(
+      `insert into users (id, email, managed_auth_id, status) values ($1, $2, $3, 'active')`,
+      [userId, `pilot-${suffix}@example.com`, `managed-${userId}`],
+    );
     await pool.query(
       `
         insert into organizations (id, name, slug, plan_id)
