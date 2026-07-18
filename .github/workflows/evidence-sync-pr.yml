@@ -35,7 +35,18 @@ jobs:
           Path('/tmp/evidence-sync.py').write_text(script + '\n')
           PY
           python3 /tmp/evidence-sync.py
-      - run: npm run format
+      - name: Format tracker
+        run: npx prettier --write tracker.yml
+      - name: Format current plan
+        run: npx prettier --write .ai-bridge/current-plan.md
+      - name: Format implementation status
+        run: npx prettier --write .ai-bridge/implementation-status.md
+      - name: Format decisions
+        run: npx prettier --write .ai-bridge/decisions.md
+      - name: Format documentation index
+        run: npx prettier --write docs/README.md
+      - name: Format continuation bundle note
+        run: npx prettier --write .ai-bridge/pro-context.md
       - run: npm run format:check && npm run db:check
       - name: Commit final evidence files
         run: |
