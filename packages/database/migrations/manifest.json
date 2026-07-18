@@ -45,6 +45,10 @@
     {
       "name": "0011_native_shadow_pilot.sql",
       "checksum_sha256": "be0ec47b3ba2c95b33706aec78e570fb7399524cbddd10680aaf511549fdaca9"
+    },
+    {
+      "name": "0012_durable_work_replays.sql",
+      "checksum_sha256": "61d64b8a1c1cfd1a89ddec66778d7b704b2c63961b05982fd3163a313561534b"
     }
   ]
 }

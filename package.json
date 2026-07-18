@@ -31,6 +31,8 @@
     "db:integrity": "tsx packages/database/src/check-database-integrity.ts",
     "db:restore-rehearsal": "tsx packages/database/src/restore-rehearsal.ts",
     "db:runtime-grants": "tsx packages/database/src/apply-runtime-grants.ts",
+    "db:dead-letters": "tsx packages/database/src/durable-work-operations-cli.ts list",
+    "db:replay-dead-letter": "tsx packages/database/src/durable-work-operations-cli.ts replay",
     "check:architecture": "node scripts/check-architecture.mjs",
     "verify": "npm run format:check && npm run lint && npm run db:check && npm run check:architecture && npm run typecheck && npm run test && npm run build"
   },

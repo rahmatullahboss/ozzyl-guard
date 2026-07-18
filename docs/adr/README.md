@@ -31,6 +31,7 @@ ADRs capture durable architectural decisions, alternatives, consequences, and su
 - [0009 — Managed secrets and KMS envelope encryption](0009-managed-secrets-and-kms-envelope-encryption.md)
 - [0010 — Vendor-neutral production observability](0010-vendor-neutral-production-observability.md)
 - [0011 — Selected source-platform shadow pilot](0011-selected-source-shadow-pilot.md)
+- [0012 — Durable work dead-letter inspection and controlled replay](0012-durable-work-dead-letter-operations.md)
 
 ## Pending ADRs
 

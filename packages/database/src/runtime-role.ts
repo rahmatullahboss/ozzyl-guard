@@ -31,6 +31,7 @@ export const runtimeRolePolicy = {
     'verification_jobs',
     'webhook_endpoints',
     'webhook_deliveries',
+    'durable_work_replays',
   ],
   insert: [
     'user_sessions',
@@ -52,6 +53,7 @@ export const runtimeRolePolicy = {
     'verification_jobs',
     'webhook_endpoints',
     'webhook_deliveries',
+    'durable_work_replays',
   ],
   update: [
     'user_sessions',
