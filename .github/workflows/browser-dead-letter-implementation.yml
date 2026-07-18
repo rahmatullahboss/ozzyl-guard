@@ -27,12 +27,14 @@ jobs:
       - name: Refresh workspace lockfile
         run: npm install --package-lock-only
       - run: npm run format
-      - name: Targeted verification
-        run: |
-          npm run typecheck -w @ozzyl/shared-types
-          npm run typecheck -w @ozzyl/api
-          npm run test -w @ozzyl/api
-          npm run build -w @ozzyl/dashboard
+      - name: Shared types typecheck
+        run: npm run typecheck -w @ozzyl/shared-types
+      - name: API typecheck
+        run: npm run typecheck -w @ozzyl/api
+      - name: API tests
+        run: npm run test -w @ozzyl/api
+      - name: Dashboard build
+        run: npm run build -w @ozzyl/dashboard
       - name: Commit implementation
         run: |
           rm .github/workflows/browser-dead-letter-implementation.yml
