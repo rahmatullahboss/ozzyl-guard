@@ -4,7 +4,7 @@ import { Pool } from 'pg';
 import { verifyApiKey } from '@ozzyl/authentication';
 import { PostgresDurableWorkOperations } from '@ozzyl/database';
 import { AesGcmEnvelopeCipher } from '@ozzyl/encryption';
-import { createStructuredLogger } from '@ozzyl/observability';
+import { createMetricRecorder, createStructuredLogger } from '@ozzyl/observability';
 import { MemoryUsageLedger, type PlanCode } from '@ozzyl/billing';
 import {
   createApiApp,
@@ -85,6 +85,10 @@ const log = createStructuredLogger({
   service: 'ozzyl-guard-api',
   environment: process.env.NODE_ENV ?? 'development',
 });
+const metrics = createMetricRecorder({
+  service: 'ozzyl-guard-api',
+  environment: process.env.NODE_ENV ?? 'development',
+});
 
 if (productionMode && !databaseUrl) {
   throw new Error('DATABASE_URL is required in production');
@@ -140,6 +144,7 @@ if (databaseUrl) {
       secureCookies: productionMode,
     },
     logger: log,
+    metrics,
   };
 } else {
   dependencies = {
@@ -172,6 +177,7 @@ if (databaseUrl) {
     rateLimiter: new MemoryRateLimiter(),
     hashPhone: (phone) => createHmac('sha256', phoneHmacKey).update(phone).digest('hex'),
     logger: log,
+    metrics,
   };
 }
 

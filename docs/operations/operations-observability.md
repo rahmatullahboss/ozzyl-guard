@@ -8,6 +8,20 @@ Instrumentation belongs at API, repository, provider-adapter, and worker boundar
 
 ## Required metrics
 
+### Implemented application boundary
+
+`@ozzyl/observability` now provides an exporter-neutral metric descriptor and recorder. It emits one JSON metric point per observation and deliberately performs no network I/O. Descriptor creation requires a finite allowlist for every attribute; unknown attributes, identifier-like keys, secret/contact/payload/URL keys, out-of-set values, invalid timestamps, and negative counter or histogram values are rejected. Validation, serialization, clock, or sink failure is swallowed so metrics cannot change API or worker behavior.
+
+Implemented points:
+
+- `ozzyl.api.requests` — counter by normalized HTTP method, canonical allowlisted route/template, and status class;
+- `ozzyl.api.request.duration` — histogram observation in milliseconds using the same bounded attributes;
+- `ozzyl.worker.operations` — counter by finite worker type, operation, and outcome;
+- `ozzyl.worker.operation.duration` — histogram observation in milliseconds using the same worker attributes;
+- `ozzyl.worker.claim.failures` — counter by finite durable-worker type only.
+
+Request IDs, organization/store/account/job/event/assessment identifiers, phone numbers or hashes, OTP values, credentials, URLs, payloads, provider responses, and arbitrary error codes are not metric attributes. Provider names are also omitted from the current generic worker metrics. The default recorder writes JSON lines to the process telemetry stream; a reviewed OpenTelemetry exporter/collector adapter may replace that sink without changing call sites.
+
 ### API
 
 - Request rate
@@ -108,7 +122,7 @@ not affect source checkout or the effective legacy decision.
 
 The helper recursively redacts sensitive field names before serialization. Passwords, secrets, tokens, API keys, cookies, OTPs, raw phone values, credentials, provider responses, DNS answers, payloads, request/response bodies, and URLs are replaced rather than emitted. `phone_hash` is permitted as a non-reversible correlation reference. Error values expose only a bounded name and structured code; messages and stacks are omitted. Circular objects, binary values, big integers, excessive depth, oversized strings, and large collections are converted to bounded safe representations.
 
-Serialization or log-sink failure is swallowed at this boundary so telemetry cannot break API or worker execution. API request records use only accepted/generated opaque request IDs, an allowlisted route or bounded route template, HTTP method, status/status class, and duration. Raw URLs, query strings, and dynamic assessment identifiers are not exported. The current package is intentionally exporter-neutral. API/repository/provider metrics, distributed traces, OpenTelemetry exporters/collector topology, dashboards, alerts, and the managed backend remain production follow-up work.
+Serialization or log/metric-sink failure is swallowed at this boundary so telemetry cannot break API or worker execution. API request logs use only accepted/generated opaque request IDs, an allowlisted route or bounded route template, HTTP method, status/status class, and duration. API metrics use normalized method, the same canonical route/template, and status class without the request ID. Raw URLs, query strings, dynamic assessment identifiers, tenant identifiers, and arbitrary error codes are not metric attributes. Repository/provider metrics, queue/backlog gauges, distributed traces, OpenTelemetry exporters/collector topology, dashboards, alerts, managed retention, and the managed backend remain production follow-up work.
 
 Use structured logs with:
 
@@ -125,7 +139,7 @@ Use structured logs with:
 
 Redact all secrets and sensitive values before export. Full phone numbers, raw provider responses, credentials, cookies, OTPs, access tokens, raw API keys, decrypted payloads, webhook signing secrets, destination URL credentials, and unrestricted request/event bodies are prohibited.
 
-The API emits startup/shutdown, request-completion, and unhandled-error records, and all four private workers emit startup and structured error records through the shared redaction boundary. Production instrumentation must add counters, histograms, and correlation spans without serializing signing secrets, encrypted/decrypted payload bodies, phone/OTP values, provider credentials, or DNS answer details that disclose internal topology.
+The API emits startup/shutdown, request-completion, and unhandled-error records, and all four private workers emit startup and structured error records through the shared redaction boundary. The API now records request count and duration; courier-session, courier-sync, event, and verification operations record count and duration; durable courier/event/verification claim failures record a bounded counter. Production instrumentation must still add repository/provider measurements, queue/backlog gauges, and correlation spans without serializing signing secrets, encrypted/decrypted payload bodies, phone/OTP values, identifiers, provider credentials, URLs, arbitrary error codes, or DNS answer details that disclose internal topology.
 
 Recommended event-worker error codes include:
 
@@ -263,7 +277,7 @@ A webhook endpoint outage, provider outage, or telemetry outage must not necessa
 
 ## Provider selection still pending
 
-A managed observability backend, retention policy, alert-delivery channel, optional OpenTelemetry collector topology, deployment runtime, PostgreSQL service, and managed KMS/vault remain to be selected. Those choices must satisfy ADRs 0006–0010 and must not introduce vendor-specific SDK calls into the risk engine.
+An OpenTelemetry exporter/collector implementation, managed observability backend, telemetry retention policy, alert-delivery channel, deployment runtime, PostgreSQL service, and managed KMS/vault remain to be selected. Repository/provider metrics, queue gauges, distributed traces, dashboards, and alerts remain unimplemented. Those choices must satisfy ADRs 0006–0010 and must not introduce vendor-specific SDK calls into the risk engine.
 
 ## Browser dead-letter operations surface
 

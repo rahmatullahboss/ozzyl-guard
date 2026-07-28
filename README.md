@@ -46,6 +46,7 @@ The repository now contains a runnable MVP foundation:
 - Authenticated owner/admin merchant dead-letter page with secret-free inspection and CSRF-protected idempotent replay through the existing PostgreSQL operations repository
 - Canonical structured logging/redaction package used by the API and all four private workers; telemetry sink failures cannot break request or worker execution
 - API-wide safe request correlation with opaque request IDs, bounded route templates, status classes, latency, and redacted unhandled-error records
+- Vendor-neutral JSON metric points for API request count/duration, private-worker operation count/duration, and durable claim failures, with finite categorical labels and telemetry-failure isolation
 
 The following require external accounts or production decisions before live use:
 
@@ -53,7 +54,7 @@ The following require external accounts or production decisions before live use:
 - A selected KMS/vault adapter, component service identities, access auditing, runtime wiring, and an audited background rewrite before replacing local v1 encryption in production
 - OTP provider selection and credentials
 - Authenticated dashboard/admin live data wiring is complete; production hosting, distributed rate limiting, account recovery, MFA, and managed identity supersession remain
-- Production queue/cache/observability providers
+- Production queue/cache providers plus observability exporters/collector, traces, managed backend, dashboards, alerts, and retention
 - A separately provisioned retention-maintenance database identity, approved retention windows/holds, monitoring, and backup/PITR recovery before any scheduled archival
 - Production source-platform hook deployment, explicit pilot-store selection, and outcome calibration before any enforcement or broad automatic blocking
 

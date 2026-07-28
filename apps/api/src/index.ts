@@ -2,7 +2,13 @@ import { randomUUID } from 'node:crypto';
 import { Hono } from 'hono';
 import { z } from 'zod';
 import type { PlanCode, UsageLedger } from '@ozzyl/billing';
-import { createStructuredLogger, type StructuredLogger } from '@ozzyl/observability';
+import {
+  createMetricRecorder,
+  createStructuredLogger,
+  defineMetric,
+  type MetricRecorder,
+  type StructuredLogger,
+} from '@ozzyl/observability';
 import {
   assessRisk,
   isValidBangladeshPhone,
@@ -212,6 +218,7 @@ export interface ApiDependencies {
   monotonicNow?: () => number;
   idFactory?: (prefix: string) => string;
   logger?: StructuredLogger;
+  metrics?: MetricRecorder;
 }
 
 type AppEnvironment = {
@@ -250,6 +257,13 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
       environment: 'test',
       write: () => undefined,
     });
+  const metrics =
+    dependencies.metrics ??
+    createMetricRecorder({
+      service: 'ozzyl-guard-api',
+      environment: 'test',
+      write: () => undefined,
+    });
 
   app.use('*', async (context, next) => {
     const requestId = readRequestId(context.req.header('X-Request-ID')) ?? idFactory('req');
@@ -273,8 +287,15 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
         status_class: `${Math.floor(status / 100)}xx`,
         duration_ms: Math.round(durationMs * 1_000) / 1_000,
       };
+      const metricAttributes = {
+        method: telemetryMethod(context.req.method),
+        route: telemetryRoute(context.req.path),
+        status_class: telemetryStatusClass(status),
+      };
 
       context.header('X-Request-ID', requestId);
+      metrics.record(API_REQUEST_COUNT, 1, metricAttributes);
+      metrics.record(API_REQUEST_DURATION, durationMs, metricAttributes);
       if (status >= 500) logger.error('api.request.completed', attributes);
       else if (status >= 400) logger.warn('api.request.completed', attributes);
       else logger.info('api.request.completed', attributes);
@@ -837,12 +858,47 @@ const STATIC_TELEMETRY_ROUTES = new Set([
   '/v1/verifications/otp/verify',
 ]);
 
+const API_METRIC_ROUTES = [
+  ...STATIC_TELEMETRY_ROUTES,
+  '/v1/risk-assessments/:assessment_id',
+  'unmatched',
+];
+const API_METRIC_ATTRIBUTES = {
+  method: { values: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD', 'OTHER'] },
+  route: { values: API_METRIC_ROUTES },
+  status_class: { values: ['1xx', '2xx', '3xx', '4xx', '5xx', 'other'] },
+} as const;
+const API_REQUEST_COUNT = defineMetric({
+  name: 'ozzyl.api.requests',
+  kind: 'counter',
+  unit: '{request}',
+  attributes: API_METRIC_ATTRIBUTES,
+});
+const API_REQUEST_DURATION = defineMetric({
+  name: 'ozzyl.api.request.duration',
+  kind: 'histogram',
+  unit: 'ms',
+  attributes: API_METRIC_ATTRIBUTES,
+});
+
 function telemetryRoute(path: string): string {
   if (STATIC_TELEMETRY_ROUTES.has(path)) return path;
   if (/^\/v1\/risk-assessments\/[^/]+$/.test(path)) {
     return '/v1/risk-assessments/:assessment_id';
   }
   return 'unmatched';
+}
+
+function telemetryMethod(method: string): string {
+  const normalized = method.toUpperCase();
+  return ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'].includes(normalized)
+    ? normalized
+    : 'OTHER';
+}
+
+function telemetryStatusClass(status: number): string {
+  const statusClass = Math.floor(status / 100);
+  return statusClass >= 1 && statusClass <= 5 ? `${statusClass}xx` : 'other';
 }
 
 function readRequestId(value: string | undefined): string | null {

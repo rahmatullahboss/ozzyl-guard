@@ -7,7 +7,11 @@ import {
 } from '@ozzyl/courier-adapters';
 import { AesGcmEnvelopeCipher } from '@ozzyl/courier-session-worker';
 import { LeaseHeartbeat } from '@ozzyl/database';
-import { createStructuredLogger } from '@ozzyl/observability';
+import {
+  createMetricRecorder,
+  createStructuredLogger,
+  recordWorkerClaimFailure,
+} from '@ozzyl/observability';
 import { CourierSyncWorker } from './index.js';
 import { PostgresCourierJobQueue, type ClaimedCourierJob } from './postgres.js';
 
@@ -32,6 +36,10 @@ if (!Number.isSafeInteger(leaseRenewMs) || leaseRenewMs <= 0 || leaseRenewMs * 2
 }
 const workerId = process.env.WORKER_ID ?? `courier-sync-${randomUUID()}`;
 const log = createStructuredLogger({
+  service: 'courier-sync-worker',
+  environment: process.env.NODE_ENV ?? 'development',
+});
+const metrics = createMetricRecorder({
   service: 'courier-sync-worker',
   environment: process.env.NODE_ENV ?? 'development',
 });
@@ -101,6 +109,7 @@ const syncWorker = new CourierSyncWorker({
       );
     },
   },
+  metrics,
   health: {
     async started(jobId, at): Promise<void> {
       await jobs.started(jobId, workerId, at);
@@ -120,7 +129,10 @@ async function run(): Promise<void> {
   log.info('courier.sync.worker.started', { worker_id: workerId });
   while (!stopping) {
     try {
-      const job = await jobs.claim(workerId);
+      const job = await jobs.claim(workerId).catch((error) => {
+        recordWorkerClaimFailure(metrics, 'courier_sync');
+        throw error;
+      });
       if (!job) {
         await new Promise((resolve) => setTimeout(resolve, pollMs));
         continue;

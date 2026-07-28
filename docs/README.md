@@ -4,7 +4,7 @@ This directory is the long-term product and engineering source of truth. New dev
 
 ## Current verified milestone
 
-The durable work retention milestone is merged on `main` as `8788da49db5bc0726db97ad0b021fd30b06600e5`. Feature CI run `30325144458`, job `90168867190`, passed thirteen migrations, 20 typechecks, 31 Turbo tasks with 154 assertions, 20 builds, GitGuardian, audit, clean restore, runtime-role, and PHP gates. Old terminal courier, webhook, and verification work can now be previewed and archived only through the maintenance boundary; archive evidence is secret-free, records the maintenance database identity, is persisted before source deletion, and remains inaccessible to application runtime roles.
+The durable work retention milestone is merged on `main` as `8788da49db5bc0726db97ad0b021fd30b06600e5`; its feature CI run `30325144458`, job `90168867190`, passed thirteen migrations, 20 typechecks, 31 Turbo tasks with 154 assertions, 20 builds, GitGuardian, audit, clean restore, runtime-role, and PHP gates. The current vendor-neutral metrics source branch adds finite-cardinality API and private-worker counters/histograms plus claim-failure points without identifiers, payloads, contact data, credentials, URLs, or arbitrary error codes. PostgreSQL-integrated source-branch CI evidence is still pending.
 
 ## Architecture
 

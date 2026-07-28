@@ -2,7 +2,11 @@ import { randomUUID } from 'node:crypto';
 import { Pool } from 'pg';
 import { LeaseHeartbeat } from '@ozzyl/database';
 import { AesGcmEnvelopeCipher } from '@ozzyl/encryption';
-import { createStructuredLogger } from '@ozzyl/observability';
+import {
+  createMetricRecorder,
+  createStructuredLogger,
+  recordWorkerClaimFailure,
+} from '@ozzyl/observability';
 import type { OtpDeliveryProvider } from '@ozzyl/verification';
 import { VerificationWorker } from './index.js';
 import { PostgresVerificationDeliveryQueue, VerificationDeliveryLeaseError } from './postgres.js';
@@ -46,6 +50,10 @@ const log = createStructuredLogger({
   service: 'verification-worker',
   environment: process.env.NODE_ENV ?? 'development',
 });
+const metrics = createMetricRecorder({
+  service: 'verification-worker',
+  environment: process.env.NODE_ENV ?? 'development',
+});
 const provider = await loadProvider(required('OTP_PROVIDER_MODULE'));
 const queue = new PostgresVerificationDeliveryQueue(pool, { leaseMs, maxAttempts });
 let stopping = false;
@@ -54,6 +62,7 @@ async function run(): Promise<void> {
   log.info('verification.worker.started', { worker_id: workerId });
   while (!stopping) {
     const delivery = await queue.claim(workerId).catch((error) => {
+      recordWorkerClaimFailure(metrics, 'verification_delivery');
       logError(error, 'VERIFICATION_CLAIM_FAILED');
       return null;
     });
@@ -80,6 +89,7 @@ async function run(): Promise<void> {
         {
           maxAttempts,
           timeoutMs,
+          metrics,
         },
       );
       await worker.process({

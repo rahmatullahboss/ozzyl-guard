@@ -1,6 +1,7 @@
 import { createHmac } from 'node:crypto';
 import { lookup } from 'node:dns/promises';
 import { isIP } from 'node:net';
+import { recordWorkerOperation, type MetricRecorder } from '@ozzyl/observability';
 import type { DomainEvent } from '@ozzyl/shared-types';
 
 export interface WebhookEndpoint {
@@ -8,6 +9,13 @@ export interface WebhookEndpoint {
   url: string;
   signingSecret: string;
   active: boolean;
+}
+
+export interface WebhookDeliveryInput {
+  endpoint: WebhookEndpoint;
+  event: DomainEvent;
+  attempt: number;
+  signal?: AbortSignal;
 }
 
 export interface DeliveryResult {
@@ -108,6 +116,8 @@ export class EventWorker {
   private readonly maxAttempts: number;
   private readonly now: () => Date;
   private readonly resolver: WebhookDestinationResolver;
+  private readonly metrics: MetricRecorder | undefined;
+  private readonly monotonicNow: () => number;
 
   constructor(
     private readonly repository: WebhookDeliveryRepository,
@@ -117,6 +127,8 @@ export class EventWorker {
       maxAttempts?: number;
       now?: () => Date;
       resolver?: WebhookDestinationResolver;
+      metrics?: MetricRecorder;
+      monotonicNow?: () => number;
     },
   ) {
     this.fetcher = options?.fetcher ?? fetch;
@@ -124,14 +136,38 @@ export class EventWorker {
     this.maxAttempts = options?.maxAttempts ?? 5;
     this.now = options?.now ?? (() => new Date());
     this.resolver = options?.resolver ?? resolveHostname;
+    this.metrics = options?.metrics;
+    this.monotonicNow = options?.monotonicNow ?? (() => Date.now());
   }
 
-  async deliver(input: {
-    endpoint: WebhookEndpoint;
-    event: DomainEvent;
-    attempt: number;
-    signal?: AbortSignal;
-  }): Promise<DeliveryResult> {
+  async deliver(input: WebhookDeliveryInput): Promise<DeliveryResult> {
+    const startedAt = this.monotonicNow();
+    try {
+      const result = await this.deliverInternal(input);
+      recordWorkerOperation(this.metrics, {
+        workerType: 'webhook_delivery',
+        operation: 'deliver',
+        outcome:
+          result.status === 'delivered'
+            ? 'completed'
+            : result.status === 'retry_scheduled'
+              ? 'retry_scheduled'
+              : 'failed',
+        durationMs: this.monotonicNow() - startedAt,
+      });
+      return result;
+    } catch (error) {
+      recordWorkerOperation(this.metrics, {
+        workerType: 'webhook_delivery',
+        operation: 'deliver',
+        outcome: 'failed',
+        durationMs: this.monotonicNow() - startedAt,
+      });
+      throw error;
+    }
+  }
+
+  private async deliverInternal(input: WebhookDeliveryInput): Promise<DeliveryResult> {
     if (!input.endpoint.active) {
       await this.repository.markFailed({
         endpointId: input.endpoint.id,

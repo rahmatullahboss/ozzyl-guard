@@ -1,4 +1,5 @@
 import type { CourierAdapter, CourierObservation } from '@ozzyl/courier-adapters';
+import { recordWorkerOperation, type MetricRecorder } from '@ozzyl/observability';
 
 export interface ObservationRepository {
   findFresh(input: {
@@ -20,25 +21,57 @@ export interface SyncJobHealth {
   failed(jobId: string, code: string, retryable: boolean, at: Date): Promise<void>;
 }
 
+export interface CourierSyncInput {
+  jobId: string;
+  storeId: string;
+  courierAccountId: string;
+  provider: string;
+  phone: string;
+  phoneHash: string;
+  force?: boolean;
+  signal?: AbortSignal;
+}
+
+export interface CourierSyncResult {
+  observation: CourierObservation;
+  cached: boolean;
+}
+
 export class CourierSyncWorker {
   constructor(
     private readonly dependencies: {
       adapters: Map<string, CourierAdapter>;
       observations: ObservationRepository;
       health: SyncJobHealth;
+      metrics?: MetricRecorder;
+      monotonicNow?: () => number;
     },
   ) {}
 
-  async sync(input: {
-    jobId: string;
-    storeId: string;
-    courierAccountId: string;
-    provider: string;
-    phone: string;
-    phoneHash: string;
-    force?: boolean;
-    signal?: AbortSignal;
-  }): Promise<{ observation: CourierObservation; cached: boolean }> {
+  async sync(input: CourierSyncInput): Promise<CourierSyncResult> {
+    const monotonicNow = this.dependencies.monotonicNow ?? (() => Date.now());
+    const startedAt = monotonicNow();
+    try {
+      const result = await this.syncJob(input);
+      recordWorkerOperation(this.dependencies.metrics, {
+        workerType: 'courier_sync',
+        operation: 'sync',
+        outcome: result.cached ? 'cached' : 'completed',
+        durationMs: monotonicNow() - startedAt,
+      });
+      return result;
+    } catch (error) {
+      recordWorkerOperation(this.dependencies.metrics, {
+        workerType: 'courier_sync',
+        operation: 'sync',
+        outcome: 'failed',
+        durationMs: monotonicNow() - startedAt,
+      });
+      throw error;
+    }
+  }
+
+  private async syncJob(input: CourierSyncInput): Promise<CourierSyncResult> {
     await this.dependencies.health.started(input.jobId, new Date());
     try {
       if (!input.force) {

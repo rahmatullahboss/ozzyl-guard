@@ -1,3 +1,4 @@
+import { recordWorkerOperation, type MetricRecorder } from '@ozzyl/observability';
 import { OtpProviderError, formatOtpMessage, type OtpDeliveryProvider } from '@ozzyl/verification';
 
 export interface VerificationDelivery {
@@ -28,18 +29,57 @@ export class VerificationWorker {
   private readonly maxAttempts: number;
   private readonly timeoutMs: number;
   private readonly now: () => Date;
+  private readonly metrics: MetricRecorder | undefined;
+  private readonly monotonicNow: () => number;
 
   constructor(
     private readonly provider: OtpDeliveryProvider,
     private readonly reporter: VerificationDeliveryReporter,
-    options: { maxAttempts?: number; timeoutMs?: number; now?: () => Date } = {},
+    options: {
+      maxAttempts?: number;
+      timeoutMs?: number;
+      now?: () => Date;
+      metrics?: MetricRecorder;
+      monotonicNow?: () => number;
+    } = {},
   ) {
     this.maxAttempts = options.maxAttempts ?? 5;
     this.timeoutMs = options.timeoutMs ?? 10_000;
     this.now = options.now ?? (() => new Date());
+    this.metrics = options.metrics;
+    this.monotonicNow = options.monotonicNow ?? (() => Date.now());
   }
 
   async process(delivery: VerificationDelivery): Promise<VerificationDeliveryResult> {
+    const monotonicStartedAt = this.monotonicNow();
+    try {
+      const result = await this.processDelivery(delivery);
+      recordWorkerOperation(this.metrics, {
+        workerType: 'verification_delivery',
+        operation: 'send',
+        outcome:
+          result.status === 'delivered'
+            ? 'completed'
+            : result.status === 'retry_scheduled'
+              ? 'retry_scheduled'
+              : 'failed',
+        durationMs: this.monotonicNow() - monotonicStartedAt,
+      });
+      return result;
+    } catch (error) {
+      recordWorkerOperation(this.metrics, {
+        workerType: 'verification_delivery',
+        operation: 'send',
+        outcome: 'failed',
+        durationMs: this.monotonicNow() - monotonicStartedAt,
+      });
+      throw error;
+    }
+  }
+
+  private async processDelivery(
+    delivery: VerificationDelivery,
+  ): Promise<VerificationDeliveryResult> {
     const startedAt = this.now();
     if (delivery.expiresAt.getTime() <= startedAt.getTime() + this.timeoutMs) {
       await this.reporter.failed(delivery.jobId, 'OTP_EXPIRED_BEFORE_DELIVERY', startedAt);

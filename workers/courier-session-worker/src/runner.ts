@@ -1,5 +1,5 @@
 import { Pool } from 'pg';
-import { createStructuredLogger } from '@ozzyl/observability';
+import { createMetricRecorder, createStructuredLogger } from '@ozzyl/observability';
 import {
   AesGcmEnvelopeCipher,
   CourierSessionWorker,
@@ -22,6 +22,10 @@ const cipher = new AesGcmEnvelopeCipher(
 const refreshHours = Number(process.env.COURIER_SESSION_REFRESH_HOURS ?? 6);
 const pollMs = Number(process.env.WORKER_POLL_MS ?? 60_000);
 const log = createStructuredLogger({
+  service: 'courier-session-worker',
+  environment: process.env.NODE_ENV ?? 'development',
+});
+const metrics = createMetricRecorder({
   service: 'courier-session-worker',
   environment: process.env.NODE_ENV ?? 'development',
 });
@@ -92,6 +96,7 @@ const worker = new CourierSessionWorker({
   },
   cipher,
   driver: new SteadfastSessionDriver(),
+  metrics,
 });
 
 async function tick(): Promise<void> {

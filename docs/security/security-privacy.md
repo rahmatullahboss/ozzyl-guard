@@ -48,6 +48,8 @@ Never log:
 
 All exception/error serialization must pass through a central redaction layer. Worker logs use structured identifiers and error codes, not secret-bearing exception payloads.
 
+Metrics use a stricter boundary than structured logs. Every attribute must be declared through a finite categorical allowlist. Request, organization, store, account, worker, job, event, assessment, API-key, idempotency, endpoint, phone/hash, URL, payload/body, token, and secret-style attribute names are rejected. Current API metrics expose only normalized method, canonical route/template, and status class; current worker metrics expose only finite worker type, operation, and outcome. Arbitrary provider/error values are not labels. Metric validation or sink failure is isolated from request and worker execution.
+
 ## Durable work retention
 
 Old terminal courier, webhook, and verification source rows may be removed only through the maintenance-only retention boundary. The archive stores tenant scope, terminal state, attempts, bounded error code, timestamps, an opaque run ID, and the maintenance database identity; it never stores source payloads, event bodies, encrypted verification payloads, provider references, phone/OTP material, endpoints, credentials, cookies, or tokens.
