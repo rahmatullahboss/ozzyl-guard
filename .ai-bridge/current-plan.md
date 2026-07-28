@@ -120,11 +120,11 @@ Concrete provider selection and provisioning remain external production work.
 - Twelve migration files ordered/non-empty/non-destructive: passed
 - First migration apply and immediate migration replay: passed
 - Architecture import boundaries: passed
-- Typecheck: 20 of 20 workspaces passed locally; source-branch CI is pending
-- Test/build dependency tasks: 31 of 31 passed locally; source-branch CI is pending
-- Repository assertion inventory: 145, including three heartbeat lifecycle tests, three provider-abort tests, and three PostgreSQL owner-checked renewal tests; PostgreSQL-integrated source-branch CI is pending
-- Production builds: 20 of 20 workspaces passed locally; source-branch CI is pending
-- WooCommerce PHP syntax: unchanged; source-branch CI validation is pending
+- Typecheck: 20 of 20 workspaces passed locally and in source-branch CI
+- Test/build dependency tasks: 31 of 31 passed locally and in source-branch CI
+- Repository assertions: 145 passed in PostgreSQL-integrated source-branch CI, including three heartbeat lifecycle tests, three provider-abort tests, and three PostgreSQL owner-checked renewal tests
+- Production builds: 20 of 20 workspaces passed locally and in source-branch CI
+- WooCommerce PHP syntax: passed in source-branch CI
 - npm high/critical audit threshold: passed after the ESLint toolchain update; five moderate findings remain
 - Worker lease final CI run `29545309665`, job `87776201468`: all gates passed at head `b886fcb57c9a5c9ebae3b23334966468ae1733c3`
 - The verified worker lease change was squash-merged to `main` as `d748bde10920e5a35a7e90f3a00b3b3bf02b96f3`
@@ -155,11 +155,13 @@ Concrete provider selection and provisioning remain external production work.
 - The verified structured observability milestone was squash-merged through PR #26 to `main` as `d8ef4acadb39ad33337f3e2c0ef0e6f1c9d4d8a7`
 - API request observability final CI run `30318999952`, job `90150731352`: GitGuardian, audit, formatting, lint, twelve migrations, replay, history integrity, clean restore, runtime-role grants, architecture, 20 typechecks, 136 assertions, 20 builds, and PHP lint passed at head `c92d0a713c2257e6cd49903ca292f41150141890`
 - The verified API request observability milestone was squash-merged through PR #28 to `main` as `00d6eecb69f1edd48209cb8653137c8e8a57ab7f`
+- Durable worker heartbeat final CI run `30322016826`, job `90159676583`: GitGuardian, audit, formatting, lint, twelve migrations, replay, history integrity, clean restore, runtime-role grants, architecture, 20 typechecks, 145 assertions, 20 builds, and PHP lint passed at head `46ed30424a191bb9baad9bbc60442ef847f3c75f`
+- The verified durable worker heartbeat milestone was squash-merged through PR #30 to `main` as `6ab01a78713afdef47fde3a8d462f2bd6a43403a`
 - Canonical documentation links before this slice: zero known broken internal links
 - `tracker.yml` YAML structure remains valid
 - Prohibited source-pattern search: no matches
 
-The repository-local continuation exporter was refreshed after the durable worker heartbeat milestone documentation was finalized, so its embedded snapshots match the current branch state.
+The repository-local continuation exporter was refreshed after the merged durable worker heartbeat verification evidence was recorded.
 
 ## Next production milestone
 
