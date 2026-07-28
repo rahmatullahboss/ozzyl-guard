@@ -1,10 +1,10 @@
 # Ozzyl Guard — Current Implementation Plan
 
-Updated: 2026-07-18
+Updated: 2026-07-28
 
 ## Current state
 
-A runnable standalone MVP foundation and thirteen production-hardening slices are complete:
+A runnable standalone MVP foundation and fourteen production-hardening slices are complete:
 
 1. dashboard/admin browser authentication with live PostgreSQL data and tenant revalidation;
 2. accepted provider-neutral infrastructure ADRs for deployment, managed PostgreSQL, durable work/cache, KMS envelope encryption, and observability;
@@ -18,7 +18,8 @@ A runnable standalone MVP foundation and thirteen production-hardening slices ar
 10. native multi-store `off`/deterministic-shadow rollout controls with legacy-authoritative behavior and tenant-scoped immutable comparison evidence;
 11. selected-source post-persist shadow integration with authoritative source-order reload, explicit store opt-in, immutable sampled-attempt evidence, and tenant-scoped pilot reporting;
 12. tenant-scoped durable-work dead-letter inspection and explicit idempotent replay with lease reset, structural failure guards, immutable evidence, and audit records;
-13. authenticated merchant browser dead-letter operations with exact owner/admin store scope, secret-free listing, CSRF-protected replay, and synchronous stable replay keys.
+13. authenticated merchant browser dead-letter operations with exact owner/admin store scope, secret-free listing, CSRF-protected replay, and synchronous stable replay keys;
+14. a canonical vendor-neutral structured logging/redaction package integrated into all four private workers, with bounded serialization and telemetry-failure isolation.
 
 Concrete provider selection and provisioning remain external production work.
 
@@ -52,6 +53,8 @@ Concrete provider selection and provisioning remain external production work.
 - [x] PostgreSQL-first durable work and optional cache boundary ADR
 - [x] Managed secrets and KMS envelope-encryption ADR
 - [x] Vendor-neutral OpenTelemetry observability ADR
+- [x] Canonical structured logging/redaction helper with fixed metadata, bounded serialization, and fail-open telemetry delivery
+- [x] Courier-session, courier-sync, event, and verification worker startup/error logging migrated to the shared boundary
 - [x] Concurrent duplicate usage reservations serialize into one charge and replay responses
 - [x] Concurrent usage reservations cannot exceed the plan limit
 - [x] Concurrent assessment saves return the single persisted assessment without orphan signal writes
@@ -110,12 +113,12 @@ Concrete provider selection and provisioning remain external production work.
 - Twelve migration files ordered/non-empty/non-destructive: passed
 - First migration apply and immediate migration replay: passed
 - Architecture import boundaries: passed
-- Typecheck: 19 of 19 workspaces passed
-- Test/build dependency tasks: 28 of 28 passed
-- Repository assertions: 129 passed, including five courier lease tests, five webhook lease tests, five verification lease tests, three verification-payload validation tests, seven migration-integrity tests, seven tenant/admin isolation tests, seven runtime-role policy/permission tests, five durable-work dead-letter PostgreSQL tests, three browser dead-letter authorization/replay tests, eleven envelope-encryption tests, twenty-eight native-shadow adapter/API/SDK/browser/PostgreSQL tests, transactional queues/outbox coverage, and DNS SSRF tests
-- Production builds: 19 of 19 workspaces passed
-- WooCommerce PHP syntax: passed
-- npm high/critical audit threshold: passed; four moderate development-tooling advisories remain
+- Typecheck: 20 of 20 workspaces passed locally
+- Test/build dependency tasks: 31 of 31 passed locally
+- Repository assertion inventory: 132, including the previous 129 remotely verified assertions plus three structured-log redaction/serialization/failure-isolation tests; PostgreSQL-integrated source-branch CI remains pending
+- Production builds: 20 of 20 workspaces passed locally
+- WooCommerce PHP syntax: unchanged; source-branch CI validation remains pending
+- npm high/critical audit threshold: passed after the ESLint toolchain update; five moderate findings remain
 - Worker lease final CI run `29545309665`, job `87776201468`: all gates passed at head `b886fcb57c9a5c9ebae3b23334966468ae1733c3`
 - The verified worker lease change was squash-merged to `main` as `d748bde10920e5a35a7e90f3a00b3b3bf02b96f3`
 - Webhook outbox final CI run `29550097719`, job `87790624617`: audit, formatting, lint, eight migrations, migration replay, architecture, 19 typechecks, 53 assertions, 19 builds, and PHP lint passed at head `fb0a68bac4628a96f82413b5d71092e4f0367536`
@@ -145,7 +148,7 @@ Concrete provider selection and provisioning remain external production work.
 - `tracker.yml` YAML structure remains valid
 - Prohibited source-pattern search: no matches
 
-The current GitHub-only environment cannot run the repository-local continuation exporter. Tracker, plan, status, decisions, ADRs, runbook, testing notes, and migration evidence are current; `.ai-bridge/pro-context.md` is marked for local refresh before relying on its embedded snapshots.
+The repository-local continuation exporter was refreshed after the observability milestone documentation was finalized, so the embedded snapshots match the current branch state.
 
 ## Next production milestone
 

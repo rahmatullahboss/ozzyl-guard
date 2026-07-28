@@ -20,7 +20,8 @@
     "@ozzyl/encryption": "*",
     "@ozzyl/shared-types": "*",
     "@ozzyl/verification": "*",
-    "pg": "^8.16.3"
+    "pg": "^8.16.3",
+    "@ozzyl/observability": "*"
   },
   "devDependencies": {
     "@types/pg": "^8.15.5"

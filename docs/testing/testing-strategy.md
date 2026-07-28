@@ -16,6 +16,7 @@
 - Migration manifest ordering and SHA-256 tamper detection
 - Runtime-role identifier validation and explicit table-policy completeness
 - Native shadow off mode, deterministic sampling, post-persist source revalidation, legacy-authoritative disagreement, timeout classification, and safe assessment/persistence failures
+- Structured-log fixed metadata, recursive sensitive-field redaction, safe error-code-only serialization, circular/binary/bigint handling, bounded truncation, and telemetry-sink failure isolation
 
 ## Contract tests
 
@@ -215,7 +216,8 @@ Future PostgreSQL coverage must include:
 - Webhook replay and redirect handling
 - Webhook signing-secret decryption failure
 - Envelope authenticated-context mismatch
-- Secret redaction
+- Secret redaction, including nested payload/body/URL/credential fields and error-message omission
+- Telemetry serialization/export failure isolation from application and worker execution
 - Injection attacks
 - Session fixation/rotation
 - Credential decryption failure

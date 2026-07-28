@@ -55,6 +55,7 @@ This repository is edited by multiple developers and AI agents. Follow these rul
 - `packages/billing`: plans, entitlements, metering, quotas, subscriptions.
 - `packages/shared-types`: canonical request/response and event contracts.
 - `packages/sdk`: supported client SDKs and webhook verification helpers.
+- `packages/observability`: structured logging, safe redaction, and vendor-neutral telemetry/export boundaries.
 - `apps/api`: public and internal HTTP interfaces.
 - `apps/dashboard`: merchant UI.
 - `apps/admin`: internal operations UI.

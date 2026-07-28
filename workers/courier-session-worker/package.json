@@ -20,7 +20,8 @@
     "@ozzyl/courier-adapters": "*",
     "pg": "^8.16.3",
     "playwright": "^1.57.0",
-    "@ozzyl/encryption": "*"
+    "@ozzyl/encryption": "*",
+    "@ozzyl/observability": "*"
   },
   "devDependencies": {
     "@types/pg": "^8.15.5"
