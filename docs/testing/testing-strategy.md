@@ -20,6 +20,7 @@
 - Non-overlapping lease heartbeat scheduling, failure propagation, abort signaling, and idempotent stop behavior
 - API request-ID validation, bounded route templates, status/latency lifecycle records, and safe unhandled-error serialization
 - Metric descriptor/name/unit validation, finite categorical attribute allowlists, high-cardinality/secret-like key rejection, value/sign validation, JSON point serialization, worker/repository/provider/queue helper output, and metric-sink failure isolation
+- W3C traceparent/tracestate parsing, formatting, persisted-context round-trip, malformed/all-zero rejection, finite span descriptors, one-shot completion, duration/status output, root/child lineage, and ID/clock/serialization/sink failure isolation
 
 ## Contract tests
 
@@ -65,7 +66,9 @@ Webhook delivery contract tests cover:
 - Multi-tenant isolation
 - Organization/store membership authorization
 - API-wide request correlation plus request count/duration metrics for public, authenticated, browser, not-found, and unhandled-error paths without raw dynamic routes, query values, request IDs, or tenant identifiers in metric attributes
+- API server-span continuation, response traceparent, bounded tracestate propagation, durable producer child context, and absence of tenant/phone/job values from span output
 - Courier-session, courier-sync, event, and verification operation plus provider-call metrics with bounded category/operation/outcome labels and no job, account, event, endpoint, phone, OTP, credential, URL, payload, vendor, error-text, or provider-response values
+- Courier-session root/provider lineage and courier, webhook, and verification producer→consumer→provider trace lineage without business identifiers or sensitive values
 - Durable courier, webhook, and verification repository operation timing plus PostgreSQL aggregate queue-depth/oldest-ready-age snapshots without row or tenant identifiers
 - Concurrent tenant-scoped native shadow comparison and sampled-attempt persistence, default-off rollout, owner/admin opt-in, idempotency-conflict rejection, negative tenant references, and bounded pilot reporting
 
@@ -219,7 +222,7 @@ Current PostgreSQL coverage includes owner-checked lease renewal, durable dead-l
 - Webhook signing-secret decryption failure
 - Envelope authenticated-context mismatch
 - Secret redaction, including nested payload/body/URL/credential fields and error-message omission
-- Log and metric serialization/export failure isolation from application and worker execution
+- Log, metric, and span serialization/export failure isolation from application and worker execution
 - Metric attribute rejection for identifier/hash/key/URL/payload/body/token/secret-style names and values outside descriptor-owned finite sets
 - Caller request-ID rejection when the value is not an approved opaque format, plus raw path/query suppression
 - Injection attacks
@@ -287,6 +290,9 @@ Browser API tests must prove session enforcement, exact-store hiding, owner/admi
 Default unit tests prove invalid cutoffs, empty terminal-status selections, unsafe archive-run IDs, and batches above 500 fail before a database connection is opened.
 
 PostgreSQL integration tests must prove:
+
+- valid durable trace context round-trips across courier, webhook, and verification rows while nullable legacy rows remain valid;
+- malformed context is rejected by every durable table and all-zero trace/span IDs fail closed;
 
 - preview returns only old `completed`/`failed` rows and performs no mutation;
 - queued and recent rows remain in their source queues;

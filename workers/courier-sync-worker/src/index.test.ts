@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { createMetricRecorder } from '@ozzyl/observability';
+import { createMetricRecorder, createTracer, type SpanPoint } from '@ozzyl/observability';
 import { CourierSyncWorker, toRiskCourierFeatures } from './index.js';
 function parseMetricLine(line: string): unknown {
   return JSON.parse(line) as unknown;
@@ -115,6 +115,99 @@ describe('CourierSyncWorker metrics', () => {
     ]);
     expect(metricLines.join('\n')).not.toContain('sensitive');
     expect(metricLines.join('\n')).not.toContain('01700000000');
+  });
+
+  it('continues a durable trace through the worker and courier provider span', async () => {
+    const points: SpanPoint[] = [];
+    const spanIds = ['bbbbbbbbbbbbbbbb', 'cccccccccccccccc'];
+    const tracer = createTracer({
+      service: 'courier-sync-worker-test',
+      environment: 'test',
+      clock: () => new Date('2026-07-28T00:00:00.000Z'),
+      monotonicNow: () => 1,
+      generateSpanId: () => spanIds.shift()!,
+      write: (_line, point) => points.push(point),
+    });
+    const observation = {
+      provider: 'steadfast' as const,
+      totalOrders: 1,
+      deliveredOrders: 1,
+      returnedOrders: 0,
+      cancelledBeforeShipping: 0,
+      successRate: 1,
+      confidence: 0.8,
+      source: 'merchant_session' as const,
+      observedAt: '2026-07-28T00:00:00.000Z',
+      expiresAt: '2026-07-28T01:00:00.000Z',
+    };
+    const worker = new CourierSyncWorker({
+      adapters: new Map([
+        [
+          'steadfast',
+          {
+            provider: 'steadfast' as const,
+            testConnection: vi.fn(async () => ({
+              healthy: true,
+              status: 'connected' as const,
+              checkedAt: '2026-07-28T00:00:00.000Z',
+            })),
+            fetchCustomerObservation: vi.fn(async () => observation),
+          },
+        ],
+      ]),
+      observations: {
+        findFresh: vi.fn(async () => null),
+        save: vi.fn(async () => undefined),
+      },
+      health: {
+        started: vi.fn(async () => undefined),
+        completed: vi.fn(async () => undefined),
+        failed: vi.fn(async () => undefined),
+      },
+      tracer,
+    });
+    const traceId = '11111111111111111111111111111111';
+
+    await worker.sync({
+      jobId: 'cjob_sensitive',
+      storeId: 'store_sensitive',
+      courierAccountId: 'account_sensitive',
+      provider: 'steadfast',
+      phone: '01700000000',
+      phoneHash: 'hash_sensitive',
+      force: true,
+      traceContext: {
+        traceId,
+        spanId: 'aaaaaaaaaaaaaaaa',
+        traceFlags: '01',
+      },
+    });
+
+    expect(points).toEqual([
+      expect.objectContaining({
+        name: 'ozzyl.provider.operation',
+        trace_id: traceId,
+        span_id: 'cccccccccccccccc',
+        parent_span_id: 'bbbbbbbbbbbbbbbb',
+        attributes: {
+          provider_type: 'courier_api',
+          operation: 'lookup',
+          outcome: 'success',
+        },
+      }),
+      expect.objectContaining({
+        name: 'ozzyl.worker.operation',
+        trace_id: traceId,
+        span_id: 'bbbbbbbbbbbbbbbb',
+        parent_span_id: 'aaaaaaaaaaaaaaaa',
+        attributes: {
+          worker_type: 'courier_sync',
+          operation: 'sync',
+          outcome: 'completed',
+        },
+      }),
+    ]);
+    expect(JSON.stringify(points)).not.toMatch(/sensitive|01700000000/);
   });
 
   it('records courier provider success and retryable failure without identifiers', async () => {

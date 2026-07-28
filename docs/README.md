@@ -4,7 +4,7 @@ This directory is the long-term product and engineering source of truth. New dev
 
 ## Current verified milestone
 
-The repository/provider/queue metrics milestone is merged on `main` as `53b882028292a2a6c0a71da19540dba97c95ea9f`. Feature CI run `30329769797`, job `90182279338`, passed thirteen migrations, 20 typechecks, 31 Turbo tasks with 168 assertions, 20 builds, GitGuardian, audit, clean restore, runtime-role, and PHP gates. Durable courier, webhook, and verification repositories now expose bounded transition timing and aggregate queue depth/oldest-ready-age; courier API/browser, webhook HTTP, and OTP delivery boundaries expose broad provider-call outcomes without identifiers, tenant scope, contact data, credentials, URLs, vendor names, payloads, responses, or arbitrary error labels.
+The repository/provider/queue metrics milestone is merged on `main` as `53b882028292a2a6c0a71da19540dba97c95ea9f`; feature CI run `30329769797`, job `90182279338`, passed thirteen migrations, 20 typechecks, 31 Turbo tasks with 168 assertions, 20 builds, GitGuardian, audit, clean restore, runtime-role, and PHP gates. The current distributed trace-context source branch adds strict W3C API server/producer spans, durable courier/webhook/verification context columns, worker consumer/provider child spans, and verification-failure webhook continuation without business identifiers, contact data, credentials, URLs, payloads, responses, or arbitrary error attributes. Fourteen-migration PostgreSQL-integrated source-branch CI evidence is pending.
 
 ## Architecture
 

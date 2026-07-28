@@ -267,6 +267,8 @@ export const courierJobs = pgTable(
     completedAt: timestamp('completed_at', { withTimezone: true }),
     errorCode: text('error_code'),
     payload: jsonb('payload').notNull().default({}),
+    traceParent: text('trace_parent'),
+    traceState: text('trace_state'),
     ...timestamps(),
   },
   (table) => [index('courier_jobs_schedule_idx').on(table.status, table.scheduledAt)],
@@ -586,6 +588,8 @@ export const verificationJobs = pgTable(
     claimedAt: timestamp('claimed_at', { withTimezone: true }),
     leaseExpiresAt: timestamp('lease_expires_at', { withTimezone: true }),
     completedAt: timestamp('completed_at', { withTimezone: true }),
+    traceParent: text('trace_parent'),
+    traceState: text('trace_state'),
     ...timestamps(),
   },
   (table) => [
@@ -643,6 +647,8 @@ export const webhookDeliveries = pgTable(
     claimedAt: timestamp('claimed_at', { withTimezone: true }),
     leaseExpiresAt: timestamp('lease_expires_at', { withTimezone: true }),
     completedAt: timestamp('completed_at', { withTimezone: true }),
+    traceParent: text('trace_parent'),
+    traceState: text('trace_state'),
     ...timestamps(),
   },
   (table) => [

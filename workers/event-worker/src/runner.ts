@@ -5,7 +5,9 @@ import { AesGcmEnvelopeCipher } from '@ozzyl/encryption';
 import {
   createMetricRecorder,
   createStructuredLogger,
+  createTracer,
   observeRepositoryOperation,
+  parsePersistedTraceContext,
   recordDurableQueueSnapshot,
   recordWorkerClaimFailure,
   type RepositoryMetricOperation,
@@ -55,6 +57,10 @@ const log = createStructuredLogger({
   environment: process.env.NODE_ENV ?? 'development',
 });
 const metrics = createMetricRecorder({
+  service: 'event-worker',
+  environment: process.env.NODE_ENV ?? 'development',
+});
+const tracer = createTracer({
   service: 'event-worker',
   environment: process.env.NODE_ENV ?? 'development',
 });
@@ -139,8 +145,10 @@ async function run(): Promise<void> {
           timeoutMs,
           maxAttempts,
           metrics,
+          tracer,
         },
       );
+      const traceContext = parsePersistedTraceContext(delivery.traceContext);
       await worker.deliver({
         endpoint: {
           id: delivery.endpointId,
@@ -151,6 +159,7 @@ async function run(): Promise<void> {
         event,
         attempt: delivery.attempts + 1,
         signal: heartbeat.signal,
+        ...(traceContext === null ? {} : { traceContext }),
       });
       await heartbeat.stopQuietly();
       heartbeat = null;

@@ -1,4 +1,5 @@
 export * from './metrics.js';
+export * from './tracing.js';
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 

@@ -1,5 +1,5 @@
 import type { Pool } from 'pg';
-import type { DurableQueueSnapshot } from '@ozzyl/observability';
+import type { DurableQueueSnapshot, PersistedTraceContext } from '@ozzyl/observability';
 
 export interface ClaimedCourierJob {
   id: string;
@@ -8,6 +8,7 @@ export interface ClaimedCourierJob {
   storeId: string;
   provider: string;
   payload: unknown;
+  traceContext?: PersistedTraceContext;
 }
 
 export class CourierJobLeaseError extends Error {
@@ -60,6 +61,8 @@ export class PostgresCourierJobQueue {
         store_id: string;
         provider: string;
         payload: unknown;
+        trace_parent: string | null;
+        trace_state: string | null;
       }>(
         `
           with candidate as (
@@ -92,7 +95,7 @@ export class PostgresCourierJobQueue {
               updated_at = now()
             from candidate
             where cj.id = candidate.id
-            returning cj.id, cj.courier_account_id, cj.payload
+            returning cj.id, cj.courier_account_id, cj.payload, cj.trace_parent, cj.trace_state
           )
           select
             claimed.id,
@@ -100,7 +103,9 @@ export class PostgresCourierJobQueue {
             stores.organization_id,
             courier_accounts.store_id,
             courier_accounts.provider,
-            claimed.payload
+            claimed.payload,
+            claimed.trace_parent,
+            claimed.trace_state
           from claimed
           join courier_accounts on courier_accounts.id = claimed.courier_account_id
           join stores on stores.id = courier_accounts.store_id
@@ -117,6 +122,14 @@ export class PostgresCourierJobQueue {
             storeId: row.store_id,
             provider: row.provider,
             payload: row.payload,
+            ...(row.trace_parent === null
+              ? {}
+              : {
+                  traceContext: {
+                    traceParent: row.trace_parent,
+                    ...(row.trace_state === null ? {} : { traceState: row.trace_state }),
+                  },
+                }),
           }
         : null;
     } catch (error) {

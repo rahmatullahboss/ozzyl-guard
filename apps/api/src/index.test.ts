@@ -4,8 +4,12 @@ import { MemoryUsageLedger } from '@ozzyl/billing';
 import {
   createMetricRecorder,
   createStructuredLogger,
+  createTracer,
   type MetricRecorder,
+  type PersistedTraceContext,
+  type SpanPoint,
   type StructuredLogger,
+  type Tracer,
 } from '@ozzyl/observability';
 import {
   createApiApp,
@@ -30,7 +34,19 @@ function createTestApp(input?: {
   rawApiKey?: string;
   logger?: StructuredLogger;
   metrics?: MetricRecorder;
+  tracer?: Tracer;
   monotonicNow?: () => number;
+  refreshQueue?: {
+    enqueue(input: {
+      organizationId: string;
+      storeId: string;
+      phone: string;
+      phoneHash: string;
+      providers: string[];
+      force: boolean;
+      traceContext?: PersistedTraceContext;
+    }): Promise<{ jobId: string }>;
+  };
   verificationRequests?: {
     enqueueSend(input: {
       organizationId: string;
@@ -40,6 +56,7 @@ function createTestApp(input?: {
       phoneHash: string;
       purpose: string;
       idempotencyKey: string;
+      traceContext?: PersistedTraceContext;
     }): Promise<{ verificationId: string; expiresAt: string; replay: boolean }>;
   };
   otpVerifier?: {
@@ -73,7 +90,7 @@ function createTestApp(input?: {
     features: new MissingFeatureProvider(),
     assessments: input?.assessments ?? new MemoryAssessmentRepository(),
     outcomes: new MemoryOutcomeRepository(),
-    refreshQueue: new MemoryRefreshQueue(),
+    refreshQueue: input?.refreshQueue ?? new MemoryRefreshQueue(),
     idempotency: new MemoryOperationIdempotencyStore(),
     rateLimiter: new MemoryRateLimiter(),
     hashPhone: (phone) => createHmac('sha256', 'x'.repeat(32)).update(phone).digest('hex'),
@@ -83,6 +100,7 @@ function createTestApp(input?: {
     ...(input?.otpVerifier === undefined ? {} : { otpVerifier: input.otpVerifier }),
     ...(input?.logger === undefined ? {} : { logger: input.logger }),
     ...(input?.metrics === undefined ? {} : { metrics: input.metrics }),
+    ...(input?.tracer === undefined ? {} : { tracer: input.tracer }),
     ...(input?.monotonicNow === undefined ? {} : { monotonicNow: input.monotonicNow }),
     idFactory: (prefix) => `${prefix}_${++counter}`,
     now: () => new Date('2026-07-16T10:00:00.000Z'),
@@ -169,6 +187,80 @@ describe('Ozzyl Guard API', () => {
     ]);
     expect(metricLines.join('\n')).not.toContain('ras-sensitive-value');
     expect(metricLines.join('\n')).not.toContain('discard-me');
+  });
+
+  it('continues W3C trace context through an API producer into durable work', async () => {
+    const points: SpanPoint[] = [];
+    const spanIds = ['2222222222222222', '3333333333333333'];
+    let monotonic = 0;
+    const tracer = createTracer({
+      service: 'api-test',
+      environment: 'test',
+      clock: () => new Date('2026-07-28T00:00:00.000Z'),
+      monotonicNow: () => ++monotonic,
+      generateSpanId: () => spanIds.shift()!,
+      write: (_line, point) => points.push(point),
+    });
+    let queuedTrace: PersistedTraceContext | undefined;
+    const traceId = '11111111111111111111111111111111';
+    const parentSpanId = 'aaaaaaaaaaaaaaaa';
+    const response = await createTestApp({
+      tracer,
+      refreshQueue: {
+        async enqueue(input) {
+          queuedTrace = input.traceContext;
+          return { jobId: 'cjob_trace' };
+        },
+      },
+    }).request('/v1/courier-observations/refresh', {
+      method: 'POST',
+      headers: {
+        ...authorizedHeaders,
+        traceparent: `00-${traceId}-${parentSpanId}-01`,
+        tracestate: 'vendor=value',
+      },
+      body: JSON.stringify({ phone: '01712345678', providers: ['steadfast'], force: false }),
+    });
+
+    expect(response.status).toBe(202);
+    expect(response.headers.get('traceparent')).toBe(`00-${traceId}-2222222222222222-01`);
+    expect(response.headers.get('tracestate')).toBe('vendor=value');
+    expect(queuedTrace).toEqual({
+      traceParent: `00-${traceId}-3333333333333333-01`,
+      traceState: 'vendor=value',
+    });
+    expect(points).toHaveLength(2);
+    expect(points).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'ozzyl.api.request',
+          trace_id: traceId,
+          span_id: '2222222222222222',
+          parent_span_id: parentSpanId,
+          attributes: {
+            method: 'POST',
+            route: '/v1/courier-observations/refresh',
+            status_class: '2xx',
+          },
+        }),
+        expect.objectContaining({
+          name: 'ozzyl.api.durable.produce',
+          trace_id: traceId,
+          span_id: '3333333333333333',
+          parent_span_id: '2222222222222222',
+          attributes: {
+            operation: 'courier_refresh',
+            queue_type: 'courier_refresh',
+            outcome: 'completed',
+          },
+        }),
+      ]),
+    );
+    const serialized = JSON.stringify(points);
+    expect(serialized).not.toContain('org_1');
+    expect(serialized).not.toContain('store_1');
+    expect(serialized).not.toContain('01712345678');
+    expect(serialized).not.toContain('cjob_trace');
   });
 
   it('rejects arbitrary caller request identifiers instead of reflecting them', async () => {

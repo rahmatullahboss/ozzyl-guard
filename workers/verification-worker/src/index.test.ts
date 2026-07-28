@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { createMetricRecorder } from '@ozzyl/observability';
+import { createMetricRecorder, createTracer, type SpanPoint } from '@ozzyl/observability';
 import { OtpProviderError } from '@ozzyl/verification';
 import { VerificationWorker } from './index.js';
 function parseMetricLine(line: string): unknown {
@@ -30,6 +30,8 @@ describe('VerificationWorker', () => {
   it('delivers with bounded metrics without exposing the OTP', async () => {
     const state = reporter();
     const metricLines: string[] = [];
+    const tracePoints: SpanPoint[] = [];
+    const spanIds = ['bbbbbbbbbbbbbbbb', 'cccccccccccccccc'];
     const ticks = [10, 12, 16, 18];
     const provider = {
       send: vi.fn(async ({ message }: { message: string }) => {
@@ -45,8 +47,25 @@ describe('VerificationWorker', () => {
         environment: 'test',
         write: (line) => metricLines.push(line),
       }),
+      tracer: createTracer({
+        service: 'verification-worker-test',
+        environment: 'test',
+        clock: () => new Date('2026-07-28T00:00:00.000Z'),
+        monotonicNow: () => 1,
+        generateSpanId: () => spanIds.shift()!,
+        write: (_line, point) => tracePoints.push(point),
+      }),
     });
-    await expect(worker.process(delivery)).resolves.toEqual({
+    await expect(
+      worker.process({
+        ...delivery,
+        traceContext: {
+          traceId: '11111111111111111111111111111111',
+          spanId: 'aaaaaaaaaaaaaaaa',
+          traceFlags: '01',
+        },
+      }),
+    ).resolves.toEqual({
       status: 'delivered',
       providerMessageId: 'msg_1',
     });
@@ -90,6 +109,34 @@ describe('VerificationWorker', () => {
     ]);
     expect(metricLines.join('\n')).not.toContain('123456');
     expect(metricLines.join('\n')).not.toContain('ver_1');
+    expect(state.delivered).toHaveBeenCalledWith('vjob_1', 'msg_1', expect.any(Date), {
+      traceParent: '00-11111111111111111111111111111111-bbbbbbbbbbbbbbbb-01',
+    });
+    expect(tracePoints).toEqual([
+      expect.objectContaining({
+        name: 'ozzyl.provider.operation',
+        trace_id: '11111111111111111111111111111111',
+        span_id: 'cccccccccccccccc',
+        parent_span_id: 'bbbbbbbbbbbbbbbb',
+        attributes: {
+          provider_type: 'verification_delivery',
+          operation: 'send',
+          outcome: 'success',
+        },
+      }),
+      expect.objectContaining({
+        name: 'ozzyl.worker.operation',
+        trace_id: '11111111111111111111111111111111',
+        span_id: 'bbbbbbbbbbbbbbbb',
+        parent_span_id: 'aaaaaaaaaaaaaaaa',
+        attributes: {
+          worker_type: 'verification_delivery',
+          operation: 'send',
+          outcome: 'completed',
+        },
+      }),
+    ]);
+    expect(JSON.stringify(tracePoints)).not.toMatch(/123456|01712345678|ver_1|vjob_1|org_1|sto_1/);
   });
 
   it('schedules retryable provider failures with bounded backoff', async () => {

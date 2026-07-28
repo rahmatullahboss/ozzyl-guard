@@ -1,6 +1,7 @@
 import { randomInt, randomUUID } from 'node:crypto';
 import type { Pool, PoolClient } from 'pg';
 import type { EnvelopeCipher } from '@ozzyl/encryption';
+import type { PersistedTraceContext } from '@ozzyl/observability';
 import type { DomainEvent } from '@ozzyl/shared-types';
 import { VerificationError, hashOtp, verifyOtp } from '@ozzyl/verification';
 import type { OtpVerifier, VerificationRequestQueue } from './index.js';
@@ -46,6 +47,7 @@ export class PostgresVerificationService implements VerificationRequestQueue, Ot
     phoneHash: string;
     purpose: string;
     idempotencyKey: string;
+    traceContext?: PersistedTraceContext;
   }): Promise<{ verificationId: string; expiresAt: string; replay: boolean }> {
     const client = await this.pool.connect();
     try {
@@ -176,10 +178,19 @@ export class PostgresVerificationService implements VerificationRequestQueue, Ot
         `
           insert into verification_jobs (
             id, verification_session_id, organization_id, store_id, job_type,
-            payload_encrypted, status, next_attempt_at
-          ) values ($1, $2, $3, $4, 'send_otp', $5, 'queued', $6)
+            payload_encrypted, status, next_attempt_at, trace_parent, trace_state
+          ) values ($1, $2, $3, $4, 'send_otp', $5, 'queued', $6, $7, $8)
         `,
-        [jobId, verificationId, input.organizationId, input.storeId, payloadEncrypted, now],
+        [
+          jobId,
+          verificationId,
+          input.organizationId,
+          input.storeId,
+          payloadEncrypted,
+          now,
+          input.traceContext?.traceParent ?? null,
+          input.traceContext?.traceState ?? null,
+        ],
       );
       await client.query('commit');
       return { verificationId, expiresAt: expiresAt.toISOString(), replay: false };

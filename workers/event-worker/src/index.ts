@@ -2,9 +2,15 @@ import { createHmac } from 'node:crypto';
 import { lookup } from 'node:dns/promises';
 import { isIP } from 'node:net';
 import {
+  endProviderOperationSpan,
+  endWorkerOperationSpan,
   recordProviderOperation,
   recordWorkerOperation,
+  startProviderOperationSpan,
+  startWorkerOperationSpan,
   type MetricRecorder,
+  type TraceContext,
+  type Tracer,
 } from '@ozzyl/observability';
 import type { DomainEvent } from '@ozzyl/shared-types';
 
@@ -20,6 +26,7 @@ export interface WebhookDeliveryInput {
   event: DomainEvent;
   attempt: number;
   signal?: AbortSignal;
+  traceContext?: TraceContext;
 }
 
 export interface DeliveryResult {
@@ -121,6 +128,7 @@ export class EventWorker {
   private readonly now: () => Date;
   private readonly resolver: WebhookDestinationResolver;
   private readonly metrics: MetricRecorder | undefined;
+  private readonly tracer: Tracer | undefined;
   private readonly monotonicNow: () => number;
 
   constructor(
@@ -132,6 +140,7 @@ export class EventWorker {
       now?: () => Date;
       resolver?: WebhookDestinationResolver;
       metrics?: MetricRecorder;
+      tracer?: Tracer;
       monotonicNow?: () => number;
     },
   ) {
@@ -141,24 +150,32 @@ export class EventWorker {
     this.now = options?.now ?? (() => new Date());
     this.resolver = options?.resolver ?? resolveHostname;
     this.metrics = options?.metrics;
+    this.tracer = options?.tracer;
     this.monotonicNow = options?.monotonicNow ?? (() => Date.now());
   }
 
   async deliver(input: WebhookDeliveryInput): Promise<DeliveryResult> {
     const startedAt = this.monotonicNow();
+    const span = startWorkerOperationSpan(this.tracer, {
+      workerType: 'webhook_delivery',
+      operation: 'deliver',
+      ...(input.traceContext === undefined ? {} : { parent: input.traceContext }),
+    });
     try {
-      const result = await this.deliverInternal(input);
+      const result = await this.deliverInternal(input, span.context);
+      const outcome =
+        result.status === 'delivered'
+          ? 'completed'
+          : result.status === 'retry_scheduled'
+            ? 'retry_scheduled'
+            : 'failed';
       recordWorkerOperation(this.metrics, {
         workerType: 'webhook_delivery',
         operation: 'deliver',
-        outcome:
-          result.status === 'delivered'
-            ? 'completed'
-            : result.status === 'retry_scheduled'
-              ? 'retry_scheduled'
-              : 'failed',
+        outcome,
         durationMs: this.monotonicNow() - startedAt,
       });
+      endWorkerOperationSpan(span, outcome);
       return result;
     } catch (error) {
       recordWorkerOperation(this.metrics, {
@@ -167,11 +184,15 @@ export class EventWorker {
         outcome: 'failed',
         durationMs: this.monotonicNow() - startedAt,
       });
+      endWorkerOperationSpan(span, 'failed');
       throw error;
     }
   }
 
-  private async deliverInternal(input: WebhookDeliveryInput): Promise<DeliveryResult> {
+  private async deliverInternal(
+    input: WebhookDeliveryInput,
+    traceContext: TraceContext,
+  ): Promise<DeliveryResult> {
     if (!input.endpoint.active) {
       await this.repository.markFailed({
         endpointId: input.endpoint.id,
@@ -207,6 +228,11 @@ export class EventWorker {
     const timeout = setTimeout(() => controller.abort(), this.timeoutMs);
 
     const providerStartedAt = this.monotonicNow();
+    const providerSpan = startProviderOperationSpan(this.tracer, {
+      providerType: 'webhook_http',
+      operation: 'deliver',
+      parent: traceContext,
+    });
     let response: Response;
     try {
       response = await this.fetcher(url, {
@@ -224,12 +250,18 @@ export class EventWorker {
       });
       const retryable =
         response.status === 408 || response.status === 429 || response.status >= 500;
+      const providerOutcome = response.ok
+        ? 'success'
+        : retryable
+          ? 'retryable_failure'
+          : 'permanent_failure';
       recordProviderOperation(this.metrics, {
         providerType: 'webhook_http',
         operation: 'deliver',
-        outcome: response.ok ? 'success' : retryable ? 'retryable_failure' : 'permanent_failure',
+        outcome: providerOutcome,
         durationMs: this.monotonicNow() - providerStartedAt,
       });
+      endProviderOperationSpan(providerSpan, providerOutcome);
     } catch (error) {
       recordProviderOperation(this.metrics, {
         providerType: 'webhook_http',
@@ -237,6 +269,7 @@ export class EventWorker {
         outcome: 'retryable_failure',
         durationMs: this.monotonicNow() - providerStartedAt,
       });
+      endProviderOperationSpan(providerSpan, 'retryable_failure');
       const errorCode =
         error instanceof Error && error.name === 'AbortError' ? 'TIMEOUT' : 'NETWORK_ERROR';
       return this.retryOrFail({

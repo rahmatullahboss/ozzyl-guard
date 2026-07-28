@@ -10,7 +10,9 @@ import { LeaseHeartbeat } from '@ozzyl/database';
 import {
   createMetricRecorder,
   createStructuredLogger,
+  createTracer,
   observeRepositoryOperation,
+  parsePersistedTraceContext,
   recordDurableQueueSnapshot,
   recordWorkerClaimFailure,
   type RepositoryMetricOperation,
@@ -47,6 +49,10 @@ const log = createStructuredLogger({
   environment: process.env.NODE_ENV ?? 'development',
 });
 const metrics = createMetricRecorder({
+  service: 'courier-sync-worker',
+  environment: process.env.NODE_ENV ?? 'development',
+});
+const tracer = createTracer({
   service: 'courier-sync-worker',
   environment: process.env.NODE_ENV ?? 'development',
 });
@@ -141,6 +147,7 @@ const syncWorker = new CourierSyncWorker({
     },
   },
   metrics,
+  tracer,
   health: {
     async started(jobId, at): Promise<void> {
       await observeQueue('start', () => jobs.started(jobId, workerId, at));
@@ -193,6 +200,7 @@ async function run(): Promise<void> {
         );
         throw error;
       }
+      const traceContext = parsePersistedTraceContext(job.traceContext);
       await syncWorker.sync({
         jobId: job.id,
         storeId: job.storeId,
@@ -202,6 +210,7 @@ async function run(): Promise<void> {
         phoneHash: payload.phoneHash,
         force: payload.force,
         signal: activeHeartbeat.signal,
+        ...(traceContext === null ? {} : { traceContext }),
       });
       await activeHeartbeat.stopQuietly();
       activeHeartbeat = null;

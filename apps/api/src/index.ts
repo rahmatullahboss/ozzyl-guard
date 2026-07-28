@@ -5,9 +5,17 @@ import type { PlanCode, UsageLedger } from '@ozzyl/billing';
 import {
   createMetricRecorder,
   createStructuredLogger,
+  createTracer,
   defineMetric,
+  defineSpan,
+  formatTraceParent,
+  parseTraceContext,
+  toPersistedTraceContext,
   type MetricRecorder,
+  type PersistedTraceContext,
   type StructuredLogger,
+  type TraceContext,
+  type Tracer,
 } from '@ozzyl/observability';
 import {
   assessRisk,
@@ -76,6 +84,7 @@ export interface AssessmentFeatureProvider {
 
 export interface StoredAssessment {
   identity: Pick<ApiKeyIdentity, 'apiKeyId' | 'organizationId' | 'storeId'>;
+  traceContext?: PersistedTraceContext;
   idempotencyKey: string;
   phoneHash: string;
   request: RiskAssessmentRequest;
@@ -102,6 +111,7 @@ export interface OutcomeRepository {
     storeId: string;
     idempotencyKey: string;
     outcome: OrderOutcomeInput;
+    traceContext?: PersistedTraceContext;
   }): Promise<{ outcomeId: string; replay: boolean }>;
 }
 
@@ -165,6 +175,7 @@ export interface CourierRefreshQueue {
     phoneHash: string;
     providers: string[];
     force: boolean;
+    traceContext?: PersistedTraceContext;
   }): Promise<{ jobId: string }>;
 }
 
@@ -177,6 +188,7 @@ export interface VerificationRequestQueue {
     phoneHash: string;
     purpose: string;
     idempotencyKey: string;
+    traceContext?: PersistedTraceContext;
   }): Promise<{ verificationId: string; expiresAt: string; replay: boolean }>;
 }
 
@@ -219,12 +231,14 @@ export interface ApiDependencies {
   idFactory?: (prefix: string) => string;
   logger?: StructuredLogger;
   metrics?: MetricRecorder;
+  tracer?: Tracer;
 }
 
 type AppEnvironment = {
   Variables: {
     identity: ApiKeyIdentity;
     requestId: string;
+    traceContext: TraceContext;
   };
 };
 
@@ -264,12 +278,31 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
       environment: 'test',
       write: () => undefined,
     });
+  const tracer =
+    dependencies.tracer ??
+    createTracer({
+      service: 'ozzyl-guard-api',
+      environment: 'test',
+      write: () => undefined,
+    });
 
   app.use('*', async (context, next) => {
     const requestId = readRequestId(context.req.header('X-Request-ID')) ?? idFactory('req');
     const startedAt = monotonicNow();
     let failed = false;
+    const parentTrace = parseTraceContext(
+      context.req.header('traceparent'),
+      context.req.header('tracestate'),
+    );
+    const requestSpan = tracer.startSpan(API_REQUEST_SPAN, {
+      ...(parentTrace === null ? {} : { parent: parentTrace }),
+      attributes: {
+        method: telemetryMethod(context.req.method),
+        route: telemetryRoute(context.req.path),
+      },
+    });
     context.set('requestId', requestId);
+    context.set('traceContext', requestSpan.context);
 
     try {
       await next();
@@ -294,6 +327,14 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
       };
 
       context.header('X-Request-ID', requestId);
+      context.header('traceparent', formatTraceParent(requestSpan.context));
+      if (requestSpan.context.traceState !== undefined) {
+        context.header('tracestate', requestSpan.context.traceState);
+      }
+      requestSpan.end({
+        status: status >= 500 ? 'error' : 'ok',
+        attributes: { status_class: telemetryStatusClass(status) },
+      });
       metrics.record(API_REQUEST_COUNT, 1, metricAttributes);
       metrics.record(API_REQUEST_DURATION, durationMs, metricAttributes);
       if (status >= 500) logger.error('api.request.completed', attributes);
@@ -439,17 +480,25 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
       },
     });
 
-    const stored = await dependencies.assessments.save({
-      identity: {
-        apiKeyId: identity.apiKeyId,
-        organizationId: identity.organizationId,
-        storeId: identity.storeId,
-      },
-      idempotencyKey,
-      phoneHash,
-      request,
-      response,
-    });
+    const stored = await observeDurableProducer(
+      tracer,
+      context.get('traceContext'),
+      'assessment_event',
+      'webhook_delivery',
+      (traceContext) =>
+        dependencies.assessments.save({
+          traceContext,
+          identity: {
+            apiKeyId: identity.apiKeyId,
+            organizationId: identity.organizationId,
+            storeId: identity.storeId,
+          },
+          idempotencyKey,
+          phoneHash,
+          request,
+          response,
+        }),
+    );
     return context.json(
       stored.response,
       stored.response.assessment_id === response.assessment_id ? 201 : 200,
@@ -496,12 +545,20 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
         );
       }
     }
-    const saved = await dependencies.outcomes.save({
-      organizationId: identity.organizationId,
-      storeId: identity.storeId,
-      idempotencyKey,
-      outcome: parsedBody.value,
-    });
+    const saved = await observeDurableProducer(
+      tracer,
+      context.get('traceContext'),
+      'outcome_event',
+      'webhook_delivery',
+      (traceContext) =>
+        dependencies.outcomes.save({
+          organizationId: identity.organizationId,
+          storeId: identity.storeId,
+          idempotencyKey,
+          outcome: parsedBody.value,
+          traceContext,
+        }),
+    );
     return context.json(
       { success: true as const, outcome_id: saved.outcomeId, replay: saved.replay },
       saved.replay ? 200 : 201,
@@ -703,14 +760,22 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
     }
     let queued: { jobId: string };
     try {
-      queued = await dependencies.refreshQueue.enqueue({
-        organizationId: identity.organizationId,
-        storeId: identity.storeId,
-        phone,
-        phoneHash: dependencies.hashPhone(phone),
-        providers: parsedBody.value.providers,
-        force: parsedBody.value.force,
-      });
+      queued = await observeDurableProducer(
+        tracer,
+        context.get('traceContext'),
+        'courier_refresh',
+        'courier_refresh',
+        (traceContext) =>
+          dependencies.refreshQueue.enqueue({
+            organizationId: identity.organizationId,
+            storeId: identity.storeId,
+            phone,
+            phoneHash: dependencies.hashPhone(phone),
+            providers: parsedBody.value.providers,
+            force: parsedBody.value.force,
+            traceContext,
+          }),
+      );
     } catch (error) {
       const code =
         error && typeof error === 'object' && 'code' in error && typeof error.code === 'string'
@@ -760,17 +825,25 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
       );
     }
     try {
-      const queued = await dependencies.verificationRequests.enqueueSend({
-        organizationId: identity.organizationId,
-        storeId: identity.storeId,
-        ...(parsedBody.value.assessment_id === undefined
-          ? {}
-          : { assessmentId: parsedBody.value.assessment_id }),
-        phone,
-        phoneHash: dependencies.hashPhone(phone),
-        purpose: parsedBody.value.purpose,
-        idempotencyKey,
-      });
+      const queued = await observeDurableProducer(
+        tracer,
+        context.get('traceContext'),
+        'otp_delivery',
+        'verification_delivery',
+        (traceContext) =>
+          dependencies.verificationRequests!.enqueueSend({
+            organizationId: identity.organizationId,
+            storeId: identity.storeId,
+            ...(parsedBody.value.assessment_id === undefined
+              ? {}
+              : { assessmentId: parsedBody.value.assessment_id }),
+            phone,
+            phoneHash: dependencies.hashPhone(phone),
+            purpose: parsedBody.value.purpose,
+            idempotencyKey,
+            traceContext,
+          }),
+      );
       const response = {
         success: true as const,
         verification_id: queued.verificationId,
@@ -868,6 +941,28 @@ const API_METRIC_ATTRIBUTES = {
   route: { values: API_METRIC_ROUTES },
   status_class: { values: ['1xx', '2xx', '3xx', '4xx', '5xx', 'other'] },
 } as const;
+const API_REQUEST_SPAN = defineSpan({
+  name: 'ozzyl.api.request',
+  kind: 'server',
+  attributes: {
+    method: { ...API_METRIC_ATTRIBUTES.method, required: false },
+    route: { ...API_METRIC_ATTRIBUTES.route, required: false },
+    status_class: { ...API_METRIC_ATTRIBUTES.status_class, required: false },
+  },
+});
+const API_DURABLE_PRODUCER_SPAN = defineSpan({
+  name: 'ozzyl.api.durable.produce',
+  kind: 'producer',
+  attributes: {
+    operation: {
+      values: ['assessment_event', 'outcome_event', 'courier_refresh', 'otp_delivery'],
+    },
+    queue_type: {
+      values: ['courier_refresh', 'webhook_delivery', 'verification_delivery'],
+    },
+    outcome: { values: ['completed', 'failed'], required: false },
+  },
+});
 const API_REQUEST_COUNT = defineMetric({
   name: 'ozzyl.api.requests',
   kind: 'counter',
@@ -880,6 +975,27 @@ const API_REQUEST_DURATION = defineMetric({
   unit: 'ms',
   attributes: API_METRIC_ATTRIBUTES,
 });
+
+async function observeDurableProducer<T>(
+  tracer: Tracer,
+  parent: TraceContext,
+  operation: 'assessment_event' | 'outcome_event' | 'courier_refresh' | 'otp_delivery',
+  queueType: 'courier_refresh' | 'webhook_delivery' | 'verification_delivery',
+  task: (traceContext: PersistedTraceContext) => Promise<T>,
+): Promise<T> {
+  const span = tracer.startSpan(API_DURABLE_PRODUCER_SPAN, {
+    parent,
+    attributes: { operation, queue_type: queueType },
+  });
+  try {
+    const result = await task(toPersistedTraceContext(span.context));
+    span.end({ status: 'ok', attributes: { outcome: 'completed' } });
+    return result;
+  } catch (error) {
+    span.end({ status: 'error', attributes: { outcome: 'failed' } });
+    throw error;
+  }
+}
 
 function telemetryRoute(path: string): string {
   if (STATIC_TELEMETRY_ROUTES.has(path)) return path;
