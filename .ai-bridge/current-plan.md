@@ -4,7 +4,7 @@ Updated: 2026-07-28
 
 ## Current state
 
-A runnable standalone MVP foundation and fourteen production-hardening slices are complete:
+A runnable standalone MVP foundation and fifteen production-hardening slices are complete:
 
 1. dashboard/admin browser authentication with live PostgreSQL data and tenant revalidation;
 2. accepted provider-neutral infrastructure ADRs for deployment, managed PostgreSQL, durable work/cache, KMS envelope encryption, and observability;
@@ -19,7 +19,8 @@ A runnable standalone MVP foundation and fourteen production-hardening slices ar
 11. selected-source post-persist shadow integration with authoritative source-order reload, explicit store opt-in, immutable sampled-attempt evidence, and tenant-scoped pilot reporting;
 12. tenant-scoped durable-work dead-letter inspection and explicit idempotent replay with lease reset, structural failure guards, immutable evidence, and audit records;
 13. authenticated merchant browser dead-letter operations with exact owner/admin store scope, secret-free listing, CSRF-protected replay, and synchronous stable replay keys;
-14. a canonical vendor-neutral structured logging/redaction package integrated into all four private workers, with bounded serialization and telemetry-failure isolation.
+14. a canonical vendor-neutral structured logging/redaction package integrated into all four private workers, with bounded serialization and telemetry-failure isolation;
+15. API-wide safe request correlation and structured lifecycle logging with opaque request IDs, bounded route templates, response status/latency, redacted unhandled errors, and telemetry-failure isolation.
 
 Concrete provider selection and provisioning remain external production work.
 
@@ -55,6 +56,8 @@ Concrete provider selection and provisioning remain external production work.
 - [x] Vendor-neutral OpenTelemetry observability ADR
 - [x] Canonical structured logging/redaction helper with fixed metadata, bounded serialization, and fail-open telemetry delivery
 - [x] Courier-session, courier-sync, event, and verification worker startup/error logging migrated to the shared boundary
+- [x] API startup/shutdown, request completion, and unhandled-error logging migrated to the shared boundary
+- [x] Caller request IDs are accepted only in opaque bounded formats; raw dynamic paths and query values are never exported
 - [x] Concurrent duplicate usage reservations serialize into one charge and replay responses
 - [x] Concurrent usage reservations cannot exceed the plan limit
 - [x] Concurrent assessment saves return the single persisted assessment without orphan signal writes
@@ -113,11 +116,11 @@ Concrete provider selection and provisioning remain external production work.
 - Twelve migration files ordered/non-empty/non-destructive: passed
 - First migration apply and immediate migration replay: passed
 - Architecture import boundaries: passed
-- Typecheck: 20 of 20 workspaces passed locally and in source-branch CI
-- Test/build dependency tasks: 31 of 31 passed locally and in source-branch CI
-- Repository assertions: 132 passed in PostgreSQL-integrated source-branch CI, including three structured-log redaction/serialization/failure-isolation tests
-- Production builds: 20 of 20 workspaces passed locally and in source-branch CI
-- WooCommerce PHP syntax: passed in source-branch CI
+- Typecheck: 20 of 20 workspaces passed locally; source-branch CI is pending
+- Test/build dependency tasks: 31 of 31 passed locally; source-branch CI is pending
+- Repository assertion inventory: 136, including four API request-correlation, bounded-route, unhandled-error redaction, and sink-failure tests; PostgreSQL-integrated source-branch CI is pending
+- Production builds: 20 of 20 workspaces passed locally; source-branch CI is pending
+- WooCommerce PHP syntax: unchanged; source-branch CI validation is pending
 - npm high/critical audit threshold: passed after the ESLint toolchain update; five moderate findings remain
 - Worker lease final CI run `29545309665`, job `87776201468`: all gates passed at head `b886fcb57c9a5c9ebae3b23334966468ae1733c3`
 - The verified worker lease change was squash-merged to `main` as `d748bde10920e5a35a7e90f3a00b3b3bf02b96f3`
@@ -150,7 +153,7 @@ Concrete provider selection and provisioning remain external production work.
 - `tracker.yml` YAML structure remains valid
 - Prohibited source-pattern search: no matches
 
-The repository-local continuation exporter was refreshed after recording the merged observability verification evidence, so the embedded snapshots match the current branch state.
+The repository-local continuation exporter was refreshed after the API observability milestone documentation was finalized, so its embedded snapshots match the current branch state.
 
 ## Next production milestone
 

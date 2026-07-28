@@ -22,7 +22,8 @@
     "pg": "^8.16.3",
     "zod": "^3.25.76",
     "@ozzyl/encryption": "*",
-    "@ozzyl/database": "*"
+    "@ozzyl/database": "*",
+    "@ozzyl/observability": "*"
   },
   "devDependencies": {
     "@types/pg": "^8.15.5"

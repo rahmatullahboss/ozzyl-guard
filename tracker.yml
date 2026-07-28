@@ -90,6 +90,8 @@ invariants:
   - browser_dead_letter_responses_exclude_payloads_and_secret_material
   - structured_logs_redact_sensitive_fields_before_export
   - telemetry_failures_never_break_application_or_worker_execution
+  - api_request_ids_are_server_generated_or_bounded_opaque_values
+  - api_logs_never_export_raw_urls_query_values_or_dynamic_route_identifiers
 
 implemented:
   - typescript_monorepo_and_ci
@@ -143,6 +145,8 @@ implemented:
   - provider_neutral_structured_logging_and_recursive_redaction
   - courier_session_courier_sync_event_and_verification_worker_log_integration
   - telemetry_serialization_and_sink_failure_isolation_tests
+  - api_request_lifecycle_and_safe_correlation_logging
+  - api_unhandled_error_redaction_and_sink_failure_isolation_tests
 
 verification:
   command: npm run verify
@@ -156,7 +160,8 @@ verification:
     architecture_boundaries: passed
     typecheck: 20_of_20_passed
     test_tasks: 31_of_31_passed
-    remote_assertions: 132_passed
+    source_assertions: 136_total
+    previous_main_remote_assertions: 132_passed
     migration_integrity_tests: 7_of_7_passed
     postgresql_concurrency_tests: 7_of_7_passed
     postgresql_courier_worker_lease_tests: 5_of_5_passed
@@ -175,6 +180,7 @@ verification:
     durable_dead_letter_postgresql_tests: 5_of_5_passed
     browser_dead_letter_api_tests: 3_of_3_passed
     observability_tests: 3_of_3_passed
+    api_observability_tests: 4_of_4_passed
     builds: 20_of_20_passed
     php_syntax: passed
     high_critical_dependency_check: passed
@@ -182,8 +188,8 @@ verification:
     documentation_links: 57_reviewed_0_known_broken
   continuation_bundle:
     status: refreshed_locally
-    canonical_main_sync: verified_at_d8ef4acadb39ad33337f3e2c0ef0e6f1c9d4d8a7
-    local_exporter: completed_after_merged_observability_ci_evidence
+    canonical_main_sync: verified_at_cc8d8901808305b4c72604c654b7790ae7e3bffc
+    local_exporter: completed_after_api_observability_docs
   remote_ci:
     status: passed
     run_id: 30317190971
@@ -202,6 +208,7 @@ verification:
     steps: audit_format_lint_manifest_twelve_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_twenty_typechecks_one_hundred_thirty_two_assertions_twenty_builds_php_all_passed
     observability_tests: 3_of_3_passed
   pending_follow_up:
+    - source_branch_remote_ci_validation
     - observability_metrics_traces_exporters_and_managed_backend
     - production_source_hook_deployment_and_explicit_pilot_store_selection
     - pilot_outcome_collection_and_calibration
@@ -320,5 +327,7 @@ notes:
   - merchant_dead_letter_ui_hides_operations_from_non_admin_members
   - structured_log_redaction_is_canonicalized_in_packages_observability
   - private_worker_logging_uses_the_shared_telemetry_failure_isolation_boundary
-  - pro_context_was_refreshed_after_merged_observability_ci_evidence
+  - api_request_logs_use_opaque_ids_bounded_routes_status_and_latency_only
+  - api_unhandled_errors_export_safe_name_and_code_without_message_or_stack
+  - pro_context_was_refreshed_after_api_observability_documentation
   - update_this_file_after_every_material_milestone

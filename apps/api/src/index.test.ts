@@ -1,6 +1,7 @@
 import { createHmac } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import { MemoryUsageLedger } from '@ozzyl/billing';
+import { createStructuredLogger, type StructuredLogger } from '@ozzyl/observability';
 import {
   createApiApp,
   MemoryAssessmentRepository,
@@ -19,6 +20,8 @@ function createTestApp(input?: {
   identity?: ApiKeyIdentity;
   assessments?: AssessmentRepository;
   rawApiKey?: string;
+  logger?: StructuredLogger;
+  monotonicNow?: () => number;
   verificationRequests?: {
     enqueueSend(input: {
       organizationId: string;
@@ -69,6 +72,8 @@ function createTestApp(input?: {
       ? {}
       : { verificationRequests: input.verificationRequests }),
     ...(input?.otpVerifier === undefined ? {} : { otpVerifier: input.otpVerifier }),
+    ...(input?.logger === undefined ? {} : { logger: input.logger }),
+    ...(input?.monotonicNow === undefined ? {} : { monotonicNow: input.monotonicNow }),
     idFactory: (prefix) => `${prefix}_${++counter}`,
     now: () => new Date('2026-07-16T10:00:00.000Z'),
   });
@@ -87,6 +92,124 @@ const authorizedHeaders = {
 };
 
 describe('Ozzyl Guard API', () => {
+  it('records a bounded request lifecycle without logging dynamic path values', async () => {
+    const lines: string[] = [];
+    const ticks = [100, 125];
+    const logger = createStructuredLogger({
+      service: 'api-test',
+      environment: 'test',
+      clock: () => new Date('2026-07-28T00:00:00.000Z'),
+      write: (line) => lines.push(line),
+    });
+    const response = await createTestApp({
+      logger,
+      monotonicNow: () => ticks.shift() ?? 125,
+    }).request('/v1/risk-assessments/ras-sensitive-value?query=discard-me', {
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'X-Request-ID': 'req_client-123',
+      },
+    });
+
+    expect(response.status).toBe(404);
+    expect(response.headers.get('X-Request-ID')).toBe('req_client-123');
+    expect(lines).toHaveLength(1);
+    expect(JSON.parse(lines[0] ?? '{}')).toMatchObject({
+      level: 'warn',
+      event: 'api.request.completed',
+      request_id: 'req_client-123',
+      method: 'GET',
+      route: '/v1/risk-assessments/:assessment_id',
+      status_code: 404,
+      status_class: '4xx',
+      duration_ms: 25,
+    });
+    expect(lines.join('\n')).not.toContain('ras-sensitive-value');
+    expect(lines.join('\n')).not.toContain('discard-me');
+  });
+
+  it('rejects arbitrary caller request identifiers instead of reflecting them', async () => {
+    const lines: string[] = [];
+    const logger = createStructuredLogger({
+      service: 'api-test',
+      environment: 'test',
+      write: (line) => lines.push(line),
+    });
+    const unsafeRequestId = 'customer-reference-1001';
+    const response = await createTestApp({ logger }).request('/health', {
+      headers: { 'X-Request-ID': unsafeRequestId },
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get('X-Request-ID')).toBe('req_1');
+    expect(lines.join('\n')).not.toContain(unsafeRequestId);
+  });
+
+  it('keeps request handling available when the telemetry sink fails', async () => {
+    const logger = createStructuredLogger({
+      service: 'api-test',
+      environment: 'test',
+      write: () => {
+        throw new Error('sink unavailable');
+      },
+    });
+    const response = await createTestApp({ logger }).request('/health');
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toMatchObject({ status: 'ok' });
+  });
+
+  it('records unhandled errors without exporting their messages or stacks', async () => {
+    const lines: string[] = [];
+    const logger = createStructuredLogger({
+      service: 'api-test',
+      environment: 'test',
+      write: (line) => lines.push(line),
+    });
+    const failure = Object.assign(new Error('restricted database detail'), {
+      code: 'DATABASE_FAILURE',
+    });
+    const assessments: AssessmentRepository = {
+      async findByIdempotency() {
+        throw failure;
+      },
+      async findById() {
+        return null;
+      },
+      async save(record) {
+        return record;
+      },
+    };
+    const response = await createTestApp({ logger, assessments }).request('/v1/risk-assessments', {
+      method: 'POST',
+      headers: authorizedHeaders,
+      body: JSON.stringify(assessmentRequest),
+    });
+
+    expect(response.status).toBe(500);
+    await expect(response.json()).resolves.toMatchObject({
+      success: false,
+      error: { code: 'INTERNAL_ERROR' },
+    });
+    const records = lines.map((line) => JSON.parse(line) as Record<string, unknown>);
+    expect(records).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          event: 'api.request.unhandled_error',
+          code: 'UNHANDLED_ERROR',
+          error: { name: 'Error', code: 'DATABASE_FAILURE' },
+        }),
+        expect.objectContaining({
+          event: 'api.request.completed',
+          status_code: 500,
+          status_class: '5xx',
+        }),
+      ]),
+    );
+    expect(lines.join('\n')).not.toContain('restricted database detail');
+    expect(lines.join('\n')).not.toContain('stack');
+  });
+
   it('requires API authentication', async () => {
     const response = await createTestApp().request('/v1/risk-assessments', {
       method: 'POST',
