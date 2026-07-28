@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { createMetricRecorder, type MetricPoint, type MetricRecorder } from '@ozzyl/observability';
 import type { MerchantDashboardOverview, PlatformAdminOverview } from '@ozzyl/shared-types';
 import { createBrowserApi, type BrowserAuthService, type UserSessionIdentity } from './browser.js';
 import { MemoryRateLimiter } from './index.js';
@@ -114,8 +115,21 @@ const adminOverview: PlatformAdminOverview = {
   shadow_pilot: { ...shadowPilot, opted_in_stores: 0 },
 };
 
-function createTestApp(identity: UserSessionIdentity = merchantIdentity) {
+function createTestApp(
+  identity: UserSessionIdentity = merchantIdentity,
+  metricRecorder?: MetricRecorder,
+) {
   let revoked = false;
+  let monotonicTime = 0;
+  const metricPoints: MetricPoint[] = [];
+  const metrics =
+    metricRecorder ??
+    createMetricRecorder({
+      service: 'browser-test',
+      environment: 'test',
+      clock: () => now,
+      write: (_line, point) => metricPoints.push(point),
+    });
   const auth: BrowserAuthService = {
     async login(email, credential) {
       if (email !== identity.email || credential !== credentialFixture) return null;
@@ -186,7 +200,10 @@ function createTestApp(identity: UserSessionIdentity = merchantIdentity) {
       rateLimiter: new MemoryRateLimiter(),
       csrfSecret: csrfFixture,
       now: () => now,
+      monotonicNow: () => ++monotonicTime,
+      metrics,
     }),
+    metricPoints,
     loadOverview,
     loadAdminOverview,
     setForStore,
@@ -513,6 +530,113 @@ describe('browser authentication and live data API', () => {
     await expect(allowed.json()).resolves.toMatchObject({
       automatic_blocking: { broadly_enabled: false },
     });
+  });
+
+  it('emits finite browser control and dependency metrics without user, tenant, or work identifiers', async () => {
+    const { app, metricPoints, replayDeadLetter } = createTestApp();
+    const loggedIn = await login(app);
+
+    const dashboard = await app.request(
+      '/dashboard/v1/overview?organization_id=org_1&store_id=store_1',
+      { headers: { Cookie: loggedIn.cookie } },
+    );
+    expect(dashboard.status).toBe(200);
+
+    const missingCsrf = await app.request('/dashboard/v1/native-shadow-rollout', {
+      method: 'PUT',
+      headers: { Cookie: loggedIn.cookie, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        organization_id: 'org_1',
+        store_id: 'store_1',
+        mode: 'shadow',
+        rollout_version: 'pilot-v1',
+        sample_rate_bps: 1000,
+      }),
+    });
+    expect(missingCsrf.status).toBe(403);
+
+    const proofHeader = ['X', 'CSRF', 'Token'].join('-');
+    const deadLetters = await app.request(
+      '/dashboard/v1/dead-letters?organization_id=org_1&store_id=store_1',
+      { headers: { Cookie: loggedIn.cookie } },
+    );
+    expect(deadLetters.status).toBe(200);
+
+    replayDeadLetter.mockRejectedValueOnce(
+      Object.assign(new Error('work whd_failed_1 cannot be replayed'), {
+        code: 'DEAD_LETTER_NOT_REPLAYABLE' as const,
+      }),
+    );
+    const replay = await app.request('/dashboard/v1/dead-letter-replays', {
+      method: 'POST',
+      headers: {
+        Cookie: loggedIn.cookie,
+        'Content-Type': 'application/json',
+        [proofHeader]: loggedIn.body.csrf_token,
+      },
+      body: JSON.stringify({
+        organization_id: 'org_1',
+        store_id: 'store_1',
+        work_type: 'webhook_delivery',
+        work_id: 'whd_failed_1',
+        idempotency_key: 'dlr_stable_browser_retry_1',
+      }),
+    });
+    expect(replay.status).toBe(409);
+
+    expect(metricPoints).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'ozzyl.browser.control.events',
+          attributes: { control: 'authentication', outcome: 'allowed' },
+        }),
+        expect.objectContaining({
+          name: 'ozzyl.browser.control.events',
+          attributes: { control: 'csrf', outcome: 'rejected' },
+        }),
+        expect.objectContaining({
+          name: 'ozzyl.browser.dependency.operations',
+          attributes: {
+            dependency_type: 'dashboard_repository',
+            operation: 'load_overview',
+            outcome: 'success',
+          },
+        }),
+        expect.objectContaining({
+          name: 'ozzyl.browser.dependency.operations',
+          attributes: {
+            dependency_type: 'dead_letter_repository',
+            operation: 'replay',
+            outcome: 'rejected',
+          },
+        }),
+      ]),
+    );
+    const serialized = JSON.stringify(metricPoints);
+    expect(serialized).not.toContain('usr_1');
+    expect(serialized).not.toContain('org_1');
+    expect(serialized).not.toContain('store_1');
+    expect(serialized).not.toContain('ses_1');
+    expect(serialized).not.toContain('whd_failed_1');
+    expect(serialized).not.toContain('owner@example.com');
+  });
+
+  it('keeps browser authentication and dashboard access available when the metric sink fails', async () => {
+    const recorder = createMetricRecorder({
+      service: 'browser-test',
+      environment: 'test',
+      write: () => {
+        throw new Error('collector unavailable');
+      },
+    });
+    const { app } = createTestApp(merchantIdentity, recorder);
+    const loggedIn = await login(app);
+    expect(loggedIn.response.status).toBe(200);
+    const dashboard = await app.request(
+      '/dashboard/v1/overview?organization_id=org_1&store_id=store_1',
+      { headers: { Cookie: loggedIn.cookie } },
+    );
+    expect(dashboard.status).toBe(200);
   });
 
   it('rejects logout requests without CSRF proof', async () => {

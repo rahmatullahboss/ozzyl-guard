@@ -3,8 +3,10 @@ import {
   createMetricRecorder,
   defineMetric,
   observeApiDependency,
+  observeBrowserDependency,
   observeRepositoryOperation,
   recordApiControlEvent,
+  recordBrowserControlEvent,
   recordDurableQueueSnapshot,
   recordProviderOperation,
   recordRiskAssessmentDistribution,
@@ -400,6 +402,86 @@ describe('vendor-neutral metrics', () => {
     );
     expect(lines.join('\n')).not.toContain('ras-sensitive');
     expect(lines.join('\n')).not.toContain('org-sensitive');
+  });
+
+  it('records browser control and dependency outcomes without session or tenant values', async () => {
+    const lines: string[] = [];
+    const recorder = createMetricRecorder({
+      service: 'browser-test',
+      environment: 'test',
+      write: (line) => lines.push(line),
+    });
+    const clock = vi
+      .fn()
+      .mockReturnValueOnce(10)
+      .mockReturnValueOnce(15)
+      .mockReturnValueOnce(20)
+      .mockReturnValueOnce(29);
+
+    recordBrowserControlEvent(recorder, 'csrf', 'rejected');
+    await expect(
+      observeBrowserDependency(
+        recorder,
+        {
+          dependencyType: 'auth_service',
+          operation: 'resolve',
+          classify: (value) => (value === null ? 'empty' : 'success'),
+          monotonicNow: clock,
+        },
+        async () => ({ sessionId: 'ses-sensitive', organizationId: 'org-sensitive' }),
+      ),
+    ).resolves.toEqual({ sessionId: 'ses-sensitive', organizationId: 'org-sensitive' });
+    await expect(
+      observeBrowserDependency(
+        recorder,
+        {
+          dependencyType: 'dead_letter_repository',
+          operation: 'replay',
+          classifyError: () => 'rejected',
+          monotonicNow: clock,
+        },
+        async () => {
+          throw new Error('work whd-sensitive cannot be replayed');
+        },
+      ),
+    ).rejects.toThrow('whd-sensitive');
+
+    expect(lines.map(parseMetricLine)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'ozzyl.browser.control.events',
+          attributes: { control: 'csrf', outcome: 'rejected' },
+        }),
+        expect.objectContaining({
+          name: 'ozzyl.browser.dependency.operations',
+          attributes: {
+            dependency_type: 'auth_service',
+            operation: 'resolve',
+            outcome: 'success',
+          },
+        }),
+        expect.objectContaining({
+          name: 'ozzyl.browser.dependency.operation.duration',
+          value: 5,
+          attributes: {
+            dependency_type: 'auth_service',
+            operation: 'resolve',
+            outcome: 'success',
+          },
+        }),
+        expect.objectContaining({
+          name: 'ozzyl.browser.dependency.operations',
+          attributes: {
+            dependency_type: 'dead_letter_repository',
+            operation: 'replay',
+            outcome: 'rejected',
+          },
+        }),
+      ]),
+    );
+    expect(lines.join('\n')).not.toContain('ses-sensitive');
+    expect(lines.join('\n')).not.toContain('org-sensitive');
+    expect(lines.join('\n')).not.toContain('whd-sensitive');
   });
 
   it('records bounded risk assessment and verified-outcome distributions', () => {

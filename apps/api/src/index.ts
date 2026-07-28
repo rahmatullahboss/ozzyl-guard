@@ -368,7 +368,16 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
     context.json({ status: 'ok', service: 'ozzyl-guard-api', timestamp: now().toISOString() }),
   );
 
-  if (dependencies.browser) app.route('/', createBrowserApi(dependencies.browser));
+  if (dependencies.browser) {
+    app.route(
+      '/',
+      createBrowserApi({
+        ...dependencies.browser,
+        metrics: dependencies.browser.metrics ?? metrics,
+        monotonicNow: dependencies.browser.monotonicNow ?? monotonicNow,
+      }),
+    );
+  }
 
   app.use('/v1/*', async (context, next) => {
     const requestId = context.get('requestId');
@@ -711,10 +720,20 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
         'Native shadow rollout configuration is not available',
       );
     }
-    const rollout = await dependencies.nativeShadowRollouts.load({
-      organizationId: identity.organizationId,
-      storeId: identity.storeId,
-    });
+    const rollout = await observeApiDependency(
+      metrics,
+      {
+        dependencyType: 'native_shadow_rollout_repository',
+        operation: 'load',
+        classify: (value) => (value === null ? 'empty' : 'success'),
+        monotonicNow,
+      },
+      () =>
+        dependencies.nativeShadowRollouts!.load({
+          organizationId: identity.organizationId,
+          storeId: identity.storeId,
+        }),
+    );
     if (!rollout) {
       return apiError(requestId, 400, 'TENANT_SCOPE_MISMATCH', 'Store scope is not active');
     }
@@ -747,15 +766,26 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
     }
     const idempotencyKey = readIdempotencyKey(context.req.header('Idempotency-Key'));
     if (!idempotencyKey) {
+      recordApiControlEvent(metrics, 'idempotency', 'rejected');
       return apiError(requestId, 400, 'IDEMPOTENCY_KEY_REQUIRED', 'Idempotency-Key is required');
     }
     const parsedBody = await parseJson(context.req.raw, nativeShadowComparisonInputSchema);
     if (!parsedBody.success) return apiError(requestId, 400, 'INVALID_REQUEST', parsedBody.message);
-    const assessment = await dependencies.assessments.findById({
-      organizationId: identity.organizationId,
-      storeId: identity.storeId,
-      assessmentId: parsedBody.value.assessment_id,
-    });
+    const assessment = await observeApiDependency(
+      metrics,
+      {
+        dependencyType: 'assessment_repository',
+        operation: 'find_by_id',
+        classify: (value) => (value === null ? 'empty' : 'success'),
+        monotonicNow,
+      },
+      () =>
+        dependencies.assessments.findById({
+          organizationId: identity.organizationId,
+          storeId: identity.storeId,
+          assessmentId: parsedBody.value.assessment_id,
+        }),
+    );
     if (!assessment) {
       return apiError(
         requestId,
@@ -773,14 +803,26 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
       );
     }
     try {
-      const saved = await dependencies.shadowComparisons.save({
-        organizationId: identity.organizationId,
-        storeId: identity.storeId,
-        apiKeyId: identity.apiKeyId,
-        idempotencyKey,
-        comparison: parsedBody.value,
-        guardAssessment: assessment.response,
-      });
+      const saved = await observeApiDependency(
+        metrics,
+        {
+          dependencyType: 'native_shadow_comparison_repository',
+          operation: 'save',
+          classify: (value) => (value.replay ? 'replay' : 'success'),
+          classifyError: classifyNativeShadowComparisonError,
+          monotonicNow,
+        },
+        () =>
+          dependencies.shadowComparisons!.save({
+            organizationId: identity.organizationId,
+            storeId: identity.storeId,
+            apiKeyId: identity.apiKeyId,
+            idempotencyKey,
+            comparison: parsedBody.value,
+            guardAssessment: assessment.response,
+          }),
+      );
+      recordApiControlEvent(metrics, 'idempotency', saved.replay ? 'replay' : 'allowed');
       const response = nativeShadowComparisonResponseSchema.parse({
         success: true,
         comparison_id: saved.comparisonId,
@@ -792,6 +834,9 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
         error && typeof error === 'object' && 'code' in error && typeof error.code === 'string'
           ? error.code
           : 'SHADOW_COMPARISON_UNAVAILABLE';
+      if (code === 'SHADOW_COMPARISON_IDEMPOTENCY_CONFLICT') {
+        recordApiControlEvent(metrics, 'idempotency', 'conflict');
+      }
       const status =
         code === 'SHADOW_COMPARISON_IDEMPOTENCY_CONFLICT'
           ? 409
@@ -826,18 +871,31 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
     }
     const idempotencyKey = readIdempotencyKey(context.req.header('Idempotency-Key'));
     if (!idempotencyKey) {
+      recordApiControlEvent(metrics, 'idempotency', 'rejected');
       return apiError(requestId, 400, 'IDEMPOTENCY_KEY_REQUIRED', 'Idempotency-Key is required');
     }
     const parsedBody = await parseJson(context.req.raw, nativeShadowAttemptInputSchema);
     if (!parsedBody.success) return apiError(requestId, 400, 'INVALID_REQUEST', parsedBody.message);
     try {
-      const saved = await dependencies.nativeShadowAttempts.save({
-        organizationId: identity.organizationId,
-        storeId: identity.storeId,
-        apiKeyId: identity.apiKeyId,
-        idempotencyKey,
-        attempt: parsedBody.value,
-      });
+      const saved = await observeApiDependency(
+        metrics,
+        {
+          dependencyType: 'native_shadow_attempt_repository',
+          operation: 'save',
+          classify: (value) => (value.replay ? 'replay' : 'success'),
+          classifyError: classifyNativeShadowAttemptError,
+          monotonicNow,
+        },
+        () =>
+          dependencies.nativeShadowAttempts!.save({
+            organizationId: identity.organizationId,
+            storeId: identity.storeId,
+            apiKeyId: identity.apiKeyId,
+            idempotencyKey,
+            attempt: parsedBody.value,
+          }),
+      );
+      recordApiControlEvent(metrics, 'idempotency', saved.replay ? 'replay' : 'allowed');
       return context.json(
         nativeShadowAttemptResponseSchema.parse({
           success: true,
@@ -851,6 +909,9 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
         error && typeof error === 'object' && 'code' in error && typeof error.code === 'string'
           ? error.code
           : 'NATIVE_SHADOW_ATTEMPT_UNAVAILABLE';
+      if (code === 'NATIVE_SHADOW_ATTEMPT_IDEMPOTENCY_CONFLICT') {
+        recordApiControlEvent(metrics, 'idempotency', 'conflict');
+      }
       const status =
         code === 'NATIVE_SHADOW_ATTEMPT_IDEMPOTENCY_CONFLICT'
           ? 409
@@ -1412,6 +1473,30 @@ export class MissingFeatureProvider implements AssessmentFeatureProvider {
       },
     };
   }
+}
+
+function structuredErrorCode(error: unknown): string | null {
+  return error && typeof error === 'object' && 'code' in error && typeof error.code === 'string'
+    ? error.code
+    : null;
+}
+
+function classifyNativeShadowComparisonError(error: unknown): 'rejected' | 'error' {
+  const code = structuredErrorCode(error);
+  return code === 'SHADOW_COMPARISON_IDEMPOTENCY_CONFLICT' ||
+    code === 'SHADOW_ASSESSMENT_NOT_FOUND' ||
+    code === 'SHADOW_ASSESSMENT_ORDER_MISMATCH' ||
+    code === 'TENANT_SCOPE_MISMATCH'
+    ? 'rejected'
+    : 'error';
+}
+
+function classifyNativeShadowAttemptError(error: unknown): 'rejected' | 'error' {
+  const code = structuredErrorCode(error);
+  return code === 'NATIVE_SHADOW_ATTEMPT_IDEMPOTENCY_CONFLICT' ||
+    code === 'NATIVE_SHADOW_ATTEMPT_REFERENCE_MISMATCH'
+    ? 'rejected'
+    : 'error';
 }
 
 function requireScope(

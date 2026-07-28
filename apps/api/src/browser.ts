@@ -9,6 +9,11 @@ import type {
   DurableWorkType,
 } from '@ozzyl/database';
 import {
+  observeBrowserDependency,
+  recordBrowserControlEvent,
+  type MetricRecorder,
+} from '@ozzyl/observability';
+import {
   browserSessionResponseSchema,
   durableDeadLetterListResponseSchema,
   durableWorkReplayRequestSchema,
@@ -155,6 +160,8 @@ export interface BrowserApiDependencies {
   csrfSecret: string;
   secureCookies?: boolean;
   now?: () => Date;
+  monotonicNow?: () => number;
+  metrics?: MetricRecorder;
 }
 
 type BrowserEnvironment = {
@@ -166,6 +173,8 @@ type BrowserEnvironment = {
 export function createBrowserApi(dependencies: BrowserApiDependencies): Hono<BrowserEnvironment> {
   const app = new Hono<BrowserEnvironment>();
   const now = dependencies.now ?? (() => new Date());
+  const monotonicNow = dependencies.monotonicNow ?? (() => Date.now());
+  const metrics = dependencies.metrics;
 
   app.use('*', async (context, next) => {
     const requestId = context.req.header('X-Request-ID')?.slice(0, 200) || randomUUID();
@@ -181,19 +190,60 @@ export function createBrowserApi(dependencies: BrowserApiDependencies): Hono<Bro
     if (!parsed.success) return browserError(requestId, 400, 'INVALID_REQUEST', parsed.message);
 
     const rateLimitKey = `browser-login:${parsed.value.email}`;
-    const allowed = await dependencies.rateLimiter.consume(rateLimitKey, 10, 15 * 60_000);
-    if (!allowed) return browserError(requestId, 429, 'RATE_LIMITED', 'Too many login attempts');
+    let allowed: boolean;
+    try {
+      allowed = await observeBrowserDependency(
+        metrics,
+        {
+          dependencyType: 'rate_limiter',
+          operation: 'consume',
+          classify: (value) => (value ? 'success' : 'rejected'),
+          monotonicNow,
+        },
+        () => dependencies.rateLimiter.consume(rateLimitKey, 10, 15 * 60_000),
+      );
+    } catch (error) {
+      recordBrowserControlEvent(metrics, 'rate_limit', 'error');
+      throw error;
+    }
+    if (!allowed) {
+      recordBrowserControlEvent(metrics, 'rate_limit', 'rejected');
+      return browserError(requestId, 429, 'RATE_LIMITED', 'Too many login attempts');
+    }
+    recordBrowserControlEvent(metrics, 'rate_limit', 'allowed');
 
-    const result = await dependencies.auth.login(parsed.value.email, parsed.value.password);
+    let result: BrowserLoginResult | null;
+    try {
+      result = await observeBrowserDependency(
+        metrics,
+        {
+          dependencyType: 'auth_service',
+          operation: 'login',
+          classify: (value) => (value === null ? 'empty' : 'success'),
+          monotonicNow,
+        },
+        () => dependencies.auth.login(parsed.value.email, parsed.value.password),
+      );
+    } catch (error) {
+      recordBrowserControlEvent(metrics, 'authentication', 'error');
+      throw error;
+    }
     if (!result) {
-      await dependencies.audit.record({
-        organizationId: null,
-        actorId: null,
-        action: 'authentication.login_failed',
-        metadata: { requestId },
-      });
+      recordBrowserControlEvent(metrics, 'authentication', 'rejected');
+      await observeBrowserDependency(
+        metrics,
+        { dependencyType: 'audit_repository', operation: 'record', monotonicNow },
+        () =>
+          dependencies.audit.record({
+            organizationId: null,
+            actorId: null,
+            action: 'authentication.login_failed',
+            metadata: { requestId },
+          }),
+      );
       return browserError(requestId, 401, 'INVALID_CREDENTIALS', 'Email or password is incorrect');
     }
+    recordBrowserControlEvent(metrics, 'authentication', 'allowed');
 
     setSessionCookie(
       context,
@@ -201,14 +251,19 @@ export function createBrowserApi(dependencies: BrowserApiDependencies): Hono<Bro
       result.identity.expiresAt,
       dependencies.secureCookies,
     );
-    await dependencies.audit.record({
-      organizationId: result.identity.organizations[0]?.id ?? null,
-      actorId: result.identity.userId,
-      action: 'authentication.login_succeeded',
-      targetType: 'user_session',
-      targetId: result.identity.sessionId,
-      metadata: { requestId },
-    });
+    await observeBrowserDependency(
+      metrics,
+      { dependencyType: 'audit_repository', operation: 'record', monotonicNow },
+      () =>
+        dependencies.audit.record({
+          organizationId: result.identity.organizations[0]?.id ?? null,
+          actorId: result.identity.userId,
+          action: 'authentication.login_succeeded',
+          targetType: 'user_session',
+          targetId: result.identity.sessionId,
+          metadata: { requestId },
+        }),
+    );
     return context.json(
       buildSessionResponse(result.identity, result.rawToken, dependencies.csrfSecret),
     );
@@ -227,22 +282,34 @@ export function createBrowserApi(dependencies: BrowserApiDependencies): Hono<Bro
     if (!authenticated.success) return authenticated.response;
     const csrfHeader = context.req.header('X-CSRF-Token');
     if (!verifyCsrfToken(authenticated.rawToken, csrfHeader, dependencies.csrfSecret)) {
+      recordBrowserControlEvent(metrics, 'csrf', 'rejected');
       return browserError(context.get('requestId'), 403, 'CSRF_REJECTED', 'CSRF token is invalid');
     }
+    recordBrowserControlEvent(metrics, 'csrf', 'allowed');
 
-    await dependencies.auth.revoke({
-      sessionId: authenticated.identity.sessionId,
-      userId: authenticated.identity.userId,
-    });
+    await observeBrowserDependency(
+      metrics,
+      { dependencyType: 'auth_service', operation: 'revoke', monotonicNow },
+      () =>
+        dependencies.auth.revoke({
+          sessionId: authenticated.identity.sessionId,
+          userId: authenticated.identity.userId,
+        }),
+    );
     deleteCookie(context, SESSION_COOKIE, { path: '/' });
-    await dependencies.audit.record({
-      organizationId: authenticated.identity.organizations[0]?.id ?? null,
-      actorId: authenticated.identity.userId,
-      action: 'authentication.logout',
-      targetType: 'user_session',
-      targetId: authenticated.identity.sessionId,
-      metadata: { requestId: context.get('requestId') },
-    });
+    await observeBrowserDependency(
+      metrics,
+      { dependencyType: 'audit_repository', operation: 'record', monotonicNow },
+      () =>
+        dependencies.audit.record({
+          organizationId: authenticated.identity.organizations[0]?.id ?? null,
+          actorId: authenticated.identity.userId,
+          action: 'authentication.logout',
+          targetType: 'user_session',
+          targetId: authenticated.identity.sessionId,
+          metadata: { requestId: context.get('requestId') },
+        }),
+    );
     return context.json({ success: true as const });
   });
 
@@ -267,26 +334,43 @@ export function createBrowserApi(dependencies: BrowserApiDependencies): Hono<Bro
       parsedScope.data.store_id,
     );
     if (!allowedScope) {
+      recordBrowserControlEvent(metrics, 'authorization', 'rejected');
       return browserError(context.get('requestId'), 404, 'STORE_NOT_FOUND', 'Store not found');
     }
-
-    const overview = await dependencies.dashboard.loadOverview({
-      userId: authenticated.identity.userId,
-      organizationId: allowedScope.organization.id,
-      storeId: allowedScope.store.id,
-      now: now(),
-    });
+    const overview = await observeBrowserDependency(
+      metrics,
+      {
+        dependencyType: 'dashboard_repository',
+        operation: 'load_overview',
+        classify: (value) => (value === null ? 'empty' : 'success'),
+        monotonicNow,
+      },
+      () =>
+        dependencies.dashboard.loadOverview({
+          userId: authenticated.identity.userId,
+          organizationId: allowedScope.organization.id,
+          storeId: allowedScope.store.id,
+          now: now(),
+        }),
+    );
     if (!overview) {
+      recordBrowserControlEvent(metrics, 'authorization', 'rejected');
       return browserError(context.get('requestId'), 404, 'STORE_NOT_FOUND', 'Store not found');
     }
-    await dependencies.audit.record({
-      organizationId: allowedScope.organization.id,
-      actorId: authenticated.identity.userId,
-      action: 'dashboard.overview_viewed',
-      targetType: 'store',
-      targetId: allowedScope.store.id,
-      metadata: { requestId: context.get('requestId') },
-    });
+    recordBrowserControlEvent(metrics, 'authorization', 'allowed');
+    await observeBrowserDependency(
+      metrics,
+      { dependencyType: 'audit_repository', operation: 'record', monotonicNow },
+      () =>
+        dependencies.audit.record({
+          organizationId: allowedScope.organization.id,
+          actorId: authenticated.identity.userId,
+          action: 'dashboard.overview_viewed',
+          targetType: 'store',
+          targetId: allowedScope.store.id,
+          metadata: { requestId: context.get('requestId') },
+        }),
+    );
     return context.json(merchantDashboardOverviewSchema.parse(overview));
   });
 
@@ -295,8 +379,10 @@ export function createBrowserApi(dependencies: BrowserApiDependencies): Hono<Bro
     if (!authenticated.success) return authenticated.response;
     const csrfHeader = context.req.header('X-CSRF-Token');
     if (!verifyCsrfToken(authenticated.rawToken, csrfHeader, dependencies.csrfSecret)) {
+      recordBrowserControlEvent(metrics, 'csrf', 'rejected');
       return browserError(context.get('requestId'), 403, 'CSRF_REJECTED', 'CSRF token is invalid');
     }
+    recordBrowserControlEvent(metrics, 'csrf', 'allowed');
     if (!dependencies.nativeShadowRollouts) {
       return browserError(
         context.get('requestId'),
@@ -315,9 +401,11 @@ export function createBrowserApi(dependencies: BrowserApiDependencies): Hono<Bro
       parsed.value.store_id,
     );
     if (!allowedScope) {
+      recordBrowserControlEvent(metrics, 'authorization', 'rejected');
       return browserError(context.get('requestId'), 404, 'STORE_NOT_FOUND', 'Store not found');
     }
     if (allowedScope.organization.role !== 'owner' && allowedScope.organization.role !== 'admin') {
+      recordBrowserControlEvent(metrics, 'authorization', 'rejected');
       return browserError(
         context.get('requestId'),
         403,
@@ -325,30 +413,47 @@ export function createBrowserApi(dependencies: BrowserApiDependencies): Hono<Bro
         'Store owner or administrator access is required',
       );
     }
-    const rollout = await dependencies.nativeShadowRollouts.setForStore({
-      userId: authenticated.identity.userId,
-      organizationId: allowedScope.organization.id,
-      storeId: allowedScope.store.id,
-      mode: parsed.value.mode,
-      rolloutVersion: parsed.value.rollout_version,
-      sampleRateBps: parsed.value.sample_rate_bps,
-    });
+    const rollout = await observeBrowserDependency(
+      metrics,
+      {
+        dependencyType: 'rollout_repository',
+        operation: 'set_rollout',
+        classify: (value) => (value === null ? 'empty' : 'success'),
+        monotonicNow,
+      },
+      () =>
+        dependencies.nativeShadowRollouts!.setForStore({
+          userId: authenticated.identity.userId,
+          organizationId: allowedScope.organization.id,
+          storeId: allowedScope.store.id,
+          mode: parsed.value.mode,
+          rolloutVersion: parsed.value.rollout_version,
+          sampleRateBps: parsed.value.sample_rate_bps,
+        }),
+    );
     if (!rollout) {
+      recordBrowserControlEvent(metrics, 'authorization', 'rejected');
       return browserError(context.get('requestId'), 404, 'STORE_NOT_FOUND', 'Store not found');
     }
-    await dependencies.audit.record({
-      organizationId: allowedScope.organization.id,
-      actorId: authenticated.identity.userId,
-      action: 'native_shadow.rollout_updated',
-      targetType: 'store',
-      targetId: allowedScope.store.id,
-      metadata: {
-        requestId: context.get('requestId'),
-        mode: rollout.mode,
-        rolloutVersion: rollout.rolloutVersion,
-        sampleRateBps: rollout.sampleRateBps,
-      },
-    });
+    recordBrowserControlEvent(metrics, 'authorization', 'allowed');
+    await observeBrowserDependency(
+      metrics,
+      { dependencyType: 'audit_repository', operation: 'record', monotonicNow },
+      () =>
+        dependencies.audit.record({
+          organizationId: allowedScope.organization.id,
+          actorId: authenticated.identity.userId,
+          action: 'native_shadow.rollout_updated',
+          targetType: 'store',
+          targetId: allowedScope.store.id,
+          metadata: {
+            requestId: context.get('requestId'),
+            mode: rollout.mode,
+            rolloutVersion: rollout.rolloutVersion,
+            sampleRateBps: rollout.sampleRateBps,
+          },
+        }),
+    );
     return context.json(
       nativeShadowRolloutResponseSchema.parse({
         success: true,
@@ -393,9 +498,11 @@ export function createBrowserApi(dependencies: BrowserApiDependencies): Hono<Bro
       parsedScope.data.store_id,
     );
     if (!allowedScope) {
+      recordBrowserControlEvent(metrics, 'authorization', 'rejected');
       return browserError(context.get('requestId'), 404, 'STORE_NOT_FOUND', 'Store not found');
     }
     if (allowedScope.organization.role !== 'owner' && allowedScope.organization.role !== 'admin') {
+      recordBrowserControlEvent(metrics, 'authorization', 'rejected');
       return browserError(
         context.get('requestId'),
         403,
@@ -404,24 +511,40 @@ export function createBrowserApi(dependencies: BrowserApiDependencies): Hono<Bro
       );
     }
     try {
-      const deadLetters = await dependencies.durableWorkOperations.listDeadLetters({
-        requestedByUserId: authenticated.identity.userId,
-        organizationId: allowedScope.organization.id,
-        storeId: allowedScope.store.id,
-        limit: parsedScope.data.limit,
-        at: now(),
-      });
-      await dependencies.audit.record({
-        organizationId: allowedScope.organization.id,
-        actorId: authenticated.identity.userId,
-        action: 'durable_work.dead_letters_viewed',
-        targetType: 'store',
-        targetId: allowedScope.store.id,
-        metadata: {
-          requestId: context.get('requestId'),
-          resultCount: deadLetters.length,
+      const deadLetters = await observeBrowserDependency(
+        metrics,
+        {
+          dependencyType: 'dead_letter_repository',
+          operation: 'list',
+          classifyError: classifyDurableWorkDependencyError,
+          monotonicNow,
         },
-      });
+        () =>
+          dependencies.durableWorkOperations!.listDeadLetters({
+            requestedByUserId: authenticated.identity.userId,
+            organizationId: allowedScope.organization.id,
+            storeId: allowedScope.store.id,
+            limit: parsedScope.data.limit,
+            at: now(),
+          }),
+      );
+      recordBrowserControlEvent(metrics, 'authorization', 'allowed');
+      await observeBrowserDependency(
+        metrics,
+        { dependencyType: 'audit_repository', operation: 'record', monotonicNow },
+        () =>
+          dependencies.audit.record({
+            organizationId: allowedScope.organization.id,
+            actorId: authenticated.identity.userId,
+            action: 'durable_work.dead_letters_viewed',
+            targetType: 'store',
+            targetId: allowedScope.store.id,
+            metadata: {
+              requestId: context.get('requestId'),
+              resultCount: deadLetters.length,
+            },
+          }),
+      );
       return context.json(
         durableDeadLetterListResponseSchema.parse({
           success: true,
@@ -431,6 +554,9 @@ export function createBrowserApi(dependencies: BrowserApiDependencies): Hono<Bro
         }),
       );
     } catch (error) {
+      if (isDurableWorkOperationError(error) && error.code === 'STORE_ADMIN_REQUIRED') {
+        recordBrowserControlEvent(metrics, 'authorization', 'rejected');
+      }
       return durableWorkBrowserError(context.get('requestId'), error);
     }
   });
@@ -440,8 +566,10 @@ export function createBrowserApi(dependencies: BrowserApiDependencies): Hono<Bro
     if (!authenticated.success) return authenticated.response;
     const csrfHeader = context.req.header('X-CSRF-Token');
     if (!verifyCsrfToken(authenticated.rawToken, csrfHeader, dependencies.csrfSecret)) {
+      recordBrowserControlEvent(metrics, 'csrf', 'rejected');
       return browserError(context.get('requestId'), 403, 'CSRF_REJECTED', 'CSRF token is invalid');
     }
+    recordBrowserControlEvent(metrics, 'csrf', 'allowed');
     if (!dependencies.durableWorkOperations) {
       return browserError(
         context.get('requestId'),
@@ -460,9 +588,11 @@ export function createBrowserApi(dependencies: BrowserApiDependencies): Hono<Bro
       parsed.value.store_id,
     );
     if (!allowedScope) {
+      recordBrowserControlEvent(metrics, 'authorization', 'rejected');
       return browserError(context.get('requestId'), 404, 'STORE_NOT_FOUND', 'Store not found');
     }
     if (allowedScope.organization.role !== 'owner' && allowedScope.organization.role !== 'admin') {
+      recordBrowserControlEvent(metrics, 'authorization', 'rejected');
       return browserError(
         context.get('requestId'),
         403,
@@ -471,17 +601,32 @@ export function createBrowserApi(dependencies: BrowserApiDependencies): Hono<Bro
       );
     }
     try {
-      const replay = await dependencies.durableWorkOperations.replayDeadLetter({
-        requestedByUserId: authenticated.identity.userId,
-        organizationId: allowedScope.organization.id,
-        storeId: allowedScope.store.id,
-        workType: parsed.value.work_type,
-        workId: parsed.value.work_id,
-        idempotencyKey: parsed.value.idempotency_key,
-        at: now(),
-      });
+      const replay = await observeBrowserDependency(
+        metrics,
+        {
+          dependencyType: 'dead_letter_repository',
+          operation: 'replay',
+          classify: (value) => (value.replay ? 'replay' : 'success'),
+          classifyError: classifyDurableWorkDependencyError,
+          monotonicNow,
+        },
+        () =>
+          dependencies.durableWorkOperations!.replayDeadLetter({
+            requestedByUserId: authenticated.identity.userId,
+            organizationId: allowedScope.organization.id,
+            storeId: allowedScope.store.id,
+            workType: parsed.value.work_type,
+            workId: parsed.value.work_id,
+            idempotencyKey: parsed.value.idempotency_key,
+            at: now(),
+          }),
+      );
+      recordBrowserControlEvent(metrics, 'authorization', 'allowed');
       return context.json(durableWorkReplayResponseSchema.parse(serializeReplay(replay)));
     } catch (error) {
+      if (isDurableWorkOperationError(error) && error.code === 'STORE_ADMIN_REQUIRED') {
+        recordBrowserControlEvent(metrics, 'authorization', 'rejected');
+      }
       return durableWorkBrowserError(context.get('requestId'), error);
     }
   });
@@ -490,6 +635,7 @@ export function createBrowserApi(dependencies: BrowserApiDependencies): Hono<Bro
     const authenticated = await authenticateBrowserRequest(context, dependencies);
     if (!authenticated.success) return authenticated.response;
     if (authenticated.identity.platformRole !== 'platform_admin') {
+      recordBrowserControlEvent(metrics, 'authorization', 'rejected');
       return browserError(
         context.get('requestId'),
         403,
@@ -497,11 +643,22 @@ export function createBrowserApi(dependencies: BrowserApiDependencies): Hono<Bro
         'Platform administrator access is required',
       );
     }
-    const overview = await dependencies.admin.loadOverview({
-      userId: authenticated.identity.userId,
-      now: now(),
-    });
+    const overview = await observeBrowserDependency(
+      metrics,
+      {
+        dependencyType: 'admin_repository',
+        operation: 'load_overview',
+        classify: (value) => (value === null ? 'empty' : 'success'),
+        monotonicNow,
+      },
+      () =>
+        dependencies.admin.loadOverview({
+          userId: authenticated.identity.userId,
+          now: now(),
+        }),
+    );
     if (!overview) {
+      recordBrowserControlEvent(metrics, 'authorization', 'rejected');
       return browserError(
         context.get('requestId'),
         403,
@@ -509,14 +666,20 @@ export function createBrowserApi(dependencies: BrowserApiDependencies): Hono<Bro
         'Platform administrator access is required',
       );
     }
-    await dependencies.audit.record({
-      organizationId: null,
-      actorId: authenticated.identity.userId,
-      action: 'platform_admin.overview_viewed',
-      targetType: 'platform',
-      targetId: 'ozzyl-guard',
-      metadata: { requestId: context.get('requestId') },
-    });
+    recordBrowserControlEvent(metrics, 'authorization', 'allowed');
+    await observeBrowserDependency(
+      metrics,
+      { dependencyType: 'audit_repository', operation: 'record', monotonicNow },
+      () =>
+        dependencies.audit.record({
+          organizationId: null,
+          actorId: authenticated.identity.userId,
+          action: 'platform_admin.overview_viewed',
+          targetType: 'platform',
+          targetId: 'ozzyl-guard',
+          metadata: { requestId: context.get('requestId') },
+        }),
+    );
     return context.json(platformAdminOverviewSchema.parse(overview));
   });
 
@@ -549,15 +712,33 @@ async function authenticateBrowserRequest(
   | { success: false; response: Response }
 > {
   const requestId = context.get('requestId');
+  const monotonicNow = dependencies.monotonicNow ?? (() => Date.now());
   const rawToken = getCookie(context, SESSION_COOKIE);
   if (!rawToken) {
+    recordBrowserControlEvent(dependencies.metrics, 'authentication', 'rejected');
     return {
       success: false,
       response: browserError(requestId, 401, 'USER_SESSION_REQUIRED', 'A user session is required'),
     };
   }
-  const identity = await dependencies.auth.resolve(rawToken);
+  let identity: UserSessionIdentity | null;
+  try {
+    identity = await observeBrowserDependency(
+      dependencies.metrics,
+      {
+        dependencyType: 'auth_service',
+        operation: 'resolve',
+        classify: (value) => (value === null ? 'empty' : 'success'),
+        monotonicNow,
+      },
+      () => dependencies.auth.resolve(rawToken),
+    );
+  } catch (error) {
+    recordBrowserControlEvent(dependencies.metrics, 'authentication', 'error');
+    throw error;
+  }
   if (!identity) {
+    recordBrowserControlEvent(dependencies.metrics, 'authentication', 'rejected');
     deleteCookie(context, SESSION_COOKIE, { path: '/' });
     return {
       success: false,
@@ -569,17 +750,31 @@ async function authenticateBrowserRequest(
       ),
     };
   }
-  const allowed = await dependencies.rateLimiter.consume(
-    `browser-session:${identity.sessionId}`,
-    300,
-    60_000,
-  );
+  recordBrowserControlEvent(dependencies.metrics, 'authentication', 'allowed');
+  let allowed: boolean;
+  try {
+    allowed = await observeBrowserDependency(
+      dependencies.metrics,
+      {
+        dependencyType: 'rate_limiter',
+        operation: 'consume',
+        classify: (value) => (value ? 'success' : 'rejected'),
+        monotonicNow,
+      },
+      () => dependencies.rateLimiter.consume(`browser-session:${identity.sessionId}`, 300, 60_000),
+    );
+  } catch (error) {
+    recordBrowserControlEvent(dependencies.metrics, 'rate_limit', 'error');
+    throw error;
+  }
   if (!allowed) {
+    recordBrowserControlEvent(dependencies.metrics, 'rate_limit', 'rejected');
     return {
       success: false,
       response: browserError(requestId, 429, 'RATE_LIMITED', 'Too many requests'),
     };
   }
+  recordBrowserControlEvent(dependencies.metrics, 'rate_limit', 'allowed');
   return { success: true, identity, rawToken };
 }
 
@@ -672,13 +867,23 @@ function serializeReplay(result: DurableWorkReplayResult) {
   };
 }
 
+function isDurableWorkOperationError(
+  error: unknown,
+): error is Error & { code: DurableWorkOperationErrorCode } {
+  return (
+    error instanceof Error &&
+    'code' in error &&
+    typeof error.code === 'string' &&
+    durableWorkOperationErrorCodes.has(error.code as DurableWorkOperationErrorCode)
+  );
+}
+
+function classifyDurableWorkDependencyError(error: unknown): 'rejected' | 'error' {
+  return isDurableWorkOperationError(error) ? 'rejected' : 'error';
+}
+
 function durableWorkBrowserError(requestId: string, error: unknown): Response {
-  if (
-    !(error instanceof Error) ||
-    !('code' in error) ||
-    typeof error.code !== 'string' ||
-    !durableWorkOperationErrorCodes.has(error.code as DurableWorkOperationErrorCode)
-  ) {
+  if (!isDurableWorkOperationError(error)) {
     return browserError(
       requestId,
       500,
@@ -686,7 +891,7 @@ function durableWorkBrowserError(requestId: string, error: unknown): Response {
       'Durable work operation failed',
     );
   }
-  const code = error.code as DurableWorkOperationErrorCode;
+  const code = error.code;
   const status =
     code === 'STORE_ADMIN_REQUIRED' ? 403 : code === 'DEAD_LETTER_NOT_FOUND' ? 404 : 409;
   return browserError(requestId, status, code, error.message);

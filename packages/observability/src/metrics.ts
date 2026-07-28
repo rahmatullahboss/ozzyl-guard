@@ -517,6 +517,139 @@ export function recordApiControlEvent(
   recorder?.record(API_CONTROL_EVENTS, 1, { control, outcome });
 }
 
+export type BrowserControlType = 'authentication' | 'authorization' | 'csrf' | 'rate_limit';
+export type BrowserControlOutcome = 'allowed' | 'rejected' | 'error';
+
+const BROWSER_CONTROL_EVENTS = defineMetric({
+  name: 'ozzyl.browser.control.events',
+  kind: 'counter',
+  unit: '{event}',
+  attributes: {
+    control: { values: ['authentication', 'authorization', 'csrf', 'rate_limit'] },
+    outcome: { values: ['allowed', 'rejected', 'error'] },
+  },
+});
+
+export function recordBrowserControlEvent(
+  recorder: MetricRecorder | undefined,
+  control: BrowserControlType,
+  outcome: BrowserControlOutcome,
+): void {
+  recorder?.record(BROWSER_CONTROL_EVENTS, 1, { control, outcome });
+}
+
+export type BrowserDependencyType =
+  | 'auth_service'
+  | 'rate_limiter'
+  | 'dashboard_repository'
+  | 'admin_repository'
+  | 'rollout_repository'
+  | 'dead_letter_repository'
+  | 'audit_repository';
+export type BrowserDependencyOperation =
+  | 'login'
+  | 'resolve'
+  | 'revoke'
+  | 'consume'
+  | 'load_overview'
+  | 'set_rollout'
+  | 'list'
+  | 'replay'
+  | 'record';
+export type BrowserDependencyOutcome = 'success' | 'empty' | 'replay' | 'rejected' | 'error';
+
+const BROWSER_DEPENDENCY_ATTRIBUTES = {
+  dependency_type: {
+    values: [
+      'auth_service',
+      'rate_limiter',
+      'dashboard_repository',
+      'admin_repository',
+      'rollout_repository',
+      'dead_letter_repository',
+      'audit_repository',
+    ],
+  },
+  operation: {
+    values: [
+      'login',
+      'resolve',
+      'revoke',
+      'consume',
+      'load_overview',
+      'set_rollout',
+      'list',
+      'replay',
+      'record',
+    ],
+  },
+  outcome: { values: ['success', 'empty', 'replay', 'rejected', 'error'] },
+} as const;
+const BROWSER_DEPENDENCY_OPERATION_COUNT = defineMetric({
+  name: 'ozzyl.browser.dependency.operations',
+  kind: 'counter',
+  unit: '{operation}',
+  attributes: BROWSER_DEPENDENCY_ATTRIBUTES,
+});
+const BROWSER_DEPENDENCY_OPERATION_DURATION = defineMetric({
+  name: 'ozzyl.browser.dependency.operation.duration',
+  kind: 'histogram',
+  unit: 'ms',
+  attributes: BROWSER_DEPENDENCY_ATTRIBUTES,
+});
+
+export async function observeBrowserDependency<T>(
+  recorder: MetricRecorder | undefined,
+  input: {
+    dependencyType: BrowserDependencyType;
+    operation: BrowserDependencyOperation;
+    classify?: (value: T) => BrowserDependencyOutcome;
+    classifyError?: (error: unknown) => Extract<BrowserDependencyOutcome, 'rejected' | 'error'>;
+    monotonicNow?: () => number;
+  },
+  task: () => Promise<T>,
+): Promise<T> {
+  const monotonicNow = input.monotonicNow ?? (() => Date.now());
+  const startedAt = safeMonotonicNow(monotonicNow);
+  try {
+    const value = await task();
+    recordBrowserDependencyOperation(recorder, {
+      dependencyType: input.dependencyType,
+      operation: input.operation,
+      outcome: input.classify?.(value) ?? 'success',
+      durationMs: safeDuration(monotonicNow, startedAt),
+    });
+    return value;
+  } catch (error) {
+    recordBrowserDependencyOperation(recorder, {
+      dependencyType: input.dependencyType,
+      operation: input.operation,
+      outcome: input.classifyError?.(error) ?? 'error',
+      durationMs: safeDuration(monotonicNow, startedAt),
+    });
+    throw error;
+  }
+}
+
+export function recordBrowserDependencyOperation(
+  recorder: MetricRecorder | undefined,
+  input: {
+    dependencyType: BrowserDependencyType;
+    operation: BrowserDependencyOperation;
+    outcome: BrowserDependencyOutcome;
+    durationMs: number;
+  },
+): void {
+  if (!recorder) return;
+  const attributes = {
+    dependency_type: input.dependencyType,
+    operation: input.operation,
+    outcome: input.outcome,
+  } as const;
+  recorder.record(BROWSER_DEPENDENCY_OPERATION_COUNT, 1, attributes);
+  recorder.record(BROWSER_DEPENDENCY_OPERATION_DURATION, Math.max(0, input.durationMs), attributes);
+}
+
 export type ApiDependencyType =
   | 'api_key'
   | 'rate_limiter'
@@ -527,7 +660,10 @@ export type ApiDependencyType =
   | 'idempotency_store'
   | 'courier_queue'
   | 'verification_queue'
-  | 'otp_verifier';
+  | 'otp_verifier'
+  | 'native_shadow_rollout_repository'
+  | 'native_shadow_comparison_repository'
+  | 'native_shadow_attempt_repository';
 export type ApiDependencyOperation =
   | 'resolve'
   | 'consume'
@@ -555,6 +691,9 @@ const API_DEPENDENCY_ATTRIBUTES = {
       'courier_queue',
       'verification_queue',
       'otp_verifier',
+      'native_shadow_rollout_repository',
+      'native_shadow_comparison_repository',
+      'native_shadow_attempt_repository',
     ],
   },
   operation: {
