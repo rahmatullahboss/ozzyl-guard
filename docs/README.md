@@ -4,7 +4,7 @@ This directory is the long-term product and engineering source of truth. New dev
 
 ## Current verified milestone
 
-The durable work retention milestone is merged on `main` as `8788da49db5bc0726db97ad0b021fd30b06600e5`; its feature CI run `30325144458`, job `90168867190`, passed thirteen migrations, 20 typechecks, 31 Turbo tasks with 154 assertions, 20 builds, GitGuardian, audit, clean restore, runtime-role, and PHP gates. The current vendor-neutral metrics source branch adds finite-cardinality API and private-worker counters/histograms plus claim-failure points without identifiers, payloads, contact data, credentials, URLs, or arbitrary error codes. PostgreSQL-integrated source-branch CI evidence is still pending.
+The vendor-neutral metrics milestone is merged on `main` as `02be8d2aae6c65a4ddce82f1a7a260993ad1252f`. Feature CI run `30327450803`, job `90175680964`, passed thirteen migrations, 20 typechecks, 31 Turbo tasks with 161 assertions, 20 builds, GitGuardian, audit, clean restore, runtime-role, and PHP gates. API and all four private workers now emit finite-cardinality counters/histograms plus bounded durable claim-failure points without identifiers, payloads, contact data, credentials, URLs, provider responses, or arbitrary error-code labels.
 
 ## Architecture
 
