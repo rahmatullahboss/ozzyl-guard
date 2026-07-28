@@ -5,7 +5,10 @@ import { AesGcmEnvelopeCipher } from '@ozzyl/encryption';
 import {
   createMetricRecorder,
   createStructuredLogger,
+  observeRepositoryOperation,
+  recordDurableQueueSnapshot,
   recordWorkerClaimFailure,
+  type RepositoryMetricOperation,
 } from '@ozzyl/observability';
 import type { OtpDeliveryProvider } from '@ozzyl/verification';
 import { VerificationWorker } from './index.js';
@@ -33,6 +36,7 @@ const cipher = new AesGcmEnvelopeCipher(
 const otpSecret = required('OTP_HASH_SECRET');
 const phoneHmacKey = required('PHONE_HMAC_KEY');
 const pollMs = positiveInteger('VERIFICATION_WORKER_POLL_MS', 5_000);
+const queueMetricsMs = positiveInteger('VERIFICATION_WORKER_QUEUE_METRICS_MS', 30_000);
 const leaseMs = positiveInteger('VERIFICATION_WORKER_LEASE_MS', 60_000);
 const leaseRenewMs = positiveInteger('VERIFICATION_WORKER_LEASE_RENEW_MS', Math.floor(leaseMs / 3));
 const timeoutMs = positiveInteger('OTP_PROVIDER_TIMEOUT_MS', 10_000);
@@ -57,11 +61,40 @@ const metrics = createMetricRecorder({
 const provider = await loadProvider(required('OTP_PROVIDER_MODULE'));
 const queue = new PostgresVerificationDeliveryQueue(pool, { leaseMs, maxAttempts });
 let stopping = false;
+let nextQueueMetricsAt = 0;
+
+const observeQueue = <T>(
+  operation: RepositoryMetricOperation,
+  task: () => Promise<T>,
+  isEmpty?: (value: T) => boolean,
+): Promise<T> =>
+  observeRepositoryOperation(
+    metrics,
+    {
+      repositoryType: 'verification_queue',
+      operation,
+      ...(isEmpty === undefined ? {} : { isEmpty }),
+    },
+    task,
+  );
+
+async function recordQueueMetricsIfDue(): Promise<void> {
+  const now = Date.now();
+  if (now < nextQueueMetricsAt) return;
+  nextQueueMetricsAt = now + queueMetricsMs;
+  const snapshot = await observeQueue('snapshot', () => queue.snapshot(new Date(now)));
+  recordDurableQueueSnapshot(metrics, 'verification_delivery', snapshot);
+}
 
 async function run(): Promise<void> {
   log.info('verification.worker.started', { worker_id: workerId });
   while (!stopping) {
-    const delivery = await queue.claim(workerId).catch((error) => {
+    await recordQueueMetricsIfDue().catch((error) => logError(error, 'QUEUE_METRICS_FAILED'));
+    const delivery = await observeQueue(
+      'claim',
+      () => queue.claim(workerId),
+      (value) => value === null,
+    ).catch((error) => {
       recordWorkerClaimFailure(metrics, 'verification_delivery');
       logError(error, 'VERIFICATION_CLAIM_FAILED');
       return null;
@@ -73,19 +106,31 @@ async function run(): Promise<void> {
 
     let heartbeat: LeaseHeartbeat | null = null;
     try {
-      await queue.started(delivery.id, workerId);
+      await observeQueue('start', () => queue.started(delivery.id, workerId));
       heartbeat = new LeaseHeartbeat({
         intervalMs: leaseRenewMs,
-        renew: (at) => queue.renew(delivery.id, workerId, at),
+        renew: (at) => observeQueue('renew', () => queue.renew(delivery.id, workerId, at)),
       }).start();
       const payload = decryptAndValidateVerificationPayload(delivery, {
         cipher,
         phoneHmacKey,
         otpSecret,
       });
+      const reporter = queue.reporterFor(
+        delivery,
+        workerId,
+        () => heartbeat?.stop() ?? Promise.resolve(),
+      );
       const worker = new VerificationWorker(
         provider,
-        queue.reporterFor(delivery, workerId, () => heartbeat?.stop() ?? Promise.resolve()),
+        {
+          delivered: (jobId, providerMessageId, at) =>
+            observeQueue('complete', () => reporter.delivered(jobId, providerMessageId, at)),
+          retry: (jobId, errorCode, nextAttemptAt, at) =>
+            observeQueue('retry', () => reporter.retry(jobId, errorCode, nextAttemptAt, at)),
+          failed: (jobId, errorCode, at) =>
+            observeQueue('fail', () => reporter.failed(jobId, errorCode, at)),
+        },
         {
           maxAttempts,
           timeoutMs,
@@ -118,9 +163,9 @@ async function run(): Promise<void> {
       }
       if (!(failure instanceof VerificationDeliveryLeaseError)) {
         const code = errorCode(failure, 'VERIFICATION_DELIVERY_FAILED');
-        await queue
-          .failed(delivery.id, workerId, { errorCode: code, at: new Date() })
-          .catch((stateError) => logError(stateError, 'VERIFICATION_FAILURE_STATE_LOST'));
+        await observeQueue('fail', () =>
+          queue.failed(delivery.id, workerId, { errorCode: code, at: new Date() }),
+        ).catch((stateError) => logError(stateError, 'VERIFICATION_FAILURE_STATE_LOST'));
       }
       logError(failure, 'VERIFICATION_DELIVERY_FAILED');
     }

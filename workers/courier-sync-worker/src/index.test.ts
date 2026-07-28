@@ -116,4 +116,91 @@ describe('CourierSyncWorker metrics', () => {
     expect(metricLines.join('\n')).not.toContain('sensitive');
     expect(metricLines.join('\n')).not.toContain('01700000000');
   });
+
+  it('records courier provider success and retryable failure without identifiers', async () => {
+    const observation = {
+      provider: 'steadfast' as const,
+      totalOrders: 1,
+      deliveredOrders: 1,
+      returnedOrders: 0,
+      cancelledBeforeShipping: 0,
+      successRate: 1,
+      confidence: 0.8,
+      source: 'merchant_session' as const,
+      observedAt: '2026-07-28T00:00:00.000Z',
+      expiresAt: '2026-07-28T01:00:00.000Z',
+    };
+    const metricLines: string[] = [];
+    const ticks = [10, 12, 20, 30, 40, 42, 50, 60];
+    const adapter = {
+      provider: 'steadfast' as const,
+      testConnection: vi.fn(async () => ({
+        healthy: true,
+        status: 'connected' as const,
+        checkedAt: '2026-07-28T00:00:00.000Z',
+      })),
+      fetchCustomerObservation: vi
+        .fn()
+        .mockResolvedValueOnce(observation)
+        .mockRejectedValueOnce(Object.assign(new Error('temporary outage'), { retryable: true })),
+    };
+    const health = {
+      started: vi.fn(async () => undefined),
+      completed: vi.fn(async () => undefined),
+      failed: vi.fn(async () => undefined),
+    };
+    const worker = new CourierSyncWorker({
+      adapters: new Map([['steadfast', adapter]]),
+      observations: {
+        findFresh: vi.fn(async () => null),
+        save: vi.fn(async () => undefined),
+      },
+      health,
+      monotonicNow: () => ticks.shift() ?? 60,
+      metrics: createMetricRecorder({
+        service: 'courier-sync-worker-test',
+        environment: 'test',
+        write: (line) => metricLines.push(line),
+      }),
+    });
+    const input = {
+      jobId: 'cjob_sensitive',
+      storeId: 'store_sensitive',
+      courierAccountId: 'account_sensitive',
+      provider: 'steadfast',
+      phone: '01700000000',
+      phoneHash: 'hash_sensitive',
+      force: true,
+    };
+
+    await expect(worker.sync(input)).resolves.toMatchObject({ cached: false });
+    await expect(worker.sync(input)).rejects.toThrow('temporary outage');
+
+    const providerPoints = metricLines
+      .map(parseMetricLine)
+      .filter(
+        (point): point is { name: string; attributes: Record<string, unknown> } =>
+          typeof point === 'object' && point !== null && 'name' in point && 'attributes' in point,
+      )
+      .filter((point) => point.name === 'ozzyl.provider.operations');
+    expect(providerPoints).toEqual([
+      expect.objectContaining({
+        attributes: {
+          provider_type: 'courier_api',
+          operation: 'lookup',
+          outcome: 'success',
+        },
+      }),
+      expect.objectContaining({
+        attributes: {
+          provider_type: 'courier_api',
+          operation: 'lookup',
+          outcome: 'retryable_failure',
+        },
+      }),
+    ]);
+    expect(metricLines.join('\n')).not.toContain('sensitive');
+    expect(metricLines.join('\n')).not.toContain('01700000000');
+    expect(metricLines.join('\n')).not.toContain('temporary outage');
+  });
 });

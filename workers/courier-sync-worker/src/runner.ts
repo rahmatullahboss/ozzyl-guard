@@ -10,7 +10,10 @@ import { LeaseHeartbeat } from '@ozzyl/database';
 import {
   createMetricRecorder,
   createStructuredLogger,
+  observeRepositoryOperation,
+  recordDurableQueueSnapshot,
   recordWorkerClaimFailure,
+  type RepositoryMetricOperation,
 } from '@ozzyl/observability';
 import { CourierSyncWorker } from './index.js';
 import { PostgresCourierJobQueue, type ClaimedCourierJob } from './postgres.js';
@@ -27,8 +30,12 @@ const cipher = new AesGcmEnvelopeCipher(
   required('CREDENTIAL_ENCRYPTION_KEY_VERSION'),
 );
 const pollMs = Number(process.env.WORKER_POLL_MS ?? 5_000);
+const queueMetricsMs = Number(process.env.WORKER_QUEUE_METRICS_MS ?? 30_000);
 const leaseMs = Number(process.env.WORKER_LEASE_MS ?? 5 * 60_000);
 const leaseRenewMs = Number(process.env.WORKER_LEASE_RENEW_MS ?? Math.floor(leaseMs / 3));
+if (!Number.isSafeInteger(queueMetricsMs) || queueMetricsMs <= 0) {
+  throw new Error('WORKER_QUEUE_METRICS_MS must be a positive integer');
+}
 if (!Number.isSafeInteger(leaseRenewMs) || leaseRenewMs <= 0 || leaseRenewMs * 2 > leaseMs) {
   throw new Error(
     'WORKER_LEASE_RENEW_MS must be a positive integer no greater than half the lease',
@@ -46,6 +53,30 @@ const metrics = createMetricRecorder({
 const jobs = new PostgresCourierJobQueue(pool, { leaseMs });
 let stopping = false;
 let activeHeartbeat: LeaseHeartbeat | null = null;
+let nextQueueMetricsAt = 0;
+
+const observeQueue = <T>(
+  operation: RepositoryMetricOperation,
+  task: () => Promise<T>,
+  isEmpty?: (value: T) => boolean,
+): Promise<T> =>
+  observeRepositoryOperation(
+    metrics,
+    {
+      repositoryType: 'courier_queue',
+      operation,
+      ...(isEmpty === undefined ? {} : { isEmpty }),
+    },
+    task,
+  );
+
+async function recordQueueMetricsIfDue(): Promise<void> {
+  const now = Date.now();
+  if (now < nextQueueMetricsAt) return;
+  nextQueueMetricsAt = now + queueMetricsMs;
+  const snapshot = await observeQueue('snapshot', () => jobs.snapshot(new Date(now)));
+  recordDurableQueueSnapshot(metrics, 'courier_refresh', snapshot);
+}
 
 const steadfast = new SteadfastAdapter({
   sessionProvider: {
@@ -112,15 +143,17 @@ const syncWorker = new CourierSyncWorker({
   metrics,
   health: {
     async started(jobId, at): Promise<void> {
-      await jobs.started(jobId, workerId, at);
+      await observeQueue('start', () => jobs.started(jobId, workerId, at));
     },
     async completed(jobId, at): Promise<void> {
       await activeHeartbeat?.stop();
-      await jobs.completed(jobId, workerId, at);
+      await observeQueue('complete', () => jobs.completed(jobId, workerId, at));
     },
     async failed(jobId, code, retryable, at): Promise<void> {
       await activeHeartbeat?.stop();
-      await jobs.failed(jobId, workerId, code, retryable, at);
+      await observeQueue(retryable ? 'retry' : 'fail', () =>
+        jobs.failed(jobId, workerId, code, retryable, at),
+      );
     },
   },
 });
@@ -129,7 +162,16 @@ async function run(): Promise<void> {
   log.info('courier.sync.worker.started', { worker_id: workerId });
   while (!stopping) {
     try {
-      const job = await jobs.claim(workerId).catch((error) => {
+      await recordQueueMetricsIfDue().catch((error) => {
+        log.error('courier.sync.queue.metrics.error', {
+          code: errorCode(error, 'QUEUE_METRICS_FAILED'),
+        });
+      });
+      const job = await observeQueue(
+        'claim',
+        () => jobs.claim(workerId),
+        (value) => value === null,
+      ).catch((error) => {
         recordWorkerClaimFailure(metrics, 'courier_sync');
         throw error;
       });
@@ -139,14 +181,16 @@ async function run(): Promise<void> {
       }
       activeHeartbeat = new LeaseHeartbeat({
         intervalMs: leaseRenewMs,
-        renew: (at) => jobs.renew(job.id, workerId, at),
+        renew: (at) => observeQueue('renew', () => jobs.renew(job.id, workerId, at)),
       }).start();
       let payload: ReturnType<typeof parsePayload>;
       try {
         payload = parsePayload(job.payload, job);
       } catch (error) {
         await activeHeartbeat.stop();
-        await jobs.failed(job.id, workerId, errorCode(error, 'INVALID_JOB_PAYLOAD'), false);
+        await observeQueue('fail', () =>
+          jobs.failed(job.id, workerId, errorCode(error, 'INVALID_JOB_PAYLOAD'), false),
+        );
         throw error;
       }
       await syncWorker.sync({

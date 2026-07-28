@@ -1,5 +1,9 @@
 import type { CourierAdapter, CourierObservation } from '@ozzyl/courier-adapters';
-import { recordWorkerOperation, type MetricRecorder } from '@ozzyl/observability';
+import {
+  recordProviderOperation,
+  recordWorkerOperation,
+  type MetricRecorder,
+} from '@ozzyl/observability';
 
 export interface ObservationRepository {
   findFresh(input: {
@@ -89,11 +93,31 @@ export class CourierSyncWorker {
 
       const adapter = this.dependencies.adapters.get(input.provider);
       if (!adapter) throw new Error(`Courier adapter ${input.provider} is not registered`);
-      const observation = await adapter.fetchCustomerObservation({
-        accountId: input.courierAccountId,
-        phone: input.phone,
-        ...(input.signal === undefined ? {} : { signal: input.signal }),
-      });
+      const monotonicNow = this.dependencies.monotonicNow ?? (() => Date.now());
+      const providerStartedAt = monotonicNow();
+      let observation: CourierObservation;
+      try {
+        observation = await adapter.fetchCustomerObservation({
+          accountId: input.courierAccountId,
+          phone: input.phone,
+          ...(input.signal === undefined ? {} : { signal: input.signal }),
+        });
+        recordProviderOperation(this.dependencies.metrics, {
+          providerType: 'courier_api',
+          operation: 'lookup',
+          outcome: 'success',
+          durationMs: monotonicNow() - providerStartedAt,
+        });
+      } catch (error) {
+        const providerError = error as { retryable?: unknown };
+        recordProviderOperation(this.dependencies.metrics, {
+          providerType: 'courier_api',
+          operation: 'lookup',
+          outcome: providerError.retryable === true ? 'retryable_failure' : 'permanent_failure',
+          durationMs: monotonicNow() - providerStartedAt,
+        });
+        throw error;
+      }
       await this.dependencies.observations.save({
         storeId: input.storeId,
         phoneHash: input.phoneHash,

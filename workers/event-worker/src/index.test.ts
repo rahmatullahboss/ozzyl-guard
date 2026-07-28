@@ -78,7 +78,7 @@ describe('webhook destination validation', () => {
 describe('EventWorker', () => {
   it('signs, delivers, and records bounded operation metrics', async () => {
     const metricLines: string[] = [];
-    const ticks = [100, 125];
+    const ticks = [100, 105, 117, 125];
     const fetcher = vi.fn<typeof fetch>().mockImplementation(async (_url, init) => {
       const headers = new Headers(init?.headers);
       const timestamp = headers.get('X-Ozzyl-Timestamp') ?? '';
@@ -112,6 +112,25 @@ describe('EventWorker', () => {
     });
     expect(result.status).toBe('delivered');
     expect(metricLines.map(parseMetricLine)).toEqual([
+      expect.objectContaining({
+        name: 'ozzyl.provider.operations',
+        value: 1,
+        attributes: {
+          provider_type: 'webhook_http',
+          operation: 'deliver',
+          outcome: 'success',
+        },
+      }),
+      expect.objectContaining({
+        name: 'ozzyl.provider.operation.duration',
+        value: 12,
+        unit: 'ms',
+        attributes: {
+          provider_type: 'webhook_http',
+          operation: 'deliver',
+          outcome: 'success',
+        },
+      }),
       expect.objectContaining({
         name: 'ozzyl.worker.operations',
         value: 1,

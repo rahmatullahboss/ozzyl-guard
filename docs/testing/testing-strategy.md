@@ -19,7 +19,7 @@
 - Structured-log fixed metadata, recursive sensitive-field redaction, safe error-code-only serialization, circular/binary/bigint handling, bounded truncation, and telemetry-sink failure isolation
 - Non-overlapping lease heartbeat scheduling, failure propagation, abort signaling, and idempotent stop behavior
 - API request-ID validation, bounded route templates, status/latency lifecycle records, and safe unhandled-error serialization
-- Metric descriptor/name/unit validation, finite categorical attribute allowlists, high-cardinality/secret-like key rejection, value/sign validation, JSON point serialization, worker helper output, and metric-sink failure isolation
+- Metric descriptor/name/unit validation, finite categorical attribute allowlists, high-cardinality/secret-like key rejection, value/sign validation, JSON point serialization, worker/repository/provider/queue helper output, and metric-sink failure isolation
 
 ## Contract tests
 
@@ -65,7 +65,8 @@ Webhook delivery contract tests cover:
 - Multi-tenant isolation
 - Organization/store membership authorization
 - API-wide request correlation plus request count/duration metrics for public, authenticated, browser, not-found, and unhandled-error paths without raw dynamic routes, query values, request IDs, or tenant identifiers in metric attributes
-- Courier-session, courier-sync, event, and verification operation metrics with bounded worker/operation/outcome labels and no job, account, event, endpoint, phone, OTP, credential, URL, payload, or provider-response values
+- Courier-session, courier-sync, event, and verification operation plus provider-call metrics with bounded category/operation/outcome labels and no job, account, event, endpoint, phone, OTP, credential, URL, payload, vendor, error-text, or provider-response values
+- Durable courier, webhook, and verification repository operation timing plus PostgreSQL aggregate queue-depth/oldest-ready-age snapshots without row or tenant identifiers
 - Concurrent tenant-scoped native shadow comparison and sampled-attempt persistence, default-off rollout, owner/admin opt-in, idempotency-conflict rejection, negative tenant references, and bounded pilot reporting
 
 ### PostgreSQL concurrency and idempotency coverage

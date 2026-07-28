@@ -24,7 +24,7 @@ describe('AesGcmEnvelopeCipher', () => {
 describe('CourierSessionWorker metrics', () => {
   it('records bounded refresh completion without account or credential attributes', async () => {
     const metricLines: string[] = [];
-    const ticks = [50, 70];
+    const ticks = [50, 55, 65, 70];
     const sampleValue = 'x'.repeat(24);
     const credentialFixture = ['fixture', 'credential'].join('-');
     const worker = new CourierSessionWorker({
@@ -57,6 +57,23 @@ describe('CourierSessionWorker metrics', () => {
 
     await expect(worker.refresh('account_sensitive')).resolves.toEqual({ status: 'connected' });
     expect(metricLines.map(parseMetricLine)).toEqual([
+      expect.objectContaining({
+        name: 'ozzyl.provider.operations',
+        attributes: {
+          provider_type: 'courier_browser',
+          operation: 'login',
+          outcome: 'success',
+        },
+      }),
+      expect.objectContaining({
+        name: 'ozzyl.provider.operation.duration',
+        value: 10,
+        attributes: {
+          provider_type: 'courier_browser',
+          operation: 'login',
+          outcome: 'success',
+        },
+      }),
       expect.objectContaining({
         name: 'ozzyl.worker.operations',
         attributes: {

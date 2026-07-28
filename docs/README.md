@@ -4,7 +4,7 @@ This directory is the long-term product and engineering source of truth. New dev
 
 ## Current verified milestone
 
-The vendor-neutral metrics milestone is merged on `main` as `02be8d2aae6c65a4ddce82f1a7a260993ad1252f`. Feature CI run `30327450803`, job `90175680964`, passed thirteen migrations, 20 typechecks, 31 Turbo tasks with 161 assertions, 20 builds, GitGuardian, audit, clean restore, runtime-role, and PHP gates. API and all four private workers now emit finite-cardinality counters/histograms plus bounded durable claim-failure points without identifiers, payloads, contact data, credentials, URLs, provider responses, or arbitrary error-code labels.
+The vendor-neutral application-metrics milestone is merged on `main` as `02be8d2aae6c65a4ddce82f1a7a260993ad1252f`; its feature CI run `30327450803`, job `90175680964`, passed thirteen migrations, 20 typechecks, 31 Turbo tasks with 161 assertions, 20 builds, GitGuardian, audit, clean restore, runtime-role, and PHP gates. The current repository/provider/queue metrics source branch adds durable transition timing, broad provider-call outcomes, and aggregate queue depth/oldest-ready-age without identifiers, tenant scope, contact data, credentials, URLs, vendor names, payloads, responses, or arbitrary error labels. PostgreSQL-integrated source-branch CI evidence is pending.
 
 ## Architecture
 

@@ -1,4 +1,5 @@
 import type { Pool } from 'pg';
+import type { DurableQueueSnapshot } from '@ozzyl/observability';
 import type { WebhookDeliveryRepository } from './index.js';
 
 export interface ClaimedWebhookDelivery {
@@ -303,6 +304,46 @@ export class PostgresWebhookDeliveryQueue {
       [deliveryId, workerId, input.responseStatus ?? null, input.errorCode, input.at],
     );
     this.assertOwned(result.rowCount);
+  }
+
+  async snapshot(at = new Date()): Promise<DurableQueueSnapshot> {
+    const result = await this.pool.query<{
+      queued: number;
+      retry_scheduled: number;
+      claimed: number;
+      processing: number;
+      failed: number;
+      oldest_ready_age_ms: number;
+    }>(
+      `
+        select
+          count(*) filter (where status = 'queued')::int as queued,
+          count(*) filter (where status = 'retry_scheduled')::int as retry_scheduled,
+          count(*) filter (where status = 'claimed')::int as claimed,
+          count(*) filter (where status = 'processing')::int as processing,
+          count(*) filter (where status = 'failed')::int as failed,
+          coalesce(
+            extract(epoch from ($1 - min(coalesce(next_attempt_at, created_at)) filter (
+              where status in ('queued', 'retry_scheduled')
+                and coalesce(next_attempt_at, created_at) <= $1
+            ))) * 1000,
+            0
+          )::double precision as oldest_ready_age_ms
+        from webhook_deliveries
+      `,
+      [at],
+    );
+    const row = result.rows[0];
+    return {
+      depths: {
+        queued: row?.queued ?? 0,
+        retry_scheduled: row?.retry_scheduled ?? 0,
+        claimed: row?.claimed ?? 0,
+        processing: row?.processing ?? 0,
+        failed: row?.failed ?? 0,
+      },
+      oldestReadyAgeMs: Math.max(0, Number(row?.oldest_ready_age_ms ?? 0)),
+    };
   }
 
   repositoryFor(

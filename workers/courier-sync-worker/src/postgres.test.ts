@@ -211,6 +211,30 @@ integration('PostgreSQL courier job leases', () => {
     expect(stored.rows[0]?.completed_at?.toISOString()).toBe(at.toISOString());
   });
 
+  it('reports bounded queue depth and oldest ready age without row identifiers', async () => {
+    const queue = new PostgresCourierJobQueue(pool, { leaseMs: 60_000 });
+    const at = new Date('2026-07-17T03:30:00.000Z');
+    const baseline = await queue.snapshot(at);
+    await insertJob('snapshot-ready', { scheduledAt: new Date(at.getTime() - 120_000) });
+    await insertJob('snapshot-processing', {
+      status: 'processing',
+      attempts: 1,
+      claimedBy: `snapshot-worker-${suffix}`,
+      claimedAt: new Date(at.getTime() - 30_000),
+      leaseExpiresAt: new Date(at.getTime() + 30_000),
+      startedAt: new Date(at.getTime() - 30_000),
+      scheduledAt: new Date(at.getTime() - 180_000),
+    });
+    await insertJob('snapshot-failed', { status: 'failed', attempts: 5, scheduledAt: at });
+
+    const snapshot = await queue.snapshot(at);
+    expect(snapshot.depths.queued).toBe((baseline.depths.queued ?? 0) + 1);
+    expect(snapshot.depths.processing).toBe((baseline.depths.processing ?? 0) + 1);
+    expect(snapshot.depths.failed).toBe((baseline.depths.failed ?? 0) + 1);
+    expect(snapshot.depths.retry_scheduled).toBe(baseline.depths.retry_scheduled ?? 0);
+    expect(snapshot.oldestReadyAgeMs).toBeGreaterThanOrEqual(120_000);
+  });
+
   it('derives organization, store, and provider scope from the courier account', async () => {
     const queue = new PostgresCourierJobQueue(pool, { leaseMs: 60_000 });
     const at = new Date('2026-07-17T04:00:00.000Z');

@@ -48,7 +48,7 @@ Never log:
 
 All exception/error serialization must pass through a central redaction layer. Worker logs use structured identifiers and error codes, not secret-bearing exception payloads.
 
-Metrics use a stricter boundary than structured logs. Every attribute must be declared through a finite categorical allowlist. Request, organization, store, account, worker, job, event, assessment, API-key, idempotency, endpoint, phone/hash, URL, payload/body, token, and secret-style attribute names are rejected. Current API metrics expose only normalized method, canonical route/template, and status class; current worker metrics expose only finite worker type, operation, and outcome. Arbitrary provider/error values are not labels. Metric validation or sink failure is isolated from request and worker execution.
+Metrics use a stricter boundary than structured logs. Every attribute must be declared through a finite categorical allowlist. Request, organization, store, account, worker, job, event, assessment, API-key, idempotency, endpoint, phone/hash, URL, payload/body, token, and secret-style attribute names are rejected. API metrics expose only normalized method, canonical route/template, and status class; worker and durable-repository metrics expose finite component, operation, and outcome categories; provider metrics use broad provider categories rather than vendor/account/destination names; queue gauges expose aggregate status counts and oldest-ready age only. Arbitrary provider/error values are not labels. Metric validation, clock, serialization, snapshot, or sink failure is isolated from request and worker execution.
 
 ## Durable work retention
 

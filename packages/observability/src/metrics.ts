@@ -322,6 +322,190 @@ export function recordWorkerClaimFailure(
   recorder?.record(WORKER_CLAIM_FAILURES, 1, { worker_type: workerType });
 }
 
+export type RepositoryMetricType = 'courier_queue' | 'webhook_queue' | 'verification_queue';
+export type RepositoryMetricOperation =
+  'claim' | 'start' | 'renew' | 'complete' | 'retry' | 'fail' | 'snapshot';
+export type RepositoryMetricOutcome = 'success' | 'empty' | 'error';
+
+const REPOSITORY_METRIC_ATTRIBUTES = {
+  repository_type: {
+    values: ['courier_queue', 'webhook_queue', 'verification_queue'],
+  },
+  operation: {
+    values: ['claim', 'start', 'renew', 'complete', 'retry', 'fail', 'snapshot'],
+  },
+  outcome: { values: ['success', 'empty', 'error'] },
+} as const;
+const REPOSITORY_OPERATION_COUNT = defineMetric({
+  name: 'ozzyl.repository.operations',
+  kind: 'counter',
+  unit: '{operation}',
+  attributes: REPOSITORY_METRIC_ATTRIBUTES,
+});
+const REPOSITORY_OPERATION_DURATION = defineMetric({
+  name: 'ozzyl.repository.operation.duration',
+  kind: 'histogram',
+  unit: 'ms',
+  attributes: REPOSITORY_METRIC_ATTRIBUTES,
+});
+
+export async function observeRepositoryOperation<T>(
+  recorder: MetricRecorder | undefined,
+  input: {
+    repositoryType: RepositoryMetricType;
+    operation: RepositoryMetricOperation;
+    isEmpty?: (value: T) => boolean;
+    monotonicNow?: () => number;
+  },
+  task: () => Promise<T>,
+): Promise<T> {
+  const monotonicNow = input.monotonicNow ?? (() => Date.now());
+  const startedAt = safeMonotonicNow(monotonicNow);
+  try {
+    const value = await task();
+    recordRepositoryOperation(recorder, {
+      repositoryType: input.repositoryType,
+      operation: input.operation,
+      outcome: input.isEmpty?.(value) === true ? 'empty' : 'success',
+      durationMs: safeDuration(monotonicNow, startedAt),
+    });
+    return value;
+  } catch (error) {
+    recordRepositoryOperation(recorder, {
+      repositoryType: input.repositoryType,
+      operation: input.operation,
+      outcome: 'error',
+      durationMs: safeDuration(monotonicNow, startedAt),
+    });
+    throw error;
+  }
+}
+
+export function recordRepositoryOperation(
+  recorder: MetricRecorder | undefined,
+  input: {
+    repositoryType: RepositoryMetricType;
+    operation: RepositoryMetricOperation;
+    outcome: RepositoryMetricOutcome;
+    durationMs: number;
+  },
+): void {
+  if (!recorder) return;
+  const attributes = {
+    repository_type: input.repositoryType,
+    operation: input.operation,
+    outcome: input.outcome,
+  } as const;
+  recorder.record(REPOSITORY_OPERATION_COUNT, 1, attributes);
+  recorder.record(REPOSITORY_OPERATION_DURATION, Math.max(0, input.durationMs), attributes);
+}
+
+export type ProviderMetricType =
+  'courier_api' | 'courier_browser' | 'webhook_http' | 'verification_delivery';
+export type ProviderMetricOperation = 'lookup' | 'login' | 'deliver' | 'send';
+export type ProviderMetricOutcome = 'success' | 'retryable_failure' | 'permanent_failure';
+
+const PROVIDER_METRIC_ATTRIBUTES = {
+  provider_type: {
+    values: ['courier_api', 'courier_browser', 'webhook_http', 'verification_delivery'],
+  },
+  operation: { values: ['lookup', 'login', 'deliver', 'send'] },
+  outcome: { values: ['success', 'retryable_failure', 'permanent_failure'] },
+} as const;
+const PROVIDER_OPERATION_COUNT = defineMetric({
+  name: 'ozzyl.provider.operations',
+  kind: 'counter',
+  unit: '{operation}',
+  attributes: PROVIDER_METRIC_ATTRIBUTES,
+});
+const PROVIDER_OPERATION_DURATION = defineMetric({
+  name: 'ozzyl.provider.operation.duration',
+  kind: 'histogram',
+  unit: 'ms',
+  attributes: PROVIDER_METRIC_ATTRIBUTES,
+});
+
+export function recordProviderOperation(
+  recorder: MetricRecorder | undefined,
+  input: {
+    providerType: ProviderMetricType;
+    operation: ProviderMetricOperation;
+    outcome: ProviderMetricOutcome;
+    durationMs: number;
+  },
+): void {
+  if (!recorder) return;
+  const attributes = {
+    provider_type: input.providerType,
+    operation: input.operation,
+    outcome: input.outcome,
+  } as const;
+  recorder.record(PROVIDER_OPERATION_COUNT, 1, attributes);
+  recorder.record(PROVIDER_OPERATION_DURATION, Math.max(0, input.durationMs), attributes);
+}
+
+export type DurableQueueType = 'courier_refresh' | 'webhook_delivery' | 'verification_delivery';
+export type DurableQueueStatus = 'queued' | 'retry_scheduled' | 'claimed' | 'processing' | 'failed';
+export interface DurableQueueSnapshot {
+  readonly depths: Partial<Record<DurableQueueStatus, number>>;
+  readonly oldestReadyAgeMs: number;
+}
+
+const DURABLE_QUEUE_STATUSES: readonly DurableQueueStatus[] = [
+  'queued',
+  'retry_scheduled',
+  'claimed',
+  'processing',
+  'failed',
+];
+const DURABLE_QUEUE_DEPTH = defineMetric({
+  name: 'ozzyl.queue.depth',
+  kind: 'gauge',
+  unit: '{item}',
+  attributes: {
+    queue_type: { values: ['courier_refresh', 'webhook_delivery', 'verification_delivery'] },
+    status: { values: DURABLE_QUEUE_STATUSES },
+  },
+});
+const DURABLE_QUEUE_OLDEST_READY_AGE = defineMetric({
+  name: 'ozzyl.queue.oldest_ready.age',
+  kind: 'gauge',
+  unit: 'ms',
+  attributes: {
+    queue_type: { values: ['courier_refresh', 'webhook_delivery', 'verification_delivery'] },
+  },
+});
+
+export function recordDurableQueueSnapshot(
+  recorder: MetricRecorder | undefined,
+  queueType: DurableQueueType,
+  snapshot: DurableQueueSnapshot,
+): void {
+  if (!recorder) return;
+  for (const status of DURABLE_QUEUE_STATUSES) {
+    recorder.record(DURABLE_QUEUE_DEPTH, Math.max(0, snapshot.depths[status] ?? 0), {
+      queue_type: queueType,
+      status,
+    });
+  }
+  recorder.record(DURABLE_QUEUE_OLDEST_READY_AGE, Math.max(0, snapshot.oldestReadyAgeMs), {
+    queue_type: queueType,
+  });
+}
+
+function safeMonotonicNow(monotonicNow: () => number): number {
+  try {
+    const value = monotonicNow();
+    return Number.isFinite(value) ? value : 0;
+  } catch {
+    return 0;
+  }
+}
+
+function safeDuration(monotonicNow: () => number, startedAt: number): number {
+  return Math.max(0, safeMonotonicNow(monotonicNow) - startedAt);
+}
+
 function defaultWrite(line: string): void {
   console.info(line);
 }

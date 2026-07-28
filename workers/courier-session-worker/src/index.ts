@@ -1,7 +1,11 @@
 import { AesGcmEnvelopeCipher } from '@ozzyl/encryption';
 import { chromium } from 'playwright';
 import type { CourierSession } from '@ozzyl/courier-adapters';
-import { recordWorkerOperation, type MetricRecorder } from '@ozzyl/observability';
+import {
+  recordProviderOperation,
+  recordWorkerOperation,
+  type MetricRecorder,
+} from '@ozzyl/observability';
 
 export type SessionFailureCode =
   | 'INVALID_CREDENTIALS'
@@ -187,7 +191,29 @@ export class CourierSessionWorker {
     }
 
     try {
-      const session = await this.dependencies.driver.login(credentials);
+      const monotonicNow = this.dependencies.monotonicNow ?? (() => Date.now());
+      const providerStartedAt = monotonicNow();
+      let session: SessionDriverResult;
+      try {
+        session = await this.dependencies.driver.login(credentials);
+        recordProviderOperation(this.dependencies.metrics, {
+          providerType: 'courier_browser',
+          operation: 'login',
+          outcome: 'success',
+          durationMs: monotonicNow() - providerStartedAt,
+        });
+      } catch (error) {
+        recordProviderOperation(this.dependencies.metrics, {
+          providerType: 'courier_browser',
+          operation: 'login',
+          outcome:
+            error instanceof SessionDriverError && !error.retryable
+              ? 'permanent_failure'
+              : 'retryable_failure',
+          durationMs: monotonicNow() - providerStartedAt,
+        });
+        throw error;
+      }
       const encrypted = this.dependencies.cipher.encrypt(session, `courier-session:${accountId}`);
       await this.dependencies.vault.save(accountId, encrypted, this.dependencies.cipher.keyVersion);
       await this.dependencies.health.markConnected(accountId, new Date());

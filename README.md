@@ -46,7 +46,7 @@ The repository now contains a runnable MVP foundation:
 - Authenticated owner/admin merchant dead-letter page with secret-free inspection and CSRF-protected idempotent replay through the existing PostgreSQL operations repository
 - Canonical structured logging/redaction package used by the API and all four private workers; telemetry sink failures cannot break request or worker execution
 - API-wide safe request correlation with opaque request IDs, bounded route templates, status classes, latency, and redacted unhandled-error records
-- Vendor-neutral JSON metric points for API request count/duration, private-worker operation count/duration, and durable claim failures, with finite categorical labels and telemetry-failure isolation
+- Vendor-neutral JSON metric points for API requests, private-worker operations, durable repository transitions, provider calls, queue depth/age, and claim failures, with finite categorical labels and telemetry-failure isolation
 
 The following require external accounts or production decisions before live use:
 
