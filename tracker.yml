@@ -160,8 +160,7 @@ verification:
     architecture_boundaries: passed
     typecheck: 20_of_20_passed
     test_tasks: 31_of_31_passed
-    source_assertions: 136_total
-    previous_main_remote_assertions: 132_passed
+    remote_assertions: 136_passed
     migration_integrity_tests: 7_of_7_passed
     postgresql_concurrency_tests: 7_of_7_passed
     postgresql_courier_worker_lease_tests: 5_of_5_passed
@@ -188,27 +187,27 @@ verification:
     documentation_links: 57_reviewed_0_known_broken
   continuation_bundle:
     status: refreshed_locally
-    canonical_main_sync: verified_at_cc8d8901808305b4c72604c654b7790ae7e3bffc
-    local_exporter: completed_after_api_observability_docs
+    canonical_main_sync: verified_at_00d6eecb69f1edd48209cb8653137c8e8a57ab7f
+    local_exporter: completed_after_merged_api_observability_ci_evidence
   remote_ci:
     status: passed
-    run_id: 30317190971
-    job_id: 90145176143
+    run_id: 30318999952
+    job_id: 90150731352
     job: verify
-    tested_head: 533979f6c5abe2cadf51de05bdd3b4844a647dd8
-    merged_main_commit: d8ef4acadb39ad33337f3e2c0ef0e6f1c9d4d8a7
+    tested_head: c92d0a713c2257e6cd49903ca292f41150141890
+    merged_main_commit: 00d6eecb69f1edd48209cb8653137c8e8a57ab7f
     completed: 2026-07-28
-    steps: audit_format_lint_manifest_twelve_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_twenty_typechecks_one_hundred_thirty_two_assertions_twenty_builds_php_all_passed
+    steps: gitguardian_audit_format_lint_manifest_twelve_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_twenty_typechecks_one_hundred_thirty_six_assertions_twenty_builds_php_all_passed
   source_validation:
     status: passed
-    run_id: 30317190971
-    job_id: 90145176143
-    tested_head: 533979f6c5abe2cadf51de05bdd3b4844a647dd8
+    run_id: 30318999952
+    job_id: 90150731352
+    tested_head: c92d0a713c2257e6cd49903ca292f41150141890
     completed: 2026-07-28
-    steps: audit_format_lint_manifest_twelve_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_twenty_typechecks_one_hundred_thirty_two_assertions_twenty_builds_php_all_passed
+    steps: gitguardian_audit_format_lint_manifest_twelve_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_twenty_typechecks_one_hundred_thirty_six_assertions_twenty_builds_php_all_passed
     observability_tests: 3_of_3_passed
+    api_observability_tests: 4_of_4_passed
   pending_follow_up:
-    - source_branch_remote_ci_validation
     - observability_metrics_traces_exporters_and_managed_backend
     - production_source_hook_deployment_and_explicit_pilot_store_selection
     - pilot_outcome_collection_and_calibration
@@ -329,5 +328,5 @@ notes:
   - private_worker_logging_uses_the_shared_telemetry_failure_isolation_boundary
   - api_request_logs_use_opaque_ids_bounded_routes_status_and_latency_only
   - api_unhandled_errors_export_safe_name_and_code_without_message_or_stack
-  - pro_context_was_refreshed_after_api_observability_documentation
+  - pro_context_was_refreshed_after_merged_api_observability_ci_evidence
   - update_this_file_after_every_material_milestone
