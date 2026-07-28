@@ -6,7 +6,7 @@ project:
   visibility: public
   expected_visibility: private
   status: production-hardening-in-progress
-  last_updated: 2026-07-18
+  last_updated: 2026-07-28
 
 agent_entrypoint:
   purpose: Continuation tracker for developers and AI agents.
@@ -88,6 +88,8 @@ invariants:
   - browser_dead_letter_access_requires_opaque_session_exact_store_and_owner_or_admin
   - browser_dead_letter_replay_requires_csrf_and_a_stable_idempotency_key
   - browser_dead_letter_responses_exclude_payloads_and_secret_material
+  - structured_logs_redact_sensitive_fields_before_export
+  - telemetry_failures_never_break_application_or_worker_execution
 
 implemented:
   - typescript_monorepo_and_ci
@@ -138,10 +140,13 @@ implemented:
   - authenticated_merchant_browser_dead_letter_operations
   - csrf_protected_browser_durable_work_replay
   - synchronous_per_work_item_browser_replay_key_cache
+  - provider_neutral_structured_logging_and_recursive_redaction
+  - courier_session_courier_sync_event_and_verification_worker_log_integration
+  - telemetry_serialization_and_sink_failure_isolation_tests
 
 verification:
   command: npm run verify
-  last_verified: 2026-07-18
+  last_verified: 2026-07-28
   status: passed
   results:
     migrations: 12_of_12_with_sha256_manifest
@@ -149,9 +154,10 @@ verification:
     migration_history_integrity: passed
     clean_restore_rehearsal: passed_with_schema_data_sequence_history_and_replay
     architecture_boundaries: passed
-    typecheck: 19_of_19
-    test_tasks: 28_of_28
-    remote_assertions: 129_passed
+    typecheck: 20_of_20_local
+    test_tasks: 31_of_31_local
+    source_assertions: 132_total
+    previous_main_remote_assertions: 129_passed
     migration_integrity_tests: 7_of_7_passed
     postgresql_concurrency_tests: 7_of_7_passed
     postgresql_courier_worker_lease_tests: 5_of_5_passed
@@ -169,14 +175,16 @@ verification:
     native_shadow_total_tests: 28_of_28_passed
     durable_dead_letter_postgresql_tests: 5_of_5_passed
     browser_dead_letter_api_tests: 3_of_3_passed
-    builds: 19_of_19
+    observability_tests: 3_of_3_passed
+    builds: 20_of_20_local
     php_syntax: passed
     high_critical_dependency_check: passed
+    moderate_dependency_findings: 5
     documentation_links: 57_reviewed_0_known_broken
   continuation_bundle:
-    status: pending_local_refresh
-    canonical_main_sync: github_verified
-    reason: github_only_environment_cannot_run_repository_local_exporter
+    status: refreshed_locally
+    canonical_main_sync: verified_at_b61af364a828f9742fc95a6a18314c0a82540d29
+    local_exporter: completed_after_observability_milestone_docs
   remote_ci:
     status: passed
     run_id: 29645967968
@@ -195,7 +203,8 @@ verification:
     steps: audit_format_lint_manifest_twelve_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_typecheck_tests_build_php_all_passed
     browser_dead_letter_api_tests: 3_of_3_passed
   pending_follow_up:
-    - continuation_bundle_local_exporter_refresh
+    - source_branch_remote_ci_validation
+    - observability_metrics_traces_exporters_and_managed_backend
     - production_source_hook_deployment_and_explicit_pilot_store_selection
     - pilot_outcome_collection_and_calibration
 
@@ -311,5 +320,7 @@ notes:
   - merchant_dead_letter_replay_requires_csrf_and_forwards_one_stable_idempotency_key
   - browser_replay_key_is_assigned_synchronously_before_network_io_and_retained_on_failure
   - merchant_dead_letter_ui_hides_operations_from_non_admin_members
-  - pro_context_requires_local_exporter_refresh_after_this_github_only_milestone
+  - structured_log_redaction_is_canonicalized_in_packages_observability
+  - private_worker_logging_uses_the_shared_telemetry_failure_isolation_boundary
+  - pro_context_was_refreshed_after_observability_milestone_documentation
   - update_this_file_after_every_material_milestone

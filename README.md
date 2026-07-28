@@ -42,6 +42,7 @@ The repository now contains a runnable MVP foundation:
 - Provider-neutral managed envelope v2 with per-record data keys, authenticated wrapped-key metadata, structured safe failures, legacy dual-read, and rotation/re-encryption primitives
 - Native multi-store post-persist shadow integration with authoritative source-order revalidation, explicit store opt-in, immutable success/failure attempt evidence, tenant-scoped pilot reporting, and legacy-authoritative behavior
 - Authenticated owner/admin merchant dead-letter page with secret-free inspection and CSRF-protected idempotent replay through the existing PostgreSQL operations repository
+- Canonical structured logging/redaction package used by all four private workers; telemetry sink failures cannot break worker execution
 
 The following require external accounts or production decisions before live use:
 
@@ -75,6 +76,7 @@ packages/
   billing/
   verification/
   sdk/
+  observability/
 integrations/
   woocommerce/
   shopify/
@@ -99,7 +101,7 @@ docs/
 
 ## Local setup
 
-Prerequisites: Node.js 20+, npm 10+, PostgreSQL 16+, and Playwright browser dependencies when running the session worker.
+Prerequisites: Node.js 20.19+, npm 10+, PostgreSQL 16+, and Playwright browser dependencies when running the session worker.
 
 ```bash
 npm install

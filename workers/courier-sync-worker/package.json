@@ -19,7 +19,8 @@
   "dependencies": {
     "@ozzyl/courier-adapters": "*",
     "@ozzyl/courier-session-worker": "*",
-    "pg": "^8.16.3"
+    "pg": "^8.16.3",
+    "@ozzyl/observability": "*"
   },
   "devDependencies": {
     "@types/pg": "^8.15.5"

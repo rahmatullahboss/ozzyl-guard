@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { Pool } from 'pg';
 import { AesGcmEnvelopeCipher } from '@ozzyl/encryption';
+import { createStructuredLogger } from '@ozzyl/observability';
 import type { DomainEvent } from '@ozzyl/shared-types';
 import { EventWorker } from './index.js';
 import {
@@ -36,13 +37,15 @@ if (leaseMs <= timeoutMs + 5_000) {
   throw new Error('EVENT_WORKER_LEASE_MS must exceed WEBHOOK_TIMEOUT_MS by more than 5000ms');
 }
 const workerId = process.env.EVENT_WORKER_ID ?? `event-${randomUUID()}`;
+const log = createStructuredLogger({
+  service: 'event-worker',
+  environment: process.env.NODE_ENV ?? 'development',
+});
 const queue = new PostgresWebhookDeliveryQueue(pool, { leaseMs, maxAttempts });
 let stopping = false;
 
 async function run(): Promise<void> {
-  console.info(
-    JSON.stringify({ level: 'info', event: 'event.worker.started', worker_id: workerId }),
-  );
+  log.info('event.worker.started', { worker_id: workerId });
   while (!stopping) {
     const delivery = await queue.claim(workerId).catch((error) => {
       logError(error, 'EVENT_CLAIM_FAILED');
@@ -152,13 +155,10 @@ function errorCode(error: unknown, fallback: string): string {
 }
 
 function logError(error: unknown, fallback: string): void {
-  console.error(
-    JSON.stringify({
-      level: 'error',
-      event: 'event.worker.error',
-      code: errorCode(error, fallback),
-    }),
-  );
+  log.error('event.worker.error', {
+    code: errorCode(error, fallback),
+    worker_id: workerId,
+  });
 }
 
 const sleep = (milliseconds: number): Promise<void> =>

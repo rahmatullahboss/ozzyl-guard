@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { Pool } from 'pg';
 import { AesGcmEnvelopeCipher } from '@ozzyl/encryption';
+import { createStructuredLogger } from '@ozzyl/observability';
 import type { OtpDeliveryProvider } from '@ozzyl/verification';
 import { VerificationWorker } from './index.js';
 import { PostgresVerificationDeliveryQueue, VerificationDeliveryLeaseError } from './postgres.js';
@@ -36,14 +37,16 @@ if (leaseMs <= timeoutMs + 5_000) {
   );
 }
 const workerId = process.env.VERIFICATION_WORKER_ID ?? `verification-${randomUUID()}`;
+const log = createStructuredLogger({
+  service: 'verification-worker',
+  environment: process.env.NODE_ENV ?? 'development',
+});
 const provider = await loadProvider(required('OTP_PROVIDER_MODULE'));
 const queue = new PostgresVerificationDeliveryQueue(pool, { leaseMs, maxAttempts });
 let stopping = false;
 
 async function run(): Promise<void> {
-  console.info(
-    JSON.stringify({ level: 'info', event: 'verification.worker.started', worker_id: workerId }),
-  );
+  log.info('verification.worker.started', { worker_id: workerId });
   while (!stopping) {
     const delivery = await queue.claim(workerId).catch((error) => {
       logError(error, 'VERIFICATION_CLAIM_FAILED');
@@ -108,13 +111,10 @@ function errorCode(error: unknown, fallback: string): string {
 }
 
 function logError(error: unknown, fallback: string): void {
-  console.error(
-    JSON.stringify({
-      level: 'error',
-      event: 'verification.worker.error',
-      code: errorCode(error, fallback),
-    }),
-  );
+  log.error('verification.worker.error', {
+    code: errorCode(error, fallback),
+    worker_id: workerId,
+  });
 }
 
 const sleep = (milliseconds: number): Promise<void> =>

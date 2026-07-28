@@ -6,6 +6,7 @@ import {
   type CourierSession,
 } from '@ozzyl/courier-adapters';
 import { AesGcmEnvelopeCipher } from '@ozzyl/courier-session-worker';
+import { createStructuredLogger } from '@ozzyl/observability';
 import { CourierSyncWorker } from './index.js';
 import { PostgresCourierJobQueue, type ClaimedCourierJob } from './postgres.js';
 
@@ -23,6 +24,10 @@ const cipher = new AesGcmEnvelopeCipher(
 const pollMs = Number(process.env.WORKER_POLL_MS ?? 5_000);
 const leaseMs = Number(process.env.WORKER_LEASE_MS ?? 5 * 60_000);
 const workerId = process.env.WORKER_ID ?? `courier-sync-${randomUUID()}`;
+const log = createStructuredLogger({
+  service: 'courier-sync-worker',
+  environment: process.env.NODE_ENV ?? 'development',
+});
 const jobs = new PostgresCourierJobQueue(pool, { leaseMs });
 let stopping = false;
 
@@ -102,9 +107,7 @@ const syncWorker = new CourierSyncWorker({
 });
 
 async function run(): Promise<void> {
-  console.info(
-    JSON.stringify({ level: 'info', event: 'courier.sync.worker.started', worker_id: workerId }),
-  );
+  log.info('courier.sync.worker.started', { worker_id: workerId });
   while (!stopping) {
     try {
       const job = await jobs.claim(workerId);
@@ -129,13 +132,10 @@ async function run(): Promise<void> {
         force: payload.force,
       });
     } catch (error) {
-      console.error(
-        JSON.stringify({
-          level: 'error',
-          event: 'courier.sync.worker.error',
-          code: errorCode(error, 'WORKER_TICK_FAILED'),
-        }),
-      );
+      log.error('courier.sync.worker.error', {
+        code: errorCode(error, 'WORKER_TICK_FAILED'),
+        worker_id: workerId,
+      });
       await new Promise((resolve) => setTimeout(resolve, Math.min(pollMs, 5_000)));
     }
   }

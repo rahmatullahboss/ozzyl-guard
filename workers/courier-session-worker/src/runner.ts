@@ -1,4 +1,5 @@
 import { Pool } from 'pg';
+import { createStructuredLogger } from '@ozzyl/observability';
 import {
   AesGcmEnvelopeCipher,
   CourierSessionWorker,
@@ -20,6 +21,10 @@ const cipher = new AesGcmEnvelopeCipher(
 );
 const refreshHours = Number(process.env.COURIER_SESSION_REFRESH_HOURS ?? 6);
 const pollMs = Number(process.env.WORKER_POLL_MS ?? 60_000);
+const log = createStructuredLogger({
+  service: 'courier-session-worker',
+  environment: process.env.NODE_ENV ?? 'development',
+});
 let stopping = false;
 
 const worker = new CourierSessionWorker({
@@ -117,26 +122,13 @@ async function tick(): Promise<void> {
       if (!lock.rows[0]?.locked) continue;
       try {
         await worker.refresh(account.id);
-        console.info(
-          JSON.stringify({
-            level: 'info',
-            event: 'courier.session.refreshed',
-            accountId: account.id,
-          }),
-        );
+        log.info('courier.session.refreshed', { account_id: account.id });
       } catch (error) {
         const code =
           error && typeof error === 'object' && 'code' in error
             ? String(error.code)
             : 'SESSION_REFRESH_FAILED';
-        console.error(
-          JSON.stringify({
-            level: 'error',
-            event: 'courier.session.failed',
-            accountId: account.id,
-            code,
-          }),
-        );
+        log.error('courier.session.failed', { account_id: account.id, code });
       } finally {
         await client.query('select pg_advisory_unlock(hashtext($1))', [
           `courier-session:${account.id}`,
@@ -149,14 +141,12 @@ async function tick(): Promise<void> {
 }
 
 async function run(): Promise<void> {
-  console.info(JSON.stringify({ level: 'info', event: 'courier.session.worker.started' }));
+  log.info('courier.session.worker.started');
   while (!stopping) {
     try {
       await tick();
     } catch {
-      console.error(
-        JSON.stringify({ level: 'error', event: 'courier.session.worker.tick_failed' }),
-      );
+      log.error('courier.session.worker.tick_failed');
     }
     if (!stopping) await new Promise((resolve) => setTimeout(resolve, pollMs));
   }

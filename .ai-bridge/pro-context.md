@@ -1,8 +1,6 @@
-# Ozzyl Guard — Selected Source Shadow Pilot Continuation Context
+# Ozzyl Guard Continuation Context
 
-> Refresh pending (2026-07-18): this GitHub-only milestone could not run the repository-local exporter. Canonical tracker, plan, status, decisions, browser dead-letter contracts, tests, and operational documentation are current through feature merge `27cff21a9fd024e7b8094da3397c79387c83ea02`; regenerate this bundle locally before relying on embedded repository snapshots.
-
-Generated: 2026-07-18T04:10:13.573Z
+Generated: 2026-07-28T00:21:05.297Z
 Workspace: /Users/rahmatullahzisan/Desktop/Dev/Ozzyl Guard
 Workspace ID: ws_dfece19fe5040cc4a5675d02
 Write mode: workspace
@@ -18,40 +16,16 @@ Instruction for ChatGPT: use this as repository context, produce a narrow Codex 
 ├── apps/
 │   ├── admin/
 │   │   ├── src/
-│   │   │   ├── main.tsx
-│   │   │   └── styles.css
 │   │   ├── index.html
 │   │   ├── package.json
 │   │   ├── tsconfig.json
 │   │   └── vite.config.ts
 │   ├── api/
 │   │   ├── src/
-│   │   │   ├── bootstrap.ts
-│   │   │   ├── browser.test.ts
-│   │   │   ├── browser.ts
-│   │   │   ├── index.test.ts
-│   │   │   ├── index.ts
-│   │   │   ├── native-shadow.test.ts
-│   │   │   ├── postgres-administration.test.ts
-│   │   │   ├── postgres-administration.ts
-│   │   │   ├── postgres-browser.test.ts
-│   │   │   ├── postgres-concurrency.test.ts
-│   │   │   ├── postgres-dashboard-isolation.test.ts
-│   │   │   ├── postgres-isolation.test.ts
-│   │   │   ├── postgres-native-shadow-pilot.test.ts
-│   │   │   ├── postgres-native-shadow-pilot.ts
-│   │   │   ├── postgres-shadow-comparisons.test.ts
-│   │   │   ├── postgres-shadow-comparisons.ts
-│   │   │   ├── postgres-verification.ts
-│   │   │   ├── postgres.ts
-│   │   │   └── server.ts
 │   │   ├── package.json
 │   │   └── tsconfig.json
 │   └── dashboard/
 │       ├── src/
-│       │   ├── App.tsx
-│       │   ├── main.tsx
-│       │   └── styles.css
 │       ├── index.html
 │       ├── package.json
 │       ├── tsconfig.json
@@ -59,11 +33,7 @@ Instruction for ChatGPT: use this as repository context, produce a narrow Codex 
 ├── codexpro/
 │   ├── docs/
 │   │   ├── images/
-│   │   │   ├── chatgpt-plugin-details.png
-│   │   │   └── chatgpt-plugins-add.png
 │   │   ├── superpowers/
-│   │   │   ├── plans/
-│   │   │   └── specs/
 │   │   ├── favicon.svg
 │   │   ├── index.html
 │   │   ├── og.svg
@@ -91,16 +61,6 @@ Instruction for ChatGPT: use this as repository context, produce a narrow Codex 
 │   │   └── widget-smoke.mjs
 │   ├── src/
 │   │   ├── analysis/
-│   │   │   ├── cache.ts
-│   │   │   ├── classify.ts
-│   │   │   ├── extract.ts
-│   │   │   ├── graph.ts
-│   │   │   ├── impact.ts
-│   │   │   ├── index.ts
-│   │   │   ├── inventory.ts
-│   │   │   ├── providers.ts
-│   │   │   ├── rank.ts
-│   │   │   └── types.ts
 │   │   ├── bashOps.ts
 │   │   ├── capabilitiesOps.ts
 │   │   ├── codexSessions.ts
@@ -150,6 +110,7 @@ Instruction for ChatGPT: use this as repository context, produce a narrow Codex 
 │   │   ├── 0009-managed-secrets-and-kms-envelope-encryption.md
 │   │   ├── 0010-vendor-neutral-production-observability.md
 │   │   ├── 0011-selected-source-shadow-pilot.md
+│   │   ├── 0012-durable-work-dead-letter-operations.md
 │   │   ├── README.md
 │   │   └── template.md
 │   ├── api/
@@ -162,12 +123,15 @@ Instruction for ChatGPT: use this as repository context, produce a narrow Codex 
 │   ├── courier/
 │   │   └── courier-intelligence.md
 │   ├── database/
-│   │   └── database-design.md
+│   │   ├── database-design.md
+│   │   └── durable-work-replay-ledger.md
 │   ├── integrations/
 │   │   └── integrations.md
 │   ├── operations/
+│   │   ├── browser-dead-letter-operations.md
 │   │   ├── deployment.md
 │   │   ├── development-environment.md
+│   │   ├── durable-work-dead-letter-runbook.md
 │   │   └── operations-observability.md
 │   ├── risk-engine/
 │   │   └── risk-engine.md
@@ -178,24 +142,20 @@ Instruction for ChatGPT: use this as repository context, produce a narrow Codex 
 │   ├── security/
 │   │   └── security-privacy.md
 │   ├── testing/
+│   │   ├── durable-work-dead-letter-testing.md
 │   │   └── testing-strategy.md
 │   └── README.md
 ├── integrations/
 │   ├── custom-js/
 │   │   ├── src/
-│   │   │   └── index.ts
 │   │   ├── package.json
 │   │   └── tsconfig.json
 │   ├── multi-store-saas/
 │   │   ├── src/
-│   │   │   ├── index.test.ts
-│   │   │   └── index.ts
 │   │   ├── package.json
 │   │   └── tsconfig.json
 │   ├── shopify/
 │   │   ├── src/
-│   │   │   ├── index.test.ts
-│   │   │   └── index.ts
 │   │   ├── package.json
 │   │   └── tsconfig.json
 │   └── woocommerce/
@@ -203,80 +163,44 @@ Instruction for ChatGPT: use this as repository context, produce a narrow Codex 
 ├── packages/
 │   ├── authentication/
 │   │   ├── src/
-│   │   │   ├── index.test.ts
-│   │   │   └── index.ts
 │   │   ├── package.json
 │   │   └── tsconfig.json
 │   ├── billing/
 │   │   ├── src/
-│   │   │   ├── index.test.ts
-│   │   │   └── index.ts
 │   │   ├── package.json
 │   │   └── tsconfig.json
 │   ├── courier-adapters/
 │   │   ├── src/
-│   │   │   ├── index.test.ts
-│   │   │   └── index.ts
 │   │   ├── package.json
 │   │   └── tsconfig.json
 │   ├── database/
 │   │   ├── migrations/
-│   │   │   ├── 0001_foundation.sql
-│   │   │   ├── 0002_courier.sql
-│   │   │   ├── 0003_risk.sql
-│   │   │   ├── 0004_verification_events.sql
-│   │   │   ├── 0005_durable_operations.sql
-│   │   │   ├── 0006_browser_access.sql
-│   │   │   ├── 0007_worker_leases.sql
-│   │   │   ├── 0008_webhook_delivery_leases.sql
-│   │   │   ├── 0009_verification_delivery_queue.sql
-│   │   │   ├── 0010_native_shadow_comparisons.sql
-│   │   │   ├── 0011_native_shadow_pilot.sql
-│   │   │   └── manifest.json
 │   │   ├── src/
-│   │   │   ├── apply-runtime-grants.ts
-│   │   │   ├── check-database-integrity.ts
-│   │   │   ├── check-migrations.ts
-│   │   │   ├── index.ts
-│   │   │   ├── migrate.ts
-│   │   │   ├── migration-integrity.postgres.test.ts
-│   │   │   ├── migration-integrity.test.ts
-│   │   │   ├── migration-integrity.ts
-│   │   │   ├── restore-rehearsal.ts
-│   │   │   ├── runtime-role.postgres.test.ts
-│   │   │   ├── runtime-role.test.ts
-│   │   │   ├── runtime-role.ts
-│   │   │   └── schema.ts
 │   │   ├── drizzle.config.ts
 │   │   ├── package.json
 │   │   └── tsconfig.json
 │   ├── encryption/
 │   │   ├── src/
-│   │   │   ├── index.test.ts
-│   │   │   └── index.ts
+│   │   ├── package.json
+│   │   └── tsconfig.json
+│   ├── observability/
+│   │   ├── src/
 │   │   ├── package.json
 │   │   └── tsconfig.json
 │   ├── risk-engine/
 │   │   ├── src/
-│   │   │   ├── index.test.ts
-│   │   │   └── index.ts
 │   │   ├── package.json
 │   │   └── tsconfig.json
 │   ├── sdk/
 │   │   ├── src/
-│   │   │   ├── index.ts
-│   │   │   └── native-shadow.test.ts
 │   │   ├── package.json
 │   │   └── tsconfig.json
 │   ├── shared-types/
 │   │   ├── src/
-│   │   │   └── index.ts
 │   │   ├── package.json
 │   │   └── tsconfig.json
 │   └── verification/
 │       ├── src/
-│       │   ├── index.test.ts
-│       │   └── index.ts
 │       ├── package.json
 │       └── tsconfig.json
 ├── scripts/
@@ -284,38 +208,18 @@ Instruction for ChatGPT: use this as repository context, produce a narrow Codex 
 ├── workers/
 │   ├── courier-session-worker/
 │   │   ├── src/
-│   │   │   ├── index.test.ts
-│   │   │   ├── index.ts
-│   │   │   └── runner.ts
 │   │   ├── package.json
 │   │   └── tsconfig.json
 │   ├── courier-sync-worker/
 │   │   ├── src/
-│   │   │   ├── index.test.ts
-│   │   │   ├── index.ts
-│   │   │   ├── postgres.test.ts
-│   │   │   ├── postgres.ts
-│   │   │   └── runner.ts
 │   │   ├── package.json
 │   │   └── tsconfig.json
 │   ├── event-worker/
 │   │   ├── src/
-│   │   │   ├── index.test.ts
-│   │   │   ├── index.ts
-│   │   │   ├── postgres.test.ts
-│   │   │   ├── postgres.ts
-│   │   │   └── runner.ts
 │   │   ├── package.json
 │   │   └── tsconfig.json
 │   └── verification-worker/
 │       ├── src/
-│       │   ├── index.test.ts
-│       │   ├── index.ts
-│       │   ├── payload.test.ts
-│       │   ├── payload.ts
-│       │   ├── postgres.test.ts
-│       │   ├── postgres.ts
-│       │   └── runner.ts
 │       ├── package.json
 │       └── tsconfig.json
 ├── AGENTS.md
@@ -334,27 +238,46 @@ Instruction for ChatGPT: use this as repository context, produce a narrow Codex 
 ## Git Status
 
 ```text
-## docs/source-shadow-pilot-evidence
+## feat/observability-structured-logging
  M .ai-bridge/current-plan.md
  M .ai-bridge/decisions.md
  M .ai-bridge/implementation-status.md
  M .ai-bridge/pro-context.md
+ M AGENTS.md
  M README.md
- M docs/README.md
+ M docs/operations/operations-observability.md
+ M docs/testing/testing-strategy.md
+ M package-lock.json
+ M package.json
  M tracker.yml
+ M workers/courier-session-worker/package.json
+ M workers/courier-session-worker/src/runner.ts
+ M workers/courier-sync-worker/package.json
+ M workers/courier-sync-worker/src/runner.ts
+ M workers/event-worker/package.json
+ M workers/event-worker/src/runner.ts
+ M workers/verification-worker/package.json
+ M workers/verification-worker/src/runner.ts
+?? packages/observability/
 ```
 
 ## Recent Commits
 
 ```text
-c478170 (HEAD -> docs/source-shadow-pilot-evidence, origin/main, main) feat: wire selected source shadow pilot (#20)
+b61af36 (HEAD -> feat/observability-structured-logging, origin/main, main) docs: sync browser dead-letter evidence
+27cff21 feat: add browser dead-letter operations
+57f7b3a docs: sync durable work dead-letter evidence
+2d68620 feat: add durable work dead-letter operations
+a028848 docs: sync selected source shadow pilot evidence (#21)
+c478170 feat: wire selected source shadow pilot (#20)
 de6f1eb docs: record native shadow verification evidence
 446d6eb feat: add native shadow rollout controls
-e1875b9 docs: record managed envelope verification evidence
-ee24aa7 feat: add provider-neutral managed envelope encryption
-8f869e3 docs: record runtime role isolation verification evidence
-845749c test: harden PostgreSQL runtime role and tenant isolation
-e787b90 docs: record PostgreSQL restore integrity verification evidence (#12)
+```
+
+## Git Diff
+
+```diff
+git unavailable or failed: spawnSync git ENOBUFS
 ```
 
 ## Existing AI Bridge Context
@@ -362,11 +285,11 @@ e787b90 docs: record PostgreSQL restore integrity verification evidence (#12)
 --- .ai-bridge/current-plan.md ---
   1 | # Ozzyl Guard — Current Implementation Plan
   2 |
-  3 | Updated: 2026-07-18
+  3 | Updated: 2026-07-28
   4 |
   5 | ## Current state
   6 |
-  7 | A runnable standalone MVP foundation and eleven production-hardening slices are complete:
+  7 | A runnable standalone MVP foundation and fourteen production-hardening slices are complete:
   8 |
   9 | 1. dashboard/admin browser authentication with live PostgreSQL data and tenant revalidation;
  10 | 2. accepted provider-neutral infrastructure ADRs for deployment, managed PostgreSQL, durable work/cache, KMS envelope encryption, and observability;
@@ -378,158 +301,177 @@ e787b90 docs: record PostgreSQL restore integrity verification evidence (#12)
  16 | 8. authoritative tenant-scope revalidation across API keys, feature assembly, assessment/outcome writes, dashboards and administration, plus an explicit least-privilege PostgreSQL runtime-role grant boundary;
  17 | 9. provider-neutral managed envelope v2 with random per-record data keys, authenticated wrapped-key metadata, structured fail-closed errors, explicit legacy dual-read, and key-version re-encryption primitives;
  18 | 10. native multi-store `off`/deterministic-shadow rollout controls with legacy-authoritative behavior and tenant-scoped immutable comparison evidence;
- 19 | 11. selected-source post-persist shadow integration with authoritative source-order reload, explicit store opt-in, immutable sampled-attempt evidence, and tenant-scoped pilot reporting.
- 20 |
- 21 | Concrete provider selection and provisioning remain external production work.
- 22 |
- 23 | ## Completed
- 24 |
- 25 | - [x] Repository, canonical GitHub remote, documentation, ADR, status, risk register, tracker, and continuation setup
- 26 | - [x] npm workspaces, Turborepo, TypeScript, formatting, linting, tests, and CI
- 27 | - [x] Canonical shared API/error/event contracts
- 28 | - [x] PostgreSQL/Drizzle schema and eleven append-only migrations
- 29 | - [x] Users, organizations, stores, memberships, plans, audit events, hash-only API keys, and explicit platform role
- 30 | - [x] Argon2 password utilities and opaque hash-only browser sessions with CSRF protection
- 31 | - [x] Transaction-safe PostgreSQL usage reservation and durable idempotency
- 32 | - [x] Pure versioned risk engine with confidence, explainable signals, and unknown/degraded behavior
- 33 | - [x] Courier adapter contract and Steadfast normalized adapter
- 34 | - [x] Playwright Steadfast session driver with structured errors
- 35 | - [x] Shared AES-GCM envelope-encryption package for local/self-hosted sensitive-record boundaries
- 36 | - [x] Runnable PostgreSQL courier session and observation workers
- 37 | - [x] Versioned risk assessment, assessment-read, outcome, courier-refresh, and OTP routes
- 38 | - [x] PostgreSQL assessment/signal/outcome persistence and tenant-scoped reads
- 39 | - [x] OTP hashing, expiry, rate/attempt limits, tenant binding, and transactional encrypted delivery jobs
- 40 | - [x] API OTP send returns queued work without provider network I/O
- 41 | - [x] Tenant-scoped PostgreSQL OTP verification with verified/failed webhook outbox events
- 42 | - [x] WooCommerce, Shopify, custom-server, and multi-store adapters using one API contract
- 43 | - [x] Authenticated merchant dashboard with live tenant-scoped PostgreSQL data
- 44 | - [x] Explicit-role platform admin with live global operations data
- 45 | - [x] Browser/API security tests plus PostgreSQL session and tenant-isolation integration tests
- 46 | - [x] Docker/API/Playwright worker/courier/event/verification separation and PostgreSQL CI service
- 47 | - [x] Architecture dependency-boundary CI guard
- 48 | - [x] Provider-neutral production deployment topology ADR
- 49 | - [x] Managed PostgreSQL production baseline ADR
- 50 | - [x] PostgreSQL-first durable work and optional cache boundary ADR
- 51 | - [x] Managed secrets and KMS envelope-encryption ADR
- 52 | - [x] Vendor-neutral OpenTelemetry observability ADR
- 53 | - [x] Concurrent duplicate usage reservations serialize into one charge and replay responses
- 54 | - [x] Concurrent usage reservations cannot exceed the plan limit
- 55 | - [x] Concurrent assessment saves return the single persisted assessment without orphan signal writes
- 56 | - [x] Concurrent outcome writes resolve as one insert and one replay
- 57 | - [x] Operation idempotency records remain isolated by organization and store
- 58 | - [x] Competing courier workers atomically claim different due jobs with `SKIP LOCKED`
- 59 | - [x] Fresh courier leases cannot be stolen and expired leases can be reclaimed
- 60 | - [x] Expired or previous courier owners cannot complete or fail jobs
- 61 | - [x] Retryable courier failures clear ownership and return jobs to the durable queue with backoff
- 62 | - [x] Courier job organization/store/provider scope is derived from account relationships, not trusted payload fields
- 63 | - [x] Assessments and outcomes enqueue matching webhook deliveries inside the same PostgreSQL transaction
- 64 | - [x] Webhook deliveries persist explicit organization/store scope and canonical event payloads without raw phone values
- 65 | - [x] Competing event workers claim distinct webhook deliveries with `SKIP LOCKED`
- 66 | - [x] Webhook leases reject expired owners, recover stale work, schedule retryable failures, and fail exhausted work closed
- 67 | - [x] Event delivery decrypts endpoint signing secrets only inside the worker with endpoint-bound authenticated context
- 68 | - [x] Webhook destinations require HTTPS, reject credentials/local/non-public addresses, and validate DNS results before fetch
- 69 | - [x] Competing verification workers atomically claim different due jobs with `SKIP LOCKED`
- 70 | - [x] Verification leases reject expired owners, recover stale work, clear retry ownership, and fail exhausted work closed
- 71 | - [x] Verification scope mismatch fails both the job and authoritative session closed
- 72 | - [x] Job-bound encrypted payloads validate tenant, purpose, phone HMAC, and OTP hash before provider I/O
- 73 | - [x] CI applies the ordered migration set twice to prove migration replay is a clean no-op
- 74 | - [x] Every migration file is bound to a committed SHA-256 manifest and a non-null database history checksum
- 75 | - [x] Unknown, gapped, missing-checksum, or checksum-mismatched migration history fails closed
- 76 | - [x] CI restores a real `pg_dump` into a clean distinct PostgreSQL database and compares schema, full table data hashes, sequence state, migration history, and replay
- 77 | - [x] API-key resolution, feature assembly, assessment writes, and outcome writes fail closed when organization/store ownership does not match an active tenant
- 78 | - [x] Merchant dashboard, platform admin, webhook administration, and verification administration repositories reauthorize relational scope and isolate tenant data
- 79 | - [x] Webhook and verification administration records omit encrypted signing secrets, OTP hashes, encrypted job payloads, and raw phone material
- 80 | - [x] `db:runtime-grants` applies an explicit current-table DML policy from the migration owner to an externally created non-owner runtime login
- 81 | - [x] CI proves the runtime role cannot read migration history, delete rows, create/alter tables, create schema objects, own the database/schema/relations, or inherit elevated role privileges
- 82 | - [x] Managed envelope v2 creates and zeroes a random AES-256 data key per record and wraps it only through a provider-neutral KMS/vault contract
- 83 | - [x] Ciphertext authenticates the context digest and wrapped-key metadata, rejects context substitution before unwrap, and returns structured non-secret failure codes
- 84 | - [x] Explicit legacy-key dual-read and managed key-version re-encryption preserve access during controlled rotation without plaintext fallback
- 85 | - [x] Native multi-store rollout supports only `off` and deterministic `shadow`; the legacy result stays authoritative even when Guard recommends block
- 86 | - [x] Selected shadow assessments and persistence failures return safe codes without changing checkout behavior
- 87 | - [x] Tenant-scoped comparison API derives Guard values from the referenced assessment and stores immutable idempotent evidence without phone or secret material
- 88 | - [x] Selected source integration reloads the durably persisted order and verifies organization/store/order scope before any Guard call
- 89 | - [x] Native shadow rollout defaults to `off` and requires CSRF-protected owner/admin store opt-in
- 90 | - [x] Sampled success, assessment failure, timeout, and comparison persistence failure are stored as immutable tenant-scoped attempt evidence
- 91 | - [x] Merchant and platform views expose secret-free sampled-order, failure, disagreement-rate, and bounded score-delta reporting
- 92 | - [x] Source retries use stable idempotency keys while the legacy decision remains effective through every failure path
- 93 |
- 94 | ## Verified baseline
- 95 |
- 96 | - Formatting check: passed
- 97 | - ESLint with zero warnings: passed
- 98 | - Eleven migration files ordered/non-empty/non-destructive: passed
- 99 | - First migration apply and immediate migration replay: passed
-100 | - Architecture import boundaries: passed
-101 | - Typecheck: 19 of 19 workspaces passed
-102 | - Test/build dependency tasks: 28 of 28 passed
-103 | - Repository assertions: 120 passed, including five courier lease tests, five webhook lease tests, five verification lease tests, three verification-payload validation tests, seven migration-integrity tests, seven tenant/admin isolation tests, six runtime-role policy/permission tests, eleven envelope-encryption tests, twenty-eight native-shadow adapter/API/SDK/browser/PostgreSQL tests, transactional queues/outbox coverage, and DNS SSRF tests
-104 | - Production builds: 19 of 19 workspaces passed
-105 | - WooCommerce PHP syntax: passed
-106 | - npm high/critical audit threshold: passed; four moderate development-tooling advisories remain
-107 | - Worker lease final CI run `29545309665`, job `87776201468`: all gates passed at head `b886fcb57c9a5c9ebae3b23334966468ae1733c3`
-108 | - The verified worker lease change was squash-merged to `main` as `d748bde10920e5a35a7e90f3a00b3b3bf02b96f3`
-109 | - Webhook outbox final CI run `29550097719`, job `87790624617`: audit, formatting, lint, eight migrations, migration replay, architecture, 19 typechecks, 53 assertions, 19 builds, and PHP lint passed at head `fb0a68bac4628a96f82413b5d71092e4f0367536`
-110 | - The verified webhook outbox change was squash-merged to `main` as `752d08776f35345e5ec002d9a9ca720f304df8cc`
-111 | - Verification queue targeted run `29553255223`, job `87800077114`: nine migrations/replay, verification/API typechecks, lease/payload/API tests, builds, and Compose profile validation passed for source commit `5fce01ac98bc8115959276b1ffc636a1702d77a0`
-112 | - Verification queue final CI run `29554260434`, job `87803061854`: audit, formatting, lint, nine migrations, migration replay, architecture, 19 typechecks, 67 assertions, 19 builds, and PHP lint passed at head `7f24a7be544ae60d7a0a15b4a5020b4253e0d192`
-113 | - The verified verification queue change was squash-merged to `main` as `146360ab40efe45bfa7332c1a42b6cac0e88d17b`
-114 | - Restore-integrity source-head CI run `29556041278`, job `87808175661`: audit, formatting, lint, manifest validation, nine migrations, replay, history integrity, clean full-data-hash restore rehearsal, architecture, 19 typechecks, 74 assertions, 19 builds, and PHP lint passed at head `0eb8f09bc5e91c18e7ee5933cedb0e78f618a972`
-115 | - Restore-integrity final CI run `29556722776`, job `87810268816`: the same complete gate set passed at final documentation head `6a7bd57fa4ef0d1f917ca83729691fbd25c0738c`
-116 | - The verified restore-integrity change was squash-merged to `main` as `950d07069643f4e69d7570802091a600011f72df`
-117 | - Runtime-role/tenant-isolation source-head CI run `29560049322`, job `87820368024`: audit, formatting, lint, manifest validation, nine migrations, replay, history integrity, clean full-data-hash restore, runtime-role grant verification, architecture, 19 typechecks, 87 assertions, 19 builds, and PHP lint passed at head `90a50b215b063d87f71725eb6a375cbb887345de`
-118 | - Runtime-role/tenant-isolation final CI run `29574499372`, job `87865756151`: the same complete gate set passed at final documentation head `71588cb024f63c750ffae8212cd5911db08d1ced`
-119 | - The verified runtime-role and tenant-isolation change was squash-merged to `main` as `845749ce9570dc49558073808247e1dc1221669b`
-120 | - Managed-envelope source-head CI run `29579223561`, job `87880659693`: audit, formatting, lint, manifest validation, nine migrations, replay, history integrity, clean restore, runtime-role grants, architecture, 19 typechecks, 96 assertions, 19 builds, and PHP lint passed at head `9dbd61eb84fa6d42958e120d5ce9e1e402bd6688`
-121 | - Managed-envelope final CI run `29580203487`, job `87883814149`: the same complete gate set passed at final documentation head `cae4d6ea9d101afe2e692819886fd149c5cf3b85`
-122 | - The verified provider-neutral managed-envelope boundary was squash-merged to `main` as `ee24aa7faf41e14b04769434c74bc99d7a245de4`
-123 | - Native-shadow source CI run `29610050179`, job `87982336996`: audit, formatting, lint, ten migrations, replay, history integrity, clean restore, runtime-role grants, architecture, 19 typechecks, 107 assertions, 19 builds, and PHP lint passed at head `85cd9e2bafd0fc3605c97a461f01a6a87016b83b`
-124 | - Native-shadow final CI run `29610847711`, job `87984896681`: the same complete gate set passed at final documentation head `dc44c8b7df2bfa84cd8f372f9df0831d3c35beeb`
-125 | - The verified native shadow rollout milestone was squash-merged to `main` as `446d6eb47d042fe4f2834ba31bb3596e57c7ad54`
-126 | - Selected-source shadow pilot final CI run `29629751800`, job `88040964883`: audit, formatting, lint, eleven migrations, replay, history integrity, clean restore, runtime-role grants, architecture, 19 typechecks, 120 assertions, 19 builds, and PHP lint passed at head `57e6b296617549e923fc80ab80b0317f109f5ee8`
-127 | - The verified selected-source shadow pilot foundation was squash-merged through PR #20 to `main` as `c478170c7dadbeafa576a62ae989df682e052d4e`
-128 | - Canonical documentation links before this slice: zero known broken internal links
-129 | - `tracker.yml` YAML structure remains valid
-130 | - Prohibited source-pattern search: no matches
-131 |
-132 | The repository-local continuation exporter was run after the feature merge from canonical `main`; `.ai-bridge/pro-context.md`, tracker, plan, status, decisions, and milestone documentation are refreshed.
-133 |
-134 | ## Next production milestone
-135 |
-136 | 1. Select and provision the managed runtime, PostgreSQL, KMS/vault, and observability providers under ADRs 0006–0010, including distinct production migration/runtime identities and a managed-provider point-in-time restore drill.
-137 | 2. Select and provision a reviewed KMS/vault adapter, component service identities, access auditing, and an audited PostgreSQL background re-encryption runner before switching runtime writes from local v1 to managed v2.
-138 | 3. Add an authorized Steadfast test account, live opt-in tests, selector monitoring, and provider-terms approval.
-139 | 4. Select, review, bundle, and configure the production OTP provider adapter/account for the existing verification runner.
-140 | 5. Add distributed rate limiting/cache only when multiple replicas require it.
-141 | 6. Deploy the verified post-persist source hook only to explicitly opted-in pilot stores and validate production observability without using Guard as the effective decision source.
-142 | 7. Run the selected-merchant pilot, collect verified outcomes, calibrate confidence/thresholds, and keep broad automatic blocking disabled until reviewed.
-143 |
-144 | ## External blockers
-145 |
-146 | - Authorized Steadfast merchant/test credentials
-147 | - Steadfast provider-terms and merchant-authorization review
-148 | - Deployment platform, account, primary region, and budget
-149 | - Managed PostgreSQL provider and service tier
-150 | - Managed secret store and KMS/vault provider
-151 | - Observability backend and retention policy
-152 | - OTP provider account and credentials
-153 | - Production account recovery/MFA or managed identity-provider decision
-154 | - Repository visibility correction from currently reported public to expected private
-155 | - Pilot outcome data for false-positive/false-negative calibration
-156 |
-157 | ## Non-negotiable continuation rules
-158 |
-159 | - Do not add a second risk engine.
-160 | - Do not call providers from the risk engine or synchronous checkout path.
-161 | - Do not deliver webhooks or OTP messages synchronously in checkout/API request handling.
-162 | - Do not store/log raw API keys, passwords, OTPs, courier cookies, provider credentials, or webhook signing secrets.
-163 | - Do not use API keys as dashboard user sessions.
-164 | - Require organization/store scope in all merchant repositories, events, and jobs.
-165 | - Add new migrations; never edit applied migrations.
-166 | - Keep PostgreSQL authoritative for durable jobs/outbox through the pilot unless ADR 0008 is superseded.
-167 | - Keep Redis/cache state non-authoritative.
-168 | - Keep unknown/provider failure explicit and policy-controlled.
-169 | - Update `tracker.yml`, documentation, implementation status, decisions, and the continuation bundle with every material milestone.
-170 |
+ 19 | 11. selected-source post-persist shadow integration with authoritative source-order reload, explicit store opt-in, immutable sampled-attempt evidence, and tenant-scoped pilot reporting;
+ 20 | 12. tenant-scoped durable-work dead-letter inspection and explicit idempotent replay with lease reset, structural failure guards, immutable evidence, and audit records;
+ 21 | 13. authenticated merchant browser dead-letter operations with exact owner/admin store scope, secret-free listing, CSRF-protected replay, and synchronous stable replay keys;
+ 22 | 14. a canonical vendor-neutral structured logging/redaction package integrated into all four private workers, with bounded serialization and telemetry-failure isolation.
+ 23 |
+ 24 | Concrete provider selection and provisioning remain external production work.
+ 25 |
+ 26 | ## Completed
+ 27 |
+ 28 | - [x] Repository, canonical GitHub remote, documentation, ADR, status, risk register, tracker, and continuation setup
+ 29 | - [x] npm workspaces, Turborepo, TypeScript, formatting, linting, tests, and CI
+ 30 | - [x] Canonical shared API/error/event contracts
+ 31 | - [x] PostgreSQL/Drizzle schema and twelve append-only migrations
+ 32 | - [x] Users, organizations, stores, memberships, plans, audit events, hash-only API keys, and explicit platform role
+ 33 | - [x] Argon2 password utilities and opaque hash-only browser sessions with CSRF protection
+ 34 | - [x] Transaction-safe PostgreSQL usage reservation and durable idempotency
+ 35 | - [x] Pure versioned risk engine with confidence, explainable signals, and unknown/degraded behavior
+ 36 | - [x] Courier adapter contract and Steadfast normalized adapter
+ 37 | - [x] Playwright Steadfast session driver with structured errors
+ 38 | - [x] Shared AES-GCM envelope-encryption package for local/self-hosted sensitive-record boundaries
+ 39 | - [x] Runnable PostgreSQL courier session and observation workers
+ 40 | - [x] Versioned risk assessment, assessment-read, outcome, courier-refresh, and OTP routes
+ 41 | - [x] PostgreSQL assessment/signal/outcome persistence and tenant-scoped reads
+ 42 | - [x] OTP hashing, expiry, rate/attempt limits, tenant binding, and transactional encrypted delivery jobs
+ 43 | - [x] API OTP send returns queued work without provider network I/O
+ 44 | - [x] Tenant-scoped PostgreSQL OTP verification with verified/failed webhook outbox events
+ 45 | - [x] WooCommerce, Shopify, custom-server, and multi-store adapters using one API contract
+ 46 | - [x] Authenticated merchant dashboard with live tenant-scoped PostgreSQL data
+ 47 | - [x] Explicit-role platform admin with live global operations data
+ 48 | - [x] Browser/API security tests plus PostgreSQL session and tenant-isolation integration tests
+ 49 | - [x] Docker/API/Playwright worker/courier/event/verification separation and PostgreSQL CI service
+ 50 | - [x] Architecture dependency-boundary CI guard
+ 51 | - [x] Provider-neutral production deployment topology ADR
+ 52 | - [x] Managed PostgreSQL production baseline ADR
+ 53 | - [x] PostgreSQL-first durable work and optional cache boundary ADR
+ 54 | - [x] Managed secrets and KMS envelope-encryption ADR
+ 55 | - [x] Vendor-neutral OpenTelemetry observability ADR
+ 56 | - [x] Canonical structured logging/redaction helper with fixed metadata, bounded serialization, and fail-open telemetry delivery
+ 57 | - [x] Courier-session, courier-sync, event, and verification worker startup/error logging migrated to the shared boundary
+ 58 | - [x] Concurrent duplicate usage reservations serialize into one charge and replay responses
+ 59 | - [x] Concurrent usage reservations cannot exceed the plan limit
+ 60 | - [x] Concurrent assessment saves return the single persisted assessment without orphan signal writes
+ 61 | - [x] Concurrent outcome writes resolve as one insert and one replay
+ 62 | - [x] Operation idempotency records remain isolated by organization and store
+ 63 | - [x] Competing courier workers atomically claim different due jobs with `SKIP LOCKED`
+ 64 | - [x] Fresh courier leases cannot be stolen and expired leases can be reclaimed
+ 65 | - [x] Expired or previous courier owners cannot complete or fail jobs
+ 66 | - [x] Retryable courier failures clear ownership and return jobs to the durable queue with backoff
+ 67 | - [x] Courier job organization/store/provider scope is derived from account relationships, not trusted payload fields
+ 68 | - [x] Assessments and outcomes enqueue matching webhook deliveries inside the same PostgreSQL transaction
+ 69 | - [x] Webhook deliveries persist explicit organization/store scope and canonical event payloads without raw phone values
+ 70 | - [x] Competing event workers claim distinct webhook deliveries with `SKIP LOCKED`
+ 71 | - [x] Webhook leases reject expired owners, recover stale work, schedule retryable failures, and fail exhausted work closed
+ 72 | - [x] Event delivery decrypts endpoint signing secrets only inside the worker with endpoint-bound authenticated context
+ 73 | - [x] Webhook destinations require HTTPS, reject credentials/local/non-public addresses, and validate DNS results before fetch
+ 74 | - [x] Competing verification workers atomically claim different due jobs with `SKIP LOCKED`
+ 75 | - [x] Verification leases reject expired owners, recover stale work, clear retry ownership, and fail exhausted work closed
+ 76 | - [x] Verification scope mismatch fails both the job and authoritative session closed
+ 77 | - [x] Job-bound encrypted payloads validate tenant, purpose, phone HMAC, and OTP hash before provider I/O
+ 78 | - [x] CI applies the ordered migration set twice to prove migration replay is a clean no-op
+ 79 | - [x] Every migration file is bound to a committed SHA-256 manifest and a non-null database history checksum
+ 80 | - [x] Unknown, gapped, missing-checksum, or checksum-mismatched migration history fails closed
+ 81 | - [x] CI restores a real `pg_dump` into a clean distinct PostgreSQL database and compares schema, full table data hashes, sequence state, migration history, and replay
+ 82 | - [x] API-key resolution, feature assembly, assessment writes, and outcome writes fail closed when organization/store ownership does not match an active tenant
+ 83 | - [x] Merchant dashboard, platform admin, webhook administration, and verification administration repositories reauthorize relational scope and isolate tenant data
+ 84 | - [x] Webhook and verification administration records omit encrypted signing secrets, OTP hashes, encrypted job payloads, and raw phone material
+ 85 | - [x] `db:runtime-grants` applies an explicit current-table DML policy from the migration owner to an externally created non-owner runtime login
+ 86 | - [x] CI proves the runtime role cannot read migration history, delete rows, create/alter tables, create schema objects, own the database/schema/relations, or inherit elevated role privileges
+ 87 | - [x] Managed envelope v2 creates and zeroes a random AES-256 data key per record and wraps it only through a provider-neutral KMS/vault contract
+ 88 | - [x] Ciphertext authenticates the context digest and wrapped-key metadata, rejects context substitution before unwrap, and returns structured non-secret failure codes
+ 89 | - [x] Explicit legacy-key dual-read and managed key-version re-encryption preserve access during controlled rotation without plaintext fallback
+ 90 | - [x] Native multi-store rollout supports only `off` and deterministic `shadow`; the legacy result stays authoritative even when Guard recommends block
+ 91 | - [x] Selected shadow assessments and persistence failures return safe codes without changing checkout behavior
+ 92 | - [x] Tenant-scoped comparison API derives Guard values from the referenced assessment and stores immutable idempotent evidence without phone or secret material
+ 93 | - [x] Selected source integration reloads the durably persisted order and verifies organization/store/order scope before any Guard call
+ 94 | - [x] Native shadow rollout defaults to `off` and requires CSRF-protected owner/admin store opt-in
+ 95 | - [x] Sampled success, assessment failure, timeout, and comparison persistence failure are stored as immutable tenant-scoped attempt evidence
+ 96 | - [x] Merchant and platform views expose secret-free sampled-order, failure, disagreement-rate, and bounded score-delta reporting
+ 97 | - [x] Source retries use stable idempotency keys while the legacy decision remains effective through every failure path
+ 98 | - [x] Owner/admin operators can inspect secret-free failed courier, webhook, and verification work only inside an exact active organization/store
+ 99 | - [x] Controlled replay revalidates relational scope, locks the failed row, clears stale leases, and returns only replayable work to the existing private worker queue
+100 | - [x] Concurrent duplicate replay resolves to one queue reset, one immutable replay ledger record, and one audit event
+101 | - [x] Structural webhook failures plus expired, scope-mismatched, invalid, or undecryptable verification work remain failed and require reviewed remediation or a new verification request
+102 | - [x] Replay operations never expose payloads/secrets or perform courier, webhook, browser, or OTP provider network I/O
+103 | - [x] Merchant owner/admin sessions can list exact-store failed durable work through a typed secret-free browser contract
+104 | - [x] Merchant replay requires valid CSRF proof and delegates to the existing transactional PostgreSQL operations repository
+105 | - [x] Non-admin members cannot see the failed-work navigation or call its browser operations successfully
+106 | - [x] The dashboard assigns one replay key synchronously per visible work item and retains it after failed network requests
+107 | - [x] Browser replay responses map replay, conflict, not-found, and structural-blocked states without exposing internal payloads or credentials
+108 |
+109 | ## Verified baseline
+110 |
+111 | - Formatting check: passed
+112 | - ESLint with zero warnings: passed
+113 | - Twelve migration files ordered/non-empty/non-destructive: passed
+114 | - First migration apply and immediate migration replay: passed
+115 | - Architecture import boundaries: passed
+116 | - Typecheck: 20 of 20 workspaces passed locally
+117 | - Test/build dependency tasks: 31 of 31 passed locally
+118 | - Repository assertion inventory: 132, including the previous 129 remotely verified assertions plus three structured-log redaction/serialization/failure-isolation tests; PostgreSQL-integrated source-branch CI remains pending
+119 | - Production builds: 20 of 20 workspaces passed locally
+120 | - WooCommerce PHP syntax: unchanged; source-branch CI validation remains pending
+121 | - npm high/critical audit threshold: passed after the ESLint toolchain update; five moderate findings remain
+122 | - Worker lease final CI run `29545309665`, job `87776201468`: all gates passed at head `b886fcb57c9a5c9ebae3b23334966468ae1733c3`
+123 | - The verified worker lease change was squash-merged to `main` as `d748bde10920e5a35a7e90f3a00b3b3bf02b96f3`
+124 | - Webhook outbox final CI run `29550097719`, job `87790624617`: audit, formatting, lint, eight migrations, migration replay, architecture, 19 typechecks, 53 assertions, 19 builds, and PHP lint passed at head `fb0a68bac4628a96f82413b5d71092e4f0367536`
+125 | - The verified webhook outbox change was squash-merged to `main` as `752d08776f35345e5ec002d9a9ca720f304df8cc`
+126 | - Verification queue targeted run `29553255223`, job `87800077114`: nine migrations/replay, verification/API typechecks, lease/payload/API tests, builds, and Compose profile validation passed for source commit `5fce01ac98bc8115959276b1ffc636a1702d77a0`
+127 | - Verification queue final CI run `29554260434`, job `87803061854`: audit, formatting, lint, nine migrations, migration replay, architecture, 19 typechecks, 67 assertions, 19 builds, and PHP lint passed at head `7f24a7be544ae60d7a0a15b4a5020b4253e0d192`
+128 | - The verified verification queue change was squash-merged to `main` as `146360ab40efe45bfa7332c1a42b6cac0e88d17b`
+129 | - Restore-integrity source-head CI run `29556041278`, job `87808175661`: audit, formatting, lint, manifest validation, nine migrations, replay, history integrity, clean full-data-hash restore rehearsal, architecture, 19 typechecks, 74 assertions, 19 builds, and PHP lint passed at head `0eb8f09bc5e91c18e7ee5933cedb0e78f618a972`
+130 | - Restore-integrity final CI run `29556722776`, job `87810268816`: the same complete gate set passed at final documentation head `6a7bd57fa4ef0d1f917ca83729691fbd25c0738c`
+131 | - The verified restore-integrity change was squash-merged to `main` as `950d07069643f4e69d7570802091a600011f72df`
+132 | - Runtime-role/tenant-isolation source-head CI run `29560049322`, job `87820368024`: audit, formatting, lint, manifest validation, nine migrations, replay, history integrity, clean full-data-hash restore, runtime-role grant verification, architecture, 19 typechecks, 87 assertions, 19 builds, and PHP lint passed at head `90a50b215b063d87f71725eb6a375cbb887345de`
+133 | - Runtime-role/tenant-isolation final CI run `29574499372`, job `87865756151`: the same complete gate set passed at final documentation head `71588cb024f63c750ffae8212cd5911db08d1ced`
+134 | - The verified runtime-role and tenant-isolation change was squash-merged to `main` as `845749ce9570dc49558073808247e1dc1221669b`
+135 | - Managed-envelope source-head CI run `29579223561`, job `87880659693`: audit, formatting, lint, manifest validation, nine migrations, replay, history integrity, clean restore, runtime-role grants, architecture, 19 typechecks, 96 assertions, 19 builds, and PHP lint passed at head `9dbd61eb84fa6d42958e120d5ce9e1e402bd6688`
+136 | - Managed-envelope final CI run `29580203487`, job `87883814149`: the same complete gate set passed at final documentation head `cae4d6ea9d101afe2e692819886fd149c5cf3b85`
+137 | - The verified provider-neutral managed-envelope boundary was squash-merged to `main` as `ee24aa7faf41e14b04769434c74bc99d7a245de4`
+138 | - Native-shadow source CI run `29610050179`, job `87982336996`: audit, formatting, lint, ten migrations, replay, history integrity, clean restore, runtime-role grants, architecture, 19 typechecks, 107 assertions, 19 builds, and PHP lint passed at head `85cd9e2bafd0fc3605c97a461f01a6a87016b83b`
+139 | - Native-shadow final CI run `29610847711`, job `87984896681`: the same complete gate set passed at final documentation head `dc44c8b7df2bfa84cd8f372f9df0831d3c35beeb`
+140 | - The verified native shadow rollout milestone was squash-merged to `main` as `446d6eb47d042fe4f2834ba31bb3596e57c7ad54`
+141 | - Selected-source shadow pilot final CI run `29629751800`, job `88040964883`: audit, formatting, lint, eleven migrations, replay, history integrity, clean restore, runtime-role grants, architecture, 19 typechecks, 120 assertions, 19 builds, and PHP lint passed at head `57e6b296617549e923fc80ab80b0317f109f5ee8`
+142 | - The verified selected-source shadow pilot foundation was squash-merged through PR #20 to `main` as `c478170c7dadbeafa576a62ae989df682e052d4e`
+143 | - Durable-work dead-letter final CI run `29644234591`, job `88079650134`: audit, formatting, lint, twelve migrations, replay, history integrity, clean restore, runtime-role grants, architecture, 19 typechecks, 126 assertions, 19 builds, and PHP lint passed at head `a1419a2889701bcb6c05b686ac4b1eeb6e9d5d12`
+144 | - The verified durable-work dead-letter operations milestone was squash-merged through PR #22 to `main` as `2d686206456960bf9b3e14571e3bf2c9169d94f9`
+145 | - Browser dead-letter operations final CI run `29645967968`, job `88084164235`: audit, formatting, lint, twelve migrations, replay, history integrity, clean restore, runtime-role grants, architecture, 19 typechecks, 129 assertions, 19 builds, and PHP lint passed at head `2129b51ca7393b3c942f2f5c074cb3990b615b89`
+146 | - The verified browser dead-letter operations milestone was squash-merged through PR #24 to `main` as `27cff21a9fd024e7b8094da3397c79387c83ea02`
+147 | - Canonical documentation links before this slice: zero known broken internal links
+148 | - `tracker.yml` YAML structure remains valid
+149 | - Prohibited source-pattern search: no matches
+150 |
+151 | The repository-local continuation exporter was refreshed after the observability milestone documentation was finalized, so the embedded snapshots match the current branch state.
+152 |
+153 | ## Next production milestone
+154 |
+155 | 1. Select and provision the managed runtime, PostgreSQL, KMS/vault, and observability providers under ADRs 0006–0010, including distinct production migration/runtime identities and a managed-provider point-in-time restore drill.
+156 | 2. Select and provision a reviewed KMS/vault adapter, component service identities, access auditing, and an audited PostgreSQL background re-encryption runner before switching runtime writes from local v1 to managed v2.
+157 | 3. Add an authorized Steadfast test account, live opt-in tests, selector monitoring, and provider-terms approval.
+158 | 4. Select, review, bundle, and configure the production OTP provider adapter/account for the existing verification runner.
+159 | 5. Add distributed rate limiting/cache only when multiple replicas require it.
+160 | 6. Deploy the verified post-persist source hook only to explicitly opted-in pilot stores and validate production observability without using Guard as the effective decision source.
+161 | 7. Run the selected-merchant pilot, collect verified outcomes, calibrate confidence/thresholds, and keep broad automatic blocking disabled until reviewed.
+162 |
+163 | ## External blockers
+164 |
+165 | - Authorized Steadfast merchant/test credentials
+166 | - Steadfast provider-terms and merchant-authorization review
+167 | - Deployment platform, account, primary region, and budget
+168 | - Managed PostgreSQL provider and service tier
+169 | - Managed secret store and KMS/vault provider
+170 | - Observability backend and retention policy
+171 | - OTP provider account and credentials
+172 | - Production account recovery/MFA or managed identity-provider decision
+173 | - Repository visibility correction from currently reported public to expected private
+174 | - Pilot outcome data for false-positive/false-negative calibration
+175 |
+176 | ## Non-negotiable continuation rules
+177 |
+178 | - Do not add a second risk engine.
+179 | - Do not call providers from the risk engine or synchronous checkout path.
+180 | - Do not deliver webhooks or OTP messages synchronously in checkout/API request handling.
+181 | - Do not store/log raw API keys, passwords, OTPs, courier cookies, provider credentials, or webhook signing secrets.
+182 | - Do not use API keys as dashboard user sessions.
+183 | - Require organization/store scope in all merchant repositories, events, and jobs.
+184 | - Add new migrations; never edit applied migrations.
+185 | - Keep PostgreSQL authoritative for durable jobs/outbox through the pilot unless ADR 0008 is superseded.
+186 | - Keep Redis/cache state non-authoritative.
+187 | - Keep unknown/provider failure explicit and policy-controlled.
+188 | - Update `tracker.yml`, documentation, implementation status, decisions, and the continuation bundle with every material milestone.
+189 |
 
 --- .ai-bridge/agent-status.md ---
 1 | # Agent Status
@@ -549,7 +491,7 @@ e787b90 docs: record PostgreSQL restore integrity verification evidence (#12)
 --- .ai-bridge/decisions.md ---
  1 | # Ozzyl Guard — Active Decisions
  2 |
- 3 | Updated: 2026-07-18
+ 3 | Updated: 2026-07-28
  4 |
  5 | ## Accepted decisions
  6 |
@@ -591,58 +533,61 @@ e787b90 docs: record PostgreSQL restore integrity verification evidence (#12)
 42 | 36. Managed envelope v2 uses one random 32-byte data-encryption key per record, AES-256-GCM, a SHA-256 record-context digest, authenticated wrapped-key metadata, and a provider-neutral asynchronous wrap/unwrap contract. Plaintext data keys are zeroed after use; context mismatch, provider outage, malformed metadata, unsupported providers, and missing legacy keys fail closed with structured non-secret codes. Production writes remain on local v1 until a reviewed KMS adapter and service identities are provisioned; legacy dual-read is explicit and temporary.
 43 | 37. The native `multi-store-saas` rollout begins with `off` and deterministic `shadow` modes only. The legacy result remains the effective decision even when Guard recommends block. Successful comparisons are persisted through a tenant-scoped idempotent API that derives Guard values from the referenced assessment; Guard or persistence failure returns a safe code and never changes checkout behavior. Enforcement requires a later reviewed rollout decision backed by pilot outcomes.
 44 | 38. The selected source integration invokes shadow only after an authoritative persisted-order reload and exact organization/store/order revalidation. PostgreSQL rollout state defaults to `off`; only a CSRF-protected active owner/admin can opt in an exact store. Every selected success, timeout, assessment failure, or comparison persistence failure produces tenant-scoped immutable attempt evidence and bounded secret-free reporting. No enforcement mode exists, and production deployment remains limited to explicitly selected pilot stores.
-45 |
-46 | ## Source SaaS conflict resolutions
-47 |
-48 | | Conflict                                                                 | Decision                                                                                   |
-49 | | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
-50 | | Cloudflare D1/SQLite source schema vs standalone relational requirements | Use PostgreSQL as the canonical production database; adapt concepts, not schema directly   |
-51 | | Generic `ozg_` and `og_live_` source key formats                         | Standardize on `ozg_test_` and `ozg_live_`                                                 |
-52 | | Raw API key stored in metadata and login cookie                          | Prohibited; dedicated secure user sessions and hash-only API keys                          |
-53 | | Custom SHA-256 password hashing                                          | Prohibited; use Argon2id or managed authentication                                         |
-54 | | Risk engine performs external fetches                                    | Prohibited; feature assembly/adapters perform I/O before pure scoring                      |
-55 | | No history represented as 100% success/zero risk                         | Replace with unknown risk and low confidence                                               |
-56 | | Blacklist logging stubs                                                  | Do not copy; later evidence-backed reputation subsystem                                    |
-57 | | Hardcoded KV namespace and shell-based session writes                    | Replace with typed encrypted storage service/configuration                                 |
-58 | | Decryption error falls back to plaintext                                 | Fail closed and record a structured reconnect/configuration failure                        |
-59 | | Workflow/per-store errors silently succeed                               | Fail visibly, persist job health, alert, and use dead-letter/reconnect handling            |
-60 | | WooCommerce uppercase levels and `signals[].type`                        | Use lowercase canonical enums and `signals[].code`                                         |
-61 | | Cross-store system store lookup                                          | Replace with explicit authorized datasets and strict tenant boundaries                     |
-62 | | Synchronous merchant webhook delivery                                    | Persist an outbox row transactionally and deliver only from the private event worker       |
-63 | | Plaintext webhook signing secret in worker configuration                 | Persist encrypted endpoint material and decrypt only at the worker boundary                |
-64 | | Synchronous OTP provider delivery from the API                           | Persist an encrypted delivery job transactionally and deliver only from the private worker |
-65 | | Plaintext phone or OTP in durable verification jobs                      | Encrypt with job-bound context and validate against phone HMAC and OTP hash before use     |
-66 |
-67 | ## Approved reuse scope
-68 |
-69 | - npm/Turborepo/TypeScript/Vitest/Playwright conventions
-70 | - Bangladesh phone normalization after tests
-71 | - Steadfast cookie names, endpoint/header shape, login sequence, and status fixtures after redaction/hardening
-72 | - WooCommerce settings/order hook/admin display skeleton
-73 | - API-key hash/display-prefix and usage-event concepts
-74 |
-75 | No product source code was copied during Phase 0.
-76 |
-77 | ## Pending decisions
-78 |
-79 | These require provider selection, provisioning, or separate ADRs before production implementation:
-80 |
-81 | - Managed identity provider or future supersession of the accepted pilot browser-session baseline
-82 | - Specific deployment platform, account, and primary region
-83 | - Specific managed PostgreSQL provider and service tier
-84 | - Specific managed secret store and KMS/vault provider
-85 | - Specific observability backend and retention policy
-86 | - Redis-compatible cache provider when distributed coordination is required
-87 | - Dedicated broker only if measured scale requires superseding ADR 0008
-88 | - Worker scheduler/runtime implementation on the selected deployment platform
-89 | - OTP provider
-90 |
-91 | ## External requirements
-92 |
-93 | No credentials are needed for the documented infrastructure architecture, webhook outbox, or provider-neutral verification runner implementation.
-94 |
-95 | Provider-specific provisioning requires approved accounts, budgets, regions, and access policies. Live Steadfast testing requires an authorized test/merchant account. Commercial scale additionally requires review of provider terms and merchant authorization evidence.
-96 |
+45 | 39. Terminal courier refresh, webhook delivery, and verification delivery work remains authoritative in its existing PostgreSQL row. An active owner/admin may inspect only secret-free failed work in an exact active organization/store and explicitly replay only relationally valid, non-structural, non-expired work. Replay is transactional and idempotent, clears old leases and failure state, appends immutable insert-only replay evidence plus an audit event, and performs no provider or webhook network I/O; automatic replay is not implemented.
+46 | 40. The merchant failed-work browser surface uses only opaque user sessions, exact session-visible organization/store scope, active owner/admin authorization, and repository-level relational reauthorization. Replay additionally requires CSRF proof and a stable per-work-item idempotency key assigned synchronously before network I/O and retained after request failure. Browser contracts are secret-free and delegate all state changes to the existing transactional PostgreSQL durable-work repository.
+47 | 41. `@ozzyl/observability` is the canonical vendor-neutral structured-log boundary. It owns recursive sensitive-field redaction, bounded safe serialization, fixed service/environment/event metadata, and telemetry-failure isolation. Private workers use this helper instead of ad hoc JSON logging; error messages, stacks, payloads, bodies, URLs, credentials, phone values, OTPs, cookies, keys, and tokens are never exported by the helper. Metrics, traces, exporters, and the managed backend remain separate follow-up work under ADR 0010.
+48 |
+49 | ## Source SaaS conflict resolutions
+50 |
+51 | | Conflict                                                                 | Decision                                                                                   |
+52 | | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
+53 | | Cloudflare D1/SQLite source schema vs standalone relational requirements | Use PostgreSQL as the canonical production database; adapt concepts, not schema directly   |
+54 | | Generic `ozg_` and `og_live_` source key formats                         | Standardize on `ozg_test_` and `ozg_live_`                                                 |
+55 | | Raw API key stored in metadata and login cookie                          | Prohibited; dedicated secure user sessions and hash-only API keys                          |
+56 | | Custom SHA-256 password hashing                                          | Prohibited; use Argon2id or managed authentication                                         |
+57 | | Risk engine performs external fetches                                    | Prohibited; feature assembly/adapters perform I/O before pure scoring                      |
+58 | | No history represented as 100% success/zero risk                         | Replace with unknown risk and low confidence                                               |
+59 | | Blacklist logging stubs                                                  | Do not copy; later evidence-backed reputation subsystem                                    |
+60 | | Hardcoded KV namespace and shell-based session writes                    | Replace with typed encrypted storage service/configuration                                 |
+61 | | Decryption error falls back to plaintext                                 | Fail closed and record a structured reconnect/configuration failure                        |
+62 | | Workflow/per-store errors silently succeed                               | Fail visibly, persist job health, alert, and use dead-letter/reconnect handling            |
+63 | | WooCommerce uppercase levels and `signals[].type`                        | Use lowercase canonical enums and `signals[].code`                                         |
+64 | | Cross-store system store lookup                                          | Replace with explicit authorized datasets and strict tenant boundaries                     |
+65 | | Synchronous merchant webhook delivery                                    | Persist an outbox row transactionally and deliver only from the private event worker       |
+66 | | Plaintext webhook signing secret in worker configuration                 | Persist encrypted endpoint material and decrypt only at the worker boundary                |
+67 | | Synchronous OTP provider delivery from the API                           | Persist an encrypted delivery job transactionally and deliver only from the private worker |
+68 | | Plaintext phone or OTP in durable verification jobs                      | Encrypt with job-bound context and validate against phone HMAC and OTP hash before use     |
+69 |
+70 | ## Approved reuse scope
+71 |
+72 | - npm/Turborepo/TypeScript/Vitest/Playwright conventions
+73 | - Bangladesh phone normalization after tests
+74 | - Steadfast cookie names, endpoint/header shape, login sequence, and status fixtures after redaction/hardening
+75 | - WooCommerce settings/order hook/admin display skeleton
+76 | - API-key hash/display-prefix and usage-event concepts
+77 |
+78 | No product source code was copied during Phase 0.
+79 |
+80 | ## Pending decisions
+81 |
+82 | These require provider selection, provisioning, or separate ADRs before production implementation:
+83 |
+84 | - Managed identity provider or future supersession of the accepted pilot browser-session baseline
+85 | - Specific deployment platform, account, and primary region
+86 | - Specific managed PostgreSQL provider and service tier
+87 | - Specific managed secret store and KMS/vault provider
+88 | - Specific observability backend and retention policy
+89 | - Redis-compatible cache provider when distributed coordination is required
+90 | - Dedicated broker only if measured scale requires superseding ADR 0008
+91 | - Worker scheduler/runtime implementation on the selected deployment platform
+92 | - OTP provider
+93 |
+94 | ## External requirements
+95 |
+96 | No credentials are needed for the documented infrastructure architecture, webhook outbox, or provider-neutral verification runner implementation.
+97 |
+98 | Provider-specific provisioning requires approved accounts, budgets, regions, and access policies. Live Steadfast testing requires an authorized test/merchant account. Commercial scale additionally requires review of provider terms and merchant authorization evidence.
+99 |
 
 --- .ai-bridge/open-questions.md ---
 1 | # Open Questions
@@ -653,20 +598,20 @@ e787b90 docs: record PostgreSQL restore integrity verification evidence (#12)
 
 ## Selected Files
 
-Changed files detected: .ai-bridge/current-plan.md, .ai-bridge/decisions.md, .ai-bridge/implementation-status.md, .ai-bridge/pro-context.md, README.md, docs/README.md, tracker.yml
+Changed files detected: .ai-bridge/current-plan.md, .ai-bridge/decisions.md, .ai-bridge/implementation-status.md, .ai-bridge/pro-context.md, AGENTS.md, README.md, docs/operations/operations-observability.md, docs/testing/testing-strategy.md, package-lock.json, package.json, tracker.yml, workers/courier-session-worker/package.json, workers/courier-session-worker/src/runner.ts, workers/courier-sync-worker/package.json, workers/courier-sync-worker/src/runner.ts, workers/event-worker/package.json, workers/event-worker/src/runner.ts, workers/verification-worker/package.json, workers/verification-worker/src/runner.ts, packages/observability/
 Auto-include important root files: yes
 Auto-include changed files: yes
-Explicit selected paths: tracker.yml, AGENTS.md, README.md, docs/README.md, .ai-bridge/current-plan.md, .ai-bridge/implementation-status.md, .ai-bridge/decisions.md, docs/adr/0011-selected-source-shadow-pilot.md, docs/api/api-specification.md, docs/database/database-design.md, docs/integrations/integrations.md, docs/security/security-privacy.md, docs/testing/testing-strategy.md, docs/operations/operations-observability.md, integrations/multi-store-saas/src/index.ts, apps/api/src/postgres-native-shadow-pilot.ts, packages/database/migrations/0011_native_shadow_pilot.sql, packages/shared-types/src/index.ts
+Explicit selected paths: tracker.yml, AGENTS.md, README.md, .ai-bridge/current-plan.md, .ai-bridge/implementation-status.md, .ai-bridge/decisions.md, docs/operations/operations-observability.md, docs/testing/testing-strategy.md, docs/roadmap/implementation-roadmap.md, docs/roadmap/initial-backlog.md, packages/observability/src/index.ts, packages/observability/src/index.test.ts
 Extra globs: none
-Files included below: AGENTS.md, docs/README.md, README.md, .ai-bridge/current-plan.md, .ai-bridge/decisions.md, .ai-bridge/implementation-status.md, apps/api/src/postgres-native-shadow-pilot.ts, docs/adr/0011-selected-source-shadow-pilot.md, docs/api/api-specification.md, docs/database/database-design.md, docs/integrations/integrations.md, docs/operations/operations-observability.md, docs/security/security-privacy.md, docs/testing/testing-strategy.md, integrations/multi-store-saas/src/index.ts, packages/database/migrations/0011_native_shadow_pilot.sql, packages/shared-types/src/index.ts, tracker.yml, eslint.config.js, package.json, turbo.json
+Files included below: AGENTS.md, README.md, .ai-bridge/current-plan.md, .ai-bridge/decisions.md, .ai-bridge/implementation-status.md, docs/operations/operations-observability.md, docs/roadmap/implementation-roadmap.md, docs/roadmap/initial-backlog.md, docs/testing/testing-strategy.md, packages/observability/src/index.test.ts, packages/observability/src/index.ts, tracker.yml, eslint.config.js, package.json, turbo.json, workers/courier-session-worker/package.json, workers/courier-sync-worker/package.json, workers/event-worker/package.json, workers/verification-worker/package.json, package-lock.json, packages/observability/, workers/courier-session-worker/src/runner.ts, workers/courier-sync-worker/src/runner.ts, workers/event-worker/src/runner.ts, workers/verification-worker/src/runner.ts
 
 ## File Contents
 
 ### AGENTS.md
 
-Bytes: 4674
-SHA-256: 3aee61e09717ce9f5dba2363b9d7a00f99bbaa8cf8ca37aadc693401389e1fb2
-Lines: 1-92 of 92
+Bytes: 4786
+SHA-256: 8e8ba548ec61f8ab616df8a9cb21890a3b1ef05d4fd865213e02199cfcc8b247
+Lines: 1-93 of 93
 
 ```markdown
  1 | # AGENTS.md — Ozzyl Guard Development Rules
@@ -726,107 +671,49 @@ Lines: 1-92 of 92
 55 | - `packages/billing`: plans, entitlements, metering, quotas, subscriptions.
 56 | - `packages/shared-types`: canonical request/response and event contracts.
 57 | - `packages/sdk`: supported client SDKs and webhook verification helpers.
-58 | - `apps/api`: public and internal HTTP interfaces.
-59 | - `apps/dashboard`: merchant UI.
-60 | - `apps/admin`: internal operations UI.
-61 | - `workers/*`: asynchronous jobs, provider automation, event delivery.
-62 | - `integrations/*`: WooCommerce, Shopify, custom JS, and native clients.
-63 |
-64 | ## Migration rules
-65 |
-66 | - Migrations are append-only after application.
-67 | - Every migration must have forward verification and rollback notes.
-68 | - Runtime schema and migration schema must be reviewed together.
-69 | - Tenant-scoped uniqueness must include the correct organization/store boundary.
-70 | - Usage/quota changes must be atomic under concurrency.
-71 |
-72 | ## Security review checklist
-73 |
-74 | - No secret appears in logs, errors, screenshots, metadata, cookies, or analytics.
-75 | - Passwords use Argon2id or an approved managed identity provider.
-76 | - API keys use `ozg_test_` or `ozg_live_`, are displayed once, and stored as hashes only.
-77 | - User login sessions are independent from API keys.
-78 | - Courier credentials and sessions use versioned envelope encryption.
-79 | - Webhooks are signed, timestamped, replay-protected, and retried.
-80 | - Optional URLs are protected against SSRF.
-81 | - Tenant scope cannot be omitted by callers.
-82 |
-83 | ## Definition of done
-84 |
-85 | - Acceptance criteria pass.
-86 | - Tests cover important failures and isolation boundaries.
-87 | - No schema, API contract, or scoring duplication was introduced.
-88 | - Sensitive data is redacted.
-89 | - Documentation, `tracker.yml`, and implementation status are updated.
-90 | - `.ai-bridge/pro-context.md` is refreshed when the continuation context materially changes.
-91 | - Migration and rollback effects are understood.
-92 |
-```
-
-### docs/README.md
-
-Bytes: 2656
-SHA-256: ecf8e474158c2bdaea5d2bda3cb384ddb369acf8813d817eaf0c5b765cc54142
-Lines: 1-50 of 50
-
-```markdown
- 1 | # Ozzyl Guard Documentation Index
- 2 |
- 3 | This directory is the long-term product and engineering source of truth. New developers and AI agents should start with `../tracker.yml`, `../AGENTS.md`, and the handoff files under `../.ai-bridge/`, then read the documents relevant to the change.
- 4 |
- 5 | ## Current verified milestone
- 6 |
- 7 | The selected-source post-persist native shadow pilot foundation is merged on `main` as `c478170c7dadbeafa576a62ae989df682e052d4e`. Final feature CI run `29629751800`, job `88040964883`, passed eleven migrations, 19 typechecks, 28 test tasks with 120 assertions, 19 builds, and PHP syntax at tested head `57e6b296617549e923fc80ab80b0317f109f5ee8`. Production rollout remains default `off`; the next operational step is explicit pilot-store deployment and outcome calibration, not enforcement.
- 8 |
- 9 | ## Architecture
-10 |
-11 | - [Project overview](architecture/project-overview.md)
-12 | - [System architecture](architecture/system-architecture.md)
-13 | - [Initial repository audit](architecture/repository-audit.md)
-14 | - [Reuse map from multi-store-saas](architecture/copy-map-from-multi-store-saas.md)
-15 |
-16 | ## Product contracts
-17 |
-18 | - [Public API specification](api/api-specification.md)
-19 | - [Database design](database/database-design.md)
-20 | - [Courier intelligence](courier/courier-intelligence.md)
-21 | - [Canonical risk engine](risk-engine/risk-engine.md)
-22 | - [Integrations](integrations/integrations.md)
-23 |
-24 | ## Security, quality, and operations
-25 |
-26 | - [Security and privacy](security/security-privacy.md)
-27 | - [Testing strategy](testing/testing-strategy.md)
-28 | - [Operations and observability](operations/operations-observability.md)
-29 | - [Development environment](operations/development-environment.md)
-30 | - [Deployment](operations/deployment.md)
-31 |
-32 | ## Delivery and continuation
-33 |
-34 | - [Implementation roadmap](roadmap/implementation-roadmap.md)
-35 | - [Initial backlog](roadmap/initial-backlog.md)
-36 | - [Risk register](roadmap/risk-register.md)
-37 | - [Architecture decision records](adr/README.md)
-38 | - [Current plan](../.ai-bridge/current-plan.md)
-39 | - [Implementation status](../.ai-bridge/implementation-status.md)
-40 | - [Decision log](../.ai-bridge/decisions.md)
-41 | - [Full continuation context](../.ai-bridge/pro-context.md)
-42 |
-43 | ## Documentation rules
-44 |
-45 | - Change code and its contract documentation together.
-46 | - Add a new ADR when changing a system boundary, infrastructure choice, data model strategy, or security model.
-47 | - Never remove historical ADRs or edit already-applied migrations to make a new change appear older.
-48 | - Update `../tracker.yml` and `../.ai-bridge/implementation-status.md` after every material milestone.
-49 | - Keep remaining risks, external dependencies, rollback considerations, and verification evidence explicit.
-50 |
+58 | - `packages/observability`: structured logging, safe redaction, and vendor-neutral telemetry/export boundaries.
+59 | - `apps/api`: public and internal HTTP interfaces.
+60 | - `apps/dashboard`: merchant UI.
+61 | - `apps/admin`: internal operations UI.
+62 | - `workers/*`: asynchronous jobs, provider automation, event delivery.
+63 | - `integrations/*`: WooCommerce, Shopify, custom JS, and native clients.
+64 |
+65 | ## Migration rules
+66 |
+67 | - Migrations are append-only after application.
+68 | - Every migration must have forward verification and rollback notes.
+69 | - Runtime schema and migration schema must be reviewed together.
+70 | - Tenant-scoped uniqueness must include the correct organization/store boundary.
+71 | - Usage/quota changes must be atomic under concurrency.
+72 |
+73 | ## Security review checklist
+74 |
+75 | - No secret appears in logs, errors, screenshots, metadata, cookies, or analytics.
+76 | - Passwords use Argon2id or an approved managed identity provider.
+77 | - API keys use `ozg_test_` or `ozg_live_`, are displayed once, and stored as hashes only.
+78 | - User login sessions are independent from API keys.
+79 | - Courier credentials and sessions use versioned envelope encryption.
+80 | - Webhooks are signed, timestamped, replay-protected, and retried.
+81 | - Optional URLs are protected against SSRF.
+82 | - Tenant scope cannot be omitted by callers.
+83 |
+84 | ## Definition of done
+85 |
+86 | - Acceptance criteria pass.
+87 | - Tests cover important failures and isolation boundaries.
+88 | - No schema, API contract, or scoring duplication was introduced.
+89 | - Sensitive data is redacted.
+90 | - Documentation, `tracker.yml`, and implementation status are updated.
+91 | - `.ai-bridge/pro-context.md` is refreshed when the continuation context materially changes.
+92 | - Migration and rollback effects are understood.
+93 |
 ```
 
 ### README.md
 
-Bytes: 8468
-SHA-256: a3b0faab32c2de3f1b5bc5972f1ae89381df1790cd40d9fe4261df8b294b513f
-Lines: 1-208 of 208
+Bytes: 6975
+SHA-256: a38e72ec81922f2cb4e59107dd9c03248336cfd80b9253f299eed284e877d7ef
+Lines: 1-146 of 146
 
 ```markdown
   1 | # Ozzyl Guard
@@ -855,7 +742,7 @@ Lines: 1-208 of 208
  24 | The repository now contains a runnable MVP foundation:
  25 |
  26 | - TypeScript npm/Turborepo monorepo
- 27 | - PostgreSQL schema, eleven append-only migrations, committed SHA-256 manifest, and non-null history checksums
+ 27 | - PostgreSQL schema, twelve append-only migrations, committed SHA-256 manifest, and non-null history checksums
  28 | - Argon2id user-password utilities and opaque user sessions
  29 | - Hash-only `ozg_test_` / `ozg_live_` API-key lifecycle utilities
  30 | - Organizations, stores, memberships, plans, usage events, audit events, and tenant scope
@@ -865,194 +752,132 @@ Lines: 1-208 of 208
  34 | - Transactional encrypted OTP delivery queue, tenant-scoped verification, and lease-owned private verification worker
  35 | - Provider-neutral OTP adapter boundary with hashing, expiry, attempt/rate limits, payload validation, and no synchronous provider I/O
  36 | - Durable signed webhook outbox/worker with retries, leases, encrypted secrets, and DNS-aware SSRF protection
- 37 | - Merchant dashboard and platform operations admin applications
- 38 | - WooCommerce plugin, Shopify adapter, custom JavaScript/server adapter, and native multi-store adapter
- 39 | - Docker, Docker Compose, migration integrity verification, clean logical restore rehearsal, and least-privilege runtime-role verification in CI
- 40 | - Authoritative organization/store revalidation across API keys, feature assembly, writes, dashboards, and secret-free webhook/verification administration
- 41 | - Provider-neutral managed envelope v2 with per-record data keys, authenticated wrapped-key metadata, structured safe failures, legacy dual-read, and rotation/re-encryption primitives
- 42 | - Native multi-store post-persist shadow integration with authoritative source-order revalidation, explicit store opt-in, immutable success/failure attempt evidence, tenant-scoped pilot reporting, and legacy-authoritative behavior
- 43 |
- 44 | The following require external accounts or production decisions before live use:
- 45 |
- 46 | - Authorized Steadfast merchant/test credentials and provider-terms review
- 47 | - A selected KMS/vault adapter, component service identities, access auditing, runtime wiring, and an audited background rewrite before replacing local v1 encryption in production
- 48 | - OTP provider selection and credentials
- 49 | - Authenticated dashboard/admin live data wiring is complete; production hosting, distributed rate limiting, account recovery, MFA, and managed identity supersession remain
- 50 | - Production queue/cache/observability providers
- 51 | - Production source-platform hook deployment, explicit pilot-store selection, and outcome calibration before any enforcement or broad automatic blocking
- 52 |
- 53 | See [implementation status](.ai-bridge/implementation-status.md) and [risk register](docs/roadmap/risk-register.md).
- 54 |
- 55 | ## Repository structure
- 56 |
- 57 | ```text
- 58 | apps/
- 59 |   api/             Versioned API and PostgreSQL repositories
- 60 |   dashboard/       Merchant operations dashboard
- 61 |   admin/           Platform operations dashboard
- 62 | workers/
- 63 |   courier-session-worker/
- 64 |   courier-sync-worker/
- 65 |   verification-worker/
- 66 |   event-worker/
- 67 | packages/
- 68 |   shared-types/
- 69 |   risk-engine/
- 70 |   courier-adapters/
- 71 |   database/
- 72 |   authentication/
- 73 |   billing/
- 74 |   verification/
- 75 |   sdk/
- 76 | integrations/
- 77 |   woocommerce/
- 78 |   shopify/
- 79 |   custom-js/
- 80 |   multi-store-saas/
- 81 | docs/
- 82 | .ai-bridge/
- 83 | ```
- 84 |
- 85 | ## Core rules
- 86 |
- 87 | 1. There is exactly one canonical risk engine.
- 88 | 2. The risk engine performs no network, database, scraping, queue, or provider calls.
- 89 | 3. Courier providers are isolated behind adapters and asynchronous workers.
- 90 | 4. Merchant data is always organization/store scoped.
- 91 | 5. Unknown customers are not automatically safe.
- 92 | 6. Provider failure does not automatically approve or block a customer.
- 93 | 7. Every assessment returns explainable signals and confidence.
- 94 | 8. Raw passwords, courier credentials, cookies, OTPs, sessions, and API keys are never logged.
- 95 | 9. Applied migrations are immutable; changes require a new migration.
- 96 | 10. Every integration consumes the same canonical API response.
- 97 |
- 98 | ## Local setup
- 99 |
-100 | Prerequisites: Node.js 20+, npm 10+, PostgreSQL 16+, and Playwright browser dependencies when running the session worker.
+ 37 | - Tenant-scoped, owner/admin-authorized dead-letter inspection and idempotent controlled replay for courier, webhook, and verification work, with immutable replay/audit evidence
+ 38 | - Merchant dashboard and platform operations admin applications
+ 39 | - WooCommerce plugin, Shopify adapter, custom JavaScript/server adapter, and native multi-store adapter
+ 40 | - Docker, Docker Compose, migration integrity verification, clean logical restore rehearsal, and least-privilege runtime-role verification in CI
+ 41 | - Authoritative organization/store revalidation across API keys, feature assembly, writes, dashboards, and secret-free webhook/verification administration
+ 42 | - Provider-neutral managed envelope v2 with per-record data keys, authenticated wrapped-key metadata, structured safe failures, legacy dual-read, and rotation/re-encryption primitives
+ 43 | - Native multi-store post-persist shadow integration with authoritative source-order revalidation, explicit store opt-in, immutable success/failure attempt evidence, tenant-scoped pilot reporting, and legacy-authoritative behavior
+ 44 | - Authenticated owner/admin merchant dead-letter page with secret-free inspection and CSRF-protected idempotent replay through the existing PostgreSQL operations repository
+ 45 | - Canonical structured logging/redaction package used by all four private workers; telemetry sink failures cannot break worker execution
+ 46 |
+ 47 | The following require external accounts or production decisions before live use:
+ 48 |
+ 49 | - Authorized Steadfast merchant/test credentials and provider-terms review
+ 50 | - A selected KMS/vault adapter, component service identities, access auditing, runtime wiring, and an audited background rewrite before replacing local v1 encryption in production
+ 51 | - OTP provider selection and credentials
+ 52 | - Authenticated dashboard/admin live data wiring is complete; production hosting, distributed rate limiting, account recovery, MFA, and managed identity supersession remain
+ 53 | - Production queue/cache/observability providers
+ 54 | - Production source-platform hook deployment, explicit pilot-store selection, and outcome calibration before any enforcement or broad automatic blocking
+ 55 |
+ 56 | See [implementation status](.ai-bridge/implementation-status.md) and [risk register](docs/roadmap/risk-register.md).
+ 57 |
+ 58 | ## Repository structure
+ 59 |
+ 60 | ```text
+ 61 | apps/
+ 62 |   api/             Versioned API and PostgreSQL repositories
+ 63 |   dashboard/       Merchant operations dashboard
+ 64 |   admin/           Platform operations dashboard
+ 65 | workers/
+ 66 |   courier-session-worker/
+ 67 |   courier-sync-worker/
+ 68 |   verification-worker/
+ 69 |   event-worker/
+ 70 | packages/
+ 71 |   shared-types/
+ 72 |   risk-engine/
+ 73 |   courier-adapters/
+ 74 |   database/
+ 75 |   authentication/
+ 76 |   billing/
+ 77 |   verification/
+ 78 |   sdk/
+ 79 |   observability/
+ 80 | integrations/
+ 81 |   woocommerce/
+ 82 |   shopify/
+ 83 |   custom-js/
+ 84 |   multi-store-saas/
+ 85 | docs/
+ 86 | .ai-bridge/
+ 87 | ```
+ 88 |
+ 89 | ## Core rules
+ 90 |
+ 91 | 1. There is exactly one canonical risk engine.
+ 92 | 2. The risk engine performs no network, database, scraping, queue, or provider calls.
+ 93 | 3. Courier providers are isolated behind adapters and asynchronous workers.
+ 94 | 4. Merchant data is always organization/store scoped.
+ 95 | 5. Unknown customers are not automatically safe.
+ 96 | 6. Provider failure does not automatically approve or block a customer.
+ 97 | 7. Every assessment returns explainable signals and confidence.
+ 98 | 8. Raw passwords, courier credentials, cookies, OTPs, sessions, and API keys are never logged.
+ 99 | 9. Applied migrations are immutable; changes require a new migration.
+100 | 10. Every integration consumes the same canonical API response.
 101 |
-102 | ```bash
-103 | npm install
-104 | npm run db:check
-105 | npm run db:migrate
-106 | npm run db:integrity
-107 | # After creating a separate non-owner PostgreSQL login outside the app:
-108 | DATABASE_RUNTIME_ROLE=ozzyl_guard_runtime npm run db:runtime-grants
-109 | npm run bootstrap -w @ozzyl/api
-110 | npm run dev:api
-111 | ```
-112 |
-113 | Use `config/environment.example` as the variable checklist. Put real values only in an ignored local environment file or secret manager.
-114 |
-115 | The bootstrap command creates the first owner, organization, store, and API key. The raw key is printed once; the database receives only its hash and display prefix.
+102 | ## Local setup
+103 |
+104 | Prerequisites: Node.js 20.19+, npm 10+, PostgreSQL 16+, and Playwright browser dependencies when running the session worker.
+105 |
+106 | ```bash
+107 | npm install
+108 | npm run db:check
+109 | npm run db:migrate
+110 | npm run db:integrity
+111 | # After creating a separate non-owner PostgreSQL login outside the app:
+112 | DATABASE_RUNTIME_ROLE=ozzyl_guard_runtime npm run db:runtime-grants
+113 | npm run bootstrap -w @ozzyl/api
+114 | npm run dev:api
+115 | ```
 116 |
-117 | Merchant dashboard:
+117 | Use `config/environment.example` as the variable checklist. Put real values only in an ignored local environment file or secret manager.
 118 |
-119 | ```bash
-120 | npm run dev:dashboard
-121 | ```
+119 | The bootstrap command creates the first owner, organization, store, and API key. The raw key is printed once; the database receives only its hash and display prefix.
+120 |
+121 | Dead-letter operations are documented in the [durable work runbook](docs/operations/durable-work-dead-letter-runbook.md). They require a trusted environment, `DATABASE_URL`, an active owner/admin user ID, and exact organization/store scope.
 122 |
-123 | Platform admin:
+123 | Merchant dashboard:
 124 |
 125 | ```bash
-126 | npm run dev -w @ozzyl/admin
+126 | npm run dev:dashboard
 127 | ```
 128 |
-129 | Private workers:
+129 | Platform admin:
 130 |
 131 | ```bash
-132 | npm run start -w @ozzyl/courier-session-worker
-133 | npm run start -w @ozzyl/courier-sync-worker
-134 | npm run start -w @ozzyl/event-worker
-135 | # Requires a reviewed provider module/account in addition to the standard secrets:
-136 | npm run start -w @ozzyl/verification-worker
-137 | ```
-138 |
-139 | ## Docker Compose
-140 |
-141 | Provide the required variables in your shell or an ignored Compose environment file, then run:
-142 |
-143 | ```bash
-144 | docker compose up --build
-145 | ```
+132 | npm run dev -w @ozzyl/admin
+133 | ```
+134 |
+135 | Private workers:
+136 |
+137 | ```bash
+138 | npm run start -w @ozzyl/courier-session-worker
+139 | npm run start -w @ozzyl/courier-sync-worker
+140 | npm run start -w @ozzyl/event-worker
+141 | # Requires a reviewed provider module/account in addition to the standard secrets:
+142 | npm run start -w @ozzyl/verification-worker
+143 | ```
+144 |
+145 | ## Docker Compose
 146 |
-147 | The Compose topology separates PostgreSQL, migrations, API, Playwright session, courier sync, and event workers. The verification worker is opt-in with `docker compose --profile verification up --build` because a reviewed provider module/account is not bundled. Dashboard/admin static hosting is deployment-platform dependent.
-148 |
-149 | ## Verification commands
-150 |
-151 | ```bash
-152 | npm run format:check
-153 | npm run lint
-154 | npm run db:check
-155 | npm run db:integrity
-156 | # Requires migration-owner credentials and an externally created non-owner runtime role:
-157 | DATABASE_RUNTIME_ROLE=ozzyl_guard_runtime npm run db:runtime-grants
-158 | # Requires a separately created empty target database:
-159 | RESTORE_DATABASE_URL=postgresql://... RESTORE_REHEARSAL_VERIFY_DATA_HASHES=true npm run db:restore-rehearsal
-160 | npm run typecheck
-161 | npm run test
-162 | npm run build
-163 | npm audit --audit-level=high
-164 | php -l integrations/woocommerce/ozzyl-guard.php
-165 | ```
-166 |
-167 | ## Canonical assessment response
-168 |
-169 | ```json
-170 | {
-171 |   "success": true,
-172 |   "assessment_id": "ras_123",
-173 |   "risk_score": 72,
-174 |   "risk_level": "high",
-175 |   "decision": "verify",
-176 |   "confidence": 0.82,
-177 |   "signals": [
-178 |     {
-179 |       "code": "low_delivery_rate",
-180 |       "score": 30,
-181 |       "description": "Customer delivery rate is 28%"
-182 |     }
-183 |   ],
-184 |   "courier_summary": {
-185 |     "total": 12,
-186 |     "delivered": 5,
-187 |     "returned": 4,
-188 |     "cancelled_before_shipping": 3
-189 |   }
-190 | }
-191 | ```
-192 |
-193 | ## Documentation
-194 |
-195 | - [System architecture](docs/architecture/system-architecture.md)
-196 | - [Public API specification](docs/api/api-specification.md)
-197 | - [Database design](docs/database/database-design.md)
-198 | - [Courier intelligence](docs/courier/courier-intelligence.md)
-199 | - [Risk engine](docs/risk-engine/risk-engine.md)
-200 | - [Integrations](docs/integrations/integrations.md)
-201 | - [Security and privacy](docs/security/security-privacy.md)
-202 | - [Testing strategy](docs/testing/testing-strategy.md)
-203 | - [Operations](docs/operations/operations-observability.md)
-204 | - [Roadmap](docs/roadmap/implementation-roadmap.md)
-205 | - [ADRs](docs/adr/README.md)
-206 |
-207 | Before changing code, read `AGENTS.md`, the relevant domain documents, `.ai-bridge/current-plan.md`, `.ai-bridge/implementation-status.md`, and accepted ADRs.
-208 |
 ```
 
 ### .ai-bridge/current-plan.md
 
-Bytes: 17090
-SHA-256: b367c83a81cc23786b9aeee13ab210b854b4abdfd756ebdad2d7dc534c41ff0f
-Lines: 1-170 of 170
+Bytes: 19970
+SHA-256: 0045cb462cb69d4be5f1075df4f00fd9c2017f717dfca99c74231847ac31c888
+Lines: 1-189 of 189
 
 ```markdown
   1 | # Ozzyl Guard — Current Implementation Plan
   2 |
-  3 | Updated: 2026-07-18
+  3 | Updated: 2026-07-28
   4 |
   5 | ## Current state
   6 |
-  7 | A runnable standalone MVP foundation and eleven production-hardening slices are complete:
+  7 | A runnable standalone MVP foundation and fourteen production-hardening slices are complete:
   8 |
   9 | 1. dashboard/admin browser authentication with live PostgreSQL data and tenant revalidation;
  10 | 2. accepted provider-neutral infrastructure ADRs for deployment, managed PostgreSQL, durable work/cache, KMS envelope encryption, and observability;
@@ -1064,170 +889,189 @@ Lines: 1-170 of 170
  16 | 8. authoritative tenant-scope revalidation across API keys, feature assembly, assessment/outcome writes, dashboards and administration, plus an explicit least-privilege PostgreSQL runtime-role grant boundary;
  17 | 9. provider-neutral managed envelope v2 with random per-record data keys, authenticated wrapped-key metadata, structured fail-closed errors, explicit legacy dual-read, and key-version re-encryption primitives;
  18 | 10. native multi-store `off`/deterministic-shadow rollout controls with legacy-authoritative behavior and tenant-scoped immutable comparison evidence;
- 19 | 11. selected-source post-persist shadow integration with authoritative source-order reload, explicit store opt-in, immutable sampled-attempt evidence, and tenant-scoped pilot reporting.
- 20 |
- 21 | Concrete provider selection and provisioning remain external production work.
- 22 |
- 23 | ## Completed
- 24 |
- 25 | - [x] Repository, canonical GitHub remote, documentation, ADR, status, risk register, tracker, and continuation setup
- 26 | - [x] npm workspaces, Turborepo, TypeScript, formatting, linting, tests, and CI
- 27 | - [x] Canonical shared API/error/event contracts
- 28 | - [x] PostgreSQL/Drizzle schema and eleven append-only migrations
- 29 | - [x] Users, organizations, stores, memberships, plans, audit events, hash-only API keys, and explicit platform role
- 30 | - [x] Argon2 password utilities and opaque hash-only browser sessions with CSRF protection
- 31 | - [x] Transaction-safe PostgreSQL usage reservation and durable idempotency
- 32 | - [x] Pure versioned risk engine with confidence, explainable signals, and unknown/degraded behavior
- 33 | - [x] Courier adapter contract and Steadfast normalized adapter
- 34 | - [x] Playwright Steadfast session driver with structured errors
- 35 | - [x] Shared AES-GCM envelope-encryption package for local/self-hosted sensitive-record boundaries
- 36 | - [x] Runnable PostgreSQL courier session and observation workers
- 37 | - [x] Versioned risk assessment, assessment-read, outcome, courier-refresh, and OTP routes
- 38 | - [x] PostgreSQL assessment/signal/outcome persistence and tenant-scoped reads
- 39 | - [x] OTP hashing, expiry, rate/attempt limits, tenant binding, and transactional encrypted delivery jobs
- 40 | - [x] API OTP send returns queued work without provider network I/O
- 41 | - [x] Tenant-scoped PostgreSQL OTP verification with verified/failed webhook outbox events
- 42 | - [x] WooCommerce, Shopify, custom-server, and multi-store adapters using one API contract
- 43 | - [x] Authenticated merchant dashboard with live tenant-scoped PostgreSQL data
- 44 | - [x] Explicit-role platform admin with live global operations data
- 45 | - [x] Browser/API security tests plus PostgreSQL session and tenant-isolation integration tests
- 46 | - [x] Docker/API/Playwright worker/courier/event/verification separation and PostgreSQL CI service
- 47 | - [x] Architecture dependency-boundary CI guard
- 48 | - [x] Provider-neutral production deployment topology ADR
- 49 | - [x] Managed PostgreSQL production baseline ADR
- 50 | - [x] PostgreSQL-first durable work and optional cache boundary ADR
- 51 | - [x] Managed secrets and KMS envelope-encryption ADR
- 52 | - [x] Vendor-neutral OpenTelemetry observability ADR
- 53 | - [x] Concurrent duplicate usage reservations serialize into one charge and replay responses
- 54 | - [x] Concurrent usage reservations cannot exceed the plan limit
- 55 | - [x] Concurrent assessment saves return the single persisted assessment without orphan signal writes
- 56 | - [x] Concurrent outcome writes resolve as one insert and one replay
- 57 | - [x] Operation idempotency records remain isolated by organization and store
- 58 | - [x] Competing courier workers atomically claim different due jobs with `SKIP LOCKED`
- 59 | - [x] Fresh courier leases cannot be stolen and expired leases can be reclaimed
- 60 | - [x] Expired or previous courier owners cannot complete or fail jobs
- 61 | - [x] Retryable courier failures clear ownership and return jobs to the durable queue with backoff
- 62 | - [x] Courier job organization/store/provider scope is derived from account relationships, not trusted payload fields
- 63 | - [x] Assessments and outcomes enqueue matching webhook deliveries inside the same PostgreSQL transaction
- 64 | - [x] Webhook deliveries persist explicit organization/store scope and canonical event payloads without raw phone values
- 65 | - [x] Competing event workers claim distinct webhook deliveries with `SKIP LOCKED`
- 66 | - [x] Webhook leases reject expired owners, recover stale work, schedule retryable failures, and fail exhausted work closed
- 67 | - [x] Event delivery decrypts endpoint signing secrets only inside the worker with endpoint-bound authenticated context
- 68 | - [x] Webhook destinations require HTTPS, reject credentials/local/non-public addresses, and validate DNS results before fetch
- 69 | - [x] Competing verification workers atomically claim different due jobs with `SKIP LOCKED`
- 70 | - [x] Verification leases reject expired owners, recover stale work, clear retry ownership, and fail exhausted work closed
- 71 | - [x] Verification scope mismatch fails both the job and authoritative session closed
- 72 | - [x] Job-bound encrypted payloads validate tenant, purpose, phone HMAC, and OTP hash before provider I/O
- 73 | - [x] CI applies the ordered migration set twice to prove migration replay is a clean no-op
- 74 | - [x] Every migration file is bound to a committed SHA-256 manifest and a non-null database history checksum
- 75 | - [x] Unknown, gapped, missing-checksum, or checksum-mismatched migration history fails closed
- 76 | - [x] CI restores a real `pg_dump` into a clean distinct PostgreSQL database and compares schema, full table data hashes, sequence state, migration history, and replay
- 77 | - [x] API-key resolution, feature assembly, assessment writes, and outcome writes fail closed when organization/store ownership does not match an active tenant
- 78 | - [x] Merchant dashboard, platform admin, webhook administration, and verification administration repositories reauthorize relational scope and isolate tenant data
- 79 | - [x] Webhook and verification administration records omit encrypted signing secrets, OTP hashes, encrypted job payloads, and raw phone material
- 80 | - [x] `db:runtime-grants` applies an explicit current-table DML policy from the migration owner to an externally created non-owner runtime login
- 81 | - [x] CI proves the runtime role cannot read migration history, delete rows, create/alter tables, create schema objects, own the database/schema/relations, or inherit elevated role privileges
- 82 | - [x] Managed envelope v2 creates and zeroes a random AES-256 data key per record and wraps it only through a provider-neutral KMS/vault contract
- 83 | - [x] Ciphertext authenticates the context digest and wrapped-key metadata, rejects context substitution before unwrap, and returns structured non-secret failure codes
- 84 | - [x] Explicit legacy-key dual-read and managed key-version re-encryption preserve access during controlled rotation without plaintext fallback
- 85 | - [x] Native multi-store rollout supports only `off` and deterministic `shadow`; the legacy result stays authoritative even when Guard recommends block
- 86 | - [x] Selected shadow assessments and persistence failures return safe codes without changing checkout behavior
- 87 | - [x] Tenant-scoped comparison API derives Guard values from the referenced assessment and stores immutable idempotent evidence without phone or secret material
- 88 | - [x] Selected source integration reloads the durably persisted order and verifies organization/store/order scope before any Guard call
- 89 | - [x] Native shadow rollout defaults to `off` and requires CSRF-protected owner/admin store opt-in
- 90 | - [x] Sampled success, assessment failure, timeout, and comparison persistence failure are stored as immutable tenant-scoped attempt evidence
- 91 | - [x] Merchant and platform views expose secret-free sampled-order, failure, disagreement-rate, and bounded score-delta reporting
- 92 | - [x] Source retries use stable idempotency keys while the legacy decision remains effective through every failure path
- 93 |
- 94 | ## Verified baseline
- 95 |
- 96 | - Formatting check: passed
- 97 | - ESLint with zero warnings: passed
- 98 | - Eleven migration files ordered/non-empty/non-destructive: passed
- 99 | - First migration apply and immediate migration replay: passed
-100 | - Architecture import boundaries: passed
-101 | - Typecheck: 19 of 19 workspaces passed
-102 | - Test/build dependency tasks: 28 of 28 passed
-103 | - Repository assertions: 120 passed, including five courier lease tests, five webhook lease tests, five verification lease tests, three verification-payload validation tests, seven migration-integrity tests, seven tenant/admin isolation tests, six runtime-role policy/permission tests, eleven envelope-encryption tests, twenty-eight native-shadow adapter/API/SDK/browser/PostgreSQL tests, transactional queues/outbox coverage, and DNS SSRF tests
-104 | - Production builds: 19 of 19 workspaces passed
-105 | - WooCommerce PHP syntax: passed
-106 | - npm high/critical audit threshold: passed; four moderate development-tooling advisories remain
-107 | - Worker lease final CI run `29545309665`, job `87776201468`: all gates passed at head `b886fcb57c9a5c9ebae3b23334966468ae1733c3`
-108 | - The verified worker lease change was squash-merged to `main` as `d748bde10920e5a35a7e90f3a00b3b3bf02b96f3`
-109 | - Webhook outbox final CI run `29550097719`, job `87790624617`: audit, formatting, lint, eight migrations, migration replay, architecture, 19 typechecks, 53 assertions, 19 builds, and PHP lint passed at head `fb0a68bac4628a96f82413b5d71092e4f0367536`
-110 | - The verified webhook outbox change was squash-merged to `main` as `752d08776f35345e5ec002d9a9ca720f304df8cc`
-111 | - Verification queue targeted run `29553255223`, job `87800077114`: nine migrations/replay, verification/API typechecks, lease/payload/API tests, builds, and Compose profile validation passed for source commit `5fce01ac98bc8115959276b1ffc636a1702d77a0`
-112 | - Verification queue final CI run `29554260434`, job `87803061854`: audit, formatting, lint, nine migrations, migration replay, architecture, 19 typechecks, 67 assertions, 19 builds, and PHP lint passed at head `7f24a7be544ae60d7a0a15b4a5020b4253e0d192`
-113 | - The verified verification queue change was squash-merged to `main` as `146360ab40efe45bfa7332c1a42b6cac0e88d17b`
-114 | - Restore-integrity source-head CI run `29556041278`, job `87808175661`: audit, formatting, lint, manifest validation, nine migrations, replay, history integrity, clean full-data-hash restore rehearsal, architecture, 19 typechecks, 74 assertions, 19 builds, and PHP lint passed at head `0eb8f09bc5e91c18e7ee5933cedb0e78f618a972`
-115 | - Restore-integrity final CI run `29556722776`, job `87810268816`: the same complete gate set passed at final documentation head `6a7bd57fa4ef0d1f917ca83729691fbd25c0738c`
-116 | - The verified restore-integrity change was squash-merged to `main` as `950d07069643f4e69d7570802091a600011f72df`
-117 | - Runtime-role/tenant-isolation source-head CI run `29560049322`, job `87820368024`: audit, formatting, lint, manifest validation, nine migrations, replay, history integrity, clean full-data-hash restore, runtime-role grant verification, architecture, 19 typechecks, 87 assertions, 19 builds, and PHP lint passed at head `90a50b215b063d87f71725eb6a375cbb887345de`
-118 | - Runtime-role/tenant-isolation final CI run `29574499372`, job `87865756151`: the same complete gate set passed at final documentation head `71588cb024f63c750ffae8212cd5911db08d1ced`
-119 | - The verified runtime-role and tenant-isolation change was squash-merged to `main` as `845749ce9570dc49558073808247e1dc1221669b`
-120 | - Managed-envelope source-head CI run `29579223561`, job `87880659693`: audit, formatting, lint, manifest validation, nine migrations, replay, history integrity, clean restore, runtime-role grants, architecture, 19 typechecks, 96 assertions, 19 builds, and PHP lint passed at head `9dbd61eb84fa6d42958e120d5ce9e1e402bd6688`
-121 | - Managed-envelope final CI run `29580203487`, job `87883814149`: the same complete gate set passed at final documentation head `cae4d6ea9d101afe2e692819886fd149c5cf3b85`
-122 | - The verified provider-neutral managed-envelope boundary was squash-merged to `main` as `ee24aa7faf41e14b04769434c74bc99d7a245de4`
-123 | - Native-shadow source CI run `29610050179`, job `87982336996`: audit, formatting, lint, ten migrations, replay, history integrity, clean restore, runtime-role grants, architecture, 19 typechecks, 107 assertions, 19 builds, and PHP lint passed at head `85cd9e2bafd0fc3605c97a461f01a6a87016b83b`
-124 | - Native-shadow final CI run `29610847711`, job `87984896681`: the same complete gate set passed at final documentation head `dc44c8b7df2bfa84cd8f372f9df0831d3c35beeb`
-125 | - The verified native shadow rollout milestone was squash-merged to `main` as `446d6eb47d042fe4f2834ba31bb3596e57c7ad54`
-126 | - Selected-source shadow pilot final CI run `29629751800`, job `88040964883`: audit, formatting, lint, eleven migrations, replay, history integrity, clean restore, runtime-role grants, architecture, 19 typechecks, 120 assertions, 19 builds, and PHP lint passed at head `57e6b296617549e923fc80ab80b0317f109f5ee8`
-127 | - The verified selected-source shadow pilot foundation was squash-merged through PR #20 to `main` as `c478170c7dadbeafa576a62ae989df682e052d4e`
-128 | - Canonical documentation links before this slice: zero known broken internal links
-129 | - `tracker.yml` YAML structure remains valid
-130 | - Prohibited source-pattern search: no matches
-131 |
-132 | The repository-local continuation exporter was run after the feature merge from canonical `main`; `.ai-bridge/pro-context.md`, tracker, plan, status, decisions, and milestone documentation are refreshed.
-133 |
-134 | ## Next production milestone
-135 |
-136 | 1. Select and provision the managed runtime, PostgreSQL, KMS/vault, and observability providers under ADRs 0006–0010, including distinct production migration/runtime identities and a managed-provider point-in-time restore drill.
-137 | 2. Select and provision a reviewed KMS/vault adapter, component service identities, access auditing, and an audited PostgreSQL background re-encryption runner before switching runtime writes from local v1 to managed v2.
-138 | 3. Add an authorized Steadfast test account, live opt-in tests, selector monitoring, and provider-terms approval.
-139 | 4. Select, review, bundle, and configure the production OTP provider adapter/account for the existing verification runner.
-140 | 5. Add distributed rate limiting/cache only when multiple replicas require it.
-141 | 6. Deploy the verified post-persist source hook only to explicitly opted-in pilot stores and validate production observability without using Guard as the effective decision source.
-142 | 7. Run the selected-merchant pilot, collect verified outcomes, calibrate confidence/thresholds, and keep broad automatic blocking disabled until reviewed.
-143 |
-144 | ## External blockers
-145 |
-146 | - Authorized Steadfast merchant/test credentials
-147 | - Steadfast provider-terms and merchant-authorization review
-148 | - Deployment platform, account, primary region, and budget
-149 | - Managed PostgreSQL provider and service tier
-150 | - Managed secret store and KMS/vault provider
-151 | - Observability backend and retention policy
-152 | - OTP provider account and credentials
-153 | - Production account recovery/MFA or managed identity-provider decision
-154 | - Repository visibility correction from currently reported public to expected private
-155 | - Pilot outcome data for false-positive/false-negative calibration
-156 |
-157 | ## Non-negotiable continuation rules
-158 |
-159 | - Do not add a second risk engine.
-160 | - Do not call providers from the risk engine or synchronous checkout path.
-161 | - Do not deliver webhooks or OTP messages synchronously in checkout/API request handling.
-162 | - Do not store/log raw API keys, passwords, OTPs, courier cookies, provider credentials, or webhook signing secrets.
-163 | - Do not use API keys as dashboard user sessions.
-164 | - Require organization/store scope in all merchant repositories, events, and jobs.
-165 | - Add new migrations; never edit applied migrations.
-166 | - Keep PostgreSQL authoritative for durable jobs/outbox through the pilot unless ADR 0008 is superseded.
-167 | - Keep Redis/cache state non-authoritative.
-168 | - Keep unknown/provider failure explicit and policy-controlled.
-169 | - Update `tracker.yml`, documentation, implementation status, decisions, and the continuation bundle with every material milestone.
-170 |
+ 19 | 11. selected-source post-persist shadow integration with authoritative source-order reload, explicit store opt-in, immutable sampled-attempt evidence, and tenant-scoped pilot reporting;
+ 20 | 12. tenant-scoped durable-work dead-letter inspection and explicit idempotent replay with lease reset, structural failure guards, immutable evidence, and audit records;
+ 21 | 13. authenticated merchant browser dead-letter operations with exact owner/admin store scope, secret-free listing, CSRF-protected replay, and synchronous stable replay keys;
+ 22 | 14. a canonical vendor-neutral structured logging/redaction package integrated into all four private workers, with bounded serialization and telemetry-failure isolation.
+ 23 |
+ 24 | Concrete provider selection and provisioning remain external production work.
+ 25 |
+ 26 | ## Completed
+ 27 |
+ 28 | - [x] Repository, canonical GitHub remote, documentation, ADR, status, risk register, tracker, and continuation setup
+ 29 | - [x] npm workspaces, Turborepo, TypeScript, formatting, linting, tests, and CI
+ 30 | - [x] Canonical shared API/error/event contracts
+ 31 | - [x] PostgreSQL/Drizzle schema and twelve append-only migrations
+ 32 | - [x] Users, organizations, stores, memberships, plans, audit events, hash-only API keys, and explicit platform role
+ 33 | - [x] Argon2 password utilities and opaque hash-only browser sessions with CSRF protection
+ 34 | - [x] Transaction-safe PostgreSQL usage reservation and durable idempotency
+ 35 | - [x] Pure versioned risk engine with confidence, explainable signals, and unknown/degraded behavior
+ 36 | - [x] Courier adapter contract and Steadfast normalized adapter
+ 37 | - [x] Playwright Steadfast session driver with structured errors
+ 38 | - [x] Shared AES-GCM envelope-encryption package for local/self-hosted sensitive-record boundaries
+ 39 | - [x] Runnable PostgreSQL courier session and observation workers
+ 40 | - [x] Versioned risk assessment, assessment-read, outcome, courier-refresh, and OTP routes
+ 41 | - [x] PostgreSQL assessment/signal/outcome persistence and tenant-scoped reads
+ 42 | - [x] OTP hashing, expiry, rate/attempt limits, tenant binding, and transactional encrypted delivery jobs
+ 43 | - [x] API OTP send returns queued work without provider network I/O
+ 44 | - [x] Tenant-scoped PostgreSQL OTP verification with verified/failed webhook outbox events
+ 45 | - [x] WooCommerce, Shopify, custom-server, and multi-store adapters using one API contract
+ 46 | - [x] Authenticated merchant dashboard with live tenant-scoped PostgreSQL data
+ 47 | - [x] Explicit-role platform admin with live global operations data
+ 48 | - [x] Browser/API security tests plus PostgreSQL session and tenant-isolation integration tests
+ 49 | - [x] Docker/API/Playwright worker/courier/event/verification separation and PostgreSQL CI service
+ 50 | - [x] Architecture dependency-boundary CI guard
+ 51 | - [x] Provider-neutral production deployment topology ADR
+ 52 | - [x] Managed PostgreSQL production baseline ADR
+ 53 | - [x] PostgreSQL-first durable work and optional cache boundary ADR
+ 54 | - [x] Managed secrets and KMS envelope-encryption ADR
+ 55 | - [x] Vendor-neutral OpenTelemetry observability ADR
+ 56 | - [x] Canonical structured logging/redaction helper with fixed metadata, bounded serialization, and fail-open telemetry delivery
+ 57 | - [x] Courier-session, courier-sync, event, and verification worker startup/error logging migrated to the shared boundary
+ 58 | - [x] Concurrent duplicate usage reservations serialize into one charge and replay responses
+ 59 | - [x] Concurrent usage reservations cannot exceed the plan limit
+ 60 | - [x] Concurrent assessment saves return the single persisted assessment without orphan signal writes
+ 61 | - [x] Concurrent outcome writes resolve as one insert and one replay
+ 62 | - [x] Operation idempotency records remain isolated by organization and store
+ 63 | - [x] Competing courier workers atomically claim different due jobs with `SKIP LOCKED`
+ 64 | - [x] Fresh courier leases cannot be stolen and expired leases can be reclaimed
+ 65 | - [x] Expired or previous courier owners cannot complete or fail jobs
+ 66 | - [x] Retryable courier failures clear ownership and return jobs to the durable queue with backoff
+ 67 | - [x] Courier job organization/store/provider scope is derived from account relationships, not trusted payload fields
+ 68 | - [x] Assessments and outcomes enqueue matching webhook deliveries inside the same PostgreSQL transaction
+ 69 | - [x] Webhook deliveries persist explicit organization/store scope and canonical event payloads without raw phone values
+ 70 | - [x] Competing event workers claim distinct webhook deliveries with `SKIP LOCKED`
+ 71 | - [x] Webhook leases reject expired owners, recover stale work, schedule retryable failures, and fail exhausted work closed
+ 72 | - [x] Event delivery decrypts endpoint signing secrets only inside the worker with endpoint-bound authenticated context
+ 73 | - [x] Webhook destinations require HTTPS, reject credentials/local/non-public addresses, and validate DNS results before fetch
+ 74 | - [x] Competing verification workers atomically claim different due jobs with `SKIP LOCKED`
+ 75 | - [x] Verification leases reject expired owners, recover stale work, clear retry ownership, and fail exhausted work closed
+ 76 | - [x] Verification scope mismatch fails both the job and authoritative session closed
+ 77 | - [x] Job-bound encrypted payloads validate tenant, purpose, phone HMAC, and OTP hash before provider I/O
+ 78 | - [x] CI applies the ordered migration set twice to prove migration replay is a clean no-op
+ 79 | - [x] Every migration file is bound to a committed SHA-256 manifest and a non-null database history checksum
+ 80 | - [x] Unknown, gapped, missing-checksum, or checksum-mismatched migration history fails closed
+ 81 | - [x] CI restores a real `pg_dump` into a clean distinct PostgreSQL database and compares schema, full table data hashes, sequence state, migration history, and replay
+ 82 | - [x] API-key resolution, feature assembly, assessment writes, and outcome writes fail closed when organization/store ownership does not match an active tenant
+ 83 | - [x] Merchant dashboard, platform admin, webhook administration, and verification administration repositories reauthorize relational scope and isolate tenant data
+ 84 | - [x] Webhook and verification administration records omit encrypted signing secrets, OTP hashes, encrypted job payloads, and raw phone material
+ 85 | - [x] `db:runtime-grants` applies an explicit current-table DML policy from the migration owner to an externally created non-owner runtime login
+ 86 | - [x] CI proves the runtime role cannot read migration history, delete rows, create/alter tables, create schema objects, own the database/schema/relations, or inherit elevated role privileges
+ 87 | - [x] Managed envelope v2 creates and zeroes a random AES-256 data key per record and wraps it only through a provider-neutral KMS/vault contract
+ 88 | - [x] Ciphertext authenticates the context digest and wrapped-key metadata, rejects context substitution before unwrap, and returns structured non-secret failure codes
+ 89 | - [x] Explicit legacy-key dual-read and managed key-version re-encryption preserve access during controlled rotation without plaintext fallback
+ 90 | - [x] Native multi-store rollout supports only `off` and deterministic `shadow`; the legacy result stays authoritative even when Guard recommends block
+ 91 | - [x] Selected shadow assessments and persistence failures return safe codes without changing checkout behavior
+ 92 | - [x] Tenant-scoped comparison API derives Guard values from the referenced assessment and stores immutable idempotent evidence without phone or secret material
+ 93 | - [x] Selected source integration reloads the durably persisted order and verifies organization/store/order scope before any Guard call
+ 94 | - [x] Native shadow rollout defaults to `off` and requires CSRF-protected owner/admin store opt-in
+ 95 | - [x] Sampled success, assessment failure, timeout, and comparison persistence failure are stored as immutable tenant-scoped attempt evidence
+ 96 | - [x] Merchant and platform views expose secret-free sampled-order, failure, disagreement-rate, and bounded score-delta reporting
+ 97 | - [x] Source retries use stable idempotency keys while the legacy decision remains effective through every failure path
+ 98 | - [x] Owner/admin operators can inspect secret-free failed courier, webhook, and verification work only inside an exact active organization/store
+ 99 | - [x] Controlled replay revalidates relational scope, locks the failed row, clears stale leases, and returns only replayable work to the existing private worker queue
+100 | - [x] Concurrent duplicate replay resolves to one queue reset, one immutable replay ledger record, and one audit event
+101 | - [x] Structural webhook failures plus expired, scope-mismatched, invalid, or undecryptable verification work remain failed and require reviewed remediation or a new verification request
+102 | - [x] Replay operations never expose payloads/secrets or perform courier, webhook, browser, or OTP provider network I/O
+103 | - [x] Merchant owner/admin sessions can list exact-store failed durable work through a typed secret-free browser contract
+104 | - [x] Merchant replay requires valid CSRF proof and delegates to the existing transactional PostgreSQL operations repository
+105 | - [x] Non-admin members cannot see the failed-work navigation or call its browser operations successfully
+106 | - [x] The dashboard assigns one replay key synchronously per visible work item and retains it after failed network requests
+107 | - [x] Browser replay responses map replay, conflict, not-found, and structural-blocked states without exposing internal payloads or credentials
+108 |
+109 | ## Verified baseline
+110 |
+111 | - Formatting check: passed
+112 | - ESLint with zero warnings: passed
+113 | - Twelve migration files ordered/non-empty/non-destructive: passed
+114 | - First migration apply and immediate migration replay: passed
+115 | - Architecture import boundaries: passed
+116 | - Typecheck: 20 of 20 workspaces passed locally
+117 | - Test/build dependency tasks: 31 of 31 passed locally
+118 | - Repository assertion inventory: 132, including the previous 129 remotely verified assertions plus three structured-log redaction/serialization/failure-isolation tests; PostgreSQL-integrated source-branch CI remains pending
+119 | - Production builds: 20 of 20 workspaces passed locally
+120 | - WooCommerce PHP syntax: unchanged; source-branch CI validation remains pending
+121 | - npm high/critical audit threshold: passed after the ESLint toolchain update; five moderate findings remain
+122 | - Worker lease final CI run `29545309665`, job `87776201468`: all gates passed at head `b886fcb57c9a5c9ebae3b23334966468ae1733c3`
+123 | - The verified worker lease change was squash-merged to `main` as `d748bde10920e5a35a7e90f3a00b3b3bf02b96f3`
+124 | - Webhook outbox final CI run `29550097719`, job `87790624617`: audit, formatting, lint, eight migrations, migration replay, architecture, 19 typechecks, 53 assertions, 19 builds, and PHP lint passed at head `fb0a68bac4628a96f82413b5d71092e4f0367536`
+125 | - The verified webhook outbox change was squash-merged to `main` as `752d08776f35345e5ec002d9a9ca720f304df8cc`
+126 | - Verification queue targeted run `29553255223`, job `87800077114`: nine migrations/replay, verification/API typechecks, lease/payload/API tests, builds, and Compose profile validation passed for source commit `5fce01ac98bc8115959276b1ffc636a1702d77a0`
+127 | - Verification queue final CI run `29554260434`, job `87803061854`: audit, formatting, lint, nine migrations, migration replay, architecture, 19 typechecks, 67 assertions, 19 builds, and PHP lint passed at head `7f24a7be544ae60d7a0a15b4a5020b4253e0d192`
+128 | - The verified verification queue change was squash-merged to `main` as `146360ab40efe45bfa7332c1a42b6cac0e88d17b`
+129 | - Restore-integrity source-head CI run `29556041278`, job `87808175661`: audit, formatting, lint, manifest validation, nine migrations, replay, history integrity, clean full-data-hash restore rehearsal, architecture, 19 typechecks, 74 assertions, 19 builds, and PHP lint passed at head `0eb8f09bc5e91c18e7ee5933cedb0e78f618a972`
+130 | - Restore-integrity final CI run `29556722776`, job `87810268816`: the same complete gate set passed at final documentation head `6a7bd57fa4ef0d1f917ca83729691fbd25c0738c`
+131 | - The verified restore-integrity change was squash-merged to `main` as `950d07069643f4e69d7570802091a600011f72df`
+132 | - Runtime-role/tenant-isolation source-head CI run `29560049322`, job `87820368024`: audit, formatting, lint, manifest validation, nine migrations, replay, history integrity, clean full-data-hash restore, runtime-role grant verification, architecture, 19 typechecks, 87 assertions, 19 builds, and PHP lint passed at head `90a50b215b063d87f71725eb6a375cbb887345de`
+133 | - Runtime-role/tenant-isolation final CI run `29574499372`, job `87865756151`: the same complete gate set passed at final documentation head `71588cb024f63c750ffae8212cd5911db08d1ced`
+134 | - The verified runtime-role and tenant-isolation change was squash-merged to `main` as `845749ce9570dc49558073808247e1dc1221669b`
+135 | - Managed-envelope source-head CI run `29579223561`, job `87880659693`: audit, formatting, lint, manifest validation, nine migrations, replay, history integrity, clean restore, runtime-role grants, architecture, 19 typechecks, 96 assertions, 19 builds, and PHP lint passed at head `9dbd61eb84fa6d42958e120d5ce9e1e402bd6688`
+136 | - Managed-envelope final CI run `29580203487`, job `87883814149`: the same complete gate set passed at final documentation head `cae4d6ea9d101afe2e692819886fd149c5cf3b85`
+137 | - The verified provider-neutral managed-envelope boundary was squash-merged to `main` as `ee24aa7faf41e14b04769434c74bc99d7a245de4`
+138 | - Native-shadow source CI run `29610050179`, job `87982336996`: audit, formatting, lint, ten migrations, replay, history integrity, clean restore, runtime-role grants, architecture, 19 typechecks, 107 assertions, 19 builds, and PHP lint passed at head `85cd9e2bafd0fc3605c97a461f01a6a87016b83b`
+139 | - Native-shadow final CI run `29610847711`, job `87984896681`: the same complete gate set passed at final documentation head `dc44c8b7df2bfa84cd8f372f9df0831d3c35beeb`
+140 | - The verified native shadow rollout milestone was squash-merged to `main` as `446d6eb47d042fe4f2834ba31bb3596e57c7ad54`
+141 | - Selected-source shadow pilot final CI run `29629751800`, job `88040964883`: audit, formatting, lint, eleven migrations, replay, history integrity, clean restore, runtime-role grants, architecture, 19 typechecks, 120 assertions, 19 builds, and PHP lint passed at head `57e6b296617549e923fc80ab80b0317f109f5ee8`
+142 | - The verified selected-source shadow pilot foundation was squash-merged through PR #20 to `main` as `c478170c7dadbeafa576a62ae989df682e052d4e`
+143 | - Durable-work dead-letter final CI run `29644234591`, job `88079650134`: audit, formatting, lint, twelve migrations, replay, history integrity, clean restore, runtime-role grants, architecture, 19 typechecks, 126 assertions, 19 builds, and PHP lint passed at head `a1419a2889701bcb6c05b686ac4b1eeb6e9d5d12`
+144 | - The verified durable-work dead-letter operations milestone was squash-merged through PR #22 to `main` as `2d686206456960bf9b3e14571e3bf2c9169d94f9`
+145 | - Browser dead-letter operations final CI run `29645967968`, job `88084164235`: audit, formatting, lint, twelve migrations, replay, history integrity, clean restore, runtime-role grants, architecture, 19 typechecks, 129 assertions, 19 builds, and PHP lint passed at head `2129b51ca7393b3c942f2f5c074cb3990b615b89`
+146 | - The verified browser dead-letter operations milestone was squash-merged through PR #24 to `main` as `27cff21a9fd024e7b8094da3397c79387c83ea02`
+147 | - Canonical documentation links before this slice: zero known broken internal links
+148 | - `tracker.yml` YAML structure remains valid
+149 | - Prohibited source-pattern search: no matches
+150 |
+151 | The repository-local continuation exporter was refreshed after the observability milestone documentation was finalized, so the embedded snapshots match the current branch state.
+152 |
+153 | ## Next production milestone
+154 |
+155 | 1. Select and provision the managed runtime, PostgreSQL, KMS/vault, and observability providers under ADRs 0006–0010, including distinct production migration/runtime identities and a managed-provider point-in-time restore drill.
+156 | 2. Select and provision a reviewed KMS/vault adapter, component service identities, access auditing, and an audited PostgreSQL background re-encryption runner before switching runtime writes from local v1 to managed v2.
+157 | 3. Add an authorized Steadfast test account, live opt-in tests, selector monitoring, and provider-terms approval.
+158 | 4. Select, review, bundle, and configure the production OTP provider adapter/account for the existing verification runner.
+159 | 5. Add distributed rate limiting/cache only when multiple replicas require it.
+160 | 6. Deploy the verified post-persist source hook only to explicitly opted-in pilot stores and validate production observability without using Guard as the effective decision source.
+161 | 7. Run the selected-merchant pilot, collect verified outcomes, calibrate confidence/thresholds, and keep broad automatic blocking disabled until reviewed.
+162 |
+163 | ## External blockers
+164 |
+165 | - Authorized Steadfast merchant/test credentials
+166 | - Steadfast provider-terms and merchant-authorization review
+167 | - Deployment platform, account, primary region, and budget
+168 | - Managed PostgreSQL provider and service tier
+169 | - Managed secret store and KMS/vault provider
+170 | - Observability backend and retention policy
+171 | - OTP provider account and credentials
+172 | - Production account recovery/MFA or managed identity-provider decision
+173 | - Repository visibility correction from currently reported public to expected private
+174 | - Pilot outcome data for false-positive/false-negative calibration
+175 |
+176 | ## Non-negotiable continuation rules
+177 |
+178 | - Do not add a second risk engine.
+179 | - Do not call providers from the risk engine or synchronous checkout path.
+180 | - Do not deliver webhooks or OTP messages synchronously in checkout/API request handling.
+181 | - Do not store/log raw API keys, passwords, OTPs, courier cookies, provider credentials, or webhook signing secrets.
+182 | - Do not use API keys as dashboard user sessions.
+183 | - Require organization/store scope in all merchant repositories, events, and jobs.
+184 | - Add new migrations; never edit applied migrations.
+185 | - Keep PostgreSQL authoritative for durable jobs/outbox through the pilot unless ADR 0008 is superseded.
+186 | - Keep Redis/cache state non-authoritative.
+187 | - Keep unknown/provider failure explicit and policy-controlled.
+188 | - Update `tracker.yml`, documentation, implementation status, decisions, and the continuation bundle with every material milestone.
+189 |
 ```
 
 ### .ai-bridge/decisions.md
 
-Bytes: 12729
-SHA-256: 0789bd989aa50318e084ef34b71055604522a881251999997f111cae2cbcf3fc
-Lines: 1-96 of 96
+Bytes: 14310
+SHA-256: be29db2e25f8a37365cc4fae22d4ec7301056c2ad7978fb0b96564a41409ab07
+Lines: 1-99 of 99
 
 ```markdown
  1 | # Ozzyl Guard — Active Decisions
  2 |
- 3 | Updated: 2026-07-18
+ 3 | Updated: 2026-07-28
  4 |
  5 | ## Accepted decisions
  6 |
@@ -1269,70 +1113,73 @@ Lines: 1-96 of 96
 42 | 36. Managed envelope v2 uses one random 32-byte data-encryption key per record, AES-256-GCM, a SHA-256 record-context digest, authenticated wrapped-key metadata, and a provider-neutral asynchronous wrap/unwrap contract. Plaintext data keys are zeroed after use; context mismatch, provider outage, malformed metadata, unsupported providers, and missing legacy keys fail closed with structured non-secret codes. Production writes remain on local v1 until a reviewed KMS adapter and service identities are provisioned; legacy dual-read is explicit and temporary.
 43 | 37. The native `multi-store-saas` rollout begins with `off` and deterministic `shadow` modes only. The legacy result remains the effective decision even when Guard recommends block. Successful comparisons are persisted through a tenant-scoped idempotent API that derives Guard values from the referenced assessment; Guard or persistence failure returns a safe code and never changes checkout behavior. Enforcement requires a later reviewed rollout decision backed by pilot outcomes.
 44 | 38. The selected source integration invokes shadow only after an authoritative persisted-order reload and exact organization/store/order revalidation. PostgreSQL rollout state defaults to `off`; only a CSRF-protected active owner/admin can opt in an exact store. Every selected success, timeout, assessment failure, or comparison persistence failure produces tenant-scoped immutable attempt evidence and bounded secret-free reporting. No enforcement mode exists, and production deployment remains limited to explicitly selected pilot stores.
-45 |
-46 | ## Source SaaS conflict resolutions
-47 |
-48 | | Conflict                                                                 | Decision                                                                                   |
-49 | | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
-50 | | Cloudflare D1/SQLite source schema vs standalone relational requirements | Use PostgreSQL as the canonical production database; adapt concepts, not schema directly   |
-51 | | Generic `ozg_` and `og_live_` source key formats                         | Standardize on `ozg_test_` and `ozg_live_`                                                 |
-52 | | Raw API key stored in metadata and login cookie                          | Prohibited; dedicated secure user sessions and hash-only API keys                          |
-53 | | Custom SHA-256 password hashing                                          | Prohibited; use Argon2id or managed authentication                                         |
-54 | | Risk engine performs external fetches                                    | Prohibited; feature assembly/adapters perform I/O before pure scoring                      |
-55 | | No history represented as 100% success/zero risk                         | Replace with unknown risk and low confidence                                               |
-56 | | Blacklist logging stubs                                                  | Do not copy; later evidence-backed reputation subsystem                                    |
-57 | | Hardcoded KV namespace and shell-based session writes                    | Replace with typed encrypted storage service/configuration                                 |
-58 | | Decryption error falls back to plaintext                                 | Fail closed and record a structured reconnect/configuration failure                        |
-59 | | Workflow/per-store errors silently succeed                               | Fail visibly, persist job health, alert, and use dead-letter/reconnect handling            |
-60 | | WooCommerce uppercase levels and `signals[].type`                        | Use lowercase canonical enums and `signals[].code`                                         |
-61 | | Cross-store system store lookup                                          | Replace with explicit authorized datasets and strict tenant boundaries                     |
-62 | | Synchronous merchant webhook delivery                                    | Persist an outbox row transactionally and deliver only from the private event worker       |
-63 | | Plaintext webhook signing secret in worker configuration                 | Persist encrypted endpoint material and decrypt only at the worker boundary                |
-64 | | Synchronous OTP provider delivery from the API                           | Persist an encrypted delivery job transactionally and deliver only from the private worker |
-65 | | Plaintext phone or OTP in durable verification jobs                      | Encrypt with job-bound context and validate against phone HMAC and OTP hash before use     |
-66 |
-67 | ## Approved reuse scope
-68 |
-69 | - npm/Turborepo/TypeScript/Vitest/Playwright conventions
-70 | - Bangladesh phone normalization after tests
-71 | - Steadfast cookie names, endpoint/header shape, login sequence, and status fixtures after redaction/hardening
-72 | - WooCommerce settings/order hook/admin display skeleton
-73 | - API-key hash/display-prefix and usage-event concepts
-74 |
-75 | No product source code was copied during Phase 0.
-76 |
-77 | ## Pending decisions
-78 |
-79 | These require provider selection, provisioning, or separate ADRs before production implementation:
-80 |
-81 | - Managed identity provider or future supersession of the accepted pilot browser-session baseline
-82 | - Specific deployment platform, account, and primary region
-83 | - Specific managed PostgreSQL provider and service tier
-84 | - Specific managed secret store and KMS/vault provider
-85 | - Specific observability backend and retention policy
-86 | - Redis-compatible cache provider when distributed coordination is required
-87 | - Dedicated broker only if measured scale requires superseding ADR 0008
-88 | - Worker scheduler/runtime implementation on the selected deployment platform
-89 | - OTP provider
-90 |
-91 | ## External requirements
-92 |
-93 | No credentials are needed for the documented infrastructure architecture, webhook outbox, or provider-neutral verification runner implementation.
-94 |
-95 | Provider-specific provisioning requires approved accounts, budgets, regions, and access policies. Live Steadfast testing requires an authorized test/merchant account. Commercial scale additionally requires review of provider terms and merchant authorization evidence.
-96 |
+45 | 39. Terminal courier refresh, webhook delivery, and verification delivery work remains authoritative in its existing PostgreSQL row. An active owner/admin may inspect only secret-free failed work in an exact active organization/store and explicitly replay only relationally valid, non-structural, non-expired work. Replay is transactional and idempotent, clears old leases and failure state, appends immutable insert-only replay evidence plus an audit event, and performs no provider or webhook network I/O; automatic replay is not implemented.
+46 | 40. The merchant failed-work browser surface uses only opaque user sessions, exact session-visible organization/store scope, active owner/admin authorization, and repository-level relational reauthorization. Replay additionally requires CSRF proof and a stable per-work-item idempotency key assigned synchronously before network I/O and retained after request failure. Browser contracts are secret-free and delegate all state changes to the existing transactional PostgreSQL durable-work repository.
+47 | 41. `@ozzyl/observability` is the canonical vendor-neutral structured-log boundary. It owns recursive sensitive-field redaction, bounded safe serialization, fixed service/environment/event metadata, and telemetry-failure isolation. Private workers use this helper instead of ad hoc JSON logging; error messages, stacks, payloads, bodies, URLs, credentials, phone values, OTPs, cookies, keys, and tokens are never exported by the helper. Metrics, traces, exporters, and the managed backend remain separate follow-up work under ADR 0010.
+48 |
+49 | ## Source SaaS conflict resolutions
+50 |
+51 | | Conflict                                                                 | Decision                                                                                   |
+52 | | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
+53 | | Cloudflare D1/SQLite source schema vs standalone relational requirements | Use PostgreSQL as the canonical production database; adapt concepts, not schema directly   |
+54 | | Generic `ozg_` and `og_live_` source key formats                         | Standardize on `ozg_test_` and `ozg_live_`                                                 |
+55 | | Raw API key stored in metadata and login cookie                          | Prohibited; dedicated secure user sessions and hash-only API keys                          |
+56 | | Custom SHA-256 password hashing                                          | Prohibited; use Argon2id or managed authentication                                         |
+57 | | Risk engine performs external fetches                                    | Prohibited; feature assembly/adapters perform I/O before pure scoring                      |
+58 | | No history represented as 100% success/zero risk                         | Replace with unknown risk and low confidence                                               |
+59 | | Blacklist logging stubs                                                  | Do not copy; later evidence-backed reputation subsystem                                    |
+60 | | Hardcoded KV namespace and shell-based session writes                    | Replace with typed encrypted storage service/configuration                                 |
+61 | | Decryption error falls back to plaintext                                 | Fail closed and record a structured reconnect/configuration failure                        |
+62 | | Workflow/per-store errors silently succeed                               | Fail visibly, persist job health, alert, and use dead-letter/reconnect handling            |
+63 | | WooCommerce uppercase levels and `signals[].type`                        | Use lowercase canonical enums and `signals[].code`                                         |
+64 | | Cross-store system store lookup                                          | Replace with explicit authorized datasets and strict tenant boundaries                     |
+65 | | Synchronous merchant webhook delivery                                    | Persist an outbox row transactionally and deliver only from the private event worker       |
+66 | | Plaintext webhook signing secret in worker configuration                 | Persist encrypted endpoint material and decrypt only at the worker boundary                |
+67 | | Synchronous OTP provider delivery from the API                           | Persist an encrypted delivery job transactionally and deliver only from the private worker |
+68 | | Plaintext phone or OTP in durable verification jobs                      | Encrypt with job-bound context and validate against phone HMAC and OTP hash before use     |
+69 |
+70 | ## Approved reuse scope
+71 |
+72 | - npm/Turborepo/TypeScript/Vitest/Playwright conventions
+73 | - Bangladesh phone normalization after tests
+74 | - Steadfast cookie names, endpoint/header shape, login sequence, and status fixtures after redaction/hardening
+75 | - WooCommerce settings/order hook/admin display skeleton
+76 | - API-key hash/display-prefix and usage-event concepts
+77 |
+78 | No product source code was copied during Phase 0.
+79 |
+80 | ## Pending decisions
+81 |
+82 | These require provider selection, provisioning, or separate ADRs before production implementation:
+83 |
+84 | - Managed identity provider or future supersession of the accepted pilot browser-session baseline
+85 | - Specific deployment platform, account, and primary region
+86 | - Specific managed PostgreSQL provider and service tier
+87 | - Specific managed secret store and KMS/vault provider
+88 | - Specific observability backend and retention policy
+89 | - Redis-compatible cache provider when distributed coordination is required
+90 | - Dedicated broker only if measured scale requires superseding ADR 0008
+91 | - Worker scheduler/runtime implementation on the selected deployment platform
+92 | - OTP provider
+93 |
+94 | ## External requirements
+95 |
+96 | No credentials are needed for the documented infrastructure architecture, webhook outbox, or provider-neutral verification runner implementation.
+97 |
+98 | Provider-specific provisioning requires approved accounts, budgets, regions, and access policies. Live Steadfast testing requires an authorized test/merchant account. Commercial scale additionally requires review of provider terms and merchant authorization evidence.
+99 |
 ```
 
 ### .ai-bridge/implementation-status.md
 
-Bytes: 19747
-SHA-256: 2f218e44f4a610fe2e7b5b74da410dfdd947854125301075e89d8a219dae57ee
-Lines: 1-159 of 159
+Bytes: 23576
+SHA-256: 5e2f37cf648ad9512db67ac3ca6f88743f3dbf092888e8c19c9cf2d0efa5b932
+Lines: 1-170 of 170
 
 ```markdown
   1 | # Ozzyl Guard — Implementation Status
   2 |
-  3 | Updated: 2026-07-18
+  3 | Updated: 2026-07-28
   4 |
   5 | ## Status legend
   6 |
@@ -1345,10 +1192,10 @@ Lines: 1-159 of 159
  13 |
  14 | | Area                       | Status   | Notes                                                                                                                                                 |
  15 | | -------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
- 16 | | Documentation and ADRs     | done     | Architecture, API, database, courier, risk, integrations, security, testing, operations, roadmap, and eleven accepted ADRs                            |
- 17 | | Continuation documentation | done     | Tracker, plan, status, decisions, and repository-local generated `pro-context.md` refreshed after the feature merge                                   |
+ 16 | | Documentation and ADRs     | done     | Architecture, API, database, courier, risk, integrations, security, testing, operations, roadmap, and twelve accepted ADRs                            |
+ 17 | | Continuation documentation | done     | Tracker, plan, status, decisions, and generated `pro-context.md` are refreshed for the observability milestone                                        |
  18 | | Git repository             | baseline | `main` is canonical; GitHub currently reports public visibility although the expected policy is private                                               |
- 19 | | Monorepo/tooling           | done     | 19 npm workspaces with Turborepo, TypeScript, ESLint, Prettier, Vitest, Vite, and tsup                                                                |
+ 19 | | Monorepo/tooling           | done     | 20 npm workspaces with Turborepo, TypeScript, ESLint, Prettier, Vitest, Vite, and tsup                                                                |
  20 | | CI                         | done     | PostgreSQL 16 manifest/apply/replay/history integrity, clean restore, runtime-role grants, audit, format, lint, architecture, tests, builds, PHP lint |
  21 | | Container foundation       | done     | Separate API, migration, PostgreSQL, Playwright session, courier-sync, event, and opt-in verification-worker services                                 |
  22 | | Production platform ADRs   | baseline | ADRs 0006–0010 accept provider-neutral topology, database, durable work/cache, KMS, and observability boundaries                                      |
@@ -1356,1679 +1203,157 @@ Lines: 1-159 of 159
  24 |
  25 | ## Product implementation
  26 |
- 27 | | Area                             | Status   | Notes                                                                                                                                                                         |
- 28 | | -------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
- 29 | | Shared contracts                 | done     | Canonical request/response/error/outcome/event schemas                                                                                                                        |
- 30 | | Database/migrations              | done     | Eleven append-only migrations bound to a committed SHA-256 manifest; history checksums are non-null and fail closed on mismatch                                               |
- 31 | | Password/session primitives      | done     | Argon2id and opaque hashed session token utilities                                                                                                                            |
- 32 | | Shared envelope encryption       | done     | Local v1 plus provider-neutral managed v2 with per-record DEKs, authenticated wrapped-key metadata, legacy dual-read, rotation, and safe errors                               |
- 33 | | Organizations/stores/memberships | done     | Canonical relational schema and bootstrap transaction                                                                                                                         |
- 34 | | API keys/usage/plans             | done     | Atomic PostgreSQL quota reservation has duplicate-request and plan-limit concurrency coverage                                                                                 |
- 35 | | Courier adapter interface        | done     | Typed provider contract and structured errors                                                                                                                                 |
- 36 | | Steadfast adapter                | baseline | Normalized internal endpoint adapter with bounded timeout/session errors; requires authorized live validation                                                                 |
- 37 | | Steadfast session worker         | baseline | Playwright login, selector/CAPTCHA/2FA errors, shared encryption boundary, health state, runnable PostgreSQL polling                                                          |
- 38 | | Courier observation worker/cache | done     | Lease-owned atomic claims, expired-owner rejection, stale recovery, retry/final failure, relational scope, observation persistence                                            |
- 39 | | Durable webhook outbox           | done     | Assessment/outcome transaction emission, scoped event payloads, lease-owned event worker, retries, stale recovery, encrypted secret access                                    |
- 40 | | Durable work architecture        | baseline | PostgreSQL ownership/lease pattern proven for courier, webhook, and verification work; broader operational dead-letter tooling remains                                        |
- 41 | | Backup/restore integrity         | done     | Clean logical `pg_dump`/`pg_restore` rehearsal compares schema, full table data hashes, sequences, migration history, and replay in CI                                        |
- 42 | | Risk engine                      | done     | One pure deterministic engine, versioned policy, confidence, signals, unknown/degraded handling                                                                               |
- 43 | | Public API                       | done     | Assessment create/read, outcomes, courier refresh, OTP send/verify, plus scoped native-shadow rollout, comparison, and attempt contracts                                      |
- 44 | | PostgreSQL API repositories      | done     | API keys, feature assembly, assessment/outcome writes and replays enforce active relational organization/store ownership                                                      |
- 45 | | Outcome feedback                 | done     | API, WooCommerce, Shopify, custom, and native adapter paths                                                                                                                   |
- 46 | | Webhook delivery                 | done     | HMAC signing, timestamps, retry policy, HTTPS/credential checks, literal-IP and DNS-result SSRF validation, redirect rejection                                                |
- 47 | | WooCommerce                      | baseline | Encrypted service key, async assessment, canonical parsing, safe failure behavior, admin panel, manual recheck, outcomes                                                      |
- 48 | | Shopify                          | baseline | Signed webhook helper, assessment/action mapping, outcome submission; app OAuth/webhook registration not implemented                                                          |
- 49 | | Custom server SDK                | done     | Server-only integration and checkout action mapping                                                                                                                           |
- 50 | | Native multi-store integration   | done     | Concrete post-persist source reload, default-off store opt-in, stable retries, legacy-authoritative advisory failures, immutable attempt evidence, and scoped pilot reporting |
- 51 | | OTP verification                 | baseline | Transactional encrypted queue, tenant-scoped verifier, lease-owned private runner, retries, and failure events done; provider account remains                                 |
- 52 | | Merchant dashboard               | done     | Authenticated scoped operations plus CSRF-protected owner/admin native-shadow rollout control and secret-free pilot reporting                                                 |
- 53 | | Platform admin                   | done     | Explicit active `platform_admin` role is rechecked on every repository call before global operations data                                                                     |
- 54 | | Tenant administration            | done     | Owner/admin-scoped webhook and verification repositories reauthorize active org/store scope and return secret-free records                                                    |
- 55 | | PostgreSQL runtime role          | done     | Explicit current-table DML grants, no migration history/DELETE/DDL/ownership/elevated membership; managed-provider provisioning remains                                       |
- 56 | | Managed encryption               | baseline | Provider-neutral v2 primitive is implemented; selected KMS adapter, service identities, audits, runtime wiring, and rewrite job remain                                        |
- 57 | | Observability                    | baseline | OpenTelemetry-compatible boundary accepted; shared helpers, backend, dashboards, alerts, and redaction tests remain                                                           |
- 58 | | Shared reputation                | deferred | Cross-merchant reputation/dispute system requires legal/privacy review and pilot evidence                                                                                     |
- 59 |
- 60 | ## Migrations
- 61 |
- 62 | 1. `0001_foundation.sql`
- 63 | 2. `0002_courier.sql`
- 64 | 3. `0003_risk.sql`
- 65 | 4. `0004_verification_events.sql`
- 66 | 5. `0005_durable_operations.sql`
- 67 | 6. `0006_browser_access.sql`
- 68 | 7. `0007_worker_leases.sql`
- 69 | 8. `0008_webhook_delivery_leases.sql`
- 70 | 9. `0009_verification_delivery_queue.sql`
- 71 | 10. `0010_native_shadow_comparisons.sql`
- 72 | 11. `0011_native_shadow_pilot.sql`
- 73 |
- 74 | Applied migrations must remain immutable.
- 75 |
- 76 | ## Verification evidence
- 77 |
- 78 | - `npm run format:check`: passed
- 79 | - `npm run lint`: passed with zero warnings
- 80 | - `npm run db:check`: eleven migrations and committed SHA-256 manifest validated
- 81 | - initial migration apply: passed with non-null history checksums
- 82 | - immediate migration replay: passed as a clean no-op
- 83 | - `npm run db:integrity`: complete contiguous history and checksums passed
- 84 | - `npm run db:restore-rehearsal`: clean logical restore, schema fingerprint, full table data hashes, sequence state, history, and replay passed
- 85 | - `npm run check:architecture`: passed
- 86 | - `npm run typecheck`: 19/19 workspaces passed
- 87 | - `npm run test`: 28/28 Turbo tasks passed; repository contains 120 assertions
- 88 | - `npm run build`: 19/19 workspace builds passed
- 89 | - `npm audit --audit-level=high`: passed; four moderate development-tooling findings remain
- 90 | - Webhook outbox final run `29550097719`, job `87790624617`: all gates passed at head `fb0a68bac4628a96f82413b5d71092e4f0367536`
- 91 | - Five real-PostgreSQL webhook tests cover competing claims, fresh-lease protection, expired-owner recovery, retry cleanup, exhausted stale failure, and scope mismatch rejection
- 92 | - Transactional API coverage proves one delivery per matching store/organization endpoint and persisted winner, with no raw phone in event payloads
- 93 | - Event-worker tests cover HMAC delivery, unsafe URL rejection, DNS-to-private rejection, retryable DNS failures, and redirect-disabled fetch behavior
- 94 | - Eleven envelope tests cover local compatibility, per-record DEK zeroization, opaque wrapping, pre-unwrap context rejection, metadata tampering, KMS outage, unsafe wrappers, malformed envelopes, legacy dual-read, missing legacy keys, and key-version re-encryption
- 95 | - The verified webhook outbox change was squash-merged to `main` as `752d08776f35345e5ec002d9a9ca720f304df8cc`
- 96 | - Verification queue targeted run `29553255223`, job `87800077114`: migration 0009/replay, verification/API typechecks, five PostgreSQL lease tests, three encrypted-payload tests, API tests/builds, and Compose profile validation passed for source commit `5fce01ac98bc8115959276b1ffc636a1702d77a0`
- 97 | - Verification queue final run `29554260434`, job `87803061854`: audit, format, lint, nine migrations/replay, architecture, 19 workspace typechecks, 28 test tasks with 67 assertions, 19 builds, and PHP lint passed at head `7f24a7be544ae60d7a0a15b4a5020b4253e0d192`
- 98 | - The verified verification queue change was squash-merged to `main` as `146360ab40efe45bfa7332c1a42b6cac0e88d17b`
- 99 | - Restore-integrity source run `29556041278`, job `87808175661`: manifest, apply/replay, history integrity, clean full-data-hash restore, architecture, 19 typechecks, 28 test tasks with 74 assertions, 19 builds, and PHP lint passed at head `0eb8f09bc5e91c18e7ee5933cedb0e78f618a972`
-100 | - Restore-integrity final run `29556722776`, job `87810268816`: the same complete gate set passed at final documentation head `6a7bd57fa4ef0d1f917ca83729691fbd25c0738c`
-101 | - The verified restore-integrity change was squash-merged to `main` as `950d07069643f4e69d7570802091a600011f72df`
-102 | - Runtime-role/tenant-isolation source run `29560049322`, job `87820368024`: manifest/apply/replay/history, clean restore, runtime-role grants, architecture, 19 typechecks, 28 test tasks with 87 assertions, 19 builds, audit, formatting, lint, and PHP syntax passed at head `90a50b215b063d87f71725eb6a375cbb887345de`
-103 | - Runtime-role/tenant-isolation final run `29574499372`, job `87865756151`: the complete gate set passed at final documentation head `71588cb024f63c750ffae8212cd5911db08d1ced`
-104 | - The verified runtime-role and tenant-isolation change was squash-merged to `main` as `845749ce9570dc49558073808247e1dc1221669b`
-105 | - Managed-envelope source run `29579223561`, job `87880659693`: all repository gates passed with 19 typechecks, 28 test tasks and 96 assertions, 19 builds, and PHP lint at head `9dbd61eb84fa6d42958e120d5ce9e1e402bd6688`
-106 | - Managed-envelope final run `29580203487`, job `87883814149`: the complete gate set passed at final documentation head `cae4d6ea9d101afe2e692819886fd149c5cf3b85`
-107 | - The verified provider-neutral managed-envelope boundary was squash-merged to `main` as `ee24aa7faf41e14b04769434c74bc99d7a245de4`
-108 | - Five native-adapter tests cover off mode, deterministic cohort selection, legacy-authoritative Guard disagreement, Guard failure, and comparison-persistence failure
-109 | - Three API tests cover comparison idempotency, dedicated scope enforcement, and cross-store assessment rejection
-110 | - Three PostgreSQL tests cover concurrent duplicate writes, immutable idempotency conflict rejection, and relational assessment/store isolation
-111 | - Native-shadow source run `29610050179`, job `87982336996`: all repository gates passed with ten migrations, 19 typechecks, 28 test tasks and 107 assertions, 19 builds, and PHP lint at head `85cd9e2bafd0fc3605c97a461f01a6a87016b83b`
-112 | - Native-shadow final run `29610847711`, job `87984896681`: the complete gate set passed at final documentation head `dc44c8b7df2bfa84cd8f372f9df0831d3c35beeb`
-113 | - The verified native shadow rollout milestone was squash-merged to `main` as `446d6eb47d042fe4f2834ba31bb3596e57c7ad54`
-114 | - Ten native source tests cover authoritative post-persist reload, off mode, deterministic sampling, scope mismatch, timeout, legacy-authoritative disagreement, comparison failure, attempt failure, and stable evidence mapping
-115 | - Seven native-shadow API tests cover dedicated scope, rollout reads, attempt validation/idempotency, comparison persistence, and secret-free failure responses
-116 | - Seven real-PostgreSQL native-shadow tests cover concurrent comparison/attempt writes, default-off and explicit opt-in, negative tenant references, advisory failure evidence, bounded reporting, and immediate opt-out
-117 | - Two SDK tests and two browser-control tests cover rollout/attempt contracts plus CSRF, owner/admin, and exact-store authorization
-118 | - Selected-source shadow pilot final run `29629751800`, job `88040964883`: eleven migrations, 19 typechecks, 28 test tasks with 120 assertions, 19 builds, audit, formatting, lint, clean restore, runtime-role grants, architecture, and PHP lint passed at head `57e6b296617549e923fc80ab80b0317f109f5ee8`
-119 | - The verified selected-source shadow pilot foundation was squash-merged through PR #20 to `main` as `c478170c7dadbeafa576a62ae989df682e052d4e`
-120 | - Seven real-PostgreSQL tests cover API-key/feature/write tenant mismatch, dashboard aggregation isolation, platform-admin reauthorization, and secret-free webhook/verification administration
-121 | - Six database-role tests cover identifier safety, explicit policy completeness, real allowed DML, migration-history/DELETE/DDL denial, elevated-role rejection, and inherited-role rejection
-122 | - Previous canonical documentation checks found zero broken internal links
-123 | - Prohibited insecure-pattern scan: zero matches
-124 |
-125 | The repository-local exporter refreshed `.ai-bridge/pro-context.md` after canonical `main` advanced to the selected-source shadow pilot merge.
-126 |
-127 | ## External blockers and production requirements
-128 |
-129 | - Concrete deployment platform, account, primary region, DNS, and TLS setup
-130 | - Managed PostgreSQL provider/service tier, automated backup retention, and production-equivalent point-in-time restore drill
-131 | - Managed secret store and KMS/vault provider
-132 | - Observability backend, retention, dashboards, alerts, and incident channels
-133 | - Optional Redis-compatible cache only when distributed coordination is required
-134 | - Authorized Steadfast test/merchant account
-135 | - Provider-terms and merchant-authorization review
-136 | - OTP provider selection/account
-137 | - Production account recovery/MFA or managed identity-provider decision
-138 | - Pilot merchants and verified outcome data for calibration
-139 |
-140 | ## Remaining risks
-141 |
-142 | - Steadfast UI/internal endpoint changes can break automation.
-143 | - The managed v2 boundary is implemented, but runtime call sites remain on local v1 until a reviewed provider adapter, service identities, access audits, and background rewrite procedure are provisioned.
-144 | - DNS validation reduces hostname-based SSRF risk, but production still requires controlled egress and network policy against DNS rebinding/route changes.
-145 | - In-process API and browser-session rate limiting is not distributed across replicas.
-146 | - Durable PostgreSQL work still needs broader dead-letter/replay operations and future lease renewal for work whose bounded execution may exceed one lease.
-147 | - The repository runtime-role policy is verified, but the selected managed PostgreSQL provider must still provision distinct credentials, run the grant command after migrations, and pass a production smoke test.
-148 | - The verification runner has no bundled production provider adapter; provider selection, account credentials, terms, delivery callbacks, and staging validation remain external.
-149 | - Browser login has no account recovery, invitation, MFA, or managed identity-provider integration yet.
-150 | - GitHub currently reports public repository visibility although the expected policy is private.
-151 | - Provider-specific infrastructure has not been provisioned or smoke-tested.
-152 | - Four moderate development-tooling advisories remain; high/critical threshold is clear.
-153 | - Native shadow mode is advisory only; the verified post-persist hook still requires production deployment to explicitly selected stores, and pilot outcomes must be reviewed before any enforcement design.
-154 | - Automatic blocking remains merchant-controlled and disabled by default until pilot calibration.
-155 |
-156 | ## Next milestone
-157 |
-158 | Provision the accepted infrastructure baseline with distinct database identities and a production point-in-time restore drill, select and wire the managed KMS adapter plus audited re-encryption runner, validate Steadfast, select and bundle the OTP provider adapter, deploy the verified source hook to explicit pilot stores, and collect outcomes for calibration.
-159 |
-```
-
-### apps/api/src/postgres-native-shadow-pilot.ts
-
-Bytes: 16454
-SHA-256: 8352293d43ed80924b6637f14cb636aac9b502e5a98e8dfd53b6d6ee8a1eeb2f
-Lines: 1-470 of 470
-
-```typescript
-  1 | import { createHash, randomUUID } from 'node:crypto';
-  2 | import type { Pool, PoolClient } from 'pg';
-  3 | import type {
-  4 |   NativeShadowAttemptInput,
-  5 |   NativeShadowPilotReport,
-  6 |   NativeShadowRolloutMode,
-  7 | } from '@ozzyl/shared-types';
-  8 | import type {
-  9 |   NativeShadowAttemptRepository,
- 10 |   NativeShadowRolloutAdministrationRepository,
- 11 |   NativeShadowRolloutRepository,
- 12 | } from './index.js';
- 13 |
- 14 | export type NativeShadowPilotErrorCode =
- 15 |   | 'TENANT_SCOPE_MISMATCH'
- 16 |   | 'NATIVE_SHADOW_NOT_OPTED_IN'
- 17 |   | 'NATIVE_SHADOW_ROLLOUT_MISMATCH'
- 18 |   | 'NATIVE_SHADOW_ATTEMPT_REFERENCE_MISMATCH'
- 19 |   | 'NATIVE_SHADOW_ATTEMPT_IDEMPOTENCY_CONFLICT';
- 20 |
- 21 | export class NativeShadowPilotPersistenceError extends Error {
- 22 |   constructor(readonly code: NativeShadowPilotErrorCode) {
- 23 |     super(code);
- 24 |     this.name = 'NativeShadowPilotPersistenceError';
- 25 |   }
- 26 | }
- 27 |
- 28 | export interface NativeShadowRolloutRecord {
- 29 |   organizationId: string;
- 30 |   storeId: string;
- 31 |   integration: 'multi-store-saas';
- 32 |   mode: NativeShadowRolloutMode;
- 33 |   rolloutVersion: string;
- 34 |   sampleRateBps: number;
- 35 |   samplingKey: string;
- 36 | }
- 37 |
- 38 | interface RolloutRow {
- 39 |   organization_id: string;
- 40 |   store_id: string;
- 41 |   mode: NativeShadowRolloutMode;
- 42 |   rollout_version: string;
- 43 |   sample_rate_bps: number;
- 44 | }
- 45 |
- 46 | interface ExistingAttemptRow {
- 47 |   id: string;
- 48 |   external_order_id: string;
- 49 |   rollout_version: string;
- 50 |   sample_bucket: number;
- 51 |   sample_rate_bps: number;
- 52 |   status: NativeShadowAttemptInput['status'];
- 53 |   failure_code: string | null;
- 54 |   assessment_id: string | null;
- 55 |   comparison_id: string | null;
- 56 |   evaluated_at: Date | string;
- 57 | }
- 58 |
- 59 | export class PostgresNativeShadowRolloutRepository
- 60 |   implements NativeShadowRolloutRepository, NativeShadowRolloutAdministrationRepository
- 61 | {
- 62 |   constructor(private readonly pool: Pool) {}
- 63 |
- 64 |   async load(input: {
- 65 |     organizationId: string;
- 66 |     storeId: string;
- 67 |   }): Promise<NativeShadowRolloutRecord | null> {
- 68 |     return loadRollout(this.pool, input);
- 69 |   }
- 70 |
- 71 |   async setForStore(input: {
- 72 |     userId: string;
- 73 |     organizationId: string;
- 74 |     storeId: string;
- 75 |     mode: NativeShadowRolloutMode;
- 76 |     rolloutVersion: string;
- 77 |     sampleRateBps: number;
- 78 |   }): Promise<NativeShadowRolloutRecord | null> {
- 79 |     const client = await this.pool.connect();
- 80 |     try {
- 81 |       await client.query('begin');
- 82 |       const authorized = await client.query<{ role: string }>(
- 83 |         `
- 84 |           select om.role
- 85 |           from organization_members om
- 86 |           join organizations o on o.id = om.organization_id and o.status = 'active'
- 87 |           join stores s on s.organization_id = o.id and s.status = 'active'
- 88 |           where om.user_id = $1 and om.organization_id = $2 and s.id = $3
- 89 |           limit 1
- 90 |         `,
- 91 |         [input.userId, input.organizationId, input.storeId],
- 92 |       );
- 93 |       const role = authorized.rows[0]?.role;
- 94 |       if (role !== 'owner' && role !== 'admin') {
- 95 |         await client.query('rollback');
- 96 |         return null;
- 97 |       }
- 98 |       await client.query(
- 99 |         `
-100 |           insert into integration_shadow_rollouts (
-101 |             organization_id, store_id, integration, mode, rollout_version,
-102 |             sample_rate_bps, updated_by_user_id
-103 |           ) values ($1, $2, 'multi-store-saas', $3, $4, $5, $6)
-104 |           on conflict (organization_id, store_id, integration) do update
-105 |           set mode = excluded.mode,
-106 |               rollout_version = excluded.rollout_version,
-107 |               sample_rate_bps = excluded.sample_rate_bps,
-108 |               updated_by_user_id = excluded.updated_by_user_id,
-109 |               updated_at = now()
-110 |         `,
-111 |         [
-112 |           input.organizationId,
-113 |           input.storeId,
-114 |           input.mode,
-115 |           input.rolloutVersion,
-116 |           input.sampleRateBps,
-117 |           input.userId,
-118 |         ],
-119 |       );
-120 |       const rollout = await loadRollout(client, input);
-121 |       await client.query('commit');
-122 |       return rollout;
-123 |     } catch (error) {
-124 |       await client.query('rollback').catch(() => undefined);
-125 |       throw error;
-126 |     } finally {
-127 |       client.release();
-128 |     }
-129 |   }
-130 | }
-131 |
-132 | export class PostgresNativeShadowAttemptRepository implements NativeShadowAttemptRepository {
-133 |   constructor(private readonly pool: Pool) {}
-134 |
-135 |   async save(input: {
-136 |     organizationId: string;
-137 |     storeId: string;
-138 |     apiKeyId: string;
-139 |     idempotencyKey: string;
-140 |     attempt: NativeShadowAttemptInput;
-141 |   }): Promise<{ attemptId: string; replay: boolean }> {
-142 |     validateAttemptShape(input.attempt);
-143 |     const client = await this.pool.connect();
-144 |     try {
-145 |       await client.query('begin');
-146 |       await client.query('select pg_advisory_xact_lock(hashtext($1))', [
-147 |         `${input.organizationId}:${input.storeId}:native-shadow-attempt:${input.idempotencyKey}`,
-148 |       ]);
-149 |       const rollout = await loadRollout(client, input);
-150 |       if (!rollout) throw new NativeShadowPilotPersistenceError('TENANT_SCOPE_MISMATCH');
-151 |       if (rollout.mode !== 'shadow') {
-152 |         throw new NativeShadowPilotPersistenceError('NATIVE_SHADOW_NOT_OPTED_IN');
-153 |       }
-154 |       if (
-155 |         rollout.rolloutVersion !== input.attempt.rollout_version ||
-156 |         rollout.sampleRateBps !== input.attempt.sample_rate_bps
-157 |       ) {
-158 |         throw new NativeShadowPilotPersistenceError('NATIVE_SHADOW_ROLLOUT_MISMATCH');
-159 |       }
-160 |       await validateAttemptReferences(client, input);
-161 |
-162 |       const attemptId = `nsa_${randomUUID()}`;
-163 |       const inserted = await client.query<{ id: string }>(
-164 |         `
-165 |           insert into integration_shadow_attempts (
-166 |             id, organization_id, store_id, api_key_id, integration,
-167 |             external_order_id, idempotency_key, rollout_version,
-168 |             sample_bucket, sample_rate_bps, status, failure_code,
-169 |             assessment_id, comparison_id, evaluated_at
-170 |           ) values (
-171 |             $1, $2, $3, $4, 'multi-store-saas',
-172 |             $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
-173 |           )
-174 |           on conflict (organization_id, store_id, integration, idempotency_key) do nothing
-175 |           returning id
-176 |         `,
-177 |         [
-178 |           attemptId,
-179 |           input.organizationId,
-180 |           input.storeId,
-181 |           input.apiKeyId,
-182 |           input.attempt.external_order_id,
-183 |           input.idempotencyKey,
-184 |           input.attempt.rollout_version,
-185 |           input.attempt.sample_bucket,
-186 |           input.attempt.sample_rate_bps,
-187 |           input.attempt.status,
-188 |           input.attempt.failure_code ?? null,
-189 |           input.attempt.assessment_id ?? null,
-190 |           input.attempt.comparison_id ?? null,
-191 |           input.attempt.evaluated_at,
-192 |         ],
-193 |       );
-194 |       if (inserted.rows[0]) {
-195 |         await client.query('commit');
-196 |         return { attemptId, replay: false };
-197 |       }
-198 |
-199 |       const existingResult = await client.query<ExistingAttemptRow>(
-200 |         `
-201 |           select id, external_order_id, rollout_version, sample_bucket, sample_rate_bps,
-202 |                  status, failure_code, assessment_id, comparison_id, evaluated_at
-203 |           from integration_shadow_attempts
-204 |           where organization_id = $1 and store_id = $2
-205 |             and integration = 'multi-store-saas' and idempotency_key = $3
-206 |           limit 1
-207 |         `,
-208 |         [input.organizationId, input.storeId, input.idempotencyKey],
-209 |       );
-210 |       const existing = existingResult.rows[0];
-211 |       if (!existing || !sameAttempt(existing, input.attempt)) {
-212 |         throw new NativeShadowPilotPersistenceError('NATIVE_SHADOW_ATTEMPT_IDEMPOTENCY_CONFLICT');
-213 |       }
-214 |       await client.query('commit');
-215 |       return { attemptId: existing.id, replay: true };
-216 |     } catch (error) {
-217 |       await client.query('rollback').catch(() => undefined);
-218 |       throw error;
-219 |     } finally {
-220 |       client.release();
-221 |     }
-222 |   }
-223 | }
-224 |
-225 | export async function loadStoreNativeShadowPilotReport(
-226 |   pool: Pool,
-227 |   input: { organizationId: string; storeId: string; now: Date },
-228 | ): Promise<NativeShadowPilotReport> {
-229 |   const rollout = await loadRollout(pool, input);
-230 |   if (!rollout) throw new NativeShadowPilotPersistenceError('TENANT_SCOPE_MISMATCH');
-231 |   const aggregate = await loadAggregate(pool, {
-232 |     where: 'a.organization_id = $1 and a.store_id = $2',
-233 |     values: [input.organizationId, input.storeId, input.now],
-234 |   });
-235 |   return buildReport(rollout, aggregate);
-236 | }
-237 |
-238 | export async function loadPlatformNativeShadowPilotReport(
-239 |   pool: Pool,
-240 |   input: { now: Date },
-241 | ): Promise<NativeShadowPilotReport & { opted_in_stores: number }> {
-242 |   const [aggregate, optedIn] = await Promise.all([
-243 |     loadAggregate(pool, { where: 'true', values: [input.now] }),
-244 |     pool.query<{ count: number }>(`
-245 |       select count(*)::int as count
-246 |       from integration_shadow_rollouts r
-247 |       join organizations o on o.id = r.organization_id and o.status = 'active'
-248 |       join stores s on s.id = r.store_id and s.organization_id = r.organization_id
-249 |         and s.status = 'active'
-250 |       where r.integration = 'multi-store-saas' and r.mode = 'shadow'
-251 |     `),
-252 |   ]);
-253 |   const optedInStores = optedIn.rows[0]?.count ?? 0;
-254 |   return {
-255 |     ...buildReport(
-256 |       {
-257 |         organizationId: 'platform',
-258 |         storeId: 'platform',
-259 |         integration: 'multi-store-saas',
-260 |         mode: optedInStores > 0 ? 'shadow' : 'off',
-261 |         rolloutVersion: optedInStores > 0 ? 'mixed' : 'off',
-262 |         sampleRateBps: 0,
-263 |         samplingKey: 'platform',
-264 |       },
-265 |       aggregate,
-266 |     ),
-267 |     opted_in_stores: optedInStores,
-268 |   };
-269 | }
-270 |
-271 | async function loadRollout(
-272 |   database: Pool | PoolClient,
-273 |   input: { organizationId: string; storeId: string },
-274 | ): Promise<NativeShadowRolloutRecord | null> {
-275 |   const result = await database.query<RolloutRow>(
-276 |     `
-277 |       select o.id as organization_id, s.id as store_id,
-278 |              coalesce(r.mode, 'off') as mode,
-279 |              coalesce(r.rollout_version, 'off') as rollout_version,
-280 |              coalesce(r.sample_rate_bps, 0)::int as sample_rate_bps
-281 |       from organizations o
-282 |       join stores s on s.organization_id = o.id
-283 |       left join integration_shadow_rollouts r
-284 |         on r.organization_id = o.id and r.store_id = s.id
-285 |         and r.integration = 'multi-store-saas'
-286 |       where o.id = $1 and s.id = $2 and o.status = 'active' and s.status = 'active'
-287 |       limit 1
-288 |     `,
-289 |     [input.organizationId, input.storeId],
-290 |   );
-291 |   const row = result.rows[0];
-292 |   if (!row) return null;
-293 |   return {
-294 |     organizationId: row.organization_id,
-295 |     storeId: row.store_id,
-296 |     integration: 'multi-store-saas',
-297 |     mode: row.mode,
-298 |     rolloutVersion: row.rollout_version,
-299 |     sampleRateBps: row.sample_rate_bps,
-300 |     samplingKey: createHash('sha256')
-301 |       .update(`multi-store-saas:${row.organization_id}:${row.store_id}`)
-302 |       .digest('hex')
-303 |       .slice(0, 48),
-304 |   };
-305 | }
-306 |
-307 | async function validateAttemptReferences(
-308 |   client: PoolClient,
-309 |   input: {
-310 |     organizationId: string;
-311 |     storeId: string;
-312 |     attempt: NativeShadowAttemptInput;
-313 |   },
-314 | ): Promise<void> {
-315 |   if (input.attempt.status === 'assessment_failed') return;
-316 |   const assessment = await client.query<{ external_order_id: string | null }>(
-317 |     `
-318 |       select external_order_id from risk_assessments
-319 |       where id = $1 and organization_id = $2 and store_id = $3
-320 |       limit 1
-321 |     `,
-322 |     [input.attempt.assessment_id, input.organizationId, input.storeId],
-323 |   );
-324 |   if (assessment.rows[0]?.external_order_id !== input.attempt.external_order_id) {
-325 |     throw new NativeShadowPilotPersistenceError('NATIVE_SHADOW_ATTEMPT_REFERENCE_MISMATCH');
-326 |   }
-327 |   if (input.attempt.status === 'comparison_succeeded') {
-328 |     const comparison = await client.query<{ external_order_id: string; assessment_id: string }>(
-329 |       `
-330 |         select external_order_id, assessment_id from integration_shadow_comparisons
-331 |         where id = $1 and organization_id = $2 and store_id = $3
-332 |           and integration = 'multi-store-saas'
-333 |         limit 1
-334 |       `,
-335 |       [input.attempt.comparison_id, input.organizationId, input.storeId],
-336 |     );
-337 |     const row = comparison.rows[0];
-338 |     if (
-339 |       row?.external_order_id !== input.attempt.external_order_id ||
-340 |       row.assessment_id !== input.attempt.assessment_id
-341 |     ) {
-342 |       throw new NativeShadowPilotPersistenceError('NATIVE_SHADOW_ATTEMPT_REFERENCE_MISMATCH');
-343 |     }
-344 |   }
-345 | }
-346 |
-347 | function validateAttemptShape(attempt: NativeShadowAttemptInput): void {
-348 |   const valid =
-349 |     (attempt.status === 'comparison_succeeded' &&
-350 |       !attempt.failure_code &&
-351 |       Boolean(attempt.assessment_id) &&
-352 |       Boolean(attempt.comparison_id)) ||
-353 |     (attempt.status === 'assessment_failed' &&
-354 |       (attempt.failure_code === 'GUARD_ASSESSMENT_FAILED' ||
-355 |         attempt.failure_code === 'GUARD_TIMEOUT') &&
-356 |       !attempt.assessment_id &&
-357 |       !attempt.comparison_id) ||
-358 |     (attempt.status === 'comparison_persist_failed' &&
-359 |       attempt.failure_code === 'COMPARISON_PERSIST_FAILED' &&
-360 |       Boolean(attempt.assessment_id) &&
-361 |       !attempt.comparison_id);
-362 |   if (!valid) {
-363 |     throw new NativeShadowPilotPersistenceError('NATIVE_SHADOW_ATTEMPT_REFERENCE_MISMATCH');
-364 |   }
-365 | }
-366 |
-367 | function sameAttempt(existing: ExistingAttemptRow, attempt: NativeShadowAttemptInput): boolean {
-368 |   return (
-369 |     existing.external_order_id === attempt.external_order_id &&
-370 |     existing.rollout_version === attempt.rollout_version &&
-371 |     existing.sample_bucket === attempt.sample_bucket &&
-372 |     existing.sample_rate_bps === attempt.sample_rate_bps &&
-373 |     existing.status === attempt.status &&
-374 |     existing.failure_code === (attempt.failure_code ?? null) &&
-375 |     existing.assessment_id === (attempt.assessment_id ?? null) &&
-376 |     existing.comparison_id === (attempt.comparison_id ?? null) &&
-377 |     new Date(existing.evaluated_at).toISOString() === attempt.evaluated_at
-378 |   );
-379 | }
-380 |
-381 | interface AggregateRow {
-382 |   sampled_orders: number;
-383 |   successful_comparisons: number;
-384 |   assessment_failures: number;
-385 |   persistence_failures: number;
-386 |   disagreements: number;
-387 |   minimum_delta: number | null;
-388 |   maximum_delta: number | null;
-389 |   average_delta: number | string | null;
-390 |   lower_count: number;
-391 |   equal_count: number;
-392 |   higher_count: number;
-393 | }
-394 |
-395 | async function loadAggregate(
-396 |   pool: Pool,
-397 |   input: { where: string; values: unknown[] },
-398 | ): Promise<AggregateRow> {
-399 |   const nowIndex = input.values.length;
-400 |   const result = await pool.query<AggregateRow>(
-401 |     `
-402 |       select
-403 |         count(*)::int as sampled_orders,
-404 |         count(*) filter (where a.status = 'comparison_succeeded')::int as successful_comparisons,
-405 |         count(*) filter (where a.status = 'assessment_failed')::int as assessment_failures,
-406 |         count(*) filter (where a.status = 'comparison_persist_failed')::int as persistence_failures,
-407 |         count(*) filter (
-408 |           where a.status = 'comparison_succeeded' and c.decision_changed
-409 |         )::int as disagreements,
-410 |         min(c.score_delta)::int as minimum_delta,
-411 |         max(c.score_delta)::int as maximum_delta,
-412 |         round(avg(c.score_delta)::numeric, 2) as average_delta,
-413 |         count(*) filter (where c.score_delta < 0)::int as lower_count,
-414 |         count(*) filter (where c.score_delta = 0)::int as equal_count,
-415 |         count(*) filter (where c.score_delta > 0)::int as higher_count
-416 |       from integration_shadow_attempts a
-417 |       left join integration_shadow_comparisons c
-418 |         on c.id = a.comparison_id
-419 |         and c.organization_id = a.organization_id
-420 |         and c.store_id = a.store_id
-421 |       where ${input.where}
-422 |         and a.integration = 'multi-store-saas'
-423 |         and a.created_at >= $${nowIndex}::timestamptz - interval '30 days'
-424 |     `,
-425 |     input.values,
-426 |   );
-427 |   return (
-428 |     result.rows[0] ?? {
-429 |       sampled_orders: 0,
-430 |       successful_comparisons: 0,
-431 |       assessment_failures: 0,
-432 |       persistence_failures: 0,
-433 |       disagreements: 0,
-434 |       minimum_delta: null,
-435 |       maximum_delta: null,
-436 |       average_delta: null,
-437 |       lower_count: 0,
-438 |       equal_count: 0,
-439 |       higher_count: 0,
-440 |     }
-441 |   );
-442 | }
-443 |
-444 | function buildReport(
-445 |   rollout: NativeShadowRolloutRecord,
-446 |   aggregate: AggregateRow,
-447 | ): NativeShadowPilotReport {
-448 |   return {
-449 |     mode: rollout.mode,
-450 |     rollout_version: rollout.rolloutVersion,
-451 |     sample_rate_bps: rollout.sampleRateBps,
-452 |     sampled_orders: aggregate.sampled_orders,
-453 |     successful_comparisons: aggregate.successful_comparisons,
-454 |     assessment_failures: aggregate.assessment_failures,
-455 |     persistence_failures: aggregate.persistence_failures,
-456 |     decision_disagreement_rate:
-457 |       aggregate.successful_comparisons === 0
-458 |         ? null
-459 |         : Number((aggregate.disagreements / aggregate.successful_comparisons).toFixed(4)),
-460 |     score_delta: {
-461 |       minimum: aggregate.minimum_delta,
-462 |       maximum: aggregate.maximum_delta,
-463 |       average: aggregate.average_delta === null ? null : Number(aggregate.average_delta),
-464 |       lower: aggregate.lower_count,
-465 |       equal: aggregate.equal_count,
-466 |       higher: aggregate.higher_count,
-467 |     },
-468 |   };
-469 | }
-470 |
-```
-
-### docs/adr/0011-selected-source-shadow-pilot.md
-
-Bytes: 5467
-SHA-256: 7c64f558d829128efe933b99a44dbb3c03e374fc2605a6d9355ce61462607ad8
-Lines: 1-105 of 105
-
-```markdown
-  1 | # ADR 0011: Selected source-platform shadow pilot
-  2 |
-  3 | ## Status
-  4 |
-  5 | Accepted
-  6 |
-  7 | ## Date
-  8 |
-  9 | 2026-07-18
- 10 |
- 11 | ## Context
- 12 |
- 13 | The native multi-store adapter already supports deterministic `off` and `shadow` modes while keeping the legacy source-platform decision authoritative. A concrete source integration, store opt-in boundary, durable advisory evidence, and tenant-scoped pilot reporting are required before merchant calibration can begin.
- 14 |
- 15 | The pilot must not introduce automatic blocking, provider calls in checkout, scoring in API handlers, or external I/O inside the canonical Risk Engine.
- 16 |
- 17 | ## Decision drivers
- 18 |
- 19 | - Run native evaluation only after the source platform has durably persisted an order.
- 20 | - Revalidate organization/store scope from authoritative relational data.
- 21 | - Keep checkout behavior unchanged during Guard, timeout, or persistence failures.
- 22 | - Make duplicate source retries deterministic and idempotent.
- 23 | - Measure comparison quality and operational failures without storing secrets.
- 24 | - Require explicit store-level opt-in with a default of `off`.
- 25 |
- 26 | ## Considered options
- 27 |
- 28 | 1. Call Guard synchronously before source order persistence.
- 29 | 2. Run shadow evaluation after persistence but configure rollout only in source application settings.
- 30 | 3. Run post-persist evaluation with Ozzyl Guard as the authoritative store-scoped rollout and evidence boundary.
- 31 | 4. Introduce an enforcement mode during the pilot.
- 32 |
- 33 | ## Decision
- 34 |
- 35 | Use option 3.
- 36 |
- 37 | The selected `multi-store-saas` source path must:
- 38 |
- 39 | - reload the persisted order through an authoritative source-order reader;
- 40 | - verify the returned organization, store, and order identifiers before any Guard call;
- 41 | - fetch a tenant-scoped Ozzyl Guard rollout record;
- 42 | - run only when the record is explicitly `shadow` and the deterministic sample bucket is selected;
- 43 | - keep the normalized legacy decision as the effective result in every outcome;
- 44 | - persist successful comparison evidence through the existing comparison contract;
- 45 | - persist one immutable sampled-attempt record for success, assessment failure, timeout, or comparison persistence failure;
- 46 | - isolate attempt persistence failure as advisory state;
- 47 | - use stable source-derived idempotency keys for assessment, comparison, and attempt writes.
- 48 |
- 49 | PostgreSQL is the durable source of truth for rollout and attempt evidence. Missing rollout rows behave as `off`. Cache remains non-authoritative.
- 50 |
- 51 | Merchant rollout changes require an authenticated browser session, CSRF proof, active owner/admin membership, and exact organization/store scope. Service API keys use the separate `comparisons:write` contract and cannot act as dashboard sessions.
- 52 |
- 53 | Pilot reporting exposes only bounded, tenant-scoped aggregates: sampled orders, successful comparisons, assessment failures, persistence failures, decision disagreement rate, and bounded score-delta summaries. Raw credentials, phone numbers, provider payloads, cookies, OTPs, and request bodies are prohibited.
- 54 |
- 55 | No automatic blocking or enforcement mode is added.
- 56 |
- 57 | ## Consequences
- 58 |
- 59 | ### Positive
+ 27 | | Area                             | Status   | Notes                                                                                                                                                                                                              |
+ 28 | | -------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+ 29 | | Shared contracts                 | done     | Canonical request/response/error/outcome/event schemas plus typed browser dead-letter list and replay contracts                                                                                                    |
+ 30 | | Database/migrations              | done     | Twelve append-only migrations bound to a committed SHA-256 manifest; history checksums are non-null and fail closed on mismatch                                                                                    |
+ 31 | | Password/session primitives      | done     | Argon2id and opaque hashed session token utilities                                                                                                                                                                 |
+ 32 | | Shared envelope encryption       | done     | Local v1 plus provider-neutral managed v2 with per-record DEKs, authenticated wrapped-key metadata, legacy dual-read, rotation, and safe errors                                                                    |
+ 33 | | Organizations/stores/memberships | done     | Canonical relational schema and bootstrap transaction                                                                                                                                                              |
+ 34 | | API keys/usage/plans             | done     | Atomic PostgreSQL quota reservation has duplicate-request and plan-limit concurrency coverage                                                                                                                      |
+ 35 | | Courier adapter interface        | done     | Typed provider contract and structured errors                                                                                                                                                                      |
+ 36 | | Steadfast adapter                | baseline | Normalized internal endpoint adapter with bounded timeout/session errors; requires authorized live validation                                                                                                      |
+ 37 | | Steadfast session worker         | baseline | Playwright login, selector/CAPTCHA/2FA errors, shared encryption boundary, health state, runnable PostgreSQL polling                                                                                               |
+ 38 | | Courier observation worker/cache | done     | Lease-owned atomic claims, expired-owner rejection, stale recovery, retry/final failure, relational scope, observation persistence                                                                                 |
+ 39 | | Durable webhook outbox           | done     | Assessment/outcome transaction emission, scoped event payloads, lease-owned event worker, retries, stale recovery, encrypted secret access                                                                         |
+ 40 | | Durable work architecture        | done     | PostgreSQL lease pattern plus owner/admin-scoped secret-free inspection, explicit idempotent replay, CLI, and merchant browser operations are implemented; future lease renewal remains                            |
+ 41 | | Durable work operations          | done     | Failed courier, webhook, and verification work can be inspected and safely replayed through one transactional repository from the CLI or owner/admin browser surface with immutable evidence                       |
+ 42 | | Backup/restore integrity         | done     | Clean logical `pg_dump`/`pg_restore` rehearsal compares schema, full table data hashes, sequences, migration history, and replay in CI                                                                             |
+ 43 | | Risk engine                      | done     | One pure deterministic engine, versioned policy, confidence, signals, unknown/degraded handling                                                                                                                    |
+ 44 | | Public API                       | done     | Assessment create/read, outcomes, courier refresh, OTP send/verify, plus scoped native-shadow rollout, comparison, and attempt contracts                                                                           |
+ 45 | | PostgreSQL API repositories      | done     | API keys, feature assembly, assessment/outcome writes and replays enforce active relational organization/store ownership                                                                                           |
+ 46 | | Outcome feedback                 | done     | API, WooCommerce, Shopify, custom, and native adapter paths                                                                                                                                                        |
+ 47 | | Webhook delivery                 | done     | HMAC signing, timestamps, retry policy, HTTPS/credential checks, literal-IP and DNS-result SSRF validation, redirect rejection                                                                                     |
+ 48 | | WooCommerce                      | baseline | Encrypted service key, async assessment, canonical parsing, safe failure behavior, admin panel, manual recheck, outcomes                                                                                           |
+ 49 | | Shopify                          | baseline | Signed webhook helper, assessment/action mapping, outcome submission; app OAuth/webhook registration not implemented                                                                                               |
+ 50 | | Custom server SDK                | done     | Server-only integration and checkout action mapping                                                                                                                                                                |
+ 51 | | Native multi-store integration   | done     | Concrete post-persist source reload, default-off store opt-in, stable retries, legacy-authoritative advisory failures, immutable attempt evidence, and scoped pilot reporting                                      |
+ 52 | | OTP verification                 | baseline | Transactional encrypted queue, tenant-scoped verifier, lease-owned private runner, retries, and failure events done; provider account remains                                                                      |
+ 53 | | Merchant dashboard               | done     | Authenticated scoped operations, native-shadow rollout/reporting, and owner/admin failed-work inspection with CSRF-protected idempotent replay                                                                     |
+ 54 | | Platform admin                   | done     | Explicit active `platform_admin` role is rechecked on every repository call before global operations data                                                                                                          |
+ 55 | | Tenant administration            | done     | Owner/admin-scoped webhook and verification repositories reauthorize active org/store scope and return secret-free records                                                                                         |
+ 56 | | PostgreSQL runtime role          | done     | Explicit current-table DML grants, no migration history/DELETE/DDL/ownership/elevated membership; managed-provider provisioning remains                                                                            |
+ 57 | | Managed encryption               | baseline | Provider-neutral v2 primitive is implemented; selected KMS adapter, service identities, audits, runtime wiring, and rewrite job remain                                                                             |
+ 58 | | Observability                    | baseline | Canonical structured logging/redaction package and four private-worker integrations are implemented and tested; metrics, traces, exporters, API/repository instrumentation, backend, dashboards, and alerts remain |
+ 59 | | Shared reputation                | deferred | Cross-merchant reputation/dispute system requires legal/privacy review and pilot evidence                                                                                                                          |
  60 |
- 61 | - Checkout remains independent from Guard availability.
- 62 | - Explicit store opt-in and relational revalidation prevent accidental cross-tenant rollout.
- 63 | - Duplicate source retries produce one immutable evidence record.
- 64 | - Pilot disagreement and failure rates become reviewable without exposing secrets.
- 65 | - The canonical Risk Engine stays pure and provider-neutral.
- 66 |
- 67 | ### Negative / trade-offs
- 68 |
- 69 | - The source platform must provide a reliable persisted-order reader and invoke the hook after commit.
- 70 | - Successful comparison and sampled-attempt writes are separate idempotent operations; attempt write failure can leave comparison evidence without a sampled-attempt row and is surfaced as advisory failure.
- 71 | - PostgreSQL reporting queries require bounded windows and indexes as pilot volume grows.
- 72 | - Automatic enforcement remains unavailable until calibration and a separate accepted decision.
- 73 |
- 74 | ## Security and privacy impact
- 75 |
- 76 | - Rollout and attempt writes are constrained by organization/store composite references.
- 77 | - Assessment and comparison references are revalidated against the same tenant and external order.
- 78 | - Browser mutation is CSRF protected and owner/admin restricted.
- 79 | - Service API keys require `comparisons:write`; no raw key is logged or stored by the integration.
- 80 | - Dashboard and admin payloads contain aggregate counts and bounded deltas only.
- 81 |
- 82 | ## Migration / rollout
- 83 |
- 84 | 1. Apply append-only migration `0011_native_shadow_pilot.sql`.
- 85 | 2. Deploy the rollout and attempt repositories plus service/browser contracts.
- 86 | 3. Deploy the source post-persist hook with rollout default `off`.
- 87 | 4. Explicitly opt in selected stores with a bounded sample rate.
- 88 | 5. Review tenant-scoped metrics and failure isolation before expanding sampling.
- 89 | 6. Keep broad automatic blocking disabled until a later ADR and calibration evidence.
- 90 |
- 91 | ## Validation
- 92 |
- 93 | - Missing rollout rows return `off` and do not call Guard.
- 94 | - Source order and rollout scope mismatches stop before assessment.
- 95 | - Guard failure and timeout retain the legacy result and record advisory state.
- 96 | - Comparison and attempt persistence failures do not change checkout behavior.
- 97 | - Concurrent duplicate attempts serialize into one immutable row.
- 98 | - Cross-tenant assessment/comparison references are rejected.
- 99 | - Merchant and platform reports expose only scoped aggregate metrics.
-100 | - Real PostgreSQL migration, tenant-negative, idempotency, and failure-isolation tests pass.
-101 |
-102 | ## Supersedes / superseded by
-103 |
-104 | None.
-105 |
-```
-
-### docs/api/api-specification.md
-
-Bytes: 9477
-SHA-256: 4bb607a81f0d80675152eb1d04d56e741bcae8c81a4fe3a717399b43c040ad18
-Lines: 1-359 of 359
-
-```markdown
-  1 | # API Specification
-  2 |
-  3 | Base path: `/v1`
-  4 |
-  5 | ## Authentication
-  6 |
-  7 | ```http
-  8 | Authorization: Bearer ozg_live_<redacted>
-  9 | ```
- 10 |
- 11 | Key prefixes:
- 12 |
- 13 | - `ozg_test_`
- 14 | - `ozg_live_`
- 15 |
- 16 | Raw keys are returned only at creation. The database stores a hash and a non-secret display prefix.
- 17 |
- 18 | ### Browser user sessions
- 19 |
- 20 | Dashboard and platform-admin users do not authenticate with service API keys. Browser authentication uses a separate opaque `HttpOnly`, `SameSite=Lax` session cookie backed by a hash-only PostgreSQL session record.
- 21 |
- 22 | Browser endpoints are outside the public integration `/v1` namespace:
- 23 |
- 24 | - `POST /auth/login` — validates email/password, creates the browser session, and returns authorized organization/store scopes plus a CSRF proof.
- 25 | - `GET /auth/session` — restores the current user session and authorized scopes.
- 26 | - `POST /auth/logout` — requires `X-CSRF-Token` and revokes the current session.
- 27 | - `GET /dashboard/v1/overview?organization_id=...&store_id=...` — returns tenant-scoped live merchant data and requires both organization and store scope.
- 28 | - `GET /admin/v1/overview` — returns global operations data only for an explicit `platform_admin` user.
- 29 |
- 30 | Browser responses use `Cache-Control: no-store`. Raw session tokens, password material, CSRF proofs, cookies, API keys, and provider credentials must not be logged.
- 31 |
- 32 | ## Common headers
- 33 |
- 34 | - `Idempotency-Key` for create operations
- 35 | - `X-Request-ID` optional client request identifier
- 36 | - `Content-Type: application/json`
- 37 |
- 38 | ## Canonical success response
- 39 |
- 40 | ```json
- 41 | {
- 42 |   "success": true,
- 43 |   "assessment_id": "ras_123",
- 44 |   "risk_score": 72,
- 45 |   "risk_level": "high",
- 46 |   "decision": "verify",
- 47 |   "confidence": 0.82,
- 48 |   "signals": [
- 49 |     {
- 50 |       "code": "low_delivery_rate",
- 51 |       "score": 30,
- 52 |       "description": "Customer delivery rate is 28%"
- 53 |     }
- 54 |   ],
- 55 |   "courier_summary": {
- 56 |     "total": 12,
- 57 |     "delivered": 5,
- 58 |     "returned": 4,
- 59 |     "cancelled_before_shipping": 3
- 60 |   }
- 61 | }
- 62 | ```
- 63 |
- 64 | Additional non-breaking metadata may include freshness, provider count, recommended actions, engine/policy versions, degraded state, and response time.
- 65 |
- 66 | ## Create risk assessment
- 67 |
- 68 | ```http
- 69 | POST /v1/risk-assessments
- 70 | ```
- 71 |
- 72 | Request:
- 73 |
- 74 | ```json
- 75 | {
- 76 |   "external_order_id": "WC-1092",
- 77 |   "phone": "01712345678",
- 78 |   "order_total": 1850,
- 79 |   "payment_method": "cod",
- 80 |   "shipping_address": {
- 81 |     "district": "Dhaka",
- 82 |     "area": "Mirpur"
- 83 |   },
- 84 |   "items_count": 2,
- 85 |   "session": {
- 86 |     "ip": "203.0.113.5",
- 87 |     "device_id": "dev_example",
- 88 |     "user_agent": "example"
- 89 |   }
- 90 | }
- 91 | ```
- 92 |
- 93 | Expanded response:
- 94 |
- 95 | ```json
- 96 | {
- 97 |   "success": true,
- 98 |   "assessment_id": "ras_123",
- 99 |   "risk_score": 72,
-100 |   "confidence": 0.86,
-101 |   "risk_level": "high",
-102 |   "decision": "hold",
-103 |   "signals": [
-104 |     {
-105 |       "code": "courier_low_delivery_rate",
-106 |       "category": "courier",
-107 |       "score": 30,
-108 |       "description": "Delivery success rate is 28% across 11 shipped orders"
-109 |     }
-110 |   ],
-111 |   "courier_summary": {
-112 |     "freshness": "fresh",
-113 |     "providers": 1,
-114 |     "total": 14,
-115 |     "delivered": 3,
-116 |     "returned": 8,
-117 |     "cancelled_before_shipping": 3
-118 |   },
-119 |   "recommended_actions": ["require_otp", "request_advance_payment"],
-120 |   "meta": {
-121 |     "engine_version": "1.0.0",
-122 |     "policy_version": "store_12_v3",
-123 |     "degraded": false,
-124 |     "response_ms": 184
-125 |   }
-126 | }
-127 | ```
-128 |
-129 | Unknown/no-data behavior must be explicit: `risk_level: "unknown"`, low confidence, `decision: "verify"`, and a degraded/freshness explanation. It must not return an implicit safe result.
-130 |
-131 | ## Read assessment
-132 |
-133 | ```http
-134 | GET /v1/risk-assessments/{assessment_id}
-135 | ```
-136 |
-137 | The caller must be authorized for the assessment's organization/store scope.
-138 |
-139 | ## Create courier refresh job
-140 |
-141 | ```http
-142 | POST /v1/courier-observations/refresh
-143 | ```
-144 |
-145 | Request:
-146 |
-147 | ```json
-148 | {
-149 |   "phone": "01712345678",
-150 |   "providers": ["steadfast"],
-151 |   "force": false
-152 | }
-153 | ```
-154 |
-155 | Return `202 Accepted` with a job id when asynchronous. Checkout integrations must not wait for Playwright/session refresh.
-156 |
-157 | ## Send OTP
-158 |
-159 | ```http
-160 | POST /v1/verifications/otp/send
-161 | ```
-162 |
-163 | ```json
-164 | {
-165 |   "assessment_id": "ras_123",
-166 |   "phone": "01712345678",
-167 |   "purpose": "cod_order_confirmation"
-168 | }
-169 | ```
-170 |
-171 | `Idempotency-Key` is required. A new request returns `202 Accepted`:
-172 |
-173 | ```json
-174 | {
-175 |   "success": true,
-176 |   "verification_id": "ver_123",
-177 |   "expires_at": "2026-07-17T10:05:00.000Z",
-178 |   "status": "queued"
-179 | }
-180 | ```
-181 |
-182 | The API creates the scoped verification session, OTP hash, and encrypted provider-delivery job transactionally. It does not call the OTP provider. An idempotent replay returns the same logical response with `200 OK`.
-183 |
-184 | ## Verify OTP
-185 |
-186 | ```http
-187 | POST /v1/verifications/otp/verify
-188 | ```
-189 |
-190 | ```json
-191 | {
-192 |   "verification_id": "ver_123",
-193 |   "otp": "123456"
-194 | }
-195 | ```
-196 |
-197 | Verification is tenant-scoped and database-only. While provider delivery is still queued, the API returns `409 DELIVERY_PENDING`; terminal delivery failure returns `409 DELIVERY_FAILED`; expired/invalid OTP and attempt-limit behavior remain explicit. Successful verification emits `verification.verified` through the durable webhook outbox.
-198 |
-199 | ## Submit outcome
-200 |
-201 | ```http
-202 | POST /v1/order-outcomes
-203 | ```
-204 |
-205 | ```json
-206 | {
-207 |   "external_order_id": "WC-1092",
-208 |   "assessment_id": "ras_123",
-209 |   "outcome": "returned",
-210 |   "provider": "steadfast",
-211 |   "reason": "customer_refused",
-212 |   "occurred_at": "2026-07-16T10:30:00Z"
-213 | }
-214 | ```
-215 |
-216 | Outcome submissions require idempotency and evidence/source metadata. Integrations should send outcomes from the first MVP.
-217 |
-218 | ## Record native shadow comparison
-219 |
-220 | ```http
-221 | POST /v1/integration-comparisons/native-shadow
-222 | ```
-223 |
-224 | This endpoint requires `comparisons:write` and `Idempotency-Key`. It is only for
-225 | post-order native-client shadow evaluation; it must not determine checkout action.
-226 |
-227 | ```json
-228 | {
-229 |   "external_order_id": "ORDER-100",
-230 |   "assessment_id": "ras_123",
-231 |   "legacy_score": 20,
-232 |   "legacy_decision": "allow",
-233 |   "rollout_version": "pilot-v1",
-234 |   "sample_bucket": 140,
-235 |   "sample_rate_bps": 1000,
-236 |   "evaluated_at": "2026-07-18T08:00:00Z"
-237 | }
-238 | ```
-239 |
-240 | The API loads the assessment from the authenticated organization/store scope and
-241 | derives the Guard score, decision, confidence, delta, and decision-change flag
-242 | server-side. The durable record contains no phone, API key, provider credential,
-243 | or unrestricted order snapshot. Reusing an idempotency key with different
-244 | comparison evidence returns a conflict.
-245 |
-246 | ## Read native shadow rollout
-247 |
-248 | ```http
-249 | GET /v1/integration-rollouts/native-shadow
-250 | ```
-251 |
-252 | This service endpoint requires `comparisons:write`. It returns only the active
-253 | organization/store rollout for the authenticated service API key. A missing
-254 | rollout row is represented as `mode: "off"`, `rollout_version: "off"`, and
-255 | `sample_rate_bps: 0`. The returned sampling key is a deterministic scoped
-256 | identifier, not a credential.
-257 |
-258 | ```json
-259 | {
-260 |   "success": true,
-261 |   "organization_id": "org_123",
-262 |   "store_id": "store_123",
-263 |   "integration": "multi-store-saas",
-264 |   "mode": "shadow",
-265 |   "rollout_version": "pilot-v1",
-266 |   "sample_rate_bps": 1000,
-267 |   "sampling_key": "scoped-deterministic-key"
-268 | }
-269 | ```
-270 |
-271 | ## Record native shadow attempt
-272 |
-273 | ```http
-274 | POST /v1/integration-attempts/native-shadow
-275 | ```
-276 |
-277 | This endpoint requires `comparisons:write` and `Idempotency-Key`. It records one
-278 | immutable sampled-order state after the source order has been persisted.
-279 | Allowed states are:
-280 |
-281 | - `comparison_succeeded`, with matching scoped assessment and comparison IDs;
-282 | - `assessment_failed`, with `GUARD_ASSESSMENT_FAILED` or `GUARD_TIMEOUT`;
-283 | - `comparison_persist_failed`, with the scoped assessment ID and
-284 |   `COMPARISON_PERSIST_FAILED`.
-285 |
-286 | ```json
-287 | {
-288 |   "external_order_id": "ORDER-100",
-289 |   "rollout_version": "pilot-v1",
-290 |   "sample_bucket": 140,
-291 |   "sample_rate_bps": 1000,
-292 |   "status": "assessment_failed",
-293 |   "failure_code": "GUARD_TIMEOUT",
-294 |   "evaluated_at": "2026-07-18T08:00:00Z"
-295 | }
-296 | ```
-297 |
-298 | The repository revalidates the active store rollout plus every assessment and
-299 | comparison reference. Duplicate retries return the same attempt ID; conflicting
-300 | reuse of the idempotency key is rejected. Database errors return a structured,
-301 | secret-free advisory error and must not alter source checkout behavior.
-302 |
-303 | ## Administer store rollout
-304 |
-305 | ```http
-306 | PUT /dashboard/v1/native-shadow-rollout
-307 | ```
-308 |
-309 | This browser endpoint is separate from service API-key authentication. It
-310 | requires an authenticated dashboard session, CSRF proof, an active owner/admin
-311 | membership, and exact organization/store scope. Valid configurations are only
-312 | `off` with zero sampling or `shadow` with a positive bounded sample rate. No
-313 | enforcement mode is accepted.
-314 |
-315 | ## Webhooks
-316 |
-317 | Events:
-318 |
-319 | - `assessment.completed`
-320 | - `verification.verified`
-321 | - `verification.failed`
-322 | - `courier.connection_failed`
-323 | - `order.outcome_recorded`
-324 | - `usage.limit_warning`
-325 |
-326 | Webhook requirements:
-327 |
-328 | - HMAC signature
-329 | - timestamp header
-330 | - replay protection
-331 | - retry with exponential backoff
-332 | - delivery log
-333 | - bounded payload and SSRF-safe destination validation
-334 |
-335 | ## Error format
-336 |
-337 | ```json
-338 | {
-339 |   "success": false,
-340 |   "error": {
-341 |     "code": "INVALID_PHONE",
-342 |     "message": "A valid Bangladesh mobile number is required",
-343 |     "details": {}
-344 |   },
-345 |   "request_id": "req_123"
-346 | }
-347 | ```
-348 |
-349 | ## Contract rules
-350 |
-351 | - All integrations use this same contract.
-352 | - Risk levels and decisions are lowercase canonical enums.
-353 | - Signals use `code`; adapters/plugins must not invent `name` or `type` variants.
-354 | - Provider/network failure must not appear as low risk.
-355 | - API key environment and store scope must be enforced server-side.
-356 | - Quota/entitlement enforcement must be safe under concurrency.
-357 | - Idempotent retries return the original logically equivalent result.
-358 | - Webhook and OTP provider network delivery never run in the synchronous API or checkout request path.
-359 |
-```
-
-### docs/database/database-design.md
-
-Bytes: 15567
-SHA-256: a13641dea2a3ecdc5352b9531878bbb7f2306b520f10ff190697a22ad8324be5
-Lines: 1-434 of 434
-
-```markdown
-  1 | # Database Design
-  2 |
-  3 | ## Recommended production database
-  4 |
-  5 | Use PostgreSQL for the standalone product. Cloudflare D1 can remain suitable for an early pilot, but shared intelligence, analytics, concurrent billing, and relational integrity will benefit from PostgreSQL.
-  6 |
-  7 | ## Identity and tenancy
-  8 |
-  9 | ### `users`
- 10 |
- 11 | - `id`
- 12 | - `email`
- 13 | - `password_hash` or managed-auth identifier
- 14 | - `email_verified_at`
- 15 | - `platform_role`: `merchant` or explicit `platform_admin`
- 16 | - `status`
- 17 | - timestamps
- 18 |
- 19 | ### `organizations`
- 20 |
- 21 | - `id`
- 22 | - `name`
- 23 | - `slug`
- 24 | - `plan_id`
- 25 | - `status`
- 26 | - timestamps
- 27 |
- 28 | ### `organization_members`
- 29 |
- 30 | - `organization_id`
- 31 | - `user_id`
- 32 | - `role`
- 33 | - permissions
- 34 | - timestamps
- 35 |
- 36 | ### `stores`
- 37 |
- 38 | - `id`
- 39 | - `organization_id`
- 40 | - `name`
- 41 | - `platform`
- 42 | - `external_store_id`
- 43 | - `timezone`
- 44 | - `currency`
- 45 | - `status`
- 46 | - timestamps
- 47 |
- 48 | All merchant-owned repository methods must require an explicit organization/store scope. Scope filters must not be optional. API keys, feature assembly, writes, dashboards, and administrative repositories must join back to active `organizations` and `stores` so a syntactically matching but relationally mismatched scope fails closed.
- 49 |
- 50 | ## API and billing
- 51 |
- 52 | ### `api_keys`
- 53 |
- 54 | - `id`
- 55 | - `organization_id`
- 56 | - `store_id` nullable
- 57 | - `environment`: `test` or `live`
- 58 | - `key_hash`
- 59 | - `key_prefix`
- 60 | - `name`
- 61 | - `scopes`
- 62 | - `allowed_origins`
- 63 | - `last_used_at`
- 64 | - `expires_at`
- 65 | - `revoked_at`
- 66 | - timestamps
- 67 |
- 68 | Raw API keys are shown once and never stored. Key prefixes are `ozg_test_` and `ozg_live_` followed by sufficient random material. Resolution accepts a key only when its active store belongs to its active organization.
- 69 |
- 70 | ### `usage_events`
- 71 |
- 72 | - `id`
- 73 | - `organization_id`
- 74 | - `api_key_id`
- 75 | - `event_type`
- 76 | - `units`
- 77 | - `request_id`
- 78 | - `response_ms`
- 79 | - `status_code`
- 80 | - timestamp
- 81 |
- 82 | Usage entitlement reservation and assessment creation must be atomic or use a design that cannot be bypassed by concurrent requests.
- 83 |
- 84 | ### `subscriptions`
- 85 |
- 86 | - organization
- 87 | - plan
- 88 | - billing status
- 89 | - cycle dates
- 90 | - provider references
- 91 |
- 92 | ## Courier subsystem
- 93 |
- 94 | ### `courier_accounts`
- 95 |
- 96 | - `id`
- 97 | - `store_id`
- 98 | - `provider`
- 99 | - `status`
-100 | - `credential_version`
-101 | - `last_connected_at`
-102 | - `last_success_at`
-103 | - `last_failure_at`
-104 | - `failure_code`
-105 | - timestamps
-106 |
-107 | ### `courier_credentials`
-108 |
-109 | - `courier_account_id`
-110 | - encrypted credential payload or vault reference
-111 | - encryption key version
-112 | - timestamps
-113 |
-114 | ### `courier_sessions`
-115 |
-116 | - `courier_account_id`
-117 | - encrypted cookie/token payload
-118 | - `expires_at`
-119 | - `validated_at`
-120 | - `status`
-121 | - timestamps
-122 |
-123 | ### `courier_observations`
-124 |
-125 | - `id`
-126 | - `store_id`
-127 | - `provider`
-128 | - `phone_hash`
-129 | - optionally encrypted normalized phone for operational lookup
-130 | - `total_orders`
-131 | - `delivered_orders`
-132 | - `returned_orders`
-133 | - `cancelled_before_shipping`
-134 | - `success_rate`
-135 | - `confidence`
-136 | - `source_type`
-137 | - `observed_at`
-138 | - `expires_at`
-139 | - encrypted raw payload reference
-140 |
-141 | Unique/index recommendation:
-142 |
-143 | - `(store_id, provider, phone_hash, observed_at)`
-144 | - latest-observation index by `(store_id, phone_hash, provider, observed_at desc)`
-145 |
-146 | ### `courier_jobs`
-147 |
-148 | - `courier_account_id`
-149 | - job type and durable payload
-150 | - status and attempts
-151 | - scheduled time
-152 | - `claimed_by`
-153 | - `claimed_at`
-154 | - `lease_expires_at`
-155 | - started/completed time
-156 | - error code
-157 |
-158 | Courier jobs are claimed atomically with `FOR UPDATE SKIP LOCKED`. The current worker owner must match every start, completion, retry, or terminal-failure transition. Expired `claimed` or `processing` jobs may be reclaimed while fresh leases cannot be stolen. Exhausted stale jobs fail closed with `LEASE_EXPIRED`.
-159 |
-160 | Organization, store, and provider scope come from the `courier_accounts` and `stores` relationships. Payload scope fields are compatibility assertions only and must never override relational scope.
-161 |
-162 | ## Risk subsystem
-163 |
-164 | ### `risk_assessments`
-165 |
-166 | - `id`
-167 | - `organization_id`
-168 | - `store_id`
-169 | - `external_order_id`
-170 | - `phone_hash`
-171 | - encrypted phone reference if operationally required
-172 | - order snapshot fields
-173 | - score
-174 | - confidence
-175 | - risk level
-176 | - decision
-177 | - engine version
-178 | - policy version
-179 | - degraded flags
-180 | - timestamps
-181 |
-182 | ### `integration_shadow_comparisons`
-183 |
-184 | - immutable organization/store-scoped native-client comparison evidence
-185 | - source API key and integration name
-186 | - external order and scoped assessment references
-187 | - legacy score/decision
-188 | - server-derived Guard score/decision/confidence
-189 | - decision-change flag and score delta
-190 | - rollout version, deterministic sample bucket, and sample rate
-191 | - evaluation and creation timestamps
-192 |
-193 | The assessment foreign key includes organization and store scope. No raw phone,
-194 | API key, provider credential, or unrestricted order snapshot is stored.
-195 | Idempotency is unique by organization, store, integration, and key; conflicting
-196 | reuse fails closed.
-197 |
-198 | ### `integration_shadow_rollouts`
-199 |
-200 | - one authoritative row per organization, store, and integration
-201 | - `off` or `shadow` mode only
-202 | - rollout version and bounded basis-point sample rate
-203 | - optional owner/admin user reference for the last update
-204 | - composite store/organization foreign key
-205 | - timestamps for audit and rollout review
-206 |
-207 | No row is equivalent to `off`. Database constraints require zero sampling for
-208 | `off` and positive sampling for `shadow`. This table contains no provider or
-209 | service credential.
-210 |
-211 | ### `integration_shadow_attempts`
-212 |
-213 | - immutable organization/store/integration sampled-order evidence
-214 | - source API-key record reference, never the raw key
-215 | - external order ID and stable idempotency key
-216 | - rollout version, deterministic bucket, and sample rate
-217 | - status: successful comparison, assessment failure, or comparison persistence
-218 |   failure
-219 | - bounded failure code plus scoped assessment/comparison references when required
-220 | - evaluation and creation timestamps
-221 |
-222 | Composite foreign keys ensure referenced assessments and comparisons belong to
-223 | the same organization/store. Check constraints enforce valid status/reference
-224 | combinations. Concurrent retries serialize through the repository and the
-225 | unique organization/store/integration/idempotency boundary.
-226 |
-227 | ### `risk_signals`
-228 |
-229 | - assessment id
-230 | - signal code
-231 | - category
-232 | - score contribution
-233 | - confidence
-234 | - description
-235 | - evidence reference
-236 |
-237 | ### `risk_policies`
-238 |
-239 | - store id
-240 | - version
-241 | - thresholds
-242 | - action configuration
-243 | - active flag
-244 | - timestamps
-245 |
-246 | ### `order_outcomes`
-247 |
-248 | - store/order references
-249 | - outcome
-250 | - provider
-251 | - reason
-252 | - source
-253 | - confirmed at
-254 | - evidence reference
-255 |
-256 | ## Event and webhook subsystem
-257 |
-258 | ### `webhook_endpoints`
-259 |
-260 | - `id`
-261 | - `organization_id`
-262 | - optional `store_id`
-263 | - HTTPS destination URL
-264 | - encrypted signing-secret envelope
-265 | - subscribed event-type array
-266 | - status
-267 | - timestamps
-268 |
-269 | A store-scoped endpoint receives only events for that store. An organization-wide endpoint may receive events for any authorized store in the organization. Endpoint secrets are never stored as plaintext. Administration lists operational endpoint metadata only after active owner/admin reauthorization and never returns `secret_encrypted`.
-270 |
-271 | ### `webhook_deliveries`
-272 |
-273 | - `id`
-274 | - `endpoint_id`
-275 | - `organization_id`
-276 | - optional `store_id`
-277 | - stable `event_id`
-278 | - canonical `event_type`
-279 | - canonical `event_payload`
-280 | - `occurred_at`
-281 | - status and attempts
-282 | - `next_attempt_at`
-283 | - `response_status`
-284 | - error code
-285 | - `claimed_by`
-286 | - `claimed_at`
-287 | - `lease_expires_at`
-288 | - `completed_at`
-289 | - timestamps
-290 |
-291 | Assessment and outcome repositories insert matching webhook deliveries in the same PostgreSQL transaction as the newly persisted assessment or outcome. A transaction rollback therefore cannot leave a delivery for data that was not committed, and an idempotency loser does not emit another event.
-292 |
-293 | The persisted event payload contains explicit organization/store identity and the stable event ID/type. It must not include raw phone values, API keys, OTPs, provider credentials, signing secrets, or unrestricted assessment request snapshots.
-294 |
-295 | The unique `(endpoint_id, event_id)` constraint prevents duplicate delivery rows. Event workers claim due rows with `FOR UPDATE SKIP LOCKED`, attach an expiring owner lease, and require the current unexpired owner for delivery, retry, or terminal-failure transitions. Stale work can be reclaimed; exhausted stale work fails with `LEASE_EXPIRED`.
-296 |
-297 | Before a delivery is claimed, its organization/store scope is revalidated against `webhook_endpoints` and `stores`. Mismatched rows fail closed with `WEBHOOK_SCOPE_MISMATCH`.
-298 |
-299 | Recommended operational indexes:
-300 |
-301 | - `(status, next_attempt_at, lease_expires_at)` for claim/recovery scans
-302 | - `(organization_id, store_id, created_at desc)` for scoped operations views
-303 |
-304 | ## Reputation subsystem
-305 |
-306 | ### `reputation_reports`
-307 |
-308 | - reporter store
-309 | - subject phone hash
-310 | - category
-311 | - evidence type
-312 | - order/courier reference
-313 | - status
-314 | - confidence
-315 | - expiry/decay data
-316 |
-317 | ### `network_reputation`
-318 |
-319 | Materialized/derived score by phone hash:
-320 |
-321 | - positive outcomes
-322 | - negative courier-confirmed outcomes
-323 | - independent reporters
-324 | - confidence
-325 | - last evidence time
-326 | - decay-adjusted score
-327 |
-328 | ### `reputation_disputes`
-329 |
-330 | - report/subject
-331 | - reason
-332 | - evidence
-333 | - review status
-334 | - resolution
-335 |
-336 | ## Verification subsystem
-337 |
-338 | ### `verification_sessions`
-339 |
-340 | - assessment/order/store
-341 | - phone hash
-342 | - purpose
-343 | - channel
-344 | - status
-345 | - idempotency key
-346 | - maximum verification attempts
-347 | - expiry
-348 | - verified at
-349 |
-350 | ### `otp_attempts`
-351 |
-352 | - verification session
-353 | - hashed OTP
-354 | - attempts
-355 | - provider message id
-356 | - sent/delivered/failed times
-357 | - expiry
-358 |
-359 | Never store OTP plaintext in sessions or attempts.
-360 |
-361 | ### `verification_jobs`
-362 |
-363 | - verification session
-364 | - explicit organization/store scope
-365 | - job type
-366 | - job-context-encrypted phone/OTP/purpose payload
-367 | - status and attempts
-368 | - next attempt time
-369 | - provider message id and structured error code
-370 | - `claimed_by`, `claimed_at`, and `lease_expires_at`
-371 | - completion and standard timestamps
-372 |
-373 | OTP send creation inserts the verification session, hash-only OTP attempt, and encrypted job in one transaction. The API never delivers the provider message synchronously. Workers claim due jobs with `FOR UPDATE SKIP LOCKED`; every transition requires the current unexpired owner and revalidates the job scope against the authoritative session/store relationship. Scope mismatch, stale exhaustion, payload mismatch, or decryption failure fails closed.
-374 |
-375 | The ciphertext context is `verification-job:<job-id>`. Before provider I/O, the worker validates tenant, purpose, phone HMAC, and OTP hash. Queue rows and logs never contain plaintext phone or OTP values.
-376 |
-377 | ## Initial migration boundaries
-378 |
-379 | Migration 0001 should establish only the Phase 1 foundation:
-380 |
-381 | - users
-382 | - sessions
-383 | - organizations
-384 | - organization_members
-385 | - stores
-386 | - plans/entitlements
-387 | - api_keys
-388 | - usage_events
-389 | - audit_events
-390 |
-391 | Courier, risk, verification, event, and reputation tables should be introduced in subsequent append-only migrations aligned with coherent milestones.
-392 |
-393 | Current ordered migrations:
-394 |
-395 | 1. `0001_foundation.sql` — identity, tenancy, plans, API keys, usage, and audit.
-396 | 2. `0002_courier.sql` — courier accounts, encrypted credential/session records, observations, and jobs.
-397 | 3. `0003_risk.sql` — risk policies, assessments, signals, and outcomes.
-398 | 4. `0004_verification_events.sql` — OTP verification and webhook delivery foundation.
-399 | 5. `0005_durable_operations.sql` — durable job payloads, idempotent outcomes, and idempotency records.
-400 | 6. `0006_browser_access.sql` — explicit platform role plus browser dashboard/admin query indexes.
-401 | 7. `0007_worker_leases.sql` — explicit courier-worker ownership, claim/lease timestamps, stale-job recovery support, and claim scheduling index.
-402 | 8. `0008_webhook_delivery_leases.sql` — scoped canonical webhook event payloads, event-worker ownership/lease timestamps, completion state, and claim/scope indexes.
-403 | 9. `0009_verification_delivery_queue.sql` — verification idempotency/attempt controls plus encrypted delivery jobs, owner leases, completion state, and claim/scope indexes.
-404 |
-405 | Migration 0006 does not store raw session material. `user_sessions.token_hash` remains the only persisted session-token representation. The merchant dashboard repository authorizes with `(user_id, organization_id, store_id)` before running any aggregate query.
-406 |
-407 | Migration 0007 is append-only and does not rewrite prior migration files. Courier jobs use explicit owner leases and relational account scope.
-408 |
-409 | Migration 0008 backfills endpoint-derived scope for prior delivery rows. Legacy rows whose canonical event payload cannot be reconstructed are terminalized with `LEGACY_EVENT_PAYLOAD_MISSING` rather than delivered with invented data.
-410 |
-411 | Migration 0009 leaves prior verification records valid, adds nullable idempotency keys for legacy rows, and introduces a separate encrypted delivery queue without placing plaintext phone or OTP material in existing tables.
-412 |
-413 | ## Migration history integrity
-414 |
-415 | `packages/database/migrations/manifest.json` records the SHA-256 checksum for every ordered SQL migration. `db:check` requires the manifest and SQL file list to match exactly and rejects changed, missing, extra, empty, reordered, or prohibited destructive migration files.
-416 |
-417 | `ozzyl_guard_migrations` stores `name`, non-null `checksum_sha256`, and `applied_at`. The migration runner holds one PostgreSQL advisory lock on one session, rejects unknown or non-contiguous history, and compares every persisted checksum before applying new work. Existing name-only history rows may receive checksums once, transactionally, only from the committed manifest; the checksum column is then enforced `NOT NULL`.
-418 |
-419 | No numbered domain migration is added for this metadata hardening. The migration runner owns the internal history table, while all application tables and columns remain defined by append-only numbered migrations and the canonical schema package.
-420 |
-421 | ## Clean logical restore rehearsal
-422 |
-423 | `npm run db:restore-rehearsal` requires `DATABASE_URL` and a distinct pre-created `RESTORE_DATABASE_URL` with no public relations. It never creates, drops, cleans, or overwrites the source database. PostgreSQL credentials are supplied to client tools through `PG*` environment variables rather than command arguments.
-424 |
-425 | The rehearsal creates a custom-format `pg_dump`, restores it with `pg_restore`, validates complete migration history, compares a canonical public-schema fingerprint, table counts, sequence state, migration rows, and migration replay. `RESTORE_REHEARSAL_VERIFY_DATA_HASHES=true` additionally compares secret-safe per-table hashes of every row and is enabled in CI; large production-equivalent drills may use counts or a separately approved snapshot-integrity procedure when a full hash scan is too expensive.
-426 |
-427 | Repository CI applies the complete migration set twice, verifies the history table, and restores into a clean PostgreSQL 16 database. Managed-provider automated backup retention and point-in-time recovery must still be demonstrated separately before the merchant pilot.
-428 |
-429 | ## Runtime and migration database identities
-430 |
-431 | `packages/database/src/runtime-role.ts` defines the reviewed current-table runtime policy. The migration owner validates the full public base-table inventory, revokes prior direct table/schema/sequence privileges, grants explicit required `SELECT`/`INSERT`/`UPDATE`, and then verifies effective privileges. `ozzyl_guard_migrations` remains inaccessible.
-432 |
-433 | The runtime role must already exist as a non-owner `LOGIN` without elevated attributes or inherited memberships. It cannot own the current database, public schema, or public relations and cannot receive `DELETE`, DDL, schema `CREATE`, migration-history access, or role-management privileges. Run `DATABASE_RUNTIME_ROLE=<role> npm run db:runtime-grants` after every migration release; an unreviewed new table causes the command to fail closed until the policy is updated.
-434 |
-```
-
-### docs/integrations/integrations.md
-
-Bytes: 4579
-SHA-256: 887c1d7df2094a6576d29187d651c4d290bd1acb0ba4c14a9ba19be51e2bb4cf
-Lines: 1-120 of 120
-
-```markdown
-  1 | # Integrations
-  2 |
-  3 | All integrations use the canonical `/v1` API contract and outcome feedback model. Integration-specific code must not contain a second scoring engine.
-  4 |
-  5 | ## WooCommerce
-  6 |
-  7 | ### Required features
-  8 |
-  9 | - API key and store connection settings
- 10 | - Test/live mode
- 11 | - COD-only assessment option
- 12 | - Threshold/action settings
- 13 | - Order metadata and admin badge
- 14 | - Hold/flag/require-prepayment actions
- 15 | - OTP workflow
- 16 | - Outcome webhook when order status changes
- 17 | - Manual recheck
- 18 | - Retry and explicit degraded-state visibility
- 19 |
- 20 | ### Contract rules
- 21 |
- 22 | - Use canonical lowercase risk levels.
- 23 | - Use `signals[].code`, not conflicting `name/type` fields.
- 24 | - API success must be explicit.
- 25 | - Network failure must not be interpreted as low risk.
- 26 | - Checkout timeout must stay bounded.
- 27 | - Use `Idempotency-Key` derived from store/order/assessment intent.
- 28 | - Store the assessment ID and engine/policy metadata with the order.
- 29 | - Never automatically cancel solely because a provider call failed.
- 30 |
- 31 | ### Source plugin reuse
- 32 |
- 33 | Reusable:
- 34 |
- 35 | - WordPress settings registration/page skeleton
- 36 | - WooCommerce order-created hook concept
- 37 | - Order metadata/admin display concept
- 38 | - Bounded HTTP timeout concept
- 39 |
- 40 | Rewrite:
- 41 |
- 42 | - Endpoint path and request/response contract
- 43 | - API key prefix placeholder
- 44 | - Uppercase `LOW/MEDIUM/HIGH/CRITICAL` mapping
- 45 | - `signals[].type` access
- 46 | - Missing explicit success handling mismatch
- 47 | - Immediate cancel behavior and low-risk approval wording
- 48 | - Outcome feedback, retries, idempotency, manual recheck, OTP, and degraded state
- 49 | - Secret storage guidance and connection test behavior
- 50 |
- 51 | ## Shopify
- 52 |
- 53 | Initial approach:
- 54 |
- 55 | - App installation and OAuth
- 56 | - Order-created webhook
- 57 | - Risk assessment
- 58 | - Add order tags/metafields
- 59 | - Merchant dashboard action recommendations
- 60 | - Outcome sync from fulfilment/order updates
- 61 | - Signed webhook verification and replay protection
+ 61 | ## Migrations
  62 |
- 63 | ## Custom websites
- 64 |
- 65 | Provide:
- 66 |
- 67 | - REST API
- 68 | - TypeScript SDK
- 69 | - PHP SDK
- 70 | - Server-side examples
- 71 | - Webhook verification helper
- 72 | - Clear timeout/retry/idempotency guidance
- 73 |
- 74 | Browser-only integrations must not expose live API keys. Custom JS should use a merchant server or narrowly scoped short-lived token design selected by ADR.
+ 63 | 1. `0001_foundation.sql`
+ 64 | 2. `0002_courier.sql`
+ 65 | 3. `0003_risk.sql`
+ 66 | 4. `0004_verification_events.sql`
+ 67 | 5. `0005_durable_operations.sql`
+ 68 | 6. `0006_browser_access.sql`
+ 69 | 7. `0007_worker_leases.sql`
+ 70 | 8. `0008_webhook_delivery_leases.sql`
+ 71 | 9. `0009_verification_delivery_queue.sql`
+ 72 | 10. `0010_native_shadow_comparisons.sql`
+ 73 | 11. `0011_native_shadow_pilot.sql`
+ 74 | 12. `0012_durable_work_replays.sql`
  75 |
- 76 | ## Ozzyl Commerce / `multi-store-saas`
+ 76 | Applied migrations must remain immutable.
  77 |
- 78 | Treat the existing platform as the first native client.
+ 78 | ## Verification evidence
  79 |
- 80 | - Remove embedded duplicate risk logic.
- 81 | - Call Ozzyl Guard through an internal service client.
- 82 | - Reuse store/order IDs as external references.
- 83 | - Send order outcomes back to Guard.
- 84 | - Keep courier booking in the commerce platform, but risk assessment in Guard.
- 85 | - Roll out behind a feature flag and compare old/new decisions before removing old code.
- 86 | - The first rollout mode is `off` or `shadow` only; Guard never becomes the
- 87 |   effective decision source in this milestone.
- 88 | - Select the shadow cohort deterministically from a stable store-specific
- 89 |   sampling key and order ID so retries stay in the same cohort.
- 90 | - Run shadow evaluation after order persistence, not as a checkout-blocking
- 91 |   control. A Guard or comparison-persistence failure returns a safe code while
- 92 |   the legacy result remains authoritative.
- 93 | - Persist successful comparisons through
- 94 |   `POST /v1/integration-comparisons/native-shadow`; the API derives Guard values
- 95 |   from the scoped assessment and rejects cross-store or mismatched-order data.
- 96 | - The concrete post-persist hook must reload the durable source order through
- 97 |   `PersistedCommerceOrderReader` and verify organization, store, and order IDs
- 98 |   before fetching rollout configuration or calling Guard.
- 99 | - Fetch authoritative rollout state from
-100 |   `GET /v1/integration-rollouts/native-shadow`. Missing configuration behaves as
-101 |   `off`; a store runs shadow only after an explicit owner/admin opt-in.
-102 | - Record every sampled success, assessment failure, timeout, or comparison
-103 |   persistence failure through `POST /v1/integration-attempts/native-shadow`.
-104 |   Source retries reuse stable idempotency keys.
-105 | - Failure to read rollout state or write attempt evidence is advisory only. The
-106 |   normalized legacy result remains the effective decision.
-107 | - Do not enable enforcement or broad automatic blocking until pilot outcomes
-108 |   have been reviewed and thresholds calibrated.
-109 |
-110 | ## Meta audience exclusion — later phase
-111 |
-112 | Workflow:
-113 |
-114 | 1. Merchant authorizes Meta assets.
-115 | 2. Eligible high-confidence identities are normalized and hashed.
-116 | 3. Ozzyl Guard updates a merchant-owned customer-list custom audience.
-117 | 4. Merchant excludes that audience from selected ad sets.
-118 |
-119 | This is merchant-specific audience management, not a global Facebook user block. It requires separate privacy/legal review and is not part of the first MVP.
-120 |
+ 80 | - `npm run format:check`: passed
+ 81 | - `npm run lint`: passed with zero warnings
+ 82 | - `npm run db:check`: twelve migrations and committed SHA-256 manifest validated
+ 83 | - initial migration apply: passed with non-null history checksums
+ 84 | - immediate migration replay: passed as a clean no-op
+ 85 | - `npm run db:integrity`: complete contiguous history and checksums passed
+ 86 | - `npm run db:restore-rehearsal`: clean logical restore, schema fingerprint, full table data hashes, sequence state, history, and replay passed
+ 87 | - `npm run check:architecture`: passed
+ 88 | - `npm run typecheck`: 20/20 workspaces passed locally
+ 89 | - `npm run test`: 31/31 Turbo dependency tasks passed locally; source inventory contains 132 assertions, including three new observability tests
+ 90 | - `npm run build`: 20/20 workspace builds passed locally
+ 91 | - `npm audit --audit-level=high`: passed after updating ESLint, `@eslint/js`, and `typescript-eslint`; five moderate findings remain
+ 92 | - Observability tests prove fixed metadata, nested redaction, error message/stack omission, circular/binary/bigint handling, bounded strings, reserved-field protection, and sink-failure isolation
+ 93 | - Webhook outbox final run `29550097719`, job `87790624617`: all gates passed at head `fb0a68bac4628a96f82413b5d71092e4f0367536`
+ 94 | - Five real-PostgreSQL webhook tests cover competing claims, fresh-lease protection, expired-owner recovery, retry cleanup, exhausted stale failure, and scope mismatch rejection
+ 95 | - Transactional API coverage proves one delivery per matching store/organization endpoint and persisted winner, with no raw phone in event payloads
+ 96 | - Event-worker tests cover HMAC delivery, unsafe URL rejection, DNS-to-private rejection, retryable DNS failures, and redirect-disabled fetch behavior
+ 97 | - Eleven envelope tests cover local compatibility, per-record DEK zeroization, opaque wrapping, pre-unwrap context rejection, metadata tampering, KMS outage, unsafe wrappers, malformed envelopes, legacy dual-read, missing legacy keys, and key-version re-encryption
+ 98 | - The verified webhook outbox change was squash-merged to `main` as `752d08776f35345e5ec002d9a9ca720f304df8cc`
+ 99 | - Verification queue targeted run `29553255223`, job `87800077114`: migration 0009/replay, verification/API typechecks, five PostgreSQL lease tests, three encrypted-payload tests, API tests/builds, and Compose profile validation passed for source commit `5fce01ac98bc8115959276b1ffc636a1702d77a0`
+100 | - Verification queue final run `29554260434`, job `87803061854`: audit, format, lint, nine migrations/replay, architecture, 19 workspace typechecks, 28 test tasks with 67 assertions, 19 builds, and PHP lint passed at head `7f24a7be544ae60d7a0a15b4a5020b4253e0d192`
+101 | - The verified verification queue change was squash-merged to `main` as `146360ab40efe45bfa7332c1a42b6cac0e88d17b`
+102 | - Restore-integrity source run `29556041278`, job `87808175661`: manifest, apply/replay, history integrity, clean full-data-hash restore, architecture, 19 typechecks, 28 test tasks with 74 assertions, 19 builds, and PHP lint passed at head `0eb8f09bc5e91c18e7ee5933cedb0e78f618a972`
+103 | - Restore-integrity final run `29556722776`, job `87810268816`: the same complete gate set passed at final documentation head `6a7bd57fa4ef0d1f917ca83729691fbd25c0738c`
+104 | - The verified restore-integrity change was squash-merged to `main` as `950d07069643f4e69d7570802091a600011f72df`
+105 | - Runtime-role/tenant-isolation source run `29560049322`, job `87820368024`: manifest/apply/replay/history, clean restore, runtime-role grants, architecture, 19 typechecks, 28 test tasks with 87 assertions, 19 builds, audit, formatting, lint, and PHP syntax passed at head `90a50b215b063d87f71725eb6a375cbb887345de`
+106 | - Runtime-role/tenant-isolation final run `29574499372`, job `87865756151`: the complete gate set passed at final documentation head `71588cb024f63c750ffae8212cd5911db08d1ced`
+107 | - The verified runtime-role and tenant-isolation change was squash-merged to `main` as `845749ce9570dc49558073808247e1dc1221669b`
+108 | - Managed-envelope source run `29579223561`, job `87880659693`: all repository gates passed with 19 typechecks, 28 test tasks and 96 assertions, 19 builds, and PHP lint at head `9dbd61eb84fa6d42958e120d5ce9e1e402bd6688`
+109 | - Managed-envelope final run `29580203487`, job `87883814149`: the complete gate set passed at final documentation head `cae4d6ea9d101afe2e692819886fd149c5cf3b85`
+110 | - The verified provider-neutral managed-envelope boundary was squash-merged to `main` as `ee24aa7faf41e14b04769434c74bc99d7a245de4`
+111 | - Five native-adapter tests cover off mode, deterministic cohort selection, legacy-authoritative Guard disagreement, Guard failure, and comparison-persistence failure
+112 | - Three API tests cover comparison idempotency, dedicated scope enforcement, and cross-store assessment rejection
+113 | - Three PostgreSQL tests cover concurrent duplicate writes, immutable idempotency conflict rejection, and relational assessment/store isolation
+114 | - Native-shadow source run `29610050179`, job `87982336996`: all repository gates passed with ten migrations, 19 typechecks, 28 test tasks and 107 assertions, 19 builds, and PHP lint at head `85cd9e2bafd0fc3605c97a461f01a6a87016b83b`
+115 | - Native-shadow final run `29610847711`, job `87984896681`: the complete gate set passed at final documentation head `dc44c8b7df2bfa84cd8f372f9df0831d3c35beeb`
+116 | - The verified native shadow rollout milestone was squash-merged to `main` as `446d6eb47d042fe4f2834ba31bb3596e57c7ad54`
+117 | - Ten native source tests cover authoritative post-persist reload, off mode, deterministic sampling, scope mismatch, timeout, legacy-authoritative disagreement, comparison failure, attempt failure, and stable evidence mapping
+118 | - Seven native-shadow API tests cover dedicated scope, rollout reads, attempt validation/idempotency, comparison persistence, and secret-free failure responses
+119 | - Seven real-PostgreSQL native-shadow tests cover concurrent comparison/attempt writes, default-off and explicit opt-in, negative tenant references, advisory failure evidence, bounded reporting, and immediate opt-out
+120 | - Two SDK tests and two browser-control tests cover rollout/attempt contracts plus CSRF, owner/admin, and exact-store authorization
+121 | - Selected-source shadow pilot final run `29629751800`, job `88040964883`: eleven migrations, 19 typechecks, 28 test tasks with 120 assertions, 19 builds, audit, formatting, lint, clean restore, runtime-role grants, architecture, and PHP lint passed at head `57e6b296617549e923fc80ab80b0317f109f5ee8`
+122 | - The verified selected-source shadow pilot foundation was squash-merged through PR #20 to `main` as `c478170c7dadbeafa576a62ae989df682e052d4e`
+123 | - Five real-PostgreSQL durable-work tests cover exact-store owner/admin listing, negative member authorization, concurrent duplicate replay, one immutable ledger/audit outcome, courier lease reset, scoped unexpired verification reopening, structural/expired rejection, cross-tenant isolation, and idempotency conflicts
+124 | - Seven runtime-role tests now include insert-only replay-ledger privileges alongside migration-history, DELETE, DDL, ownership, and elevated-role denials
+125 | - Durable-work dead-letter final run `29644234591`, job `88079650134`: twelve migrations, 19 typechecks, 28 test tasks with 126 assertions, 19 builds, audit, formatting, lint, clean restore, runtime-role grants, architecture, and PHP lint passed at head `a1419a2889701bcb6c05b686ac4b1eeb6e9d5d12`
+126 | - The verified durable-work dead-letter operations milestone was squash-merged through PR #22 to `main` as `2d686206456960bf9b3e14571e3bf2c9169d94f9`
+127 | - Three browser dead-letter tests cover secret-free exact-store listing, wrong-store hiding, owner/admin authorization, member rejection, CSRF protection, stable idempotency forwarding, replay serialization, and structured conflict mapping
+128 | - Browser dead-letter operations final run `29645967968`, job `88084164235`: twelve migrations, 19 typechecks, 28 test tasks with 129 assertions, 19 builds, audit, formatting, lint, clean restore, runtime-role grants, architecture, and PHP lint passed at head `2129b51ca7393b3c942f2f5c074cb3990b615b89`
+129 | - The verified browser dead-letter operations milestone was squash-merged through PR #24 to `main` as `27cff21a9fd024e7b8094da3397c79387c83ea02`
+130 | - Seven real-PostgreSQL tests cover API-key/feature/write tenant mismatch, dashboard aggregation isolation, platform-admin reauthorization, and secret-free webhook/verification administration
+131 | - Seven database-role tests cover identifier safety, explicit policy completeness, insert-only replay evidence, real allowed DML, migration-history/DELETE/DDL denial, elevated-role rejection, and inherited-role rejection
+132 | - Previous canonical documentation checks found zero broken internal links
+133 | - Prohibited insecure-pattern scan: zero matches
+134 |
+135 | The repository-local exporter was refreshed after this milestone documentation was completed. Source-branch remote CI is pending.
+136 |
+137 | ## External blockers and production requirements
+138 |
+139 | - Concrete deployment platform, account, primary region, DNS, and TLS setup
+140 | - Managed PostgreSQL provider/service tier, automated backup retention, and production-equivalent point-in-time restore drill
+141 | - Managed secret store and KMS/vault provider
+142 | - Observability backend, retention, dashboards, alerts, and incident channels
+143 | - Optional Redis-compatible cache only when distributed coordination is required
+144 | - Authorized Steadfast test/merchant account
+145 | - Provider-terms and merchant-authorization review
+146 | - OTP provider selection/account
+147 | - Production account recovery/MFA or managed identity-provider decision
+148 | - Pilot merchants and verified outcome data for calibration
+149 |
+150 | ## Remaining risks
+151 |
+152 | - Steadfast UI/internal endpoint changes can break automation.
+153 | - The managed v2 boundary is implemented, but runtime call sites remain on local v1 until a reviewed provider adapter, service identities, access audits, and background rewrite procedure are provisioned.
+154 | - DNS validation reduces hostname-based SSRF risk, but production still requires controlled egress and network policy against DNS rebinding/route changes.
+155 | - In-process API and browser-session rate limiting is not distributed across replicas.
+156 | - Controlled dead-letter inspection and browser replay are implemented; future work still includes lease renewal for executions that may exceed one lease and a reviewed retention/archival policy.
+157 | - The repository runtime-role policy is verified, but the selected managed PostgreSQL provider must still provision distinct credentials, run the grant command after migrations, and pass a production smoke test.
+158 | - The verification runner has no bundled production provider adapter; provider selection, account credentials, terms, delivery callbacks, and staging validation remain external.
+159 | - Browser login has no account recovery, invitation, MFA, or managed identity-provider integration yet.
+160 | - GitHub currently reports public repository visibility although the expected policy is private.
+161 | - Provider-specific infrastructure has not been provisioned or smoke-tested.
+162 | - Structured logs are implemented for private worker startup/error paths, but API/repository/provider metrics, traces, exporters, dashboards, alerts, and managed retention are not yet implemented.
+163 | - Five moderate dependency advisories remain; the high/critical audit threshold is clear. One affects the Hono Node adapter on Windows static serving, while the remaining findings are development/build tooling; production upgrade review remains pending.
+164 | - Native shadow mode is advisory only; the verified post-persist hook still requires production deployment to explicitly selected stores, and pilot outcomes must be reviewed before any enforcement design.
+165 | - Automatic blocking remains merchant-controlled and disabled by default until pilot calibration.
+166 |
+167 | ## Next milestone
+168 |
+169 | Provision the accepted infrastructure baseline with distinct database identities and a production point-in-time restore drill, select and wire the managed KMS adapter plus audited re-encryption runner, validate Steadfast, select and bundle the OTP provider adapter, deploy the verified source hook to explicit pilot stores, and collect outcomes for calibration.
+170 |
 ```
 
 ### docs/operations/operations-observability.md
 
-Bytes: 11298
-SHA-256: 98a477a9461c07abf0022c9d78ddd6d131f3cec4aa4d279e132d541954b05273
-Lines: 1-260 of 260
+Bytes: 13357
+SHA-256: eb086835f6b25cb2408de9968289b379d094a4035052233c5672baf189ed3083
+Lines: 1-272 of 272
 
 ```markdown
   1 | # Operations and Observability
@@ -3137,369 +1462,408 @@ Lines: 1-260 of 260
 104 |
 105 | ## Logging
 106 |
-107 | Use structured logs with:
+107 | `@ozzyl/observability` is the canonical vendor-neutral structured-log boundary. The courier-session, courier-sync, event, and verification runners use it for startup and error records. Every record receives a timestamp, level, service, environment, and event name before export.
 108 |
-109 | - request id
-110 | - organization/store id or safe internal reference
-111 | - assessment/job/event/delivery id
-112 | - provider or destination category where safe
-113 | - worker id
-114 | - error code
-115 | - attempt number
-116 | - duration
-117 | - engine/policy version when relevant
-118 | - deployment environment and service name
-119 |
-120 | Redact all secrets and sensitive values before export. Full phone numbers, raw provider responses, credentials, cookies, OTPs, access tokens, raw API keys, decrypted payloads, webhook signing secrets, destination URL credentials, and unrestricted request/event bodies are prohibited.
-121 |
-122 | Event and verification workers emit startup and structured error records. Production instrumentation must add counters, histograms, and correlation spans without serializing signing secrets, encrypted/decrypted payload bodies, phone/OTP values, provider credentials, or DNS answer details that disclose internal topology.
-123 |
-124 | Recommended event-worker error codes include:
+109 | The helper recursively redacts sensitive field names before serialization. Passwords, secrets, tokens, API keys, cookies, OTPs, raw phone values, credentials, provider responses, DNS answers, payloads, request/response bodies, and URLs are replaced rather than emitted. `phone_hash` is permitted as a non-reversible correlation reference. Error values expose only a bounded name and structured code; messages and stacks are omitted. Circular objects, binary values, big integers, excessive depth, oversized strings, and large collections are converted to bounded safe representations.
+110 |
+111 | Serialization or log-sink failure is swallowed at this boundary so telemetry cannot break API or worker execution. The current package is intentionally exporter-neutral. API/repository/provider metrics, distributed traces, OpenTelemetry exporters/collector topology, dashboards, alerts, and the managed backend remain production follow-up work.
+112 |
+113 | Use structured logs with:
+114 |
+115 | - request id
+116 | - organization/store id or safe internal reference
+117 | - assessment/job/event/delivery id
+118 | - provider or destination category where safe
+119 | - worker id
+120 | - error code
+121 | - attempt number
+122 | - duration
+123 | - engine/policy version when relevant
+124 | - deployment environment and service name
 125 |
-126 | - `UNSAFE_WEBHOOK_DESTINATION`
-127 | - `WEBHOOK_DNS_RESOLUTION_FAILED`
-128 | - `WEBHOOK_SECRET_DECRYPTION_FAILED`
-129 | - `INVALID_EVENT_PAYLOAD`
-130 | - `WEBHOOK_SCOPE_MISMATCH`
-131 | - `WEBHOOK_DELIVERY_LEASE_LOST`
-132 | - `ENDPOINT_INACTIVE`
-133 | - `TIMEOUT`
-134 | - `NETWORK_ERROR`
-135 | - `RATE_LIMITED`
-136 | - `LEASE_EXPIRED`
-137 |
-138 | ## Tracing
-139 |
-140 | Trace synchronous API work and asynchronous jobs using correlation IDs. Propagate assessment, job, event, delivery, and request references without propagating secret material.
-141 |
-142 | Recommended span boundaries:
+126 | Redact all secrets and sensitive values before export. Full phone numbers, raw provider responses, credentials, cookies, OTPs, access tokens, raw API keys, decrypted payloads, webhook signing secrets, destination URL credentials, and unrestricted request/event bodies are prohibited.
+127 |
+128 | All four private workers emit startup and structured error records through the shared redaction boundary. Production instrumentation must add counters, histograms, and correlation spans without serializing signing secrets, encrypted/decrypted payload bodies, phone/OTP values, provider credentials, or DNS answer details that disclose internal topology.
+129 |
+130 | Recommended event-worker error codes include:
+131 |
+132 | - `UNSAFE_WEBHOOK_DESTINATION`
+133 | - `WEBHOOK_DNS_RESOLUTION_FAILED`
+134 | - `WEBHOOK_SECRET_DECRYPTION_FAILED`
+135 | - `INVALID_EVENT_PAYLOAD`
+136 | - `WEBHOOK_SCOPE_MISMATCH`
+137 | - `WEBHOOK_DELIVERY_LEASE_LOST`
+138 | - `ENDPOINT_INACTIVE`
+139 | - `TIMEOUT`
+140 | - `NETWORK_ERROR`
+141 | - `RATE_LIMITED`
+142 | - `LEASE_EXPIRED`
 143 |
-144 | - request authentication and authorization;
-145 | - usage reservation and idempotency;
-146 | - feature assembly and PostgreSQL reads;
-147 | - pure risk-engine invocation as an internal span only;
-148 | - assessment/outcome persistence;
-149 | - transactional outbox insert;
-150 | - durable job/delivery claim and completion;
-151 | - provider adapter call;
-152 | - webhook DNS validation and HTTP attempt without sensitive attributes;
-153 | - verification queue transaction, job claim, payload validation, provider attempt, and completion without phone/OTP attributes.
-154 |
-155 | The event ID links API persistence and asynchronous delivery. The delivery ID links claim, attempt, retry, and completion operations. Telemetry export failure must not break scoring, persistence, or synchronous checkout handling.
-156 |
-157 | ## Alerts
-158 |
-159 | - Provider session refresh failure spike
-160 | - API p95 latency or error-rate breach
-161 | - Assessment error/degraded spike
-162 | - PostgreSQL unavailable, connection saturation, or lock-wait spike
-163 | - Database migration, manifest/history integrity, backup, or restore failure
-164 | - Queue/outbox backlog, oldest-event age, stuck lease, or dead-letter growth
-165 | - Event-worker claim rate drops to zero while due backlog grows
-166 | - Webhook delivery failure or retry spike
-167 | - Webhook secret-decryption or scope-mismatch failure
-168 | - Unsafe webhook destination spike
-169 | - DNS resolution failure spike
-170 | - OTP delivery/retry, payload-validation, scope-mismatch, or lease-expiry spike
-171 | - Usage counter/entitlement drift
-172 | - Reconnect-required account spike
-173 | - Secret scanning or redaction regression
-174 | - KMS/vault access or decrypt failure spike
-175 |
-176 | ## Runbooks
-177 |
-178 | Create and exercise runbooks for:
-179 |
-180 | - Steadfast login/selector break
-181 | - Expired, disabled, or rotated encryption key
-182 | - KMS/vault outage
-183 | - OTP provider outage, credential rejection, payload validation failure, and uncertain provider acceptance
-184 | - Courier provider outage
-185 | - Database logical restore, managed point-in-time restore, and failover
-186 | - API key compromise
-187 | - Courier credential/session compromise
-188 | - Webhook signing-secret compromise and endpoint rotation
-189 | - Queue/outbox backlog, lease recovery, and dead-letter replay
-190 | - Webhook destination failure or repeated HTTP rejection
-191 | - DNS resolution/egress-policy failure
-192 | - Invalid event payload or scope mismatch
-193 | - Incorrect risk policy rollback
-194 | - Telemetry backend outage
-195 | - Reputation dispute escalation when that subsystem exists
-196 |
-197 | A webhook replay runbook must verify endpoint status and scope, rotate or re-encrypt the signing secret when needed, and create a new authorized replay record rather than mutating immutable event identity or silently resetting a delivered row.
-198 |
-199 | A database restore runbook must identify the approved backup or PITR timestamp, freeze or isolate writes when consistency requires it, provision a distinct clean target, verify manifest/history integrity before and after restore, compare schema and approved data/sequence checks, replay migrations as a no-op, rotate credentials if the drill crosses trust boundaries, record recovery time and recovery point, and require an explicit cutover decision. The repository rehearsal never drops the source or performs production cutover automatically.
-200 |
-201 | ## Health model
+144 | ## Tracing
+145 |
+146 | Trace synchronous API work and asynchronous jobs using correlation IDs. Propagate assessment, job, event, delivery, and request references without propagating secret material.
+147 |
+148 | Recommended span boundaries:
+149 |
+150 | - request authentication and authorization;
+151 | - usage reservation and idempotency;
+152 | - feature assembly and PostgreSQL reads;
+153 | - pure risk-engine invocation as an internal span only;
+154 | - assessment/outcome persistence;
+155 | - transactional outbox insert;
+156 | - durable job/delivery claim and completion;
+157 | - provider adapter call;
+158 | - webhook DNS validation and HTTP attempt without sensitive attributes;
+159 | - verification queue transaction, job claim, payload validation, provider attempt, and completion without phone/OTP attributes.
+160 |
+161 | The event ID links API persistence and asynchronous delivery. The delivery ID links claim, attempt, retry, and completion operations. Telemetry export failure must not break scoring, persistence, or synchronous checkout handling.
+162 |
+163 | ## Alerts
+164 |
+165 | - Provider session refresh failure spike
+166 | - API p95 latency or error-rate breach
+167 | - Assessment error/degraded spike
+168 | - PostgreSQL unavailable, connection saturation, or lock-wait spike
+169 | - Database migration, manifest/history integrity, backup, or restore failure
+170 | - Queue/outbox backlog, oldest-event age, stuck lease, or dead-letter growth
+171 | - Event-worker claim rate drops to zero while due backlog grows
+172 | - Webhook delivery failure or retry spike
+173 | - Webhook secret-decryption or scope-mismatch failure
+174 | - Unsafe webhook destination spike
+175 | - DNS resolution failure spike
+176 | - OTP delivery/retry, payload-validation, scope-mismatch, or lease-expiry spike
+177 | - Usage counter/entitlement drift
+178 | - Reconnect-required account spike
+179 | - Secret scanning or redaction regression
+180 | - KMS/vault access or decrypt failure spike
+181 |
+182 | ## Runbooks
+183 |
+184 | Create and exercise runbooks for:
+185 |
+186 | - Steadfast login/selector break
+187 | - Expired, disabled, or rotated encryption key
+188 | - KMS/vault outage
+189 | - OTP provider outage, credential rejection, payload validation failure, and uncertain provider acceptance
+190 | - Courier provider outage
+191 | - Database logical restore, managed point-in-time restore, and failover
+192 | - API key compromise
+193 | - Courier credential/session compromise
+194 | - Webhook signing-secret compromise and endpoint rotation
+195 | - Queue/outbox backlog, lease recovery, and dead-letter replay
+196 | - Webhook destination failure or repeated HTTP rejection
+197 | - DNS resolution/egress-policy failure
+198 | - Invalid event payload or scope mismatch
+199 | - Incorrect risk policy rollback
+200 | - Telemetry backend outage
+201 | - Reputation dispute escalation when that subsystem exists
 202 |
-203 | Expose separate health/readiness states for:
+203 | A webhook replay runbook must verify endpoint status and scope, rotate or re-encrypt the signing secret when needed, and create a new authorized replay record rather than mutating immutable event identity or silently resetting a delivered row.
 204 |
-205 | - API process
-206 | - database
-207 | - durable job/outbox store
-208 | - optional distributed cache
-209 | - event/webhook worker process
-210 | - webhook backlog and oldest-event age
-211 | - event-worker signing-secret decryption capability
-212 | - courier provider adapters
-213 | - session workers
-214 | - verification providers and future verification runner
-215 | - KMS/vault access
-216 | - telemetry export
-217 |
-218 | A webhook endpoint outage, provider outage, or telemetry outage must not necessarily take the API process out of service. Readiness and operations views must still expose degraded dependencies. Unknown or degraded dependencies must never be treated as safe approval signals.
-219 |
-220 | ## Event-worker operational contract
-221 |
-222 | - `EVENT_WORKER_ID` should be stable and unique per replica in production.
-223 | - `EVENT_WORKER_POLL_MS`, `EVENT_WORKER_LEASE_MS`, `EVENT_WORKER_MAX_ATTEMPTS`, and `WEBHOOK_TIMEOUT_MS` must be positive integers.
-224 | - `EVENT_WORKER_LEASE_MS` must exceed `WEBHOOK_TIMEOUT_MS` by more than five seconds.
-225 | - PostgreSQL is authoritative for due time, attempts, owner, lease expiry, retry, and terminal state.
-226 | - Only the current unexpired owner may complete, retry, or fail a claimed delivery.
-227 | - A worker crash leaves recoverable state; the next worker may reclaim after lease expiry.
-228 | - Exhausted stale work fails closed with `LEASE_EXPIRED`.
-229 | - Worker replicas require private ingress, controlled egress, DNS access, database access, secret/KMS decrypt permission, and no broader merchant-data permission than necessary.
-230 |
-231 | ## Data operations
-232 |
-233 | - Automated encrypted backups
-234 | - Point-in-time recovery
-235 | - Restore testing on a schedule
-236 | - Migration preflight and post-deploy verification
-237 | - Outbox retention and terminal-delivery archival policy
-238 | - Retention/deletion jobs for sessions, traces, screenshots, raw evidence, and logs
-239 | - Audit trail for privileged data and credential access
-240 | - KMS key rotation and ciphertext re-encryption procedures
-241 | - Webhook signing-secret rotation/re-encryption procedure
-242 | - Telemetry retention and access review
-243 | - Production-data redaction before lower-environment use
-244 |
-245 | ## Release operations
-246 |
-247 | - Feature flags for new engine/policy versions and native multi-store migration
-248 | - Canary/pilot merchants before broad rollout
-249 | - Compare decision distributions before policy promotion
-250 | - Rollback path for API, worker, migration, and policy changes
-251 | - Do not edit migration 0008 after application; use a new migration for schema changes
-252 | - Keep event-worker deployment independently scalable and rollbackable from the API
-253 | - Exercise outbox backlog and retry behavior before each pilot expansion
-254 | - No automatic blocking policy promotion without reviewed outcome data
-255 | - Validate dashboards and alerts before each pilot expansion
-256 |
-257 | ## Provider selection still pending
-258 |
-259 | A managed observability backend, retention policy, alert-delivery channel, optional OpenTelemetry collector topology, deployment runtime, PostgreSQL service, and managed KMS/vault remain to be selected. Those choices must satisfy ADRs 0006–0010 and must not introduce vendor-specific SDK calls into the risk engine.
-260 |
+205 | A database restore runbook must identify the approved backup or PITR timestamp, freeze or isolate writes when consistency requires it, provision a distinct clean target, verify manifest/history integrity before and after restore, compare schema and approved data/sequence checks, replay migrations as a no-op, rotate credentials if the drill crosses trust boundaries, record recovery time and recovery point, and require an explicit cutover decision. The repository rehearsal never drops the source or performs production cutover automatically.
+206 |
+207 | ## Health model
+208 |
+209 | Expose separate health/readiness states for:
+210 |
+211 | - API process
+212 | - database
+213 | - durable job/outbox store
+214 | - optional distributed cache
+215 | - event/webhook worker process
+216 | - webhook backlog and oldest-event age
+217 | - event-worker signing-secret decryption capability
+218 | - courier provider adapters
+219 | - session workers
+220 | - verification providers and future verification runner
+221 | - KMS/vault access
+222 | - telemetry export
+223 |
+224 | A webhook endpoint outage, provider outage, or telemetry outage must not necessarily take the API process out of service. Readiness and operations views must still expose degraded dependencies. Unknown or degraded dependencies must never be treated as safe approval signals.
+225 |
+226 | ## Event-worker operational contract
+227 |
+228 | - `EVENT_WORKER_ID` should be stable and unique per replica in production.
+229 | - `EVENT_WORKER_POLL_MS`, `EVENT_WORKER_LEASE_MS`, `EVENT_WORKER_MAX_ATTEMPTS`, and `WEBHOOK_TIMEOUT_MS` must be positive integers.
+230 | - `EVENT_WORKER_LEASE_MS` must exceed `WEBHOOK_TIMEOUT_MS` by more than five seconds.
+231 | - PostgreSQL is authoritative for due time, attempts, owner, lease expiry, retry, and terminal state.
+232 | - Only the current unexpired owner may complete, retry, or fail a claimed delivery.
+233 | - A worker crash leaves recoverable state; the next worker may reclaim after lease expiry.
+234 | - Exhausted stale work fails closed with `LEASE_EXPIRED`.
+235 | - Worker replicas require private ingress, controlled egress, DNS access, database access, secret/KMS decrypt permission, and no broader merchant-data permission than necessary.
+236 |
+237 | ## Data operations
+238 |
+239 | - Automated encrypted backups
+240 | - Point-in-time recovery
+241 | - Restore testing on a schedule
+242 | - Migration preflight and post-deploy verification
+243 | - Outbox retention and terminal-delivery archival policy
+244 | - Retention/deletion jobs for sessions, traces, screenshots, raw evidence, and logs
+245 | - Audit trail for privileged data and credential access
+246 | - KMS key rotation and ciphertext re-encryption procedures
+247 | - Webhook signing-secret rotation/re-encryption procedure
+248 | - Telemetry retention and access review
+249 | - Production-data redaction before lower-environment use
+250 |
+251 | ## Release operations
+252 |
+253 | - Feature flags for new engine/policy versions and native multi-store migration
+254 | - Canary/pilot merchants before broad rollout
+255 | - Compare decision distributions before policy promotion
+256 | - Rollback path for API, worker, migration, and policy changes
+257 | - Do not edit migration 0008 after application; use a new migration for schema changes
+258 | - Keep event-worker deployment independently scalable and rollbackable from the API
+259 | - Exercise outbox backlog and retry behavior before each pilot expansion
+260 | - No automatic blocking policy promotion without reviewed outcome data
+261 | - Validate dashboards and alerts before each pilot expansion
+262 |
+263 | ## Provider selection still pending
+264 |
+265 | A managed observability backend, retention policy, alert-delivery channel, optional OpenTelemetry collector topology, deployment runtime, PostgreSQL service, and managed KMS/vault remain to be selected. Those choices must satisfy ADRs 0006–0010 and must not introduce vendor-specific SDK calls into the risk engine.
+266 |
+267 | ## Browser dead-letter operations surface
+268 |
+269 | The merchant dashboard may list and explicitly replay failed durable work only for an exact active store where the current user is an owner or administrator. Listing is read-only and secret-free. Replay requires CSRF proof and a stable idempotency key, then delegates to the same transactional PostgreSQL repository used by the operator CLI.
+270 |
+271 | The browser surface does not implement an automatic retry loop and performs no provider or destination network I/O. Structural webhook failures, expired or structurally invalid verification work, unsupported courier job types, relational scope mismatches, and changed source state remain blocked. Successful replay returns work to the existing private worker queue and preserves the immutable replay ledger plus audit evidence.
+272 |
 ```
 
-### docs/security/security-privacy.md
+### docs/roadmap/implementation-roadmap.md
 
-Bytes: 10823
-SHA-256: c9967f1cbdc66ce50f50718d1fa49f770e67fd6e71a0f78c8fa09228005d2f29
-Lines: 1-193 of 193
+Bytes: 3022
+SHA-256: b8613ab49c748f4fa39db398c5bd6114a23229a8456a1f19d0ef6ed335976150
+Lines: 1-100 of 100
 
 ```markdown
-  1 | # Security and Privacy
+  1 | # Implementation Roadmap
   2 |
-  3 | ## Authentication
+  3 | Work milestone-by-milestone. Do not start a later phase by duplicating unfinished foundation logic.
   4 |
-  5 | - Dedicated user identity system
-  6 | - Argon2id for passwords or managed authentication
-  7 | - Secure HTTP-only opaque sessions
-  8 | - Session rotation on login and privilege change
-  9 | - CSRF protection for browser actions
- 10 | - MFA for organization owners/admins later
- 11 | - Role-based access control
- 12 |
- 13 | API keys are service credentials and must never be used as dashboard login sessions.
+  5 | ## Phase 0 — Repository and documentation setup
+  6 |
+  7 | - Workspace/code/Git/environment/deployment audit
+  8 | - Install and validate documentation
+  9 | - Add root agent rules and ADR process
+ 10 | - Add implementation status, decision log, and risk register
+ 11 | - Validate source `multi-store-saas` reuse boundaries
+ 12 | - Define development commands/environment guide
+ 13 | - Initialize Git repository
  14 |
- 15 | Pilot browser-session baseline:
+ 15 | Exit criteria:
  16 |
- 17 | - Argon2id verifies local passwords; a future managed identity provider may supersede credential verification.
- 18 | - A cryptographically random opaque token is sent only in an `HttpOnly`, `SameSite=Lax` cookie and only its HMAC hash is stored.
- 19 | - Production cookies require TLS and the `Secure` flag.
- 20 | - `SESSION_PEPPER` and `SESSION_CSRF_SECRET` are independent server-held secrets and must come from the approved secret manager.
- 21 | - State-changing browser requests require a derived CSRF proof.
- 22 | - Active users, unexpired/unrevoked sessions, organization membership, active organization, and active store are revalidated.
- 23 | - Platform administration requires the explicit `platform_admin` role; organization membership alone is insufficient.
- 24 | - Login, logout, merchant overview access, and platform-admin overview access are audited without raw credentials or cookie values.
- 25 |
- 26 | ## API keys
- 27 |
- 28 | - Generate with cryptographically secure random bytes
- 29 | - Prefix by environment: `ozg_test_` or `ozg_live_`
- 30 | - Store only a strong hash
- 31 | - Display raw key once
- 32 | - Support rotation, revocation, expiry, scopes, last-used time, and optional origin/IP restrictions
- 33 | - Never place raw keys in metadata, logs, analytics, URLs, or cookies
+ 17 | - Documentation map is complete and internally consistent.
+ 18 | - Current repository state and conflicts are recorded.
+ 19 | - Security-critical source patterns are explicitly prohibited.
+ 20 | - First implementation milestone and files are identified.
+ 21 |
+ 22 | ## Phase 1 — Foundation
+ 23 |
+ 24 | - Monorepo/tooling/CI
+ 25 | - PostgreSQL and canonical database package
+ 26 | - Secure users/sessions
+ 27 | - Organizations, stores, and memberships
+ 28 | - API key lifecycle with `ozg_test_`/`ozg_live_`
+ 29 | - Plans, entitlements, atomic usage tracking
+ 30 | - Shared types and canonical API/error/event contracts
+ 31 | - Tenant-isolation and migration tests
+ 32 |
+ 33 | ## Phase 2 — Courier intelligence
  34 |
- 35 | ## Sensitive data
- 36 |
- 37 | Never log:
- 38 |
- 39 | - Raw passwords
- 40 | - Courier cookies or tokens
- 41 | - Raw API keys
- 42 | - OTP plaintext
- 43 | - Full phone number where masking is sufficient
- 44 | - Access tokens
- 45 | - Webhook signing secrets or decrypted secret envelopes
- 46 | - Raw courier payloads unless explicitly encrypted, access-controlled, retained briefly, and required for evidence/debugging
- 47 | - Unrestricted domain-event or request payloads
- 48 |
- 49 | All exception/error serialization must pass through a central redaction layer. Worker logs use structured identifiers and error codes, not secret-bearing exception payloads.
- 50 |
- 51 | ## Phone data
- 52 |
- 53 | - Normalize consistently
- 54 | - Use keyed hash/HMAC for cross-table matching where appropriate
- 55 | - Encrypt raw phone only when operational lookup is necessary
- 56 | - Separate analytics identity from operational contact data
- 57 | - Document retention and deletion behavior
- 58 | - Do not include raw phone values in webhook outbox events
- 59 |
- 60 | ## Credential and envelope storage
- 61 |
- 62 | - Envelope encryption
- 63 | - Key version stored with ciphertext
- 64 | - Master keys outside database
- 65 | - Rotation procedure
- 66 | - Strict service identity permissions
- 67 | - Separate authenticated encryption context for credentials, sessions, webhook endpoints, and verification jobs
- 68 | - Audit credential reads and decrypt operations
- 69 | - Decryption failure must fail closed
- 70 | - No plaintext compatibility fallback
+ 35 | - Courier adapter interface and contract suite
+ 36 | - Extract/harden Steadfast Playwright session driver
+ 37 | - Encrypted credentials and sessions
+ 38 | - Session refresh/reconnect jobs
+ 39 | - Steadfast customer observation adapter
+ 40 | - Observation cache/freshness/confidence
+ 41 | - Health monitoring, alerting, and dead-letter behavior
+ 42 |
+ 43 | ## Phase 3 — Risk engine
+ 44 |
+ 45 | - Bangladesh phone normalization
+ 46 | - Canonical feature types/assemblers
+ 47 | - Versioned scoring policy
+ 48 | - Courier, merchant-history, velocity, verification, and later network signals
+ 49 | - Explainable decisions and confidence
+ 50 | - Unknown/degraded behavior
+ 51 | - Assessment/signal persistence
+ 52 | - Golden/regression tests
+ 53 |
+ 54 | ## Phase 4 — Public API and integrations
+ 55 |
+ 56 | - `POST /v1/risk-assessments`
+ 57 | - Assessment read endpoint
+ 58 | - Outcome feedback endpoint
+ 59 | - Webhooks and delivery worker
+ 60 | - WooCommerce plugin rewrite
+ 61 | - Native `multi-store-saas` service adapter
+ 62 | - Integration/contract/idempotency tests
+ 63 |
+ 64 | ## Phase 5 — Verification
+ 65 |
+ 66 | - OTP send/verify
+ 67 | - Provider abstraction
+ 68 | - Rate limiting and abuse protection
+ 69 | - Verification-session/order binding
+ 70 | - Merchant policy rules and fallback behavior
  71 |
- 72 | The local/self-hosted AES-256-GCM implementation is isolated in `@ozzyl/encryption`. The package also provides a provider-neutral managed v2 boundary with a random per-record data key, authenticated context digest and wrapped-key metadata, data-key zeroization, structured safe failures, explicit legacy dual-read, and key-version re-encryption. Production runtime call sites remain on local v1 until a selected KMS/vault adapter, component identities, access auditing, and an audited background rewrite are provisioned; there is no automatic local or plaintext fallback.
+ 72 | ## Phase 6 — Dashboard
  73 |
- 74 | Webhook signing secrets are stored only as encrypted endpoint material. The event worker decrypts them using the authenticated context `webhook-endpoint:<endpoint-id>` immediately before signing; the API and checkout path do not need plaintext access for delivery.
- 75 |
- 76 | ## Multi-tenancy
- 77 |
- 78 | Every merchant-owned record includes organization/store scope. Repository methods require scope parameters rather than optional filters. API-key resolution, feature assembly, assessment/outcome writes, dashboards, and tenant administration revalidate that the store is active and belongs to the active organization; matching caller-supplied identifiers alone are not authoritative.
- 79 |
- 80 | Tests must prove that one organization/store cannot read, mutate, infer, or enumerate another tenant's data through IDs, external references, caches, jobs, webhooks, verifications, or logs.
+ 74 | - Onboarding and organization/store management
+ 75 | - API key management
+ 76 | - Courier account status/reconnect
+ 77 | - Review queue and assessment detail
+ 78 | - Risk policy settings
+ 79 | - Usage/reports/estimated saved cost
+ 80 | - Team/billing/admin controls
  81 |
- 82 | Webhook delivery rows persist explicit organization/store scope and are revalidated against the endpoint and store relationships before claim. Mismatched rows fail closed instead of being sent. Webhook and verification administration require active owner/admin membership and return only operational metadata; signing-secret ciphertext, OTP hashes, encrypted job payloads, and raw phone values are excluded.
+ 82 | ## Pilot and calibration
  83 |
- 84 | Native shadow rollout and attempt evidence follow the same boundary:
- 85 |
- 86 | - source order scope is reloaded and verified before Guard evaluation;
- 87 | - service API keys require `comparisons:write` and remain separate from browser sessions;
- 88 | - rollout mutation requires CSRF proof plus active owner/admin membership;
- 89 | - rollout, assessment, comparison, and attempt repositories revalidate exact organization/store relationships;
- 90 | - merchant and platform reports contain bounded aggregates only;
- 91 | - phone numbers, request snapshots, raw API keys, provider payloads, credentials, cookies, OTPs, and signing secrets are prohibited from rollout, attempt, dashboard, audit, and error payloads.
+ 84 | - Onboard selected merchants
+ 85 | - Track verified outcomes
+ 86 | - Measure false positives/negatives
+ 87 | - Calibrate thresholds and confidence
+ 88 | - Compare old embedded multi-store decisions against Guard
+ 89 | - Do not enable broad automatic blocking until reviewed
+ 90 |
+ 91 | ## Later expansion
  92 |
- 93 | ## PostgreSQL role separation
- 94 |
- 95 | - The migration owner applies schema changes, owns relations, records migration history, and runs `npm run db:runtime-grants` after migrations.
- 96 | - Runtime services connect with an externally provisioned non-owner `LOGIN` that has no superuser, `CREATEDB`, `CREATEROLE`, replication, `BYPASSRLS`, inherited role memberships, database ownership, schema ownership, or relation ownership.
- 97 | - Runtime privileges are explicit current-table `SELECT`/`INSERT`/`UPDATE` grants only where required. Migration history, `DELETE`, DDL, schema creation, and role management remain denied.
- 98 | - The grant command verifies the complete current table inventory and effective privileges, so a new table or an implicit/public privilege fails closed until the policy is reviewed.
- 99 | - Production may split this reviewed baseline into narrower API and worker roles, but no runtime identity may become the migration owner.
+ 93 | - Evidence-backed shared reputation and disputes
+ 94 | - Pathao/RedX adapters
+ 95 | - Shopify app
+ 96 | - IVR
+ 97 | - Device fingerprinting with privacy safeguards
+ 98 | - Merchant-specific Meta audience exclusion
+ 99 | - ML-assisted ranking after sufficient labeled data
 100 |
-101 | ## Shared reputation safeguards
-102 |
-103 | - No single merchant report should globally block a customer.
-104 | - Prefer courier-confirmed outcomes.
-105 | - Require independent evidence for high-impact reputation.
-106 | - Apply time decay.
-107 | - Provide dispute and correction mechanisms.
-108 | - Detect abusive or low-quality reporters.
-109 | - Preserve evidence lineage.
-110 | - Do not launch cross-merchant reputation in the foundation MVP without privacy/legal review.
+```
+
+### docs/roadmap/initial-backlog.md
+
+Bytes: 3449
+SHA-256: 8c988a00b7fb560eec978f1d11bd99ba9ec3d8ceeabfc57905164383ad5eee41
+Lines: 1-111 of 111
+
+```markdown
+  1 | # Initial Backlog
+  2 |
+  3 | ## Epic A — Repository foundation
+  4 |
+  5 | - A1 Initialize Git repository with `main`
+  6 | - A2 Create npm/Turborepo workspace
+  7 | - A3 Configure TypeScript, lint, formatting, and tests
+  8 | - A4 Add CI for typecheck/lint/test/migration/security checks
+  9 | - A5 Add environment validation
+ 10 | - A6 Add ADR template and dependency-boundary checks
+ 11 |
+ 12 | ## Epic B — Identity and API keys
+ 13 |
+ 14 | - B1 Users and secure sessions
+ 15 | - B2 Organizations and memberships
+ 16 | - B3 Store model and strict scope repositories
+ 17 | - B4 API-key creation and one-time reveal
+ 18 | - B5 Key scopes, environments, revoke/rotate/expire
+ 19 | - B6 Plans, entitlements, and atomic usage events
+ 20 | - B7 Audit events and privileged action logging
+ 21 |
+ 22 | ## Epic C — Courier sessions
+ 23 |
+ 24 | - C1 Courier account model
+ 25 | - C2 Encrypted credential storage
+ 26 | - C3 Extract/harden Steadfast Playwright driver
+ 27 | - C4 Session validation
+ 28 | - C5 Scheduled refresh
+ 29 | - C6 Immediate refresh on auth failure
+ 30 | - C7 Reconnect-required workflow
+ 31 | - C8 Health dashboard and alerts
+ 32 | - C9 Redacted failure artifacts and retention
+ 33 |
+ 34 | ## Epic D — Courier observations
+ 35 |
+ 36 | - D1 Canonical adapter interface
+ 37 | - D2 Shared adapter contract tests
+ 38 | - D3 Steadfast observation adapter
+ 39 | - D4 Observation cache and freshness
+ 40 | - D5 Normalized outcome mapping
+ 41 | - D6 Provider rate limiting
+ 42 | - D7 Retry/circuit breaker/dead-letter behavior
+ 43 |
+ 44 | ## Epic E — Risk engine
+ 45 |
+ 46 | - E1 Canonical feature types
+ 47 | - E2 Courier feature extractor
+ 48 | - E3 Merchant-history extractor
+ 49 | - E4 Velocity extractor
+ 50 | - E5 Verification feature extractor
+ 51 | - E6 Versioned pure rule engine
+ 52 | - E7 Confidence model
+ 53 | - E8 Merchant policy thresholds/actions
+ 54 | - E9 Unit, golden, property, and regression tests
+ 55 | - E10 Dependency rule preventing external calls
+ 56 |
+ 57 | ## Epic F — Public API
+ 58 |
+ 59 | - F1 Shared canonical response/error types
+ 60 | - F2 Assessment create endpoint
+ 61 | - F3 Assessment read endpoint
+ 62 | - F4 Courier refresh job endpoint
+ 63 | - F5 Idempotency
+ 64 | - F6 Rate limiting and atomic entitlement enforcement
+ 65 | - F7 Outcome feedback endpoint
+ 66 | - F8 Webhook delivery/signature/retry
+ 67 |
+ 68 | ## Epic G — WooCommerce
+ 69 |
+ 70 | - G1 Plugin settings and secure key handling
+ 71 | - G2 API connection test
+ 72 | - G3 Order-created assessment
+ 73 | - G4 Admin risk display
+ 74 | - G5 Flag/hold/verification/prepayment behavior
+ 75 | - G6 OTP UI and verification
+ 76 | - G7 Outcome sync
+ 77 | - G8 Retry/degraded-state handling
+ 78 | - G9 Manual recheck and idempotency
+ 79 |
+ 80 | ## Epic H — Native multi-store integration
+ 81 |
+ 82 | - H1 Internal Ozzyl Guard service client
+ 83 | - H2 Feature-flagged shadow assessments
+ 84 | - H3 Outcome feedback
+ 85 | - H4 Remove embedded provider calls from risk logic
+ 86 | - H5 Remove duplicate scoring after comparison period
+ 87 |
+ 88 | ## Epic I — Dashboard
+ 89 |
+ 90 | - I1 Onboarding
+ 91 | - I2 Organization/store/team management
+ 92 | - I3 API key management
+ 93 | - I4 Courier connection page
+ 94 | - I5 Review queue
+ 95 | - I6 Assessment detail
+ 96 | - I7 Policies
+ 97 | - I8 Usage and savings reports
+ 98 | - I9 Admin/operations views
+ 99 |
+100 | ## P0 acceptance criteria
+101 |
+102 | - A merchant can create a secure user account, organization, and store.
+103 | - A merchant can create test/live API keys and see the raw key once.
+104 | - A merchant can connect Steadfast securely.
+105 | - Session refresh works asynchronously outside checkout.
+106 | - A COD order can be assessed through one canonical endpoint.
+107 | - The response includes score, confidence, decision, signals, and freshness/degraded state.
+108 | - WooCommerce can store/display the result and send outcomes.
+109 | - No raw keys, passwords, cookies, tokens, raw payloads, or OTP values are logged or stored insecurely.
+110 | - Tenant-isolation and concurrent quota tests pass.
 111 |
-112 | ## OTP security
-113 |
-114 | - 6-digit cryptographically random OTP
-115 | - Store only hash
-116 | - 5–10 minute expiry
-117 | - Maximum attempts
-118 | - Per-phone, per-IP, per-store, and per-organization rate limits
-119 | - Bind OTP to verification session/order/purpose
-120 | - Do not expose delivery success when provider actually failed
-121 | - Do not log OTP values
-122 | - Provider delivery runs only in the private verification worker, never synchronous API handling
-123 | - Persist phone and OTP for delivery only inside an encrypted job payload; queue columns and logs remain non-sensitive
-124 | - Bind ciphertext to `verification-job:<job-id>` authenticated context
-125 | - Validate organization, store, purpose, phone HMAC, and OTP hash before provider I/O
-126 | - Require current unexpired lease ownership for start, retry, delivery, and failure transitions
-127 | - Fail both the job and authoritative session closed on relational scope mismatch
-128 | - Pass a stable verification idempotency key to provider adapters to reduce duplicate sends after uncertain outcomes
-129 |
-130 | ## Webhook security
-131 |
-132 | - Emit durable outbox rows in the same transaction as the newly persisted assessment or outcome
-133 | - Never perform merchant webhook network delivery from the risk engine, checkout handler, or API persistence transaction
-134 | - Use stable event IDs and `(endpoint_id, event_id)` uniqueness for replay/idempotency control
-135 | - Sign the exact canonical event payload with HMAC-SHA256 over `timestamp.payload`
-136 | - Require HTTPS
-137 | - Reject URL credentials, localhost names, `.local` names, literal non-public IPv4/IPv6 addresses, and metadata destinations
-138 | - Resolve hostnames before fetch and reject the destination when any resolved address is invalid or non-public
-139 | - Treat DNS resolution failure as retryable without making a request
-140 | - Disable redirects to prevent redirect-based destination bypass
-141 | - Apply bounded timeout, attempt limit, backoff, and terminal failure
-142 | - Require the current unexpired worker lease for delivery-state transitions
-143 | - Do not include raw phone, OTP, API keys, provider credentials, or signing secrets in event payloads or logs
-144 |
-145 | Application-level URL and DNS validation is not sufficient by itself against every DNS-rebinding, routing, proxy, or infrastructure failure. Production must also restrict event-worker egress, block metadata/private networks at the network layer, and use a controlled resolver or equivalent policy.
-146 |
-147 | ## Web security
-148 |
-149 | - CSRF protection for dashboard actions
-150 | - CSP and secure headers
-151 | - Input validation and output encoding
-152 | - SSRF protection in webhook/custom URL features
-153 | - HMAC-signed webhooks
-154 | - Timestamp and replay prevention
-155 | - Request size limits
-156 | - Idempotency abuse protection
-157 | - Safe CORS configuration by integration type
-158 |
-159 | ## Courier automation security
-160 |
-161 | - Playwright runs in isolated workers with least privilege
-162 | - No browser execution in synchronous API/checkout paths
-163 | - Screenshots/traces are redacted, access-controlled, and short-lived
-164 | - Provider credentials are not passed through shell arguments
-165 | - Session refresh failures are visible; they are never silently ignored
-166 | - Provider terms and merchant authorization must be reviewed before commercial scale
-167 |
-168 | ## Operational security
-169 |
-170 | - Audit logs
-171 | - Secret rotation
-172 | - Dependency scanning
-173 | - SAST and secret scanning
-174 | - Backups and restore testing
-175 | - Incident response runbook
-176 | - Key compromise, webhook-secret compromise, and courier credential compromise runbooks
-177 | - Queue/outbox lease recovery and dead-letter procedures
-178 | - Production access review and break-glass procedure
-179 | - Private worker ingress and controlled egress
-180 |
-181 | ## Source SaaS findings that must not be copied
-182 |
-183 | - Custom SHA-256 password hashing
-184 | - Raw API key saved in metadata
-185 | - Raw API key used as a login cookie
-186 | - Full phone numbers logged by blacklist stubs
-187 | - Shell commands containing session payloads
-188 | - Hardcoded infrastructure identifiers
-189 | - Decryption fallback to plaintext
-190 | - Broad unaudited cross-store lookup
-191 | - Synchronous webhook delivery in checkout handling
-192 | - Plaintext webhook signing secrets in configuration or logs
-193 |
 ```
 
 ### docs/testing/testing-strategy.md
 
-Bytes: 14075
-SHA-256: fd665ae60664d53213eeef7b5044e2fb9ca9f63b1ca1e093593ed6da727f479d
-Lines: 1-274 of 274
+Bytes: 14946
+SHA-256: d8775ee3b23dde09cc2aa709ed2268223beb9904b405002129c818b5440fa441
+Lines: 1-280 of 280
 
 ```markdown
   1 | # Testing Strategy
@@ -3520,1173 +1884,609 @@ Lines: 1-274 of 274
  16 | - Migration manifest ordering and SHA-256 tamper detection
  17 | - Runtime-role identifier validation and explicit table-policy completeness
  18 | - Native shadow off mode, deterministic sampling, post-persist source revalidation, legacy-authoritative disagreement, timeout classification, and safe assessment/persistence failures
- 19 |
- 20 | ## Contract tests
- 21 |
- 22 | Each courier adapter must pass a shared contract suite:
- 23 |
- 24 | - Returns canonical observation
- 25 | - Handles timeout
- 26 | - Handles expired session
- 27 | - Never leaks credentials
- 28 | - Maps malformed responses to structured errors
- 29 | - Preserves source/freshness metadata
- 30 | - Separates actual return from pre-shipping cancellation
- 31 |
- 32 | Public API contract tests cover:
- 33 |
- 34 | - Canonical success/error response
- 35 | - Lowercase enums and `signals[].code`
- 36 | - Unknown/degraded behavior
- 37 | - Idempotent replay
- 38 | - Test/live key isolation
- 39 | - Dedicated comparison scope, idempotent replay, order binding, and cross-store assessment rejection
- 40 |
- 41 | Webhook delivery contract tests cover:
- 42 |
- 43 | - Canonical domain-event payloads
- 44 | - HMAC signature over timestamp and exact payload
- 45 | - Redirect rejection
- 46 | - Retryable HTTP/network/DNS failures
- 47 | - Terminal unsafe-destination and inactive-endpoint failures
- 48 | - No signing secret, raw phone, or unrestricted request body in logs
- 49 |
- 50 | ## Integration tests
- 51 |
- 52 | - User/session authentication
- 53 | - API key creation, one-time reveal, authentication, revocation, and rotation
- 54 | - Atomic quota enforcement under concurrency
- 55 | - Assessment persistence
- 56 | - Transactional encrypted OTP queue creation and tenant-scoped verification
- 57 | - Lease-owned OTP provider delivery and retry/failure state
- 58 | - Courier session refresh
- 59 | - Transactional assessment/outcome webhook outbox emission
- 60 | - Lease-owned webhook delivery and retry
- 61 | - Multi-tenant isolation
- 62 | - Organization/store membership authorization
- 63 | - Concurrent tenant-scoped native shadow comparison and sampled-attempt persistence, default-off rollout, owner/admin opt-in, idempotency-conflict rejection, negative tenant references, and bounded pilot reporting
- 64 |
- 65 | ### PostgreSQL concurrency and idempotency coverage
- 66 |
- 67 | The CI PostgreSQL service runs real-database integration tests for:
- 68 |
- 69 | - duplicate usage reservations serializing through the organization/period advisory lock;
- 70 | - replaying one persisted usage charge for concurrent duplicate request IDs;
- 71 | - concurrent distinct reservations at the plan boundary allowing only the remaining capacity;
- 72 | - concurrent assessment saves returning the single persisted scoped winner;
- 73 | - preventing losing assessment IDs from writing orphan or invalid signal rows;
- 74 | - concurrent outcome writes resolving as one insert and one replay rather than a unique-constraint error;
- 75 | - operation idempotency values remaining isolated by organization and store;
- 76 | - assessment and outcome winners creating exactly one outbox row per matching active endpoint inside the persistence transaction;
- 77 | - outbox rows excluding raw phone values and unrelated tenant endpoints;
- 78 | - browser-session hashing, active membership resolution, merchant tenant revalidation, and explicit platform-admin authorization;
- 79 | - competing courier workers claiming different due jobs with `FOR UPDATE SKIP LOCKED`;
- 80 | - preventing another courier worker from stealing a fresh lease;
- 81 | - reclaiming expired courier jobs and rejecting the previous owner;
- 82 | - clearing courier ownership when retryable work is returned to the queue with backoff;
- 83 | - moving exhausted stale courier jobs to terminal failure with `LEASE_EXPIRED`;
- 84 | - deriving courier organization/store/provider scope from account relationships rather than payload fields;
- 85 | - competing event workers claiming different due webhook deliveries with `FOR UPDATE SKIP LOCKED`;
- 86 | - preventing another event worker from stealing a fresh webhook lease;
- 87 | - rejecting an expired event-worker owner before completion or failure;
- 88 | - reclaiming stale webhook deliveries and incrementing attempts only when processing starts;
- 89 | - clearing webhook ownership when a retry is scheduled;
- 90 | - moving exhausted stale webhook deliveries to terminal failure with `LEASE_EXPIRED`;
- 91 | - failing webhook deliveries whose persisted organization/store scope does not match the endpoint relationship;
- 92 | - serializing concurrent duplicate OTP send requests into one verification session, hash, and encrypted job;
- 93 | - verifying OTP only within the authoritative organization/store scope and emitting one verified outbox event per endpoint;
- 94 | - competing verification workers claiming different due jobs with `FOR UPDATE SKIP LOCKED`;
- 95 | - protecting fresh verification leases and rejecting expired owners;
- 96 | - reclaiming stale verification work, clearing retry ownership, and terminalizing exhausted leases;
- 97 | - failing both the verification job and authoritative session on persisted scope mismatch;
- 98 | - rejecting API keys, feature assembly, assessment writes, and outcome writes when organization/store ownership does not match;
- 99 | - isolating merchant dashboard aggregates and rechecking active platform-admin role on every call;
-100 | - listing and updating webhook administration only for an active owner/admin scope without exposing signing secrets;
-101 | - listing verification administration only for the authorized store without exposing OTP hashes or encrypted job payloads;
-102 | - allowing reviewed runtime DML while denying migration-history reads, DELETE, DDL, schema creation, database ownership, elevated attributes, and inherited privileges;
-103 | - serializing concurrent duplicate native-shadow comparison writes into one immutable row;
-104 | - deriving Guard comparison values from the tenant-scoped assessment rather than trusting client values;
-105 | - rejecting idempotency-key reuse with changed rollout evidence and rejecting cross-store assessment references.
-106 |
-107 | ### Native shadow rollout safety coverage
-108 |
-109 | Default tests prove:
-110 |
-111 | - `off` mode performs no Guard assessment or comparison API call;
-112 | - deterministic sampling keeps retries for the same store/order in the same cohort;
-113 | - the legacy score and decision remain the effective result even when Guard recommends block;
-114 | - Guard assessment and comparison-persistence failures return safe codes without leaking provider or database details;
-115 | - the API requires `comparisons:write`, idempotency, matching order identity, and the authenticated organization/store assessment scope;
-116 | - the concrete post-persist hook reloads the authoritative source order and stops before Guard on organization/store/order mismatch;
-117 | - default-off rollout and deterministic sampling prevent unapproved stores from running shadow;
-118 | - CSRF-protected browser mutation permits only active owner/admin store scope;
-119 | - timeout, assessment failure, comparison persistence failure, and sampled-attempt persistence failure remain advisory while legacy stays effective;
-120 | - PostgreSQL stores one immutable comparison and sampled-attempt winner under concurrent duplicate writes, rejects negative tenant references, and derives Guard comparison values server-side;
-121 | - merchant and platform reports expose sampled counts, failure counts, disagreement rate, and bounded score deltas without secret-bearing fields;
-122 | - comparison, rollout, and attempt tables contain no raw phone, API key, credential, or unrestricted order snapshot.
-123 |
-124 | Selected source-platform post-persist shadow invocation is covered. Enforcement remains outside this milestone and requires opt-in pilot outcomes plus explicit review.
-125 |
-126 | ### Webhook destination security coverage
-127 |
-128 | Default tests use injected DNS and fetch boundaries. They prove:
-129 |
-130 | - non-HTTPS URLs, embedded credentials, localhost names, local suffixes, and literal non-public IPv4/IPv6 addresses are rejected;
-131 | - a hostname resolving to any non-public address is rejected before `fetch`;
-132 | - DNS resolution failure is classified as retryable without making a network request;
-133 | - redirects are disabled;
-134 | - successful deliveries use the expected HMAC signature and canonical payload;
-135 | - envelope ciphertext cannot be decrypted under another endpoint or session context.
-136 |
-137 | Production must add controlled egress and network policy because application-level DNS validation alone cannot eliminate DNS-rebinding or route-change risk.
-138 |
-139 | ### Verification payload security coverage
-140 |
-141 | Default tests prove:
-142 |
-143 | - job-bound encrypted payloads decrypt only under `verification-job:<job-id>` context;
-144 | - tenant, purpose, phone HMAC, and OTP hash must all match persisted assertions;
-145 | - provider rejection is terminal while structured retryable provider errors use bounded backoff;
-146 | - reporter state and logs do not receive plaintext OTP values;
-147 | - provider I/O is not invoked after payload, scope, expiry, or lease failure.
-148 |
-149 | ### Managed envelope security coverage
-150 |
-151 | Default tests prove:
-152 |
-153 | - managed v2 creates a random 32-byte data key per record and zeroes it after use;
-154 | - plaintext values and plaintext data keys are not serialized into the envelope;
-155 | - context mismatch is rejected before provider unwrap;
-156 | - wrapped-key metadata is authenticated and tampering fails closed;
-157 | - provider outage produces a structured non-secret error;
-158 | - a provider cannot pass the plaintext data key through as a wrapped key;
-159 | - old managed key versions remain readable during rotation and can be re-encrypted under the current version;
-160 | - legacy v1 ciphertext is read only through explicitly configured legacy keys and rewrites to managed v2;
-161 | - malformed, unsupported, or unavailable-key envelopes fail closed.
-162 |
-163 | A real provider adapter, service-identity denial tests, access-audit verification, and PostgreSQL background rewrite integration remain production/provider validation work.
-164 |
-165 | ### Migration replay coverage
-166 |
-167 | CI runs the migration command twice against the same PostgreSQL service:
-168 |
-169 | 1. the first run applies every ordered migration;
-170 | 2. the second run verifies that already-recorded migrations are skipped without schema errors or duplicate side effects.
-171 |
-172 | The migration history table remains the replay source of truth. Applied migration files remain immutable.
-173 |
-174 | ### Migration integrity and restore coverage
-175 |
-176 | CI additionally proves:
-177 |
-178 | - the ordered SQL file list exactly matches the committed SHA-256 manifest;
-179 | - changed migration bytes, unknown history rows, checksum mismatch, and non-contiguous history are rejected;
-180 | - legacy name-only rows can be backfilled only from committed manifest values before `checksum_sha256` becomes `NOT NULL`;
-181 | - migration execution is serialized by one session-held advisory lock;
-182 | - the restore target is a distinct pre-created clean database;
-183 | - `pg_dump`/`pg_restore` credentials are not placed in process arguments;
-184 | - restored schema, full table data hashes, sequence state, migration history, and replay match the source.
-185 |
-186 | Production-managed point-in-time recovery remains a provider provisioning gate rather than a repository CI claim.
-187 |
-188 | Future PostgreSQL coverage must include:
-189 |
-190 | - lease renewal during future jobs whose bounded execution time can exceed the configured lease;
-191 | - selected-provider smoke tests for distinct API/worker runtime identities and migration-owner grant execution;
-192 | - operational replay/dead-letter authorization and audit coverage.
-193 |
-194 | ## End-to-end tests
-195 |
-196 | - Merchant signup and store creation
-197 | - Create a test/live API key
-198 | - Connect Steadfast account
-199 | - Assess WooCommerce COD order
-200 | - Receive a signed `assessment.completed` webhook asynchronously
-201 | - Review high-risk order
-202 | - Verify OTP
-203 | - Submit courier outcome
-204 | - Receive a signed `order.outcome_recorded` webhook asynchronously
-205 | - View usage and savings report
-206 |
-207 | ## Security tests
-208 |
-209 | - Tenant data leakage
-210 | - API key replay/revocation
-211 | - Raw key absence from database/metadata/logs
-212 | - Brute-force OTP
-213 | - CSRF
-214 | - Literal-IP and DNS-result SSRF
-215 | - Webhook replay and redirect handling
-216 | - Webhook signing-secret decryption failure
-217 | - Envelope authenticated-context mismatch
-218 | - Secret redaction
-219 | - Injection attacks
-220 | - Session fixation/rotation
-221 | - Credential decryption failure
-222 | - Worker lease ownership and stale-owner rejection
-223 | - Job payload scope, encryption-context, phone-HMAC, and OTP-hash tampering
-224 | - Runtime database role privilege escape, ownership, migration-history, DELETE, and DDL attempts
-225 |
-226 | ## Scraper tests
-227 |
-228 | - Login page selector fixtures
-229 | - Successful cookie extraction
-230 | - Invalid credentials
-231 | - CAPTCHA/2FA detection
-232 | - Provider HTML changes
-233 | - Browser cleanup on failure
-234 | - Login-state/session validation
-235 | - Redacted screenshot/trace behavior
-236 | - Structured failure codes
-237 |
-238 | Live provider tests must be opt-in and use dedicated authorized test accounts. Default CI uses fixtures/mocks.
-239 |
-240 | ## Architecture tests
-241 |
-242 | - `packages/risk-engine` cannot import network/database/provider/browser packages
-243 | - API routes cannot import provider session drivers directly
-244 | - API persistence may enqueue durable work but cannot execute merchant/provider network delivery
-245 | - All schema comes from `packages/database`
-246 | - All public response and domain-event types come from `packages/shared-types`
-247 | - Tenant-scoped repositories, outbox rows, and jobs require explicit scope
-248 |
-249 | ## Pilot evaluation
-250 |
-251 | Track a confusion matrix against real verified outcomes:
-252 |
-253 | - true positive
-254 | - false positive
-255 | - true negative
-256 | - false negative
-257 |
-258 | Do not promote automatic blocking until false-positive behavior is understood and merchant policy controls are proven.
-259 |
-260 | ## Required CI gates
-261 |
-262 | - formatting check
-263 | - lint
-264 | - typecheck
-265 | - unit tests
-266 | - contract tests
-267 | - integration tests with PostgreSQL
-268 | - migration manifest, verification, replay, and database-history integrity
-269 | - clean PostgreSQL backup/restore rehearsal
-270 | - least-privilege runtime database role grant and effective-permission verification
-271 | - dependency audit
-272 | - secret scanning
-273 | - architecture/dependency-boundary tests
-274 |
-```
-
-### integrations/multi-store-saas/src/index.ts
-
-Bytes: 13849
-SHA-256: 42c5dd315d5ba2f0a8aadd9c065349f1d1e11be2d1a50ea7fb82ddf87c1aa3ac
-Lines: 1-468 of 468
-
-```typescript
-  1 | import { createHash } from 'node:crypto';
-  2 | import type {
-  3 |   NativeShadowAttemptInput,
-  4 |   NativeShadowAttemptResponse,
-  5 |   NativeShadowComparisonInput,
-  6 |   NativeShadowComparisonResponse,
-  7 |   NativeShadowRolloutResponse,
-  8 |   OrderOutcomeInput,
-  9 |   RiskAssessmentRequest,
- 10 |   RiskAssessmentResponse,
- 11 | } from '@ozzyl/shared-types';
- 12 |
- 13 | export interface MultiStoreGuardClient {
- 14 |   createRiskAssessment(
- 15 |     input: RiskAssessmentRequest,
- 16 |     options: { idempotencyKey: string },
- 17 |   ): Promise<RiskAssessmentResponse>;
- 18 |   getNativeShadowRollout(): Promise<NativeShadowRolloutResponse>;
- 19 |   reportNativeShadowComparison(
- 20 |     input: NativeShadowComparisonInput,
- 21 |     options: { idempotencyKey: string },
- 22 |   ): Promise<NativeShadowComparisonResponse>;
- 23 |   reportNativeShadowAttempt(
- 24 |     input: NativeShadowAttemptInput,
- 25 |     options: { idempotencyKey: string },
- 26 |   ): Promise<NativeShadowAttemptResponse>;
- 27 |   submitOutcome(
- 28 |     input: OrderOutcomeInput,
- 29 |     options: { idempotencyKey: string },
- 30 |   ): Promise<{ success: true; outcome_id: string }>;
- 31 | }
+ 19 | - Structured-log fixed metadata, recursive sensitive-field redaction, safe error-code-only serialization, circular/binary/bigint handling, bounded truncation, and telemetry-sink failure isolation
+ 20 |
+ 21 | ## Contract tests
+ 22 |
+ 23 | Each courier adapter must pass a shared contract suite:
+ 24 |
+ 25 | - Returns canonical observation
+ 26 | - Handles timeout
+ 27 | - Handles expired session
+ 28 | - Never leaks credentials
+ 29 | - Maps malformed responses to structured errors
+ 30 | - Preserves source/freshness metadata
+ 31 | - Separates actual return from pre-shipping cancellation
  32 |
- 33 | export interface CommerceOrder {
- 34 |   id: string;
- 35 |   phone: string;
- 36 |   total: number;
- 37 |   paymentMethod: 'cod' | 'prepaid';
- 38 |   district?: string;
- 39 |   area?: string;
- 40 |   itemCount?: number;
- 41 | }
- 42 |
- 43 | export interface LegacyRiskResult {
- 44 |   score: number;
- 45 |   decision: string;
- 46 | }
- 47 |
- 48 | export interface ShadowComparison {
- 49 |   orderId: string;
- 50 |   guardAssessment: RiskAssessmentResponse;
- 51 |   legacy: LegacyRiskResult;
- 52 |   decisionChanged: boolean;
- 53 |   scoreDelta: number;
- 54 | }
- 55 |
- 56 | export interface ShadowRolloutConfig {
- 57 |   mode: 'off' | 'shadow';
- 58 |   version: string;
- 59 |   sampleRateBps: number;
- 60 |   samplingKey: string;
- 61 | }
- 62 |
- 63 | export type ShadowFailureCode =
- 64 |   'GUARD_ASSESSMENT_FAILED' | 'GUARD_TIMEOUT' | 'COMPARISON_PERSIST_FAILED';
+ 33 | Public API contract tests cover:
+ 34 |
+ 35 | - Canonical success/error response
+ 36 | - Lowercase enums and `signals[].code`
+ 37 | - Unknown/degraded behavior
+ 38 | - Idempotent replay
+ 39 | - Test/live key isolation
+ 40 | - Dedicated comparison scope, idempotent replay, order binding, and cross-store assessment rejection
+ 41 |
+ 42 | Webhook delivery contract tests cover:
+ 43 |
+ 44 | - Canonical domain-event payloads
+ 45 | - HMAC signature over timestamp and exact payload
+ 46 | - Redirect rejection
+ 47 | - Retryable HTTP/network/DNS failures
+ 48 | - Terminal unsafe-destination and inactive-endpoint failures
+ 49 | - No signing secret, raw phone, or unrestricted request body in logs
+ 50 |
+ 51 | ## Integration tests
+ 52 |
+ 53 | - User/session authentication
+ 54 | - API key creation, one-time reveal, authentication, revocation, and rotation
+ 55 | - Atomic quota enforcement under concurrency
+ 56 | - Assessment persistence
+ 57 | - Transactional encrypted OTP queue creation and tenant-scoped verification
+ 58 | - Lease-owned OTP provider delivery and retry/failure state
+ 59 | - Courier session refresh
+ 60 | - Transactional assessment/outcome webhook outbox emission
+ 61 | - Lease-owned webhook delivery and retry
+ 62 | - Multi-tenant isolation
+ 63 | - Organization/store membership authorization
+ 64 | - Concurrent tenant-scoped native shadow comparison and sampled-attempt persistence, default-off rollout, owner/admin opt-in, idempotency-conflict rejection, negative tenant references, and bounded pilot reporting
  65 |
- 66 | export interface ShadowEvaluation {
- 67 |   orderId: string;
- 68 |   mode: 'off' | 'shadow';
- 69 |   selected: boolean;
- 70 |   sampleBucket: number;
- 71 |   effective: LegacyRiskResult & { source: 'legacy' };
- 72 |   evaluatedAt?: string;
- 73 |   comparison?: ShadowComparison & {
- 74 |     persisted: boolean;
- 75 |     comparisonId?: string;
- 76 |   };
- 77 |   failure?: {
- 78 |     code: ShadowFailureCode;
- 79 |   };
- 80 | }
- 81 |
- 82 | export class MultiStoreGuardAdapter {
- 83 |   constructor(
- 84 |     private readonly client: MultiStoreGuardClient,
- 85 |     private readonly now: () => Date = () => new Date(),
- 86 |   ) {}
- 87 |
- 88 |   async assess(order: CommerceOrder, legacy: LegacyRiskResult): Promise<ShadowComparison> {
- 89 |     validateOrder(order);
- 90 |     const normalizedLegacy = normalizeLegacy(legacy);
- 91 |     const guardAssessment = await this.client.createRiskAssessment(
- 92 |       {
- 93 |         external_order_id: order.id,
- 94 |         phone: order.phone,
- 95 |         order_total: order.total,
- 96 |         payment_method: order.paymentMethod,
- 97 |         ...(order.district || order.area
- 98 |           ? {
- 99 |               shipping_address: {
-100 |                 ...(order.district ? { district: order.district } : {}),
-101 |                 ...(order.area ? { area: order.area } : {}),
-102 |               },
-103 |             }
-104 |           : {}),
-105 |         ...(order.itemCount === undefined ? {} : { items_count: order.itemCount }),
-106 |       },
-107 |       { idempotencyKey: stableKey('risk', order.id) },
-108 |     );
-109 |     return {
-110 |       orderId: order.id,
-111 |       guardAssessment,
-112 |       legacy: normalizedLegacy,
-113 |       decisionChanged: normalizedLegacy.decision !== guardAssessment.decision,
-114 |       scoreDelta: guardAssessment.risk_score - normalizedLegacy.score,
-115 |     };
-116 |   }
-117 |
-118 |   async evaluateShadow(
-119 |     order: CommerceOrder,
-120 |     legacy: LegacyRiskResult,
-121 |     rollout: ShadowRolloutConfig,
-122 |   ): Promise<ShadowEvaluation> {
-123 |     validateOrder(order);
-124 |     const normalizedLegacy = normalizeLegacy(legacy);
-125 |     validateRollout(rollout);
-126 |     const sampleBucket = deterministicBucket(rollout.samplingKey, order.id);
-127 |     const base: ShadowEvaluation = {
-128 |       orderId: order.id,
-129 |       mode: rollout.mode,
-130 |       selected: false,
-131 |       sampleBucket,
-132 |       effective: { ...normalizedLegacy, source: 'legacy' },
-133 |     };
-134 |     if (
-135 |       rollout.mode === 'off' ||
-136 |       rollout.sampleRateBps === 0 ||
-137 |       sampleBucket >= rollout.sampleRateBps
-138 |     ) {
-139 |       return base;
-140 |     }
+ 66 | ### PostgreSQL concurrency and idempotency coverage
+ 67 |
+ 68 | The CI PostgreSQL service runs real-database integration tests for:
+ 69 |
+ 70 | - duplicate usage reservations serializing through the organization/period advisory lock;
+ 71 | - replaying one persisted usage charge for concurrent duplicate request IDs;
+ 72 | - concurrent distinct reservations at the plan boundary allowing only the remaining capacity;
+ 73 | - concurrent assessment saves returning the single persisted scoped winner;
+ 74 | - preventing losing assessment IDs from writing orphan or invalid signal rows;
+ 75 | - concurrent outcome writes resolving as one insert and one replay rather than a unique-constraint error;
+ 76 | - operation idempotency values remaining isolated by organization and store;
+ 77 | - assessment and outcome winners creating exactly one outbox row per matching active endpoint inside the persistence transaction;
+ 78 | - outbox rows excluding raw phone values and unrelated tenant endpoints;
+ 79 | - browser-session hashing, active membership resolution, merchant tenant revalidation, and explicit platform-admin authorization;
+ 80 | - competing courier workers claiming different due jobs with `FOR UPDATE SKIP LOCKED`;
+ 81 | - preventing another courier worker from stealing a fresh lease;
+ 82 | - reclaiming expired courier jobs and rejecting the previous owner;
+ 83 | - clearing courier ownership when retryable work is returned to the queue with backoff;
+ 84 | - moving exhausted stale courier jobs to terminal failure with `LEASE_EXPIRED`;
+ 85 | - deriving courier organization/store/provider scope from account relationships rather than payload fields;
+ 86 | - competing event workers claiming different due webhook deliveries with `FOR UPDATE SKIP LOCKED`;
+ 87 | - preventing another event worker from stealing a fresh webhook lease;
+ 88 | - rejecting an expired event-worker owner before completion or failure;
+ 89 | - reclaiming stale webhook deliveries and incrementing attempts only when processing starts;
+ 90 | - clearing webhook ownership when a retry is scheduled;
+ 91 | - moving exhausted stale webhook deliveries to terminal failure with `LEASE_EXPIRED`;
+ 92 | - failing webhook deliveries whose persisted organization/store scope does not match the endpoint relationship;
+ 93 | - serializing concurrent duplicate OTP send requests into one verification session, hash, and encrypted job;
+ 94 | - verifying OTP only within the authoritative organization/store scope and emitting one verified outbox event per endpoint;
+ 95 | - competing verification workers claiming different due jobs with `FOR UPDATE SKIP LOCKED`;
+ 96 | - protecting fresh verification leases and rejecting expired owners;
+ 97 | - reclaiming stale verification work, clearing retry ownership, and terminalizing exhausted leases;
+ 98 | - failing both the verification job and authoritative session on persisted scope mismatch;
+ 99 | - rejecting API keys, feature assembly, assessment writes, and outcome writes when organization/store ownership does not match;
+100 | - isolating merchant dashboard aggregates and rechecking active platform-admin role on every call;
+101 | - listing and updating webhook administration only for an active owner/admin scope without exposing signing secrets;
+102 | - listing verification administration only for the authorized store without exposing OTP hashes or encrypted job payloads;
+103 | - allowing reviewed runtime DML while denying migration-history reads, DELETE, DDL, schema creation, database ownership, elevated attributes, and inherited privileges;
+104 | - serializing concurrent duplicate native-shadow comparison writes into one immutable row;
+105 | - deriving Guard comparison values from the tenant-scoped assessment rather than trusting client values;
+106 | - rejecting idempotency-key reuse with changed rollout evidence and rejecting cross-store assessment references.
+107 |
+108 | ### Native shadow rollout safety coverage
+109 |
+110 | Default tests prove:
+111 |
+112 | - `off` mode performs no Guard assessment or comparison API call;
+113 | - deterministic sampling keeps retries for the same store/order in the same cohort;
+114 | - the legacy score and decision remain the effective result even when Guard recommends block;
+115 | - Guard assessment and comparison-persistence failures return safe codes without leaking provider or database details;
+116 | - the API requires `comparisons:write`, idempotency, matching order identity, and the authenticated organization/store assessment scope;
+117 | - the concrete post-persist hook reloads the authoritative source order and stops before Guard on organization/store/order mismatch;
+118 | - default-off rollout and deterministic sampling prevent unapproved stores from running shadow;
+119 | - CSRF-protected browser mutation permits only active owner/admin store scope;
+120 | - timeout, assessment failure, comparison persistence failure, and sampled-attempt persistence failure remain advisory while legacy stays effective;
+121 | - PostgreSQL stores one immutable comparison and sampled-attempt winner under concurrent duplicate writes, rejects negative tenant references, and derives Guard comparison values server-side;
+122 | - merchant and platform reports expose sampled counts, failure counts, disagreement rate, and bounded score deltas without secret-bearing fields;
+123 | - comparison, rollout, and attempt tables contain no raw phone, API key, credential, or unrestricted order snapshot.
+124 |
+125 | Selected source-platform post-persist shadow invocation is covered. Enforcement remains outside this milestone and requires opt-in pilot outcomes plus explicit review.
+126 |
+127 | ### Webhook destination security coverage
+128 |
+129 | Default tests use injected DNS and fetch boundaries. They prove:
+130 |
+131 | - non-HTTPS URLs, embedded credentials, localhost names, local suffixes, and literal non-public IPv4/IPv6 addresses are rejected;
+132 | - a hostname resolving to any non-public address is rejected before `fetch`;
+133 | - DNS resolution failure is classified as retryable without making a network request;
+134 | - redirects are disabled;
+135 | - successful deliveries use the expected HMAC signature and canonical payload;
+136 | - envelope ciphertext cannot be decrypted under another endpoint or session context.
+137 |
+138 | Production must add controlled egress and network policy because application-level DNS validation alone cannot eliminate DNS-rebinding or route-change risk.
+139 |
+140 | ### Verification payload security coverage
 141 |
-142 |     const evaluatedAt = this.now().toISOString();
-143 |     let comparison: ShadowComparison;
-144 |     try {
-145 |       comparison = await this.assess(order, normalizedLegacy);
-146 |     } catch (error) {
-147 |       return {
-148 |         ...base,
-149 |         selected: true,
-150 |         evaluatedAt,
-151 |         failure: { code: isTimeoutError(error) ? 'GUARD_TIMEOUT' : 'GUARD_ASSESSMENT_FAILED' },
-152 |       };
-153 |     }
-154 |
-155 |     try {
-156 |       const persisted = await this.client.reportNativeShadowComparison(
-157 |         {
-158 |           external_order_id: order.id,
-159 |           assessment_id: comparison.guardAssessment.assessment_id,
-160 |           legacy_score: normalizedLegacy.score,
-161 |           legacy_decision: normalizedLegacy.decision,
-162 |           rollout_version: rollout.version,
-163 |           sample_bucket: sampleBucket,
-164 |           sample_rate_bps: rollout.sampleRateBps,
-165 |           evaluated_at: evaluatedAt,
-166 |         },
-167 |         {
-168 |           idempotencyKey: stableKey('shadow', `${rollout.version}:${order.id}`),
-169 |         },
-170 |       );
-171 |       return {
-172 |         ...base,
-173 |         selected: true,
-174 |         evaluatedAt,
-175 |         comparison: {
-176 |           ...comparison,
-177 |           persisted: true,
-178 |           comparisonId: persisted.comparison_id,
-179 |         },
-180 |       };
-181 |     } catch {
-182 |       return {
-183 |         ...base,
-184 |         selected: true,
-185 |         evaluatedAt,
-186 |         comparison: { ...comparison, persisted: false },
-187 |         failure: { code: 'COMPARISON_PERSIST_FAILED' },
-188 |       };
-189 |     }
-190 |   }
-191 |
-192 |   async submitOutcome(input: {
-193 |     orderId: string;
-194 |     assessmentId: string;
-195 |     outcome: 'delivered' | 'returned' | 'cancelled_before_shipping';
-196 |     provider?: string;
-197 |     reason?: string;
-198 |     occurredAt: string;
-199 |   }): Promise<void> {
-200 |     await this.client.submitOutcome(
-201 |       {
-202 |         external_order_id: input.orderId,
-203 |         assessment_id: input.assessmentId,
-204 |         outcome: input.outcome,
-205 |         ...(input.provider ? { provider: input.provider } : {}),
-206 |         ...(input.reason ? { reason: input.reason } : {}),
-207 |         occurred_at: input.occurredAt,
-208 |       },
-209 |       {
-210 |         idempotencyKey: stableKey(
-211 |           'outcome',
-212 |           `${input.orderId}:${input.outcome}:${input.occurredAt}`,
-213 |         ),
-214 |       },
-215 |     );
-216 |   }
-217 | }
-218 |
-219 | export interface PersistedCommerceOrder {
-220 |   organizationId: string;
-221 |   storeId: string;
-222 |   order: CommerceOrder;
-223 |   legacy: LegacyRiskResult;
-224 | }
-225 |
-226 | export interface PersistedCommerceOrderReader {
-227 |   loadPersistedOrder(input: {
-228 |     organizationId: string;
-229 |     storeId: string;
-230 |     orderId: string;
-231 |   }): Promise<PersistedCommerceOrder | null>;
-232 | }
-233 |
-234 | export type PostPersistAdvisoryCode =
-235 |   | ShadowFailureCode
-236 |   | 'SOURCE_ORDER_NOT_FOUND'
-237 |   | 'SOURCE_SCOPE_MISMATCH'
-238 |   | 'ROLLOUT_CONFIG_FAILED'
-239 |   | 'ROLLOUT_SCOPE_MISMATCH'
-240 |   | 'ATTEMPT_PERSIST_FAILED';
+142 | Default tests prove:
+143 |
+144 | - job-bound encrypted payloads decrypt only under `verification-job:<job-id>` context;
+145 | - tenant, purpose, phone HMAC, and OTP hash must all match persisted assertions;
+146 | - provider rejection is terminal while structured retryable provider errors use bounded backoff;
+147 | - reporter state and logs do not receive plaintext OTP values;
+148 | - provider I/O is not invoked after payload, scope, expiry, or lease failure.
+149 |
+150 | ### Managed envelope security coverage
+151 |
+152 | Default tests prove:
+153 |
+154 | - managed v2 creates a random 32-byte data key per record and zeroes it after use;
+155 | - plaintext values and plaintext data keys are not serialized into the envelope;
+156 | - context mismatch is rejected before provider unwrap;
+157 | - wrapped-key metadata is authenticated and tampering fails closed;
+158 | - provider outage produces a structured non-secret error;
+159 | - a provider cannot pass the plaintext data key through as a wrapped key;
+160 | - old managed key versions remain readable during rotation and can be re-encrypted under the current version;
+161 | - legacy v1 ciphertext is read only through explicitly configured legacy keys and rewrites to managed v2;
+162 | - malformed, unsupported, or unavailable-key envelopes fail closed.
+163 |
+164 | A real provider adapter, service-identity denial tests, access-audit verification, and PostgreSQL background rewrite integration remain production/provider validation work.
+165 |
+166 | ### Migration replay coverage
+167 |
+168 | CI runs the migration command twice against the same PostgreSQL service:
+169 |
+170 | 1. the first run applies every ordered migration;
+171 | 2. the second run verifies that already-recorded migrations are skipped without schema errors or duplicate side effects.
+172 |
+173 | The migration history table remains the replay source of truth. Applied migration files remain immutable.
+174 |
+175 | ### Migration integrity and restore coverage
+176 |
+177 | CI additionally proves:
+178 |
+179 | - the ordered SQL file list exactly matches the committed SHA-256 manifest;
+180 | - changed migration bytes, unknown history rows, checksum mismatch, and non-contiguous history are rejected;
+181 | - legacy name-only rows can be backfilled only from committed manifest values before `checksum_sha256` becomes `NOT NULL`;
+182 | - migration execution is serialized by one session-held advisory lock;
+183 | - the restore target is a distinct pre-created clean database;
+184 | - `pg_dump`/`pg_restore` credentials are not placed in process arguments;
+185 | - restored schema, full table data hashes, sequence state, migration history, and replay match the source.
+186 |
+187 | Production-managed point-in-time recovery remains a provider provisioning gate rather than a repository CI claim.
+188 |
+189 | Future PostgreSQL coverage must include:
+190 |
+191 | - lease renewal during future jobs whose bounded execution time can exceed the configured lease;
+192 | - selected-provider smoke tests for distinct API/worker runtime identities and migration-owner grant execution;
+193 | - operational replay/dead-letter authorization and audit coverage.
+194 |
+195 | ## End-to-end tests
+196 |
+197 | - Merchant signup and store creation
+198 | - Create a test/live API key
+199 | - Connect Steadfast account
+200 | - Assess WooCommerce COD order
+201 | - Receive a signed `assessment.completed` webhook asynchronously
+202 | - Review high-risk order
+203 | - Verify OTP
+204 | - Submit courier outcome
+205 | - Receive a signed `order.outcome_recorded` webhook asynchronously
+206 | - View usage and savings report
+207 |
+208 | ## Security tests
+209 |
+210 | - Tenant data leakage
+211 | - API key replay/revocation
+212 | - Raw key absence from database/metadata/logs
+213 | - Brute-force OTP
+214 | - CSRF
+215 | - Literal-IP and DNS-result SSRF
+216 | - Webhook replay and redirect handling
+217 | - Webhook signing-secret decryption failure
+218 | - Envelope authenticated-context mismatch
+219 | - Secret redaction, including nested payload/body/URL/credential fields and error-message omission
+220 | - Telemetry serialization/export failure isolation from application and worker execution
+221 | - Injection attacks
+222 | - Session fixation/rotation
+223 | - Credential decryption failure
+224 | - Worker lease ownership and stale-owner rejection
+225 | - Job payload scope, encryption-context, phone-HMAC, and OTP-hash tampering
+226 | - Runtime database role privilege escape, ownership, migration-history, DELETE, and DDL attempts
+227 |
+228 | ## Scraper tests
+229 |
+230 | - Login page selector fixtures
+231 | - Successful cookie extraction
+232 | - Invalid credentials
+233 | - CAPTCHA/2FA detection
+234 | - Provider HTML changes
+235 | - Browser cleanup on failure
+236 | - Login-state/session validation
+237 | - Redacted screenshot/trace behavior
+238 | - Structured failure codes
+239 |
+240 | Live provider tests must be opt-in and use dedicated authorized test accounts. Default CI uses fixtures/mocks.
 241 |
-242 | export interface PostPersistShadowResult {
-243 |   orderId: string;
-244 |   selected: boolean;
-245 |   attemptRecorded: boolean;
-246 |   effective?: LegacyRiskResult & { source: 'legacy' };
-247 |   evaluation?: ShadowEvaluation;
-248 |   advisory?: { code: PostPersistAdvisoryCode };
-249 | }
+242 | ## Architecture tests
+243 |
+244 | - `packages/risk-engine` cannot import network/database/provider/browser packages
+245 | - API routes cannot import provider session drivers directly
+246 | - API persistence may enqueue durable work but cannot execute merchant/provider network delivery
+247 | - All schema comes from `packages/database`
+248 | - All public response and domain-event types come from `packages/shared-types`
+249 | - Tenant-scoped repositories, outbox rows, and jobs require explicit scope
 250 |
-251 | export class MultiStorePostPersistShadowIntegration {
-252 |   private readonly adapter: MultiStoreGuardAdapter;
-253 |
-254 |   constructor(
-255 |     private readonly reader: PersistedCommerceOrderReader,
-256 |     private readonly client: MultiStoreGuardClient,
-257 |     now: () => Date = () => new Date(),
-258 |   ) {
-259 |     this.adapter = new MultiStoreGuardAdapter(client, now);
-260 |   }
+251 | ## Pilot evaluation
+252 |
+253 | Track a confusion matrix against real verified outcomes:
+254 |
+255 | - true positive
+256 | - false positive
+257 | - true negative
+258 | - false negative
+259 |
+260 | Do not promote automatic blocking until false-positive behavior is understood and merchant policy controls are proven.
 261 |
-262 |   async afterOrderPersisted(input: {
-263 |     organizationId: string;
-264 |     storeId: string;
-265 |     orderId: string;
-266 |   }): Promise<PostPersistShadowResult> {
-267 |     const persisted = await this.reader.loadPersistedOrder(input);
-268 |     if (!persisted) {
-269 |       return {
-270 |         orderId: input.orderId,
-271 |         selected: false,
-272 |         attemptRecorded: false,
-273 |         advisory: { code: 'SOURCE_ORDER_NOT_FOUND' },
-274 |       };
-275 |     }
-276 |     if (
-277 |       persisted.organizationId !== input.organizationId ||
-278 |       persisted.storeId !== input.storeId ||
-279 |       persisted.order.id !== input.orderId
-280 |     ) {
-281 |       return {
-282 |         orderId: input.orderId,
-283 |         selected: false,
-284 |         attemptRecorded: false,
-285 |         advisory: { code: 'SOURCE_SCOPE_MISMATCH' },
-286 |       };
-287 |     }
-288 |
-289 |     const effective = { ...normalizeLegacy(persisted.legacy), source: 'legacy' as const };
-290 |     let rolloutResponse: NativeShadowRolloutResponse;
-291 |     try {
-292 |       rolloutResponse = await this.client.getNativeShadowRollout();
-293 |     } catch {
-294 |       return {
-295 |         orderId: input.orderId,
-296 |         selected: false,
-297 |         attemptRecorded: false,
-298 |         effective,
-299 |         advisory: { code: 'ROLLOUT_CONFIG_FAILED' },
-300 |       };
-301 |     }
-302 |     if (
-303 |       rolloutResponse.organization_id !== input.organizationId ||
-304 |       rolloutResponse.store_id !== input.storeId ||
-305 |       rolloutResponse.integration !== 'multi-store-saas'
-306 |     ) {
-307 |       return {
-308 |         orderId: input.orderId,
-309 |         selected: false,
-310 |         attemptRecorded: false,
-311 |         effective,
-312 |         advisory: { code: 'ROLLOUT_SCOPE_MISMATCH' },
-313 |       };
-314 |     }
-315 |
-316 |     const evaluation = await this.adapter.evaluateShadow(persisted.order, persisted.legacy, {
-317 |       mode: rolloutResponse.mode,
-318 |       version: rolloutResponse.rollout_version,
-319 |       sampleRateBps: rolloutResponse.sample_rate_bps,
-320 |       samplingKey: rolloutResponse.sampling_key,
-321 |     });
-322 |     if (!evaluation.selected) {
-323 |       return {
-324 |         orderId: input.orderId,
-325 |         selected: false,
-326 |         attemptRecorded: false,
-327 |         effective: evaluation.effective,
-328 |         evaluation,
-329 |       };
-330 |     }
-331 |
-332 |     const attempt = toAttempt(evaluation, rolloutResponse);
-333 |     try {
-334 |       await this.client.reportNativeShadowAttempt(attempt, {
-335 |         idempotencyKey: stableKey(
-336 |           'attempt',
-337 |           `${rolloutResponse.rollout_version}:${persisted.order.id}`,
-338 |         ),
-339 |       });
-340 |       return {
-341 |         orderId: input.orderId,
-342 |         selected: true,
-343 |         attemptRecorded: true,
-344 |         effective: evaluation.effective,
-345 |         evaluation,
-346 |         ...(evaluation.failure ? { advisory: evaluation.failure } : {}),
-347 |       };
-348 |     } catch {
-349 |       return {
-350 |         orderId: input.orderId,
-351 |         selected: true,
-352 |         attemptRecorded: false,
-353 |         effective: evaluation.effective,
-354 |         evaluation,
-355 |         advisory: { code: 'ATTEMPT_PERSIST_FAILED' },
-356 |       };
-357 |     }
-358 |   }
-359 | }
-360 |
-361 | function toAttempt(
-362 |   evaluation: ShadowEvaluation,
-363 |   rollout: NativeShadowRolloutResponse,
-364 | ): NativeShadowAttemptInput {
-365 |   if (!evaluation.selected || !evaluation.evaluatedAt) {
-366 |     throw new Error('Only selected shadow evaluations can be reported');
-367 |   }
-368 |   const base = {
-369 |     external_order_id: evaluation.orderId,
-370 |     rollout_version: rollout.rollout_version,
-371 |     sample_bucket: evaluation.sampleBucket,
-372 |     sample_rate_bps: rollout.sample_rate_bps,
-373 |     evaluated_at: evaluation.evaluatedAt,
-374 |   };
-375 |   if (
-376 |     evaluation.failure?.code === 'GUARD_ASSESSMENT_FAILED' ||
-377 |     evaluation.failure?.code === 'GUARD_TIMEOUT'
-378 |   ) {
-379 |     return {
-380 |       ...base,
-381 |       status: 'assessment_failed',
-382 |       failure_code: evaluation.failure.code,
-383 |     };
-384 |   }
-385 |   if (evaluation.failure?.code === 'COMPARISON_PERSIST_FAILED' && evaluation.comparison) {
-386 |     return {
-387 |       ...base,
-388 |       status: 'comparison_persist_failed',
-389 |       failure_code: 'COMPARISON_PERSIST_FAILED',
-390 |       assessment_id: evaluation.comparison.guardAssessment.assessment_id,
-391 |     };
-392 |   }
-393 |   if (evaluation.comparison?.persisted && evaluation.comparison.comparisonId) {
-394 |     return {
-395 |       ...base,
-396 |       status: 'comparison_succeeded',
-397 |       assessment_id: evaluation.comparison.guardAssessment.assessment_id,
-398 |       comparison_id: evaluation.comparison.comparisonId,
-399 |     };
-400 |   }
-401 |   throw new Error('Selected shadow evaluation has no reportable advisory state');
-402 | }
-403 |
-404 | export function deterministicBucket(samplingKey: string, orderId: string): number {
-405 |   if (samplingKey.length === 0 || samplingKey.length > 200) {
-406 |     throw new Error('Shadow sampling key must contain 1 to 200 characters');
-407 |   }
-408 |   const digest = createHash('sha256').update(`${samplingKey}:${orderId}`).digest();
-409 |   return digest.readUInt32BE(0) % 10_000;
-410 | }
-411 |
-412 | function stableKey(intent: string, value: string): string {
-413 |   const digest = createHash('sha256').update(value).digest('hex').slice(0, 48);
-414 |   return `multi-store:${intent}:${digest}`;
-415 | }
-416 |
-417 | function normalizeLegacy(legacy: LegacyRiskResult): LegacyRiskResult {
-418 |   if (!Number.isInteger(legacy.score) || legacy.score < 0 || legacy.score > 100) {
-419 |     throw new Error('Legacy score must be an integer from 0 to 100');
-420 |   }
-421 |   const decision = legacy.decision.trim().toLowerCase();
-422 |   if (decision.length === 0 || decision.length > 50) {
-423 |     throw new Error('Legacy decision must contain 1 to 50 characters');
-424 |   }
-425 |   return { score: legacy.score, decision };
-426 | }
-427 |
-428 | function validateOrder(order: CommerceOrder): void {
-429 |   const id = order.id.trim();
-430 |   if (id.length === 0 || id.length > 200) {
-431 |     throw new Error('Order id must contain 1 to 200 characters');
-432 |   }
-433 |   if (!Number.isFinite(order.total) || order.total < 0) {
-434 |     throw new Error('Order total must be a non-negative number');
-435 |   }
-436 |   if (
-437 |     order.itemCount !== undefined &&
-438 |     (!Number.isInteger(order.itemCount) || order.itemCount <= 0 || order.itemCount > 1000)
-439 |   ) {
-440 |     throw new Error('Order item count must be an integer from 1 to 1000');
-441 |   }
-442 | }
-443 |
-444 | function validateRollout(rollout: ShadowRolloutConfig): void {
-445 |   if (rollout.version.trim().length === 0 || rollout.version.length > 100) {
-446 |     throw new Error('Shadow rollout version must contain 1 to 100 characters');
-447 |   }
-448 |   if (
-449 |     !Number.isInteger(rollout.sampleRateBps) ||
-450 |     rollout.sampleRateBps < 0 ||
-451 |     rollout.sampleRateBps > 10_000
-452 |   ) {
-453 |     throw new Error('Shadow sample rate must be an integer from 0 to 10000 basis points');
-454 |   }
-455 |   if (rollout.mode === 'shadow' && rollout.sampleRateBps === 0) {
-456 |     throw new Error('Shadow mode requires a positive sample rate');
-457 |   }
-458 | }
-459 |
-460 | function isTimeoutError(error: unknown): boolean {
-461 |   return Boolean(
-462 |     error &&
-463 |     typeof error === 'object' &&
-464 |     'code' in error &&
-465 |     (error as { code?: unknown }).code === 'REQUEST_TIMEOUT',
-466 |   );
-467 | }
-468 |
+262 | ## Required CI gates
+263 |
+264 | - formatting check
+265 | - lint
+266 | - typecheck
+267 | - unit tests
+268 | - contract tests
+269 | - integration tests with PostgreSQL
+270 | - migration manifest, verification, replay, and database-history integrity
+271 | - clean PostgreSQL backup/restore rehearsal
+272 | - least-privilege runtime database role grant and effective-permission verification
+273 | - dependency audit
+274 | - secret scanning
+275 | - architecture/dependency-boundary tests
+276 |
+277 | ## Browser dead-letter operations coverage
+278 |
+279 | Browser API tests must prove session enforcement, exact-store hiding, owner/admin authorization, member rejection, CSRF protection, stable idempotency forwarding, secret-free list serialization, replay-result serialization, and structured conflict mapping. The existing real-PostgreSQL durable-work suite remains authoritative for concurrent duplicate replay, tenant isolation, structural/expiry rejection, lease reset, immutable evidence, and audit atomicity.
+280 |
 ```
 
-### packages/database/migrations/0011_native_shadow_pilot.sql
+### packages/observability/src/index.test.ts
 
-Bytes: 3254
-SHA-256: be0ec47b3ba2c95b33706aec78e570fb7399524cbddd10680aaf511549fdaca9
-Lines: 1-80 of 80
-
-```text
- 1 | create unique index stores_scope_reference_unique
- 2 |   on stores(id, organization_id);
- 3 |
- 4 | create unique index integration_shadow_comparisons_scope_reference_unique
- 5 |   on integration_shadow_comparisons(id, organization_id, store_id);
- 6 |
- 7 | create table integration_shadow_rollouts (
- 8 |   organization_id text not null references organizations(id) on delete cascade,
- 9 |   store_id text not null references stores(id) on delete cascade,
-10 |   integration text not null,
-11 |   mode text not null check (mode in ('off', 'shadow')),
-12 |   rollout_version text not null,
-13 |   sample_rate_bps integer not null check (sample_rate_bps between 0 and 10000),
-14 |   updated_by_user_id text references users(id) on delete set null,
-15 |   created_at timestamptz not null default now(),
-16 |   updated_at timestamptz not null default now(),
-17 |   primary key (organization_id, store_id, integration),
-18 |   foreign key (store_id, organization_id)
-19 |     references stores(id, organization_id)
-20 |     on delete cascade,
-21 |   check (
-22 |     (mode = 'off' and sample_rate_bps = 0)
-23 |     or (mode = 'shadow' and sample_rate_bps between 1 and 10000)
-24 |   )
-25 | );
-26 |
-27 | create index integration_shadow_rollouts_mode_idx
-28 |   on integration_shadow_rollouts(integration, mode, updated_at desc);
-29 |
-30 | create table integration_shadow_attempts (
-31 |   id text primary key,
-32 |   organization_id text not null references organizations(id) on delete cascade,
-33 |   store_id text not null references stores(id) on delete cascade,
-34 |   api_key_id text references api_keys(id) on delete set null,
-35 |   integration text not null,
-36 |   external_order_id text not null,
-37 |   idempotency_key text not null,
-38 |   rollout_version text not null,
-39 |   sample_bucket integer not null check (sample_bucket between 0 and 9999),
-40 |   sample_rate_bps integer not null check (sample_rate_bps between 1 and 10000),
-41 |   status text not null check (
-42 |     status in ('comparison_succeeded', 'assessment_failed', 'comparison_persist_failed')
-43 |   ),
-44 |   failure_code text,
-45 |   assessment_id text,
-46 |   comparison_id text,
-47 |   evaluated_at timestamptz not null,
-48 |   created_at timestamptz not null default now(),
-49 |   foreign key (store_id, organization_id)
-50 |     references stores(id, organization_id)
-51 |     on delete cascade,
-52 |   foreign key (assessment_id, organization_id, store_id)
-53 |     references risk_assessments(id, organization_id, store_id)
-54 |     on delete cascade,
-55 |   foreign key (comparison_id, organization_id, store_id)
-56 |     references integration_shadow_comparisons(id, organization_id, store_id)
-57 |     on delete cascade,
-58 |   unique (organization_id, store_id, integration, idempotency_key),
-59 |   check (
-60 |     (status = 'comparison_succeeded'
-61 |       and failure_code is null
-62 |       and assessment_id is not null
-63 |       and comparison_id is not null)
-64 |     or (status = 'assessment_failed'
-65 |       and failure_code in ('GUARD_ASSESSMENT_FAILED', 'GUARD_TIMEOUT')
-66 |       and assessment_id is null
-67 |       and comparison_id is null)
-68 |     or (status = 'comparison_persist_failed'
-69 |       and failure_code = 'COMPARISON_PERSIST_FAILED'
-70 |       and assessment_id is not null
-71 |       and comparison_id is null)
-72 |   )
-73 | );
-74 |
-75 | create index integration_shadow_attempts_store_created_idx
-76 |   on integration_shadow_attempts(store_id, created_at desc);
-77 |
-78 | create index integration_shadow_attempts_status_created_idx
-79 |   on integration_shadow_attempts(integration, status, created_at desc);
-80 |
-```
-
-### packages/shared-types/src/index.ts
-
-Bytes: 11565
-SHA-256: afe2cce6e107db0818b417733adc0573f7a496b33c5477a634de7645ad0758a5
-Lines: 1-329 of 329
+Bytes: 3008
+SHA-256: a38ecb31068376cbc0bc001dfcd6c2c31b93d2506280b656569f087cb9e30399
+Lines: 1-92 of 92
 
 ```typescript
-  1 | import { z } from 'zod';
+ 1 | import { describe, expect, it, vi } from 'vitest';
+ 2 | import { createStructuredLogger, serializeStructuredLog } from './index.js';
+ 3 |
+ 4 | describe('structured observability', () => {
+ 5 |   it('emits fixed metadata and redacts nested sensitive fields', () => {
+ 6 |     const error = Object.assign(new Error('[REDACTED_MESSAGE]'), { code: 'PROVIDER_FAILED' });
+ 7 |     const line = serializeStructuredLog({
+ 8 |       level: 'error',
+ 9 |       event: 'worker.failed',
+10 |       service: 'verification-worker',
+11 |       environment: 'test',
+12 |       timestamp: new Date('2026-07-28T00:00:00.000Z'),
+13 |       attributes: {
+14 |         worker_id: 'worker-1',
+15 |         phone_hash: 'safe-hash',
+16 |         phone: '[REDACTED_PHONE]',
+17 |         apiKey: '[REDACTED_SECRET]',
+18 |         endpointUrl: '[REDACTED_URL]',
+19 |         nested: {
+20 |           signing_secret: '[REDACTED_SECRET]',
+21 |           requestBody: { otp: '[REDACTED_OTP]' },
+22 |         },
+23 |         error,
+24 |         level: 'attempted-override',
+25 |       },
+26 |     });
+27 |
+28 |     expect(JSON.parse(line)).toEqual({
+29 |       worker_id: 'worker-1',
+30 |       phone_hash: 'safe-hash',
+31 |       phone: '[REDACTED]',
+32 |       apiKey: '[REDACTED]',
+33 |       endpointUrl: '[REDACTED]',
+34 |       nested: {
+35 |         signing_secret: '[REDACTED]',
+36 |         requestBody: '[REDACTED]',
+37 |       },
+38 |       error: { name: 'Error', code: 'PROVIDER_FAILED' },
+39 |       timestamp: '2026-07-28T00:00:00.000Z',
+40 |       level: 'error',
+41 |       service: 'verification-worker',
+42 |       environment: 'test',
+43 |       event: 'worker.failed',
+44 |     });
+45 |     expect(line).not.toContain('[REDACTED_PHONE]');
+46 |     expect(line).not.toContain('[REDACTED_SECRET]');
+47 |     expect(line).not.toContain('[REDACTED_MESSAGE]');
+48 |   });
+49 |
+50 |   it('handles circular, binary, bigint, and oversized values without throwing', () => {
+51 |     const circular: Record<string, unknown> = { id: 'one' };
+52 |     circular.self = circular;
+53 |
+54 |     const line = serializeStructuredLog({
+55 |       level: 'info',
+56 |       event: 'safe.serialization',
+57 |       service: 'api',
+58 |       environment: 'test',
+59 |       timestamp: new Date('2026-07-28T00:00:00.000Z'),
+60 |       maxStringLength: 4,
+61 |       attributes: {
+62 |         circular,
+63 |         bytes: new Uint8Array([1, 2, 3]),
+64 |         count: 12n,
+65 |         long: 'abcdefgh',
+66 |       },
+67 |     });
+68 |     const parsed = JSON.parse(line) as Record<string, unknown>;
+69 |
+70 |     expect(parsed.circular).toEqual({ id: 'one', self: { circular: '[CIRCULAR]' } });
+71 |     expect(parsed.bytes).toBe('[BINARY:3]');
+72 |     expect(parsed.count).toBe('12');
+73 |     expect(parsed.long).toBe('abcd...[TRUNCATED:4]');
+74 |   });
+75 |
+76 |   it('swallows serialization and sink failures', () => {
+77 |     const write = vi.fn(() => {
+78 |       throw new Error('backend unavailable');
+79 |     });
+80 |     const logger = createStructuredLogger({
+81 |       service: 'event-worker',
+82 |       environment: 'test',
+83 |       clock: () => new Date('2026-07-28T00:00:00.000Z'),
+84 |       write,
+85 |     });
+86 |
+87 |     expect(() => logger.info('worker.started', { worker_id: 'worker-1' })).not.toThrow();
+88 |     expect(() => logger.error('', { code: 'FAILED' })).not.toThrow();
+89 |     expect(write).toHaveBeenCalledTimes(1);
+90 |   });
+91 | });
+92 |
+```
+
+### packages/observability/src/index.ts
+
+Bytes: 7388
+SHA-256: bf8d24544c083f087459bc8f326fbc363288737167112e0f003ae96b14a986d1
+Lines: 1-224 of 224
+
+```typescript
+  1 | export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
   2 |
-  3 | export const riskLevelSchema = z.enum(['low', 'moderate', 'high', 'critical', 'unknown']);
-  4 | export type RiskLevel = z.infer<typeof riskLevelSchema>;
-  5 |
-  6 | export const riskDecisionSchema = z.enum(['allow', 'verify', 'review', 'hold', 'block']);
-  7 | export type RiskDecision = z.infer<typeof riskDecisionSchema>;
-  8 |
-  9 | export const riskSignalSchema = z.object({
- 10 |   code: z.string().min(1).max(100),
- 11 |   category: z.enum(['courier', 'merchant', 'velocity', 'verification', 'network', 'order']),
- 12 |   score: z.number().int().min(-100).max(100),
- 13 |   confidence: z.number().min(0).max(1).optional(),
- 14 |   description: z.string().min(1).max(500),
- 15 | });
- 16 | export type RiskSignal = z.infer<typeof riskSignalSchema>;
- 17 |
- 18 | export const courierSummarySchema = z.object({
- 19 |   freshness: z.enum(['fresh', 'stale', 'missing']).optional(),
- 20 |   providers: z.number().int().nonnegative().optional(),
- 21 |   total: z.number().int().nonnegative(),
- 22 |   delivered: z.number().int().nonnegative(),
- 23 |   returned: z.number().int().nonnegative(),
- 24 |   cancelled_before_shipping: z.number().int().nonnegative(),
- 25 | });
- 26 | export type CourierSummary = z.infer<typeof courierSummarySchema>;
- 27 |
- 28 | export const riskAssessmentRequestSchema = z.object({
- 29 |   external_order_id: z.string().min(1).max(200).optional(),
- 30 |   phone: z.string().min(8).max(30),
- 31 |   order_total: z.number().nonnegative().default(0),
- 32 |   payment_method: z.enum(['cod', 'prepaid']).default('cod'),
- 33 |   shipping_address: z
- 34 |     .object({
- 35 |       district: z.string().max(120).optional(),
- 36 |       area: z.string().max(200).optional(),
- 37 |       raw: z.string().max(1000).optional(),
- 38 |     })
- 39 |     .optional(),
- 40 |   items_count: z.number().int().positive().max(1000).optional(),
- 41 |   session: z
- 42 |     .object({
- 43 |       ip: z.string().max(64).optional(),
- 44 |       device_id: z.string().max(200).optional(),
- 45 |       user_agent: z.string().max(1000).optional(),
- 46 |     })
- 47 |     .optional(),
- 48 | });
- 49 | export type RiskAssessmentRequest = z.infer<typeof riskAssessmentRequestSchema>;
- 50 |
- 51 | export const riskAssessmentResponseSchema = z.object({
- 52 |   success: z.literal(true),
- 53 |   assessment_id: z.string().min(1),
- 54 |   risk_score: z.number().int().min(0).max(100),
- 55 |   risk_level: riskLevelSchema,
- 56 |   decision: riskDecisionSchema,
- 57 |   confidence: z.number().min(0).max(1),
- 58 |   signals: z.array(riskSignalSchema),
- 59 |   courier_summary: courierSummarySchema,
- 60 |   recommended_actions: z.array(z.string()).optional(),
- 61 |   meta: z
- 62 |     .object({
- 63 |       engine_version: z.string(),
- 64 |       policy_version: z.string(),
- 65 |       degraded: z.boolean(),
- 66 |       response_ms: z.number().int().nonnegative().optional(),
- 67 |     })
- 68 |     .optional(),
- 69 | });
- 70 | export type RiskAssessmentResponse = z.infer<typeof riskAssessmentResponseSchema>;
- 71 |
- 72 | export const orderOutcomeSchema = z.object({
- 73 |   external_order_id: z.string().min(1).max(200),
- 74 |   assessment_id: z.string().min(1).optional(),
- 75 |   outcome: z.enum(['delivered', 'returned', 'cancelled_before_shipping', 'customer_confirmed']),
- 76 |   provider: z.string().min(1).max(50).optional(),
- 77 |   reason: z.string().max(500).optional(),
- 78 |   occurred_at: z.string().datetime(),
- 79 | });
- 80 | export type OrderOutcomeInput = z.infer<typeof orderOutcomeSchema>;
- 81 |
- 82 | export const nativeShadowComparisonInputSchema = z.object({
- 83 |   external_order_id: z.string().min(1).max(200),
- 84 |   assessment_id: z.string().min(1).max(200),
- 85 |   legacy_score: z.number().int().min(0).max(100),
- 86 |   legacy_decision: z
- 87 |     .string()
- 88 |     .trim()
- 89 |     .min(1)
- 90 |     .max(50)
- 91 |     .transform((value) => value.toLowerCase()),
- 92 |   rollout_version: z.string().trim().min(1).max(100),
- 93 |   sample_bucket: z.number().int().min(0).max(9999),
- 94 |   sample_rate_bps: z.number().int().min(1).max(10000),
- 95 |   evaluated_at: z.string().datetime(),
- 96 | });
- 97 | export type NativeShadowComparisonInput = z.infer<typeof nativeShadowComparisonInputSchema>;
- 98 |
- 99 | export const nativeShadowComparisonResponseSchema = z.object({
-100 |   success: z.literal(true),
-101 |   comparison_id: z.string().min(1),
-102 |   replay: z.boolean(),
-103 | });
-104 | export type NativeShadowComparisonResponse = z.infer<typeof nativeShadowComparisonResponseSchema>;
-105 |
-106 | export const nativeShadowRolloutModeSchema = z.enum(['off', 'shadow']);
-107 | export type NativeShadowRolloutMode = z.infer<typeof nativeShadowRolloutModeSchema>;
+  3 | export type LogAttributes = Readonly<Record<string, unknown>>;
+  4 |
+  5 | export interface StructuredLoggerOptions {
+  6 |   service: string;
+  7 |   environment?: string;
+  8 |   clock?: () => Date;
+  9 |   write?: (line: string, level: LogLevel) => void;
+ 10 |   maxDepth?: number;
+ 11 |   maxStringLength?: number;
+ 12 | }
+ 13 |
+ 14 | export interface StructuredLogger {
+ 15 |   debug(event: string, attributes?: LogAttributes): void;
+ 16 |   info(event: string, attributes?: LogAttributes): void;
+ 17 |   warn(event: string, attributes?: LogAttributes): void;
+ 18 |   error(event: string, attributes?: LogAttributes): void;
+ 19 | }
+ 20 |
+ 21 | export interface StructuredLogInput {
+ 22 |   level: LogLevel;
+ 23 |   event: string;
+ 24 |   service: string;
+ 25 |   environment: string;
+ 26 |   attributes?: LogAttributes;
+ 27 |   timestamp: Date;
+ 28 |   maxDepth?: number;
+ 29 |   maxStringLength?: number;
+ 30 | }
+ 31 |
+ 32 | const REDACTED = '[REDACTED]';
+ 33 | const CIRCULAR = '[CIRCULAR]';
+ 34 | const MAX_COLLECTION_ITEMS = 100;
+ 35 | const DEFAULT_MAX_DEPTH = 6;
+ 36 | const DEFAULT_MAX_STRING_LENGTH = 2_048;
+ 37 | const RESERVED_FIELDS = new Set(['timestamp', 'level', 'service', 'environment', 'event']);
+ 38 | const SENSITIVE_FIELDS = new Set([
+ 39 |   'authorization',
+ 40 |   'password',
+ 41 |   'passphrase',
+ 42 |   'secret',
+ 43 |   'signingsecret',
+ 44 |   'webhooksecret',
+ 45 |   'token',
+ 46 |   'accesstoken',
+ 47 |   'refreshtoken',
+ 48 |   'apikey',
+ 49 |   'cookie',
+ 50 |   'cookies',
+ 51 |   'sessioncookie',
+ 52 |   'otp',
+ 53 |   'phone',
+ 54 |   'phonenumber',
+ 55 |   'rawphone',
+ 56 |   'credential',
+ 57 |   'credentials',
+ 58 |   'providerresponse',
+ 59 |   'dnsanswers',
+ 60 |   'requestbody',
+ 61 |   'responsebody',
+ 62 | ]);
+ 63 |
+ 64 | export function createStructuredLogger(options: StructuredLoggerOptions): StructuredLogger {
+ 65 |   const service = requiredLabel(options.service, 'service');
+ 66 |   const environment = options.environment?.trim() || 'development';
+ 67 |   const clock = options.clock ?? (() => new Date());
+ 68 |   const write = options.write ?? defaultWrite;
+ 69 |
+ 70 |   const emit = (level: LogLevel, event: string, attributes?: LogAttributes): void => {
+ 71 |     try {
+ 72 |       const line = serializeStructuredLog({
+ 73 |         level,
+ 74 |         event,
+ 75 |         service,
+ 76 |         environment,
+ 77 |         timestamp: clock(),
+ 78 |         ...(attributes === undefined ? {} : { attributes }),
+ 79 |         ...(options.maxDepth === undefined ? {} : { maxDepth: options.maxDepth }),
+ 80 |         ...(options.maxStringLength === undefined
+ 81 |           ? {}
+ 82 |           : { maxStringLength: options.maxStringLength }),
+ 83 |       });
+ 84 |       write(line, level);
+ 85 |     } catch {
+ 86 |       // Telemetry failures must never break application or worker execution.
+ 87 |     }
+ 88 |   };
+ 89 |
+ 90 |   return {
+ 91 |     debug: (event, attributes) => emit('debug', event, attributes),
+ 92 |     info: (event, attributes) => emit('info', event, attributes),
+ 93 |     warn: (event, attributes) => emit('warn', event, attributes),
+ 94 |     error: (event, attributes) => emit('error', event, attributes),
+ 95 |   };
+ 96 | }
+ 97 |
+ 98 | export function serializeStructuredLog(input: StructuredLogInput): string {
+ 99 |   const maxDepth = positiveInteger(input.maxDepth, DEFAULT_MAX_DEPTH);
+100 |   const maxStringLength = positiveInteger(input.maxStringLength, DEFAULT_MAX_STRING_LENGTH);
+101 |   const seen = new WeakSet<object>();
+102 |   const attributes = sanitizeRecord(input.attributes ?? {}, {
+103 |     depth: 0,
+104 |     maxDepth,
+105 |     maxStringLength,
+106 |     seen,
+107 |   });
 108 |
-109 | export const nativeShadowRolloutResponseSchema = z.object({
-110 |   success: z.literal(true),
-111 |   organization_id: z.string().min(1),
-112 |   store_id: z.string().min(1),
-113 |   integration: z.literal('multi-store-saas'),
-114 |   mode: nativeShadowRolloutModeSchema,
-115 |   rollout_version: z.string().min(1).max(100),
-116 |   sample_rate_bps: z.number().int().min(0).max(10000),
-117 |   sampling_key: z.string().min(1).max(200),
-118 | });
-119 | export type NativeShadowRolloutResponse = z.infer<typeof nativeShadowRolloutResponseSchema>;
-120 |
-121 | export const nativeShadowAttemptStatusSchema = z.enum([
-122 |   'comparison_succeeded',
-123 |   'assessment_failed',
-124 |   'comparison_persist_failed',
-125 | ]);
-126 | export type NativeShadowAttemptStatus = z.infer<typeof nativeShadowAttemptStatusSchema>;
-127 |
-128 | export const nativeShadowAttemptInputSchema = z.object({
-129 |   external_order_id: z.string().min(1).max(200),
-130 |   rollout_version: z.string().trim().min(1).max(100),
-131 |   sample_bucket: z.number().int().min(0).max(9999),
-132 |   sample_rate_bps: z.number().int().min(1).max(10000),
-133 |   status: nativeShadowAttemptStatusSchema,
-134 |   failure_code: z
-135 |     .enum(['GUARD_ASSESSMENT_FAILED', 'GUARD_TIMEOUT', 'COMPARISON_PERSIST_FAILED'])
-136 |     .optional(),
-137 |   assessment_id: z.string().min(1).max(200).optional(),
-138 |   comparison_id: z.string().min(1).max(200).optional(),
-139 |   evaluated_at: z.string().datetime(),
-140 | });
-141 | export type NativeShadowAttemptInput = z.infer<typeof nativeShadowAttemptInputSchema>;
-142 |
-143 | export const nativeShadowAttemptResponseSchema = z.object({
-144 |   success: z.literal(true),
-145 |   attempt_id: z.string().min(1),
-146 |   replay: z.boolean(),
-147 | });
-148 | export type NativeShadowAttemptResponse = z.infer<typeof nativeShadowAttemptResponseSchema>;
-149 |
-150 | export const nativeShadowPilotReportSchema = z.object({
-151 |   mode: nativeShadowRolloutModeSchema,
-152 |   rollout_version: z.string().min(1).max(100),
-153 |   sample_rate_bps: z.number().int().min(0).max(10000),
-154 |   sampled_orders: z.number().int().nonnegative(),
-155 |   successful_comparisons: z.number().int().nonnegative(),
-156 |   assessment_failures: z.number().int().nonnegative(),
-157 |   persistence_failures: z.number().int().nonnegative(),
-158 |   decision_disagreement_rate: z.number().min(0).max(1).nullable(),
-159 |   score_delta: z.object({
-160 |     minimum: z.number().int().min(-100).max(100).nullable(),
-161 |     maximum: z.number().int().min(-100).max(100).nullable(),
-162 |     average: z.number().min(-100).max(100).nullable(),
-163 |     lower: z.number().int().nonnegative(),
-164 |     equal: z.number().int().nonnegative(),
-165 |     higher: z.number().int().nonnegative(),
-166 |   }),
-167 | });
-168 | export type NativeShadowPilotReport = z.infer<typeof nativeShadowPilotReportSchema>;
-169 |
-170 | export const apiErrorSchema = z.object({
-171 |   success: z.literal(false),
-172 |   error: z.object({
-173 |     code: z.string(),
-174 |     message: z.string(),
-175 |     details: z.record(z.unknown()).optional(),
-176 |   }),
-177 |   request_id: z.string(),
-178 | });
-179 | export type ApiError = z.infer<typeof apiErrorSchema>;
-180 |
-181 | export const platformRoleSchema = z.enum(['merchant', 'platform_admin']);
-182 | export type PlatformRole = z.infer<typeof platformRoleSchema>;
-183 |
-184 | export const browserStoreSchema = z.object({
-185 |   id: z.string().min(1),
-186 |   organization_id: z.string().min(1),
-187 |   name: z.string().min(1),
-188 |   platform: z.string().min(1),
-189 |   status: z.string().min(1),
-190 | });
-191 | export type BrowserStore = z.infer<typeof browserStoreSchema>;
-192 |
-193 | export const browserOrganizationSchema = z.object({
-194 |   id: z.string().min(1),
-195 |   name: z.string().min(1),
-196 |   role: z.string().min(1),
-197 |   stores: z.array(browserStoreSchema),
-198 | });
-199 | export type BrowserOrganization = z.infer<typeof browserOrganizationSchema>;
-200 |
-201 | export const browserSessionResponseSchema = z.object({
-202 |   success: z.literal(true),
-203 |   user: z.object({
-204 |     id: z.string().min(1),
-205 |     email: z.string().email(),
-206 |     platform_role: platformRoleSchema,
-207 |   }),
-208 |   organizations: z.array(browserOrganizationSchema),
-209 |   csrf_token: z.string().min(32),
-210 |   expires_at: z.string().datetime(),
-211 | });
-212 | export type BrowserSessionResponse = z.infer<typeof browserSessionResponseSchema>;
+109 |   return JSON.stringify({
+110 |     ...attributes,
+111 |     timestamp: input.timestamp.toISOString(),
+112 |     level: input.level,
+113 |     service: requiredLabel(input.service, 'service'),
+114 |     environment: requiredLabel(input.environment, 'environment'),
+115 |     event: requiredLabel(input.event, 'event'),
+116 |   });
+117 | }
+118 |
+119 | interface SanitizeContext {
+120 |   depth: number;
+121 |   maxDepth: number;
+122 |   maxStringLength: number;
+123 |   seen: WeakSet<object>;
+124 | }
+125 |
+126 | function sanitizeRecord(
+127 |   value: Readonly<Record<string, unknown>>,
+128 |   context: SanitizeContext,
+129 | ): Record<string, unknown> {
+130 |   if (context.depth >= context.maxDepth) return { truncated: '[MAX_DEPTH]' };
+131 |   if (context.seen.has(value)) return { circular: CIRCULAR };
+132 |   context.seen.add(value);
+133 |
+134 |   const result: Record<string, unknown> = {};
+135 |   const entries = Object.entries(value).slice(0, MAX_COLLECTION_ITEMS);
+136 |   for (const [key, item] of entries) {
+137 |     if (RESERVED_FIELDS.has(key)) continue;
+138 |     result[key] = isSensitiveField(key)
+139 |       ? REDACTED
+140 |       : sanitizeValue(item, { ...context, depth: context.depth + 1 });
+141 |   }
+142 |   if (Object.keys(value).length > MAX_COLLECTION_ITEMS) result.truncated_fields = true;
+143 |   return result;
+144 | }
+145 |
+146 | function sanitizeValue(value: unknown, context: SanitizeContext): unknown {
+147 |   if (value === null || typeof value === 'boolean') return value;
+148 |   if (typeof value === 'string') return truncate(value, context.maxStringLength);
+149 |   if (typeof value === 'number') return Number.isFinite(value) ? value : String(value);
+150 |   if (typeof value === 'bigint') return value.toString();
+151 |   if (typeof value === 'undefined') return '[UNDEFINED]';
+152 |   if (typeof value === 'symbol')
+153 |     return value.description ? `[SYMBOL:${value.description}]` : '[SYMBOL]';
+154 |   if (typeof value === 'function') return '[FUNCTION]';
+155 |   if (value instanceof Date)
+156 |     return Number.isNaN(value.getTime()) ? '[INVALID_DATE]' : value.toISOString();
+157 |   if (value instanceof Error) return sanitizeError(value, context);
+158 |   if (ArrayBuffer.isView(value)) return `[BINARY:${value.byteLength}]`;
+159 |   if (Array.isArray(value)) {
+160 |     if (context.depth >= context.maxDepth) return '[MAX_DEPTH]';
+161 |     if (context.seen.has(value)) return CIRCULAR;
+162 |     context.seen.add(value);
+163 |     const items = value
+164 |       .slice(0, MAX_COLLECTION_ITEMS)
+165 |       .map((item) => sanitizeValue(item, { ...context, depth: context.depth + 1 }));
+166 |     if (value.length > MAX_COLLECTION_ITEMS) items.push('[TRUNCATED_ITEMS]');
+167 |     return items;
+168 |   }
+169 |   if (typeof value === 'object') {
+170 |     return sanitizeRecord(value as Readonly<Record<string, unknown>>, context);
+171 |   }
+172 |   return '[UNSUPPORTED]';
+173 | }
+174 |
+175 | function sanitizeError(error: Error, context: SanitizeContext): Record<string, unknown> {
+176 |   const code =
+177 |     'code' in error
+178 |       ? sanitizeValue((error as Error & { code?: unknown }).code, context)
+179 |       : undefined;
+180 |   return {
+181 |     name: truncate(error.name || 'Error', context.maxStringLength),
+182 |     ...(code === undefined ? {} : { code }),
+183 |   };
+184 | }
+185 |
+186 | function isSensitiveField(key: string): boolean {
+187 |   const normalized = key.replace(/[^a-z0-9]/gi, '').toLowerCase();
+188 |   if (normalized === 'phonehash') return false;
+189 |   return (
+190 |     SENSITIVE_FIELDS.has(normalized) ||
+191 |     normalized.endsWith('password') ||
+192 |     normalized.endsWith('secret') ||
+193 |     normalized.endsWith('token') ||
+194 |     normalized.endsWith('apikey') ||
+195 |     normalized.endsWith('cookie') ||
+196 |     normalized.endsWith('payload') ||
+197 |     normalized.endsWith('body') ||
+198 |     normalized.endsWith('credentials') ||
+199 |     normalized.endsWith('url')
+200 |   );
+201 | }
+202 |
+203 | function truncate(value: string, maxLength: number): string {
+204 |   if (value.length <= maxLength) return value;
+205 |   return `${value.slice(0, maxLength)}...[TRUNCATED:${value.length - maxLength}]`;
+206 | }
+207 |
+208 | function requiredLabel(value: string, name: string): string {
+209 |   const normalized = value.trim();
+210 |   if (!normalized) throw new Error(`${name} is required`);
+211 |   return normalized;
+212 | }
 213 |
-214 | export const dashboardReviewSchema = z.object({
-215 |   assessment_id: z.string().min(1),
-216 |   external_order_id: z.string().nullable(),
-217 |   phone_masked: z.string().min(1),
-218 |   risk_score: z.number().int().min(0).max(100),
-219 |   decision: riskDecisionSchema,
-220 |   confidence: z.number().min(0).max(1),
-221 |   signals: z.array(
-222 |     z.object({
-223 |       code: z.string().min(1),
-224 |       score: z.number().int(),
-225 |       description: z.string().min(1),
-226 |     }),
-227 |   ),
-228 |   created_at: z.string().datetime(),
-229 | });
-230 | export type DashboardReview = z.infer<typeof dashboardReviewSchema>;
-231 |
-232 | export const merchantDashboardOverviewSchema = z.object({
-233 |   success: z.literal(true),
-234 |   generated_at: z.string().datetime(),
-235 |   scope: z.object({
-236 |     organization_id: z.string().min(1),
-237 |     organization_name: z.string().min(1),
-238 |     store_id: z.string().min(1),
-239 |     store_name: z.string().min(1),
-240 |     platform: z.string().min(1),
-241 |     role: z.string().min(1),
-242 |   }),
-243 |   summary: z.object({
-244 |     assessments_30d: z.number().int().nonnegative(),
-245 |     degraded_30d: z.number().int().nonnegative(),
-246 |     pending_reviews: z.number().int().nonnegative(),
-247 |     verified_30d: z.number().int().nonnegative(),
-248 |     usage_month: z.number().int().nonnegative(),
-249 |     usage_limit: z.number().int().positive().nullable(),
-250 |   }),
-251 |   decisions: z.object({
-252 |     allow: z.number().int().nonnegative(),
-253 |     verify: z.number().int().nonnegative(),
-254 |     review: z.number().int().nonnegative(),
-255 |     hold: z.number().int().nonnegative(),
-256 |     block: z.number().int().nonnegative(),
-257 |   }),
-258 |   reviews: z.array(dashboardReviewSchema),
-259 |   couriers: z.array(
-260 |     z.object({
-261 |       provider: z.string().min(1),
-262 |       status: z.string().min(1),
-263 |       last_success_at: z.string().datetime().nullable(),
-264 |       last_failure_at: z.string().datetime().nullable(),
-265 |       failure_code: z.string().nullable(),
-266 |     }),
-267 |   ),
-268 |   shadow_pilot: nativeShadowPilotReportSchema,
-269 | });
-270 | export type MerchantDashboardOverview = z.infer<typeof merchantDashboardOverviewSchema>;
-271 |
-272 | export const platformAdminOverviewSchema = z.object({
-273 |   success: z.literal(true),
-274 |   generated_at: z.string().datetime(),
-275 |   summary: z.object({
-276 |     active_organizations: z.number().int().nonnegative(),
-277 |     active_stores: z.number().int().nonnegative(),
-278 |     assessments_today: z.number().int().nonnegative(),
-279 |     degraded_percentage: z.number().min(0).max(100),
-280 |     worker_backlog: z.number().int().nonnegative(),
-281 |     failed_webhooks: z.number().int().nonnegative(),
-282 |   }),
-283 |   incidents: z.array(
-284 |     z.object({
-285 |       code: z.string().min(1),
-286 |       title: z.string().min(1),
-287 |       detail: z.string().min(1),
-288 |       severity: z.enum(['low', 'medium', 'high']),
-289 |     }),
-290 |   ),
-291 |   providers: z.array(
-292 |     z.object({
-293 |       name: z.string().min(1),
-294 |       state: z.string().min(1),
-295 |       metric: z.string().min(1),
-296 |     }),
-297 |   ),
-298 |   automatic_blocking: z.object({
-299 |     broadly_enabled: z.literal(false),
-300 |     reason: z.string().min(1),
-301 |   }),
-302 |   shadow_pilot: nativeShadowPilotReportSchema.extend({
-303 |     opted_in_stores: z.number().int().nonnegative(),
-304 |   }),
-305 | });
-306 | export type PlatformAdminOverview = z.infer<typeof platformAdminOverviewSchema>;
-307 |
-308 | export interface RequestScope {
-309 |   organizationId: string;
-310 |   storeId: string;
-311 |   apiKeyId?: string;
-312 |   environment: 'test' | 'live';
-313 | }
-314 |
-315 | export interface DomainEvent<TPayload = Record<string, unknown>> {
-316 |   id: string;
-317 |   type:
-318 |     | 'assessment.completed'
-319 |     | 'verification.verified'
-320 |     | 'verification.failed'
-321 |     | 'courier.connection_failed'
-322 |     | 'order.outcome_recorded'
-323 |     | 'usage.limit_warning';
-324 |   organizationId: string;
-325 |   storeId?: string;
-326 |   occurredAt: string;
-327 |   payload: TPayload;
-328 | }
-329 |
+214 | function positiveInteger(value: number | undefined, fallback: number): number {
+215 |   return Number.isSafeInteger(value) && Number(value) > 0 ? Number(value) : fallback;
+216 | }
+217 |
+218 | function defaultWrite(line: string, level: LogLevel): void {
+219 |   if (level === 'error') console.error(line);
+220 |   else if (level === 'warn') console.warn(line);
+221 |   else if (level === 'debug') console.debug(line);
+222 |   else console.info(line);
+223 | }
+224 |
 ```
 
 ### tracker.yml
 
-Bytes: 14260
-SHA-256: 9456965f221158c58fed696cf05d1ca1526ef6c59aed3b25cc40a764f7f08663
-Lines: 1-289 of 289
+Bytes: 16720
+SHA-256: 8f041d455c72f1050711d42d7a00d4b319bc8cb6284f02fc07b6af7f90a50f91
+Lines: 1-327 of 327
 
 ```yaml
   1 | schema_version: 1
@@ -4697,7 +2497,7 @@ Lines: 1-289 of 289
   6 |   visibility: public
   7 |   expected_visibility: private
   8 |   status: production-hardening-in-progress
-  9 |   last_updated: 2026-07-18
+  9 |   last_updated: 2026-07-28
  10 |
  11 | agent_entrypoint:
  12 |   purpose: Continuation tracker for developers and AI agents.
@@ -4772,212 +2572,250 @@ Lines: 1-289 of 289
  81 |   - native_shadow_rollout_defaults_off_and_requires_explicit_store_opt_in
  82 |   - native_shadow_attempt_evidence_is_tenant_scoped_immutable_and_idempotent
  83 |   - shadow_comparison_guard_values_are_derived_from_the_scoped_assessment
- 84 |
- 85 | implemented:
- 86 |   - typescript_monorepo_and_ci
- 87 |   - postgresql_schema_and_eleven_migrations
- 88 |   - organization_store_membership_and_plan_foundation
- 89 |   - usage_metering_and_audit_foundation
- 90 |   - opaque_browser_sessions_csrf_and_explicit_platform_admin_role
- 91 |   - pure_versioned_explainable_risk_engine
- 92 |   - canonical_v1_api_and_postgresql_repositories
- 93 |   - provider_neutral_shared_envelope_encryption_package
- 94 |   - steadfast_adapter_and_browser_session_worker
- 95 |   - postgresql_courier_sync_worker
- 96 |   - verification_and_webhook_libraries
- 97 |   - durable_postgresql_webhook_outbox_and_event_worker
- 98 |   - durable_encrypted_postgresql_verification_queue_and_worker
- 99 |   - tenant_scoped_postgresql_otp_verification_repository
-100 |   - woocommerce_shopify_custom_and_native_adapters
-101 |   - authenticated_live_merchant_dashboard
-102 |   - authenticated_live_platform_admin
-103 |   - postgresql_browser_session_and_tenant_isolation_integration_tests
-104 |   - docker_compose_api_courier_event_and_opt_in_verification_worker_baseline
-105 |   - accepted_provider_neutral_production_infrastructure_adrs
-106 |   - postgresql_usage_assessment_outcome_and_operation_idempotency_race_hardening
-107 |   - postgresql_courier_worker_atomic_claim_and_lease_recovery
-108 |   - postgresql_webhook_worker_atomic_claim_and_lease_recovery
-109 |   - postgresql_verification_worker_atomic_claim_and_lease_recovery
-110 |   - verification_payload_context_phone_hash_and_otp_hash_validation
-111 |   - otp_provider_delivery_removed_from_synchronous_api_requests
-112 |   - migration_replay_ci_gate
-113 |   - webhook_dns_destination_validation
-114 |   - postgresql_migration_manifest_and_history_checksum_integrity
-115 |   - clean_postgresql_backup_restore_rehearsal
-116 |   - restored_schema_data_sequence_history_and_replay_comparison
-117 |   - authoritative_api_key_feature_assessment_and_outcome_tenant_scope_revalidation
-118 |   - secret_free_tenant_scoped_webhook_and_verification_administration_repositories
-119 |   - dashboard_and_platform_admin_repository_isolation_expansion
-120 |   - least_privilege_postgresql_runtime_role_policy_grant_cli_and_ci_gate
-121 |   - provider_neutral_managed_envelope_v2_with_random_per_record_data_keys
-122 |   - managed_envelope_legacy_dual_read_key_rotation_and_safe_failure_tests
-123 |   - native_multi_store_off_and_deterministic_shadow_rollout_controls
-124 |   - tenant_scoped_idempotent_native_shadow_comparison_api_and_persistence
-125 |   - selected_source_post_persist_native_shadow_integration
-126 |   - store_scoped_native_shadow_opt_in_and_pilot_reporting
-127 |   - tenant_scoped_immutable_native_shadow_attempt_evidence
-128 |
-129 | verification:
-130 |   command: npm run verify
-131 |   last_verified: 2026-07-18
-132 |   status: passed
-133 |   results:
-134 |     migrations: 11_of_11_with_sha256_manifest
-135 |     migration_replay: passed
-136 |     migration_history_integrity: passed
-137 |     clean_restore_rehearsal: passed_with_schema_data_sequence_history_and_replay
-138 |     architecture_boundaries: passed
-139 |     typecheck: 19_of_19
-140 |     test_tasks: 28_of_28
-141 |     remote_assertions: 120_passed
-142 |     migration_integrity_tests: 7_of_7_passed
-143 |     postgresql_concurrency_tests: 7_of_7_passed
-144 |     postgresql_courier_worker_lease_tests: 5_of_5_passed
-145 |     postgresql_webhook_worker_lease_tests: 5_of_5_passed
-146 |     postgresql_verification_worker_lease_tests: 5_of_5_passed
-147 |     verification_payload_validation_tests: 3_of_3_passed
-148 |     postgresql_tenant_admin_isolation_tests: 7_of_7_passed
-149 |     postgresql_runtime_role_tests: 6_of_6_passed
-150 |     managed_envelope_tests: 11_of_11_passed
-151 |     native_shadow_adapter_tests: 10_of_10_passed
-152 |     native_shadow_api_tests: 7_of_7_passed
-153 |     native_shadow_postgresql_tests: 7_of_7_passed
-154 |     native_shadow_browser_tests: 2_of_2_passed
-155 |     native_shadow_sdk_tests: 2_of_2_passed
-156 |     native_shadow_total_tests: 28_of_28_passed
-157 |     builds: 19_of_19
-158 |     php_syntax: passed
-159 |     high_critical_dependency_check: passed
-160 |     documentation_links: 60_reviewed_0_known_broken
-161 |   continuation_bundle:
-162 |     status: refreshed_locally
-163 |     canonical_main_sync: verified
-164 |   remote_ci:
-165 |     status: passed
-166 |     run_id: 29629751800
-167 |     job_id: 88040964883
-168 |     job: verify
-169 |     tested_head: 57e6b296617549e923fc80ab80b0317f109f5ee8
-170 |     merged_main_commit: c478170c7dadbeafa576a62ae989df682e052d4e
-171 |     completed: 2026-07-18
-172 |     steps: audit_format_lint_manifest_eleven_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_typecheck_tests_build_php_all_passed
-173 |   source_validation:
-174 |     status: passed
-175 |     run_id: 29629751800
-176 |     job_id: 88040964883
-177 |     tested_head: 57e6b296617549e923fc80ab80b0317f109f5ee8
-178 |     completed: 2026-07-18
-179 |     steps: audit_format_lint_manifest_eleven_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_typecheck_tests_build_php_all_passed
-180 |     native_shadow_tests: 28_of_28_passed
-181 |   pending_follow_up:
-182 |     - production_source_hook_deployment_and_explicit_pilot_store_selection
-183 |     - pilot_outcome_collection_and_calibration
-184 |
-185 | migrations:
-186 |   immutable: true
-187 |   manifest: packages/database/migrations/manifest.json
-188 |   history_checksum_column: checksum_sha256_not_null
-189 |   files:
-190 |     - packages/database/migrations/0001_foundation.sql
-191 |     - packages/database/migrations/0002_courier.sql
-192 |     - packages/database/migrations/0003_risk.sql
-193 |     - packages/database/migrations/0004_verification_events.sql
-194 |     - packages/database/migrations/0005_durable_operations.sql
-195 |     - packages/database/migrations/0006_browser_access.sql
-196 |     - packages/database/migrations/0007_worker_leases.sql
-197 |     - packages/database/migrations/0008_webhook_delivery_leases.sql
-198 |     - packages/database/migrations/0009_verification_delivery_queue.sql
-199 |     - packages/database/migrations/0010_native_shadow_comparisons.sql
-200 |     - packages/database/migrations/0011_native_shadow_pilot.sql
-201 |
-202 | accepted_adrs:
-203 |   - docs/adr/0006-production-deployment-topology.md
-204 |   - docs/adr/0007-managed-postgresql-production-baseline.md
-205 |   - docs/adr/0008-postgresql-first-durable-work-and-cache.md
-206 |   - docs/adr/0009-managed-secrets-and-kms-envelope-encryption.md
-207 |   - docs/adr/0010-vendor-neutral-production-observability.md
-208 |   - docs/adr/0011-selected-source-shadow-pilot.md
-209 |
-210 | external_dependencies:
-211 |   - authorized_steadfast_test_account
-212 |   - provider_authorization_review
-213 |   - deployment_platform_account_region_and_budget
-214 |   - managed_postgresql_provider_and_service_tier
-215 |   - managed_secret_store_and_kms_vault_provider
-216 |   - observability_backend_and_retention_policy
-217 |   - otp_provider_account
-218 |   - pilot_outcome_data
-219 |
-220 | next_milestone:
-221 |   name: production-hardening-and-pilot-readiness
-222 |   tasks:
-223 |     - select_and_provision_accepted_infrastructure_providers
-224 |     - select_and_wire_a_reviewed_managed_kms_adapter_and_audited_reencryption_runner
-225 |     - validate_steadfast_with_an_authorized_account
-226 |     - implement_the_selected_otp_provider_adapter
-227 |     - add_distributed_cache_only_when_replica_coordination_requires_it
-228 |     - deploy_the_selected_source_post_persist_hook_to_explicitly_opted_in_pilot_stores
-229 |     - run_a_selected_merchant_pilot_and_collect_verified_outcomes
-230 |     - calibrate_decisions_before_broad_automatic_blocking
-231 |
-232 | release_policy:
-233 |   branch: main
-234 |   before_push:
-235 |     - npm_run_verify_passes
-236 |     - documentation_and_tracker_are_current
-237 |     - repository_review_is_clean
-238 |   rules:
-239 |     - no_force_push_to_main
-240 |     - do_not_edit_applied_migrations
-241 |     - use_descriptive_commits
-242 |
-243 | notes:
-244 |   - codexpro_and_local_mcp_files_are_workspace_tooling_and_ignored
-245 |   - dashboard_and_admin_use_separate_authenticated_live_browser_sessions
-246 |   - github_connector_reports_public_visibility_while_expected_state_is_private
-247 |   - infrastructure_architecture_is_accepted_but_provider_selection_is_pending
-248 |   - postgresql_remains_the_pilot_durable_job_and_outbox_source_of_truth
-249 |   - assessment_and_outcome_idempotency_races_resolve_to_the_scoped_persisted_winner
-250 |   - assessment_and_outcome_winners_enqueue_matching_webhook_rows_transactionally
-251 |   - webhook_event_payloads_do_not_include_raw_phone_values
-252 |   - courier_jobs_use_atomic_claims_expiring_leases_and_owner_checked_transitions
-253 |   - webhook_deliveries_use_atomic_claims_expiring_leases_and_owner_checked_transitions
-254 |   - webhook_worker_scope_is_revalidated_against_endpoint_and_store_relationships
-255 |   - webhook_signing_secrets_are_decrypted_only_inside_the_event_worker
-256 |   - webhook_destinations_require_https_public_dns_results_and_redirect_rejection
-257 |   - production_egress_policy_is_still_required_for_dns_rebinding_defense
-258 |   - otp_send_requests_create_session_hash_and_encrypted_job_in_one_transaction
-259 |   - otp_provider_delivery_occurs_only_in_the_private_verification_worker
-260 |   - verification_jobs_use_atomic_claims_expiring_leases_and_owner_checked_transitions
-261 |   - verification_scope_mismatch_fails_the_job_and_authoritative_session_closed
-262 |   - verification_payloads_are_bound_to_job_context_tenant_phone_hmac_and_otp_hash
-263 |   - selected_otp_provider_module_and_credentials_remain_external
-264 |   - migration_files_are_bound_to_a_committed_sha256_manifest
-265 |   - migration_history_unknown_gap_or_checksum_mismatch_fails_closed
-266 |   - legacy_name_only_history_is_backfilled_only_from_the_committed_manifest
-267 |   - migration_execution_uses_one_session_advisory_lock
-268 |   - ci_restores_pg_dump_into_a_clean_distinct_database_and_compares_schema_data_sequences_history_and_replay
-269 |   - managed_provider_point_in_time_restore_drill_remains_external
-270 |   - api_keys_feature_assembly_assessment_and_outcome_writes_fail_closed_on_relational_tenant_mismatch
-271 |   - webhook_and_verification_administration_queries_reauthorize_active_owner_or_admin_scope_and_return_no_secret_material
-272 |   - platform_admin_repository_rechecks_active_explicit_role_on_every_call
-273 |   - runtime_role_grants_are_explicit_current_table_only_and_exclude_migration_history_delete_and_ddl
-274 |   - runtime_role_must_be_externally_created_non_owner_login_without_elevated_privileges_or_memberships
-275 |   - runtime_grants_must_be_reapplied_by_the_migration_owner_after_each_migration_release
-276 |   - managed_envelope_v2_uses_one_random_dek_per_record_and_authenticated_wrapped_key_metadata
-277 |   - managed_envelope_context_mismatch_is_rejected_before_key_unwrap
-278 |   - legacy_ciphertext_is_dual_read_only_through_explicitly_configured_legacy_keys
-279 |   - production_runtime_stays_on_local_v1_until_a_reviewed_kms_adapter_and_identity_policy_are_provisioned
-280 |   - native_shadow_sampling_is_deterministic_by_store_key_and_order_id
-281 |   - native_shadow_guard_or_persistence_failure_keeps_the_legacy_result_authoritative
-282 |   - native_shadow_comparisons_are_immutable_tenant_scoped_and_idempotent
-283 |   - native_shadow_sampled_attempts_record_success_timeout_assessment_and_persistence_states
-284 |   - native_shadow_dashboard_and_admin_reporting_is_secret_free_and_tenant_scoped
-285 |   - native_shadow_enforcement_is_not_implemented_and_requires_pilot_review
-286 |   - broad_automatic_blocking_remains_disabled_until_pilot_calibration
-287 |   - pro_context_was_refreshed_with_the_repository_local_exporter_after_feature_merge
-288 |   - update_this_file_after_every_material_milestone
-289 |
+ 84 |   - durable_dead_letter_operations_require_active_owner_or_admin_scope
+ 85 |   - durable_work_replay_is_explicit_idempotent_and_audited
+ 86 |   - structural_or_expired_durable_failures_are_not_replayed
+ 87 |   - durable_replay_evidence_is_secret_free_and_immutable
+ 88 |   - browser_dead_letter_access_requires_opaque_session_exact_store_and_owner_or_admin
+ 89 |   - browser_dead_letter_replay_requires_csrf_and_a_stable_idempotency_key
+ 90 |   - browser_dead_letter_responses_exclude_payloads_and_secret_material
+ 91 |   - structured_logs_redact_sensitive_fields_before_export
+ 92 |   - telemetry_failures_never_break_application_or_worker_execution
+ 93 |
+ 94 | implemented:
+ 95 |   - typescript_monorepo_and_ci
+ 96 |   - postgresql_schema_and_twelve_migrations
+ 97 |   - organization_store_membership_and_plan_foundation
+ 98 |   - usage_metering_and_audit_foundation
+ 99 |   - opaque_browser_sessions_csrf_and_explicit_platform_admin_role
+100 |   - pure_versioned_explainable_risk_engine
+101 |   - canonical_v1_api_and_postgresql_repositories
+102 |   - provider_neutral_shared_envelope_encryption_package
+103 |   - steadfast_adapter_and_browser_session_worker
+104 |   - postgresql_courier_sync_worker
+105 |   - verification_and_webhook_libraries
+106 |   - durable_postgresql_webhook_outbox_and_event_worker
+107 |   - durable_encrypted_postgresql_verification_queue_and_worker
+108 |   - tenant_scoped_postgresql_otp_verification_repository
+109 |   - woocommerce_shopify_custom_and_native_adapters
+110 |   - authenticated_live_merchant_dashboard
+111 |   - authenticated_live_platform_admin
+112 |   - postgresql_browser_session_and_tenant_isolation_integration_tests
+113 |   - docker_compose_api_courier_event_and_opt_in_verification_worker_baseline
+114 |   - accepted_provider_neutral_production_infrastructure_adrs
+115 |   - postgresql_usage_assessment_outcome_and_operation_idempotency_race_hardening
+116 |   - postgresql_courier_worker_atomic_claim_and_lease_recovery
+117 |   - postgresql_webhook_worker_atomic_claim_and_lease_recovery
+118 |   - postgresql_verification_worker_atomic_claim_and_lease_recovery
+119 |   - verification_payload_context_phone_hash_and_otp_hash_validation
+120 |   - otp_provider_delivery_removed_from_synchronous_api_requests
+121 |   - migration_replay_ci_gate
+122 |   - webhook_dns_destination_validation
+123 |   - postgresql_migration_manifest_and_history_checksum_integrity
+124 |   - clean_postgresql_backup_restore_rehearsal
+125 |   - restored_schema_data_sequence_history_and_replay_comparison
+126 |   - authoritative_api_key_feature_assessment_and_outcome_tenant_scope_revalidation
+127 |   - secret_free_tenant_scoped_webhook_and_verification_administration_repositories
+128 |   - dashboard_and_platform_admin_repository_isolation_expansion
+129 |   - least_privilege_postgresql_runtime_role_policy_grant_cli_and_ci_gate
+130 |   - provider_neutral_managed_envelope_v2_with_random_per_record_data_keys
+131 |   - managed_envelope_legacy_dual_read_key_rotation_and_safe_failure_tests
+132 |   - native_multi_store_off_and_deterministic_shadow_rollout_controls
+133 |   - tenant_scoped_idempotent_native_shadow_comparison_api_and_persistence
+134 |   - selected_source_post_persist_native_shadow_integration
+135 |   - store_scoped_native_shadow_opt_in_and_pilot_reporting
+136 |   - tenant_scoped_immutable_native_shadow_attempt_evidence
+137 |   - tenant_scoped_durable_work_dead_letter_inspection
+138 |   - idempotent_controlled_durable_work_replay
+139 |   - immutable_secret_free_durable_work_replay_evidence
+140 |   - authenticated_merchant_browser_dead_letter_operations
+141 |   - csrf_protected_browser_durable_work_replay
+142 |   - synchronous_per_work_item_browser_replay_key_cache
+143 |   - provider_neutral_structured_logging_and_recursive_redaction
+144 |   - courier_session_courier_sync_event_and_verification_worker_log_integration
+145 |   - telemetry_serialization_and_sink_failure_isolation_tests
+146 |
+147 | verification:
+148 |   command: npm run verify
+149 |   last_verified: 2026-07-28
+150 |   status: passed
+151 |   results:
+152 |     migrations: 12_of_12_with_sha256_manifest
+153 |     migration_replay: passed
+154 |     migration_history_integrity: passed
+155 |     clean_restore_rehearsal: passed_with_schema_data_sequence_history_and_replay
+156 |     architecture_boundaries: passed
+157 |     typecheck: 20_of_20_local
+158 |     test_tasks: 31_of_31_local
+159 |     source_assertions: 132_total
+160 |     previous_main_remote_assertions: 129_passed
+161 |     migration_integrity_tests: 7_of_7_passed
+162 |     postgresql_concurrency_tests: 7_of_7_passed
+163 |     postgresql_courier_worker_lease_tests: 5_of_5_passed
+164 |     postgresql_webhook_worker_lease_tests: 5_of_5_passed
+165 |     postgresql_verification_worker_lease_tests: 5_of_5_passed
+166 |     verification_payload_validation_tests: 3_of_3_passed
+167 |     postgresql_tenant_admin_isolation_tests: 7_of_7_passed
+168 |     postgresql_runtime_role_tests: 7_of_7_passed
+169 |     managed_envelope_tests: 11_of_11_passed
+170 |     native_shadow_adapter_tests: 10_of_10_passed
+171 |     native_shadow_api_tests: 7_of_7_passed
+172 |     native_shadow_postgresql_tests: 7_of_7_passed
+173 |     native_shadow_browser_tests: 2_of_2_passed
+174 |     native_shadow_sdk_tests: 2_of_2_passed
+175 |     native_shadow_total_tests: 28_of_28_passed
+176 |     durable_dead_letter_postgresql_tests: 5_of_5_passed
+177 |     browser_dead_letter_api_tests: 3_of_3_passed
+178 |     observability_tests: 3_of_3_passed
+179 |     builds: 20_of_20_local
+180 |     php_syntax: passed
+181 |     high_critical_dependency_check: passed
+182 |     moderate_dependency_findings: 5
+183 |     documentation_links: 57_reviewed_0_known_broken
+184 |   continuation_bundle:
+185 |     status: refreshed_locally
+186 |     canonical_main_sync: verified_at_b61af364a828f9742fc95a6a18314c0a82540d29
+187 |     local_exporter: completed_after_observability_milestone_docs
+188 |   remote_ci:
+189 |     status: passed
+190 |     run_id: 29645967968
+191 |     job_id: 88084164235
+192 |     job: verify
+193 |     tested_head: 2129b51ca7393b3c942f2f5c074cb3990b615b89
+194 |     merged_main_commit: 27cff21a9fd024e7b8094da3397c79387c83ea02
+195 |     completed: 2026-07-18
+196 |     steps: audit_format_lint_manifest_twelve_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_typecheck_tests_build_php_all_passed
+197 |   source_validation:
+198 |     status: passed
+199 |     run_id: 29645967968
+200 |     job_id: 88084164235
+201 |     tested_head: 2129b51ca7393b3c942f2f5c074cb3990b615b89
+202 |     completed: 2026-07-18
+203 |     steps: audit_format_lint_manifest_twelve_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_typecheck_tests_build_php_all_passed
+204 |     browser_dead_letter_api_tests: 3_of_3_passed
+205 |   pending_follow_up:
+206 |     - source_branch_remote_ci_validation
+207 |     - observability_metrics_traces_exporters_and_managed_backend
+208 |     - production_source_hook_deployment_and_explicit_pilot_store_selection
+209 |     - pilot_outcome_collection_and_calibration
+210 |
+211 | migrations:
+212 |   immutable: true
+213 |   manifest: packages/database/migrations/manifest.json
+214 |   history_checksum_column: checksum_sha256_not_null
+215 |   files:
+216 |     - packages/database/migrations/0001_foundation.sql
+217 |     - packages/database/migrations/0002_courier.sql
+218 |     - packages/database/migrations/0003_risk.sql
+219 |     - packages/database/migrations/0004_verification_events.sql
+220 |     - packages/database/migrations/0005_durable_operations.sql
+221 |     - packages/database/migrations/0006_browser_access.sql
+222 |     - packages/database/migrations/0007_worker_leases.sql
+223 |     - packages/database/migrations/0008_webhook_delivery_leases.sql
+224 |     - packages/database/migrations/0009_verification_delivery_queue.sql
+225 |     - packages/database/migrations/0010_native_shadow_comparisons.sql
+226 |     - packages/database/migrations/0011_native_shadow_pilot.sql
+227 |     - packages/database/migrations/0012_durable_work_replays.sql
+228 |
+229 | accepted_adrs:
+230 |   - docs/adr/0006-production-deployment-topology.md
+231 |   - docs/adr/0007-managed-postgresql-production-baseline.md
+232 |   - docs/adr/0008-postgresql-first-durable-work-and-cache.md
+233 |   - docs/adr/0009-managed-secrets-and-kms-envelope-encryption.md
+234 |   - docs/adr/0010-vendor-neutral-production-observability.md
+235 |   - docs/adr/0011-selected-source-shadow-pilot.md
+236 |   - docs/adr/0012-durable-work-dead-letter-operations.md
+237 |
+238 | external_dependencies:
+239 |   - authorized_steadfast_test_account
+240 |   - provider_authorization_review
+241 |   - deployment_platform_account_region_and_budget
+242 |   - managed_postgresql_provider_and_service_tier
+243 |   - managed_secret_store_and_kms_vault_provider
+244 |   - observability_backend_and_retention_policy
+245 |   - otp_provider_account
+246 |   - pilot_outcome_data
+247 |
+248 | next_milestone:
+249 |   name: production-hardening-and-pilot-readiness
+250 |   tasks:
+251 |     - select_and_provision_accepted_infrastructure_providers
+252 |     - select_and_wire_a_reviewed_managed_kms_adapter_and_audited_reencryption_runner
+253 |     - validate_steadfast_with_an_authorized_account
+254 |     - implement_the_selected_otp_provider_adapter
+255 |     - add_distributed_cache_only_when_replica_coordination_requires_it
+256 |     - deploy_the_selected_source_post_persist_hook_to_explicitly_opted_in_pilot_stores
+257 |     - run_a_selected_merchant_pilot_and_collect_verified_outcomes
+258 |     - calibrate_decisions_before_broad_automatic_blocking
+259 |
+260 | release_policy:
+261 |   branch: main
+262 |   before_push:
+263 |     - npm_run_verify_passes
+264 |     - documentation_and_tracker_are_current
+265 |     - repository_review_is_clean
+266 |   rules:
+267 |     - no_force_push_to_main
+268 |     - do_not_edit_applied_migrations
+269 |     - use_descriptive_commits
+270 |
+271 | notes:
+272 |   - codexpro_and_local_mcp_files_are_workspace_tooling_and_ignored
+273 |   - dashboard_and_admin_use_separate_authenticated_live_browser_sessions
+274 |   - github_connector_reports_public_visibility_while_expected_state_is_private
+275 |   - infrastructure_architecture_is_accepted_but_provider_selection_is_pending
+276 |   - postgresql_remains_the_pilot_durable_job_and_outbox_source_of_truth
+277 |   - assessment_and_outcome_idempotency_races_resolve_to_the_scoped_persisted_winner
+278 |   - assessment_and_outcome_winners_enqueue_matching_webhook_rows_transactionally
+279 |   - webhook_event_payloads_do_not_include_raw_phone_values
+280 |   - courier_jobs_use_atomic_claims_expiring_leases_and_owner_checked_transitions
+281 |   - webhook_deliveries_use_atomic_claims_expiring_leases_and_owner_checked_transitions
+282 |   - webhook_worker_scope_is_revalidated_against_endpoint_and_store_relationships
+283 |   - webhook_signing_secrets_are_decrypted_only_inside_the_event_worker
+284 |   - webhook_destinations_require_https_public_dns_results_and_redirect_rejection
+285 |   - production_egress_policy_is_still_required_for_dns_rebinding_defense
+286 |   - otp_send_requests_create_session_hash_and_encrypted_job_in_one_transaction
+287 |   - otp_provider_delivery_occurs_only_in_the_private_verification_worker
+288 |   - verification_jobs_use_atomic_claims_expiring_leases_and_owner_checked_transitions
+289 |   - verification_scope_mismatch_fails_the_job_and_authoritative_session_closed
+290 |   - verification_payloads_are_bound_to_job_context_tenant_phone_hmac_and_otp_hash
+291 |   - selected_otp_provider_module_and_credentials_remain_external
+292 |   - migration_files_are_bound_to_a_committed_sha256_manifest
+293 |   - migration_history_unknown_gap_or_checksum_mismatch_fails_closed
+294 |   - legacy_name_only_history_is_backfilled_only_from_the_committed_manifest
+295 |   - migration_execution_uses_one_session_advisory_lock
+296 |   - ci_restores_pg_dump_into_a_clean_distinct_database_and_compares_schema_data_sequences_history_and_replay
+297 |   - managed_provider_point_in_time_restore_drill_remains_external
+298 |   - api_keys_feature_assembly_assessment_and_outcome_writes_fail_closed_on_relational_tenant_mismatch
+299 |   - webhook_and_verification_administration_queries_reauthorize_active_owner_or_admin_scope_and_return_no_secret_material
+300 |   - platform_admin_repository_rechecks_active_explicit_role_on_every_call
+301 |   - runtime_role_grants_are_explicit_current_table_only_and_exclude_migration_history_delete_and_ddl
+302 |   - runtime_role_must_be_externally_created_non_owner_login_without_elevated_privileges_or_memberships
+303 |   - runtime_grants_must_be_reapplied_by_the_migration_owner_after_each_migration_release
+304 |   - managed_envelope_v2_uses_one_random_dek_per_record_and_authenticated_wrapped_key_metadata
+305 |   - managed_envelope_context_mismatch_is_rejected_before_key_unwrap
+306 |   - legacy_ciphertext_is_dual_read_only_through_explicitly_configured_legacy_keys
+307 |   - production_runtime_stays_on_local_v1_until_a_reviewed_kms_adapter_and_identity_policy_are_provisioned
+308 |   - native_shadow_sampling_is_deterministic_by_store_key_and_order_id
+309 |   - native_shadow_guard_or_persistence_failure_keeps_the_legacy_result_authoritative
+310 |   - native_shadow_comparisons_are_immutable_tenant_scoped_and_idempotent
+311 |   - native_shadow_sampled_attempts_record_success_timeout_assessment_and_persistence_states
+312 |   - native_shadow_dashboard_and_admin_reporting_is_secret_free_and_tenant_scoped
+313 |   - native_shadow_enforcement_is_not_implemented_and_requires_pilot_review
+314 |   - broad_automatic_blocking_remains_disabled_until_pilot_calibration
+315 |   - durable_dead_letter_listing_is_secret_free_and_exact_store_scoped
+316 |   - durable_replay_resets_only_failed_replayable_work_and_clears_old_leases
+317 |   - durable_replay_ledger_is_insert_only_for_the_runtime_role
+318 |   - durable_replay_never_performs_provider_or_webhook_network_io
+319 |   - merchant_dead_letter_browser_routes_reauthorize_session_visible_owner_or_admin_scope
+320 |   - merchant_dead_letter_replay_requires_csrf_and_forwards_one_stable_idempotency_key
+321 |   - browser_replay_key_is_assigned_synchronously_before_network_io_and_retained_on_failure
+322 |   - merchant_dead_letter_ui_hides_operations_from_non_admin_members
+323 |   - structured_log_redaction_is_canonicalized_in_packages_observability
+324 |   - private_worker_logging_uses_the_shared_telemetry_failure_isolation_boundary
+325 |   - pro_context_was_refreshed_after_observability_milestone_documentation
+326 |   - update_this_file_after_every_material_milestone
+327 |
 ```
 
 ### eslint.config.js
@@ -5035,9 +2873,9 @@ Lines: 1-44 of 44
 
 ### package.json
 
-Bytes: 1736
-SHA-256: 811c6942b74c115bbd1eccce6ec923ad6b0d67494628f982890212afbd58eefa
-Lines: 1-52 of 52
+Bytes: 1921
+SHA-256: fccad8a363a506b2ef46485d22c95c1d99cc09a55596717ddd0eb5da9524e3c5
+Lines: 1-54 of 54
 
 ```json
  1 | {
@@ -5053,7 +2891,7 @@ Lines: 1-52 of 52
 11 |     "integrations/*"
 12 |   ],
 13 |   "engines": {
-14 |     "node": ">=20.0.0",
+14 |     "node": ">=20.19.0",
 15 |     "npm": ">=10.0.0"
 16 |   },
 17 |   "scripts": {
@@ -5073,25 +2911,27 @@ Lines: 1-52 of 52
 31 |     "db:integrity": "tsx packages/database/src/check-database-integrity.ts",
 32 |     "db:restore-rehearsal": "tsx packages/database/src/restore-rehearsal.ts",
 33 |     "db:runtime-grants": "tsx packages/database/src/apply-runtime-grants.ts",
-34 |     "check:architecture": "node scripts/check-architecture.mjs",
-35 |     "verify": "npm run format:check && npm run lint && npm run db:check && npm run check:architecture && npm run typecheck && npm run test && npm run build"
-36 |   },
-37 |   "devDependencies": {
-38 |     "@eslint/js": "^9.39.2",
-39 |     "@types/node": "^24.0.0",
-40 |     "@vitest/coverage-v8": "^4.0.18",
-41 |     "drizzle-kit": "^0.31.4",
-42 |     "eslint": "^9.39.2",
-43 |     "prettier": "^3.6.2",
-44 |     "tsup": "^8.5.0",
-45 |     "tsx": "^4.20.6",
-46 |     "turbo": "^2.8.13",
-47 |     "typescript": "^5.8.3",
-48 |     "typescript-eslint": "^8.53.0",
-49 |     "vitest": "^4.0.18"
-50 |   }
-51 | }
-52 |
+34 |     "db:dead-letters": "tsx packages/database/src/durable-work-operations-cli.ts list",
+35 |     "db:replay-dead-letter": "tsx packages/database/src/durable-work-operations-cli.ts replay",
+36 |     "check:architecture": "node scripts/check-architecture.mjs",
+37 |     "verify": "npm run format:check && npm run lint && npm run db:check && npm run check:architecture && npm run typecheck && npm run test && npm run build"
+38 |   },
+39 |   "devDependencies": {
+40 |     "@eslint/js": "^10.0.1",
+41 |     "@types/node": "^24.0.0",
+42 |     "@vitest/coverage-v8": "^4.0.18",
+43 |     "drizzle-kit": "^0.31.4",
+44 |     "eslint": "^10.8.0",
+45 |     "prettier": "^3.6.2",
+46 |     "tsup": "^8.5.0",
+47 |     "tsx": "^4.20.6",
+48 |     "turbo": "^2.8.13",
+49 |     "typescript": "^5.8.3",
+50 |     "typescript-eslint": "^8.65.0",
+51 |     "vitest": "^4.0.18"
+52 |   }
+53 | }
+54 |
 ```
 
 ### turbo.json
@@ -5126,6 +2966,873 @@ Lines: 1-23 of 23
 23 |
 ```
 
+### workers/courier-session-worker/package.json
+
+Bytes: 686
+SHA-256: 4de4e85e345661868d851289cac3ac0478b1826f39f3a9ec591c57961f8f93ee
+Lines: 1-30 of 30
+
+```json
+ 1 | {
+ 2 |   "name": "@ozzyl/courier-session-worker",
+ 3 |   "version": "0.1.0",
+ 4 |   "private": true,
+ 5 |   "type": "module",
+ 6 |   "types": "./src/index.ts",
+ 7 |   "exports": {
+ 8 |     ".": {
+ 9 |       "types": "./src/index.ts",
+10 |       "import": "./dist/index.js"
+11 |     }
+12 |   },
+13 |   "scripts": {
+14 |     "build": "tsup src/index.ts src/runner.ts --format esm --dts --sourcemap --clean",
+15 |     "start": "node dist/runner.js",
+16 |     "typecheck": "tsc -p tsconfig.json --noEmit",
+17 |     "test": "vitest run"
+18 |   },
+19 |   "dependencies": {
+20 |     "@ozzyl/courier-adapters": "*",
+21 |     "pg": "^8.16.3",
+22 |     "playwright": "^1.57.0",
+23 |     "@ozzyl/encryption": "*",
+24 |     "@ozzyl/observability": "*"
+25 |   },
+26 |   "devDependencies": {
+27 |     "@types/pg": "^8.15.5"
+28 |   }
+29 | }
+30 |
+```
+
+### workers/courier-sync-worker/package.json
+
+Bytes: 666
+SHA-256: 7e9eb44fa20f07c023eba1a385688d6dbd9420f828daf50f7cc5e5728e6b8c75
+Lines: 1-29 of 29
+
+```json
+ 1 | {
+ 2 |   "name": "@ozzyl/courier-sync-worker",
+ 3 |   "version": "0.1.0",
+ 4 |   "private": true,
+ 5 |   "type": "module",
+ 6 |   "types": "./src/index.ts",
+ 7 |   "exports": {
+ 8 |     ".": {
+ 9 |       "types": "./src/index.ts",
+10 |       "import": "./dist/index.js"
+11 |     }
+12 |   },
+13 |   "scripts": {
+14 |     "build": "tsup src/index.ts src/runner.ts --format esm --dts --sourcemap --clean",
+15 |     "start": "node dist/runner.js",
+16 |     "typecheck": "tsc -p tsconfig.json --noEmit",
+17 |     "test": "vitest run"
+18 |   },
+19 |   "dependencies": {
+20 |     "@ozzyl/courier-adapters": "*",
+21 |     "@ozzyl/courier-session-worker": "*",
+22 |     "pg": "^8.16.3",
+23 |     "@ozzyl/observability": "*"
+24 |   },
+25 |   "devDependencies": {
+26 |     "@types/pg": "^8.15.5"
+27 |   }
+28 | }
+29 |
+```
+
+### workers/event-worker/package.json
+
+Bytes: 659
+SHA-256: aabdc36b6cf50ab0349376276e0cd81a414df544d3cf46d5693fd0bbb0043f84
+Lines: 1-29 of 29
+
+```json
+ 1 | {
+ 2 |   "name": "@ozzyl/event-worker",
+ 3 |   "version": "0.1.0",
+ 4 |   "private": true,
+ 5 |   "type": "module",
+ 6 |   "types": "./src/index.ts",
+ 7 |   "exports": {
+ 8 |     ".": {
+ 9 |       "types": "./src/index.ts",
+10 |       "import": "./dist/index.js"
+11 |     }
+12 |   },
+13 |   "scripts": {
+14 |     "build": "tsup src/index.ts src/postgres.ts src/runner.ts --format esm --dts --sourcemap --clean",
+15 |     "typecheck": "tsc -p tsconfig.json --noEmit",
+16 |     "test": "vitest run",
+17 |     "start": "node dist/runner.js"
+18 |   },
+19 |   "dependencies": {
+20 |     "@ozzyl/shared-types": "*",
+21 |     "@ozzyl/encryption": "*",
+22 |     "pg": "^8.16.3",
+23 |     "@ozzyl/observability": "*"
+24 |   },
+25 |   "devDependencies": {
+26 |     "@types/pg": "^8.15.5"
+27 |   }
+28 | }
+29 |
+```
+
+### workers/verification-worker/package.json
+
+Bytes: 698
+SHA-256: 2f671e0dc4f07d32ddc071a1bd3e514783d75606c9cfc427e273d14b5a6bff22
+Lines: 1-30 of 30
+
+```json
+ 1 | {
+ 2 |   "name": "@ozzyl/verification-worker",
+ 3 |   "version": "0.1.0",
+ 4 |   "private": true,
+ 5 |   "type": "module",
+ 6 |   "types": "./src/index.ts",
+ 7 |   "exports": {
+ 8 |     ".": {
+ 9 |       "types": "./src/index.ts",
+10 |       "import": "./dist/index.js"
+11 |     }
+12 |   },
+13 |   "scripts": {
+14 |     "build": "tsup src/index.ts src/postgres.ts src/runner.ts --format esm --dts --sourcemap --clean",
+15 |     "typecheck": "tsc -p tsconfig.json --noEmit",
+16 |     "test": "vitest run",
+17 |     "start": "node dist/runner.js"
+18 |   },
+19 |   "dependencies": {
+20 |     "@ozzyl/encryption": "*",
+21 |     "@ozzyl/shared-types": "*",
+22 |     "@ozzyl/verification": "*",
+23 |     "pg": "^8.16.3",
+24 |     "@ozzyl/observability": "*"
+25 |   },
+26 |   "devDependencies": {
+27 |     "@types/pg": "^8.15.5"
+28 |   }
+29 | }
+30 |
+```
+
+### workers/courier-session-worker/src/runner.ts
+
+Bytes: 5036
+SHA-256: 73a79217b57fd68dea12e991ac0cb29917e86d82f26827f4ff921f3d9a6fe33a
+Lines: 1-162 of 162
+
+```typescript
+  1 | import { Pool } from 'pg';
+  2 | import { createStructuredLogger } from '@ozzyl/observability';
+  3 | import {
+  4 |   AesGcmEnvelopeCipher,
+  5 |   CourierSessionWorker,
+  6 |   SteadfastSessionDriver,
+  7 |   type SessionFailureCode,
+  8 |   type SteadfastCredentials,
+  9 | } from './index.js';
+ 10 |
+ 11 | const required = (name: string): string => {
+ 12 |   const value = process.env[name];
+ 13 |   if (!value) throw new Error(`${name} is required`);
+ 14 |   return value;
+ 15 | };
+ 16 |
+ 17 | const pool = new Pool({ connectionString: required('DATABASE_URL'), max: 5 });
+ 18 | const cipher = new AesGcmEnvelopeCipher(
+ 19 |   Buffer.from(required('CREDENTIAL_ENCRYPTION_KEY'), 'base64'),
+ 20 |   required('CREDENTIAL_ENCRYPTION_KEY_VERSION'),
+ 21 | );
+ 22 | const refreshHours = Number(process.env.COURIER_SESSION_REFRESH_HOURS ?? 6);
+ 23 | const pollMs = Number(process.env.WORKER_POLL_MS ?? 60_000);
+ 24 | const log = createStructuredLogger({
+ 25 |   service: 'courier-session-worker',
+ 26 |   environment: process.env.NODE_ENV ?? 'development',
+ 27 | });
+ 28 | let stopping = false;
+ 29 |
+ 30 | const worker = new CourierSessionWorker({
+ 31 |   credentials: {
+ 32 |     async load(accountId): Promise<SteadfastCredentials | null> {
+ 33 |       const result = await pool.query<{ encrypted_payload: string }>(
+ 34 |         'select encrypted_payload from courier_credentials where courier_account_id = $1',
+ 35 |         [accountId],
+ 36 |       );
+ 37 |       const payload = result.rows[0]?.encrypted_payload;
+ 38 |       return payload
+ 39 |         ? cipher.decrypt<SteadfastCredentials>(payload, `courier-credential:${accountId}`)
+ 40 |         : null;
+ 41 |     },
+ 42 |   },
+ 43 |   vault: {
+ 44 |     async save(accountId, encryptedPayload, keyVersion): Promise<void> {
+ 45 |       await pool.query(
+ 46 |         `
+ 47 |           insert into courier_sessions (
+ 48 |             courier_account_id, encrypted_payload, encryption_key_version,
+ 49 |             validated_at, status, expires_at
+ 50 |           ) values ($1, $2, $3, now(), 'valid', now() + interval '6 hours')
+ 51 |           on conflict (courier_account_id) do update set
+ 52 |             encrypted_payload = excluded.encrypted_payload,
+ 53 |             encryption_key_version = excluded.encryption_key_version,
+ 54 |             validated_at = now(),
+ 55 |             status = 'valid',
+ 56 |             expires_at = excluded.expires_at,
+ 57 |             updated_at = now()
+ 58 |         `,
+ 59 |         [accountId, encryptedPayload, keyVersion],
+ 60 |       );
+ 61 |     },
+ 62 |   },
+ 63 |   health: {
+ 64 |     async markConnected(accountId, at): Promise<void> {
+ 65 |       await pool.query(
+ 66 |         `
+ 67 |           update courier_accounts set status = 'connected', last_connected_at = $2,
+ 68 |             last_success_at = $2, failure_code = null, updated_at = now()
+ 69 |           where id = $1
+ 70 |         `,
+ 71 |         [accountId, at],
+ 72 |       );
+ 73 |     },
+ 74 |     async markFailure(accountId, code: SessionFailureCode, at): Promise<void> {
+ 75 |       const status = [
+ 76 |         'INVALID_CREDENTIALS',
+ 77 |         'CAPTCHA_REQUIRED',
+ 78 |         'TWO_FACTOR_REQUIRED',
+ 79 |         'SELECTOR_CHANGED',
+ 80 |       ].includes(code)
+ 81 |         ? 'reconnect_required'
+ 82 |         : 'degraded';
+ 83 |       await pool.query(
+ 84 |         `
+ 85 |           update courier_accounts set status = $2, last_failure_at = $3,
+ 86 |             failure_code = $4, updated_at = now()
+ 87 |           where id = $1
+ 88 |         `,
+ 89 |         [accountId, status, at, code],
+ 90 |       );
+ 91 |     },
+ 92 |   },
+ 93 |   cipher,
+ 94 |   driver: new SteadfastSessionDriver(),
+ 95 | });
+ 96 |
+ 97 | async function tick(): Promise<void> {
+ 98 |   const accounts = await pool.query<{ id: string }>(
+ 99 |     `
+100 |       select id from courier_accounts
+101 |       where provider = 'steadfast'
+102 |         and status <> 'disabled'
+103 |         and (
+104 |           last_success_at is null
+105 |           or last_success_at < now() - ($1::text || ' hours')::interval
+106 |           or status in ('pending', 'expired', 'degraded')
+107 |         )
+108 |       order by coalesce(last_success_at, to_timestamp(0)) asc
+109 |       limit 10
+110 |     `,
+111 |     [String(refreshHours)],
+112 |   );
+113 |
+114 |   for (const account of accounts.rows) {
+115 |     if (stopping) return;
+116 |     const client = await pool.connect();
+117 |     try {
+118 |       const lock = await client.query<{ locked: boolean }>(
+119 |         'select pg_try_advisory_lock(hashtext($1)) as locked',
+120 |         [`courier-session:${account.id}`],
+121 |       );
+122 |       if (!lock.rows[0]?.locked) continue;
+123 |       try {
+124 |         await worker.refresh(account.id);
+125 |         log.info('courier.session.refreshed', { account_id: account.id });
+126 |       } catch (error) {
+127 |         const code =
+128 |           error && typeof error === 'object' && 'code' in error
+129 |             ? String(error.code)
+130 |             : 'SESSION_REFRESH_FAILED';
+131 |         log.error('courier.session.failed', { account_id: account.id, code });
+132 |       } finally {
+133 |         await client.query('select pg_advisory_unlock(hashtext($1))', [
+134 |           `courier-session:${account.id}`,
+135 |         ]);
+136 |       }
+137 |     } finally {
+138 |       client.release();
+139 |     }
+140 |   }
+141 | }
+142 |
+143 | async function run(): Promise<void> {
+144 |   log.info('courier.session.worker.started');
+145 |   while (!stopping) {
+146 |     try {
+147 |       await tick();
+148 |     } catch {
+149 |       log.error('courier.session.worker.tick_failed');
+150 |     }
+151 |     if (!stopping) await new Promise((resolve) => setTimeout(resolve, pollMs));
+152 |   }
+153 |   await pool.end();
+154 | }
+155 |
+156 | const stop = (): void => {
+157 |   stopping = true;
+158 | };
+159 | process.once('SIGTERM', stop);
+160 | process.once('SIGINT', stop);
+161 | await run();
+162 |
+```
+
+### workers/courier-sync-worker/src/runner.ts
+
+Bytes: 7506
+SHA-256: 229555ebf2dddd84539151ccf893701aae000f46ce576202886b0a92d38dd581
+Lines: 1-212 of 212
+
+```typescript
+  1 | import { randomUUID } from 'node:crypto';
+  2 | import { Pool } from 'pg';
+  3 | import {
+  4 |   SteadfastAdapter,
+  5 |   type CourierObservation,
+  6 |   type CourierSession,
+  7 | } from '@ozzyl/courier-adapters';
+  8 | import { AesGcmEnvelopeCipher } from '@ozzyl/courier-session-worker';
+  9 | import { createStructuredLogger } from '@ozzyl/observability';
+ 10 | import { CourierSyncWorker } from './index.js';
+ 11 | import { PostgresCourierJobQueue, type ClaimedCourierJob } from './postgres.js';
+ 12 |
+ 13 | const required = (name: string): string => {
+ 14 |   const value = process.env[name];
+ 15 |   if (!value) throw new Error(`${name} is required`);
+ 16 |   return value;
+ 17 | };
+ 18 |
+ 19 | const pool = new Pool({ connectionString: required('DATABASE_URL'), max: 8 });
+ 20 | const cipher = new AesGcmEnvelopeCipher(
+ 21 |   Buffer.from(required('CREDENTIAL_ENCRYPTION_KEY'), 'base64'),
+ 22 |   required('CREDENTIAL_ENCRYPTION_KEY_VERSION'),
+ 23 | );
+ 24 | const pollMs = Number(process.env.WORKER_POLL_MS ?? 5_000);
+ 25 | const leaseMs = Number(process.env.WORKER_LEASE_MS ?? 5 * 60_000);
+ 26 | const workerId = process.env.WORKER_ID ?? `courier-sync-${randomUUID()}`;
+ 27 | const log = createStructuredLogger({
+ 28 |   service: 'courier-sync-worker',
+ 29 |   environment: process.env.NODE_ENV ?? 'development',
+ 30 | });
+ 31 | const jobs = new PostgresCourierJobQueue(pool, { leaseMs });
+ 32 | let stopping = false;
+ 33 |
+ 34 | const steadfast = new SteadfastAdapter({
+ 35 |   sessionProvider: {
+ 36 |     async getSession(accountId): Promise<CourierSession | null> {
+ 37 |       const result = await pool.query<{ encrypted_payload: string; expires_at: Date | null }>(
+ 38 |         `select encrypted_payload, expires_at from courier_sessions where courier_account_id = $1 and status = 'valid'`,
+ 39 |         [accountId],
+ 40 |       );
+ 41 |       const row = result.rows[0];
+ 42 |       if (!row) return null;
+ 43 |       const session = cipher.decrypt<CourierSession>(
+ 44 |         row.encrypted_payload,
+ 45 |         `courier-session:${accountId}`,
+ 46 |       );
+ 47 |       return { ...session, ...(row.expires_at ? { expiresAt: row.expires_at.toISOString() } : {}) };
+ 48 |     },
+ 49 |   },
+ 50 | });
+ 51 |
+ 52 | const syncWorker = new CourierSyncWorker({
+ 53 |   adapters: new Map([['steadfast', steadfast]]),
+ 54 |   observations: {
+ 55 |     async findFresh(input): Promise<CourierObservation | null> {
+ 56 |       const result = await pool.query<ObservationRow>(
+ 57 |         `
+ 58 |           select provider, total_orders, delivered_orders, returned_orders,
+ 59 |             cancelled_before_shipping, success_rate, confidence, source_type,
+ 60 |             observed_at, expires_at
+ 61 |           from courier_observations
+ 62 |           where store_id = $1 and provider = $2 and phone_hash = $3 and expires_at > $4
+ 63 |           order by observed_at desc limit 1
+ 64 |         `,
+ 65 |         [input.storeId, input.provider, input.phoneHash, input.at],
+ 66 |       );
+ 67 |       return result.rows[0] ? observationFromRow(result.rows[0]) : null;
+ 68 |     },
+ 69 |     async save(input): Promise<void> {
+ 70 |       await pool.query(
+ 71 |         `
+ 72 |           insert into courier_observations (
+ 73 |             id, store_id, provider, phone_hash, total_orders, delivered_orders,
+ 74 |             returned_orders, cancelled_before_shipping, success_rate, confidence,
+ 75 |             source_type, observed_at, expires_at
+ 76 |           ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
+ 77 |         `,
+ 78 |         [
+ 79 |           `cob_${randomUUID()}`,
+ 80 |           input.storeId,
+ 81 |           input.observation.provider,
+ 82 |           input.phoneHash,
+ 83 |           input.observation.totalOrders,
+ 84 |           input.observation.deliveredOrders,
+ 85 |           input.observation.returnedOrders,
+ 86 |           input.observation.cancelledBeforeShipping,
+ 87 |           input.observation.successRate,
+ 88 |           input.observation.confidence,
+ 89 |           input.observation.source,
+ 90 |           input.observation.observedAt,
+ 91 |           input.observation.expiresAt,
+ 92 |         ],
+ 93 |       );
+ 94 |     },
+ 95 |   },
+ 96 |   health: {
+ 97 |     async started(jobId, at): Promise<void> {
+ 98 |       await jobs.started(jobId, workerId, at);
+ 99 |     },
+100 |     async completed(jobId, at): Promise<void> {
+101 |       await jobs.completed(jobId, workerId, at);
+102 |     },
+103 |     async failed(jobId, code, retryable, at): Promise<void> {
+104 |       await jobs.failed(jobId, workerId, code, retryable, at);
+105 |     },
+106 |   },
+107 | });
+108 |
+109 | async function run(): Promise<void> {
+110 |   log.info('courier.sync.worker.started', { worker_id: workerId });
+111 |   while (!stopping) {
+112 |     try {
+113 |       const job = await jobs.claim(workerId);
+114 |       if (!job) {
+115 |         await new Promise((resolve) => setTimeout(resolve, pollMs));
+116 |         continue;
+117 |       }
+118 |       let payload: ReturnType<typeof parsePayload>;
+119 |       try {
+120 |         payload = parsePayload(job.payload, job);
+121 |       } catch (error) {
+122 |         await jobs.failed(job.id, workerId, errorCode(error, 'INVALID_JOB_PAYLOAD'), false);
+123 |         throw error;
+124 |       }
+125 |       await syncWorker.sync({
+126 |         jobId: job.id,
+127 |         storeId: job.storeId,
+128 |         courierAccountId: job.courierAccountId,
+129 |         provider: job.provider,
+130 |         phone: payload.phone,
+131 |         phoneHash: payload.phoneHash,
+132 |         force: payload.force,
+133 |       });
+134 |     } catch (error) {
+135 |       log.error('courier.sync.worker.error', {
+136 |         code: errorCode(error, 'WORKER_TICK_FAILED'),
+137 |         worker_id: workerId,
+138 |       });
+139 |       await new Promise((resolve) => setTimeout(resolve, Math.min(pollMs, 5_000)));
+140 |     }
+141 |   }
+142 |   await pool.end();
+143 | }
+144 |
+145 | interface ObservationRow {
+146 |   provider: 'steadfast' | 'pathao' | 'redx' | 'aggregator';
+147 |   total_orders: number;
+148 |   delivered_orders: number;
+149 |   returned_orders: number;
+150 |   cancelled_before_shipping: number;
+151 |   success_rate: string | null;
+152 |   confidence: string;
+153 |   source_type: 'merchant_session' | 'merchant_api' | 'shared_network' | 'third_party';
+154 |   observed_at: Date;
+155 |   expires_at: Date;
+156 | }
+157 |
+158 | function parsePayload(
+159 |   value: unknown,
+160 |   job: ClaimedCourierJob,
+161 | ): { phone: string; phoneHash: string; force: boolean } {
+162 |   if (!value || typeof value !== 'object') throw invalidPayload('Courier job payload is invalid');
+163 |   const row = value as Record<string, unknown>;
+164 |   if (![row.phone, row.phoneHash].every((item) => typeof item === 'string')) {
+165 |     throw invalidPayload('Courier job payload is incomplete');
+166 |   }
+167 |   if (typeof row.organizationId === 'string' && row.organizationId !== job.organizationId) {
+168 |     throw invalidPayload('Courier job organization scope does not match the account');
+169 |   }
+170 |   if (typeof row.storeId === 'string' && row.storeId !== job.storeId) {
+171 |     throw invalidPayload('Courier job store scope does not match the account');
+172 |   }
+173 |   if (typeof row.provider === 'string' && row.provider !== job.provider) {
+174 |     throw invalidPayload('Courier job provider does not match the account');
+175 |   }
+176 |   return {
+177 |     phone: String(row.phone),
+178 |     phoneHash: String(row.phoneHash),
+179 |     force: row.force === true,
+180 |   };
+181 | }
+182 |
+183 | function invalidPayload(message: string): Error & { code: string } {
+184 |   return Object.assign(new Error(message), { code: 'INVALID_JOB_PAYLOAD' });
+185 | }
+186 |
+187 | function errorCode(error: unknown, fallback: string): string {
+188 |   return error && typeof error === 'object' && 'code' in error ? String(error.code) : fallback;
+189 | }
+190 |
+191 | function observationFromRow(row: ObservationRow): CourierObservation {
+192 |   return {
+193 |     provider: row.provider,
+194 |     totalOrders: row.total_orders,
+195 |     deliveredOrders: row.delivered_orders,
+196 |     returnedOrders: row.returned_orders,
+197 |     cancelledBeforeShipping: row.cancelled_before_shipping,
+198 |     successRate: row.success_rate === null ? null : Number(row.success_rate),
+199 |     confidence: Number(row.confidence),
+200 |     source: row.source_type,
+201 |     observedAt: row.observed_at.toISOString(),
+202 |     expiresAt: row.expires_at.toISOString(),
+203 |   };
+204 | }
+205 |
+206 | const stop = (): void => {
+207 |   stopping = true;
+208 | };
+209 | process.once('SIGTERM', stop);
+210 | process.once('SIGINT', stop);
+211 | await run();
+212 |
+```
+
+### workers/event-worker/src/runner.ts
+
+Bytes: 5669
+SHA-256: bcced6907a3c5d69551f2341df74e1c55d401fcaad84cce6b386feb8cbc44187
+Lines: 1-173 of 173
+
+```typescript
+  1 | import { randomUUID } from 'node:crypto';
+  2 | import { Pool } from 'pg';
+  3 | import { AesGcmEnvelopeCipher } from '@ozzyl/encryption';
+  4 | import { createStructuredLogger } from '@ozzyl/observability';
+  5 | import type { DomainEvent } from '@ozzyl/shared-types';
+  6 | import { EventWorker } from './index.js';
+  7 | import {
+  8 |   PostgresWebhookDeliveryQueue,
+  9 |   WebhookDeliveryLeaseError,
+ 10 |   type ClaimedWebhookDelivery,
+ 11 | } from './postgres.js';
+ 12 |
+ 13 | const required = (name: string): string => {
+ 14 |   const value = process.env[name];
+ 15 |   if (!value) throw new Error(`${name} is required`);
+ 16 |   return value;
+ 17 | };
+ 18 |
+ 19 | const positiveInteger = (name: string, fallback: number): number => {
+ 20 |   const value = Number(process.env[name] ?? fallback);
+ 21 |   if (!Number.isSafeInteger(value) || value <= 0) {
+ 22 |     throw new Error(`${name} must be a positive integer`);
+ 23 |   }
+ 24 |   return value;
+ 25 | };
+ 26 |
+ 27 | const pool = new Pool({ connectionString: required('DATABASE_URL'), max: 8 });
+ 28 | const cipher = new AesGcmEnvelopeCipher(
+ 29 |   Buffer.from(required('CREDENTIAL_ENCRYPTION_KEY'), 'base64'),
+ 30 |   required('CREDENTIAL_ENCRYPTION_KEY_VERSION'),
+ 31 | );
+ 32 | const pollMs = positiveInteger('EVENT_WORKER_POLL_MS', 5_000);
+ 33 | const leaseMs = positiveInteger('EVENT_WORKER_LEASE_MS', 60_000);
+ 34 | const timeoutMs = positiveInteger('WEBHOOK_TIMEOUT_MS', 5_000);
+ 35 | const maxAttempts = positiveInteger('EVENT_WORKER_MAX_ATTEMPTS', 5);
+ 36 | if (leaseMs <= timeoutMs + 5_000) {
+ 37 |   throw new Error('EVENT_WORKER_LEASE_MS must exceed WEBHOOK_TIMEOUT_MS by more than 5000ms');
+ 38 | }
+ 39 | const workerId = process.env.EVENT_WORKER_ID ?? `event-${randomUUID()}`;
+ 40 | const log = createStructuredLogger({
+ 41 |   service: 'event-worker',
+ 42 |   environment: process.env.NODE_ENV ?? 'development',
+ 43 | });
+ 44 | const queue = new PostgresWebhookDeliveryQueue(pool, { leaseMs, maxAttempts });
+ 45 | let stopping = false;
+ 46 |
+ 47 | async function run(): Promise<void> {
+ 48 |   log.info('event.worker.started', { worker_id: workerId });
+ 49 |   while (!stopping) {
+ 50 |     const delivery = await queue.claim(workerId).catch((error) => {
+ 51 |       logError(error, 'EVENT_CLAIM_FAILED');
+ 52 |       return null;
+ 53 |     });
+ 54 |     if (!delivery) {
+ 55 |       await sleep(pollMs);
+ 56 |       continue;
+ 57 |     }
+ 58 |
+ 59 |     try {
+ 60 |       const startedAt = new Date();
+ 61 |       await queue.started(delivery.id, workerId, startedAt);
+ 62 |       const event = parseEvent(delivery);
+ 63 |       if (!delivery.endpointActive) {
+ 64 |         await queue.failed(delivery.id, workerId, {
+ 65 |           errorCode: 'ENDPOINT_INACTIVE',
+ 66 |           at: new Date(),
+ 67 |         });
+ 68 |         continue;
+ 69 |       }
+ 70 |       const signingSecret= [REDACTED_SECRET](delivery);
+ 71 |       const worker = new EventWorker(queue.repositoryFor(delivery, workerId), {
+ 72 |         timeoutMs,
+ 73 |         maxAttempts,
+ 74 |       });
+ 75 |       await worker.deliver({
+ 76 |         endpoint: {
+ 77 |           id: delivery.endpointId,
+ 78 |           url: delivery.endpointUrl,
+ 79 |           signingSecret,
+ 80 |           active: true,
+ 81 |         },
+ 82 |         event,
+ 83 |         attempt: delivery.attempts + 1,
+ 84 |       });
+ 85 |     } catch (error) {
+ 86 |       if (!(error instanceof WebhookDeliveryLeaseError)) {
+ 87 |         const code = errorCode(error, 'EVENT_DELIVERY_FAILED');
+ 88 |         await queue
+ 89 |           .failed(delivery.id, workerId, { errorCode: code, at: new Date() })
+ 90 |           .catch((failure) => logError(failure, 'EVENT_FAILURE_STATE_LOST'));
+ 91 |       }
+ 92 |       logError(error, 'EVENT_DELIVERY_FAILED');
+ 93 |     }
+ 94 |   }
+ 95 |   await pool.end();
+ 96 | }
+ 97 |
+ 98 | function parseEvent(delivery: ClaimedWebhookDelivery): DomainEvent {
+ 99 |   const value = delivery.eventPayload;
+100 |   if (!value || typeof value !== 'object') throw coded('INVALID_EVENT_PAYLOAD');
+101 |   const event = value as Record<string, unknown>;
+102 |   const allowedTypes = new Set([
+103 |     'assessment.completed',
+104 |     'verification.verified',
+105 |     'verification.failed',
+106 |     'courier.connection_failed',
+107 |     'order.outcome_recorded',
+108 |     'usage.limit_warning',
+109 |   ]);
+110 |   if (
+111 |     event.id !== delivery.eventId ||
+112 |     event.type !== delivery.eventType ||
+113 |     typeof event.type !== 'string' ||
+114 |     !allowedTypes.has(event.type) ||
+115 |     event.organizationId !== delivery.organizationId ||
+116 |     (delivery.storeId === null
+117 |       ? event.storeId !== undefined
+118 |       : event.storeId !== delivery.storeId) ||
+119 |     typeof event.occurredAt !== 'string' ||
+120 |     Number.isNaN(Date.parse(event.occurredAt)) ||
+121 |     new Date(event.occurredAt).getTime() !== delivery.occurredAt.getTime() ||
+122 |     !event.payload ||
+123 |     typeof event.payload !== 'object'
+124 |   ) {
+125 |     throw coded('INVALID_EVENT_PAYLOAD');
+126 |   }
+127 |   return event as unknown as DomainEvent;
+128 | }
+129 |
+130 | function decryptSigningSecret(delivery: ClaimedWebhookDelivery): string {
+131 |   try {
+132 |     const value = cipher.decrypt<unknown>(
+133 |       delivery.secretEncrypted,
+134 |       `webhook-endpoint:${delivery.endpointId}`,
+135 |     );
+136 |     const signingSecret =
+137 |       typeof value === 'string'
+138 |         ? value
+139 |         : value && typeof value === 'object' && 'signingSecret' in value
+140 |           ? String(value.signingSecret)
+141 |           : '';
+142 |     if (signingSecret.length < 16) throw new Error('Signing secret is invalid');
+143 |     return signingSecret;
+144 |   } catch {
+145 |     throw coded('WEBHOOK_SECRET_DECRYPTION_FAILED');
+146 |   }
+147 | }
+148 |
+149 | function coded(code: string): Error & { code: string } {
+150 |   return Object.assign(new Error(code), { code });
+151 | }
+152 |
+153 | function errorCode(error: unknown, fallback: string): string {
+154 |   return error && typeof error === 'object' && 'code' in error ? String(error.code) : fallback;
+155 | }
+156 |
+157 | function logError(error: unknown, fallback: string): void {
+158 |   log.error('event.worker.error', {
+159 |     code: errorCode(error, fallback),
+160 |     worker_id: workerId,
+161 |   });
+162 | }
+163 |
+164 | const sleep = (milliseconds: number): Promise<void> =>
+165 |   new Promise((resolve) => setTimeout(resolve, milliseconds));
+166 |
+167 | const stop = (): void => {
+168 |   stopping = true;
+169 | };
+170 | process.once('SIGTERM', stop);
+171 | process.once('SIGINT', stop);
+172 | await run();
+173 |
+```
+
+### workers/verification-worker/src/runner.ts
+
+Bytes: 4727
+SHA-256: cb4690fd4ab6335cdd4c52f5dcbc9663be6aed8b78d8449e2fba7b043a02230a
+Lines: 1-129 of 129
+
+```typescript
+  1 | import { randomUUID } from 'node:crypto';
+  2 | import { Pool } from 'pg';
+  3 | import { AesGcmEnvelopeCipher } from '@ozzyl/encryption';
+  4 | import { createStructuredLogger } from '@ozzyl/observability';
+  5 | import type { OtpDeliveryProvider } from '@ozzyl/verification';
+  6 | import { VerificationWorker } from './index.js';
+  7 | import { PostgresVerificationDeliveryQueue, VerificationDeliveryLeaseError } from './postgres.js';
+  8 | import { decryptAndValidateVerificationPayload } from './payload.js';
+  9 |
+ 10 | const required = (name: string): string => {
+ 11 |   const value = process.env[name];
+ 12 |   if (!value) throw new Error(`${name} is required`);
+ 13 |   return value;
+ 14 | };
+ 15 |
+ 16 | const positiveInteger = (name: string, fallback: number): number => {
+ 17 |   const value = Number(process.env[name] ?? fallback);
+ 18 |   if (!Number.isSafeInteger(value) || value <= 0)
+ 19 |     throw new Error(`${name} must be a positive integer`);
+ 20 |   return value;
+ 21 | };
+ 22 |
+ 23 | const pool = new Pool({ connectionString: required('DATABASE_URL'), max: 8 });
+ 24 | const cipher = new AesGcmEnvelopeCipher(
+ 25 |   Buffer.from(required('CREDENTIAL_ENCRYPTION_KEY'), 'base64'),
+ 26 |   required('CREDENTIAL_ENCRYPTION_KEY_VERSION'),
+ 27 | );
+ 28 | const otpSecret = required('OTP_HASH_SECRET');
+ 29 | const phoneHmacKey = required('PHONE_HMAC_KEY');
+ 30 | const pollMs = positiveInteger('VERIFICATION_WORKER_POLL_MS', 5_000);
+ 31 | const leaseMs = positiveInteger('VERIFICATION_WORKER_LEASE_MS', 60_000);
+ 32 | const timeoutMs = positiveInteger('OTP_PROVIDER_TIMEOUT_MS', 10_000);
+ 33 | const maxAttempts = positiveInteger('VERIFICATION_WORKER_MAX_ATTEMPTS', 5);
+ 34 | if (leaseMs <= timeoutMs + 5_000) {
+ 35 |   throw new Error(
+ 36 |     'VERIFICATION_WORKER_LEASE_MS must exceed OTP_PROVIDER_TIMEOUT_MS by more than 5000ms',
+ 37 |   );
+ 38 | }
+ 39 | const workerId = process.env.VERIFICATION_WORKER_ID ?? `verification-${randomUUID()}`;
+ 40 | const log = createStructuredLogger({
+ 41 |   service: 'verification-worker',
+ 42 |   environment: process.env.NODE_ENV ?? 'development',
+ 43 | });
+ 44 | const provider = await loadProvider(required('OTP_PROVIDER_MODULE'));
+ 45 | const queue = new PostgresVerificationDeliveryQueue(pool, { leaseMs, maxAttempts });
+ 46 | let stopping = false;
+ 47 |
+ 48 | async function run(): Promise<void> {
+ 49 |   log.info('verification.worker.started', { worker_id: workerId });
+ 50 |   while (!stopping) {
+ 51 |     const delivery = await queue.claim(workerId).catch((error) => {
+ 52 |       logError(error, 'VERIFICATION_CLAIM_FAILED');
+ 53 |       return null;
+ 54 |     });
+ 55 |     if (!delivery) {
+ 56 |       await sleep(pollMs);
+ 57 |       continue;
+ 58 |     }
+ 59 |
+ 60 |     try {
+ 61 |       await queue.started(delivery.id, workerId);
+ 62 |       const payload = decryptAndValidateVerificationPayload(delivery, {
+ 63 |         cipher,
+ 64 |         phoneHmacKey,
+ 65 |         otpSecret,
+ 66 |       });
+ 67 |       const worker = new VerificationWorker(provider, queue.reporterFor(delivery, workerId), {
+ 68 |         maxAttempts,
+ 69 |         timeoutMs,
+ 70 |       });
+ 71 |       await worker.process({
+ 72 |         jobId: delivery.id,
+ 73 |         verificationId: delivery.verificationId,
+ 74 |         organizationId: delivery.organizationId,
+ 75 |         storeId: delivery.storeId,
+ 76 |         phone: payload.phone,
+ 77 |         otp: payload.otp,
+ 78 |         purpose: delivery.purpose,
+ 79 |         expiresAt: delivery.expiresAt,
+ 80 |         attempt: delivery.attempts + 1,
+ 81 |       });
+ 82 |     } catch (error) {
+ 83 |       if (!(error instanceof VerificationDeliveryLeaseError)) {
+ 84 |         const code = errorCode(error, 'VERIFICATION_DELIVERY_FAILED');
+ 85 |         await queue
+ 86 |           .failed(delivery.id, workerId, { errorCode: code, at: new Date() })
+ 87 |           .catch((failure) => logError(failure, 'VERIFICATION_FAILURE_STATE_LOST'));
+ 88 |       }
+ 89 |       logError(error, 'VERIFICATION_DELIVERY_FAILED');
+ 90 |     }
+ 91 |   }
+ 92 |   await pool.end();
+ 93 | }
+ 94 |
+ 95 | async function loadProvider(moduleName: string): Promise<OtpDeliveryProvider> {
+ 96 |   const loaded = (await import(moduleName)) as {
+ 97 |     createOtpDeliveryProvider?: () => OtpDeliveryProvider | Promise<OtpDeliveryProvider>;
+ 98 |   };
+ 99 |   if (typeof loaded.createOtpDeliveryProvider !== 'function') {
+100 |     throw new Error('OTP provider module must export createOtpDeliveryProvider()');
+101 |   }
+102 |   const configured = await loaded.createOtpDeliveryProvider();
+103 |   if (!configured || typeof configured.send !== 'function') {
+104 |     throw new Error('OTP provider module returned an invalid provider');
+105 |   }
+106 |   return configured;
+107 | }
+108 |
+109 | function errorCode(error: unknown, fallback: string): string {
+110 |   return error && typeof error === 'object' && 'code' in error ? String(error.code) : fallback;
+111 | }
+112 |
+113 | function logError(error: unknown, fallback: string): void {
+114 |   log.error('verification.worker.error', {
+115 |     code: errorCode(error, fallback),
+116 |     worker_id: workerId,
+117 |   });
+118 | }
+119 |
+120 | const sleep = (milliseconds: number): Promise<void> =>
+121 |   new Promise((resolve) => setTimeout(resolve, milliseconds));
+122 |
+123 | const stop = (): void => {
+124 |   stopping = true;
+125 | };
+126 | process.once('SIGTERM', stop);
+127 | process.once('SIGINT', stop);
+128 | await run();
+129 |
+```
+
 ## Skipped Files
 
-None.
+- package-lock.json [File is too large (251116 bytes). Limit: 100000 bytes.]
+- packages/observability/ [not a file]
