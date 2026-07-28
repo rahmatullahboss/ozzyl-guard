@@ -4,7 +4,7 @@ This directory is the long-term product and engineering source of truth. New dev
 
 ## Current verified milestone
 
-The distributed trace-context milestone is merged on `main` as `0b6125a7dfb0f4c5ba5092100de120e365e65d9b`; feature CI run `30344660685`, job `90227950094`, passed fourteen migrations, 20 typechecks, 31 Turbo tasks with 180 tests, 20 builds, GitGuardian, audit, clean restore, runtime-role, and PHP gates. The current critical-path domain-metrics source branch adds finite authentication/authorization/rate-limit/quota/idempotency events, critical API dependency count/duration, bounded risk assessment and verified-outcome distributions, replay de-duplication, and explicit quota-limit versus usage-dependency failure handling without business identifiers or error detail. Source inventory is 186 tests; remote CI evidence is pending.
+The critical-path domain-metrics milestone is merged on `main` as `dfaf92c4f1f29a0068363d815b9cc3d0902be6fe`. Feature CI run `30348649679`, job `90240703555`, passed fourteen migrations, 20 typechecks, 31 Turbo tasks with 186 tests, 20 builds, GitGuardian, audit, clean restore, runtime-role, and PHP gates. Finite authentication/authorization/rate-limit/quota/idempotency events, critical API dependency count/duration, bounded assessment and verified-outcome distributions, replay de-duplication, and explicit quota-limit versus usage-dependency failure handling are implemented without business identifiers or error detail.
 
 ## Architecture
 

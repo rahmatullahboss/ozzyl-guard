@@ -199,17 +199,16 @@ implemented:
 verification:
   command: npm run verify
   last_verified: 2026-07-28
-  status: local_passed_remote_ci_pending
+  status: passed
   results:
     migrations: 14_of_14_with_sha256_manifest
-    migration_replay: previous_main_passed_no_migration_change
-    migration_history_integrity: previous_main_passed_no_migration_change
-    clean_restore_rehearsal: previous_main_passed_no_migration_change
-    architecture_boundaries: passed_locally_remote_ci_pending
-    typecheck: 20_of_20_passed_locally_remote_ci_pending
-    test_tasks: 31_of_31_passed_locally_remote_ci_pending
-    source_tests: 186_total
-    previous_main_remote_tests: 180_passed
+    migration_replay: passed
+    migration_history_integrity: passed
+    clean_restore_rehearsal: passed_with_schema_data_sequence_history_and_replay
+    architecture_boundaries: passed
+    typecheck: 20_of_20_passed
+    test_tasks: 31_of_31_passed
+    remote_tests: 186_passed
     migration_integrity_tests: 7_of_7_passed
     postgresql_concurrency_tests: 7_of_7_passed
     postgresql_courier_worker_lease_tests: 7_of_7_passed
@@ -227,9 +226,9 @@ verification:
     native_shadow_total_tests: 28_of_28_passed
     durable_dead_letter_postgresql_tests: 5_of_5_passed
     browser_dead_letter_api_tests: 3_of_3_passed
-    observability_tests: 21_of_21_passed_locally
-    api_source_tests: 52_of_52_passed_locally
-    critical_path_metric_integrations: 3_of_3_passed_locally
+    observability_tests: 21_of_21_passed
+    api_source_tests: 52_of_52_passed
+    critical_path_metric_integrations: 3_of_3_passed
     worker_metric_integration_tests: 4_of_4_passed
     provider_metric_integration_tests: 4_of_4_passed
     repository_metric_helper_tests: 3_of_3_passed
@@ -241,30 +240,32 @@ verification:
     provider_abort_on_lease_loss_tests: 3_of_3_passed
     durable_retention_input_tests: 4_of_4_passed
     durable_retention_postgresql_tests: 4_of_4_passed
-    builds: 20_of_20_passed_locally_remote_ci_pending
-    php_syntax: passed_locally_remote_ci_pending
-    high_critical_dependency_check: passed_locally_remote_ci_pending
+    builds: 20_of_20_passed
+    php_syntax: passed
+    high_critical_dependency_check: passed
     moderate_dependency_findings: 5
     documentation_links: 61_reviewed_0_known_broken
   continuation_bundle:
     status: refreshed_locally
-    canonical_main_sync: verified_at_1d31af8fe13e92431fc18a1e3d27711d314b129c
-    local_exporter: completed_after_critical_path_metric_docs
+    canonical_main_sync: verified_at_dfaf92c4f1f29a0068363d815b9cc3d0902be6fe
+    local_exporter: completed_after_merged_critical_path_metric_ci_evidence
   remote_ci:
     status: passed
-    run_id: 30344660685
-    job_id: 90227950094
+    run_id: 30348649679
+    job_id: 90240703555
     job: verify
-    tested_head: c40a2dd389d7d89619fed0141d21733f57f28d6b
-    merged_main_commit: 0b6125a7dfb0f4c5ba5092100de120e365e65d9b
+    tested_head: 4242c1244a56a1e74de721fb34ba06612bdcae64
+    merged_main_commit: dfaf92c4f1f29a0068363d815b9cc3d0902be6fe
     completed: 2026-07-28
-    steps: gitguardian_audit_format_lint_manifest_fourteen_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_twenty_typechecks_one_hundred_eighty_tests_twenty_builds_php_all_passed
+    steps: gitguardian_audit_format_lint_manifest_fourteen_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_twenty_typechecks_one_hundred_eighty_six_tests_twenty_builds_php_all_passed
   source_validation:
-    status: local_passed_remote_ci_pending
+    status: passed
+    run_id: 30348649679
+    job_id: 90240703555
     branch: feat/critical-path-domain-metrics
-    tested_head: pending_feature_commit
+    tested_head: 4242c1244a56a1e74de721fb34ba06612bdcae64
     completed: 2026-07-28
-    steps: format_lint_fourteen_migration_manifest_architecture_twenty_typechecks_thirty_one_test_tasks_one_hundred_eighty_six_source_tests_twenty_builds_audit_php_yaml_links_and_secret_scan_passed_locally
+    steps: gitguardian_audit_format_lint_manifest_fourteen_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_twenty_typechecks_one_hundred_eighty_six_tests_twenty_builds_php_all_passed
     shared_observability_tests: 21_of_21_passed
     api_source_tests: 52_of_52_passed
     critical_path_metric_integrations: 3_of_3_passed
