@@ -166,13 +166,12 @@ verification:
     architecture_boundaries: passed
     typecheck: 20_of_20_passed
     test_tasks: 31_of_31_passed
-    source_assertions: 145_total
-    previous_main_remote_assertions: 136_passed
+    remote_assertions: 145_passed
     migration_integrity_tests: 7_of_7_passed
     postgresql_concurrency_tests: 7_of_7_passed
-    postgresql_courier_worker_lease_tests: 6_source_tests_remote_ci_pending
-    postgresql_webhook_worker_lease_tests: 6_source_tests_remote_ci_pending
-    postgresql_verification_worker_lease_tests: 6_source_tests_remote_ci_pending
+    postgresql_courier_worker_lease_tests: 6_of_6_passed
+    postgresql_webhook_worker_lease_tests: 6_of_6_passed
+    postgresql_verification_worker_lease_tests: 6_of_6_passed
     verification_payload_validation_tests: 3_of_3_passed
     postgresql_tenant_admin_isolation_tests: 7_of_7_passed
     postgresql_runtime_role_tests: 7_of_7_passed
@@ -196,28 +195,30 @@ verification:
     documentation_links: 57_reviewed_0_known_broken
   continuation_bundle:
     status: refreshed_locally
-    canonical_main_sync: verified_at_3c31ae76980c0fa3eef7b67aaef2627b436a616a
-    local_exporter: completed_after_durable_worker_heartbeat_docs
+    canonical_main_sync: verified_at_6ab01a78713afdef47fde3a8d462f2bd6a43403a
+    local_exporter: completed_after_merged_durable_worker_heartbeat_ci_evidence
   remote_ci:
     status: passed
-    run_id: 30318999952
-    job_id: 90150731352
+    run_id: 30322016826
+    job_id: 90159676583
     job: verify
-    tested_head: c92d0a713c2257e6cd49903ca292f41150141890
-    merged_main_commit: 00d6eecb69f1edd48209cb8653137c8e8a57ab7f
+    tested_head: 46ed30424a191bb9baad9bbc60442ef847f3c75f
+    merged_main_commit: 6ab01a78713afdef47fde3a8d462f2bd6a43403a
     completed: 2026-07-28
-    steps: gitguardian_audit_format_lint_manifest_twelve_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_twenty_typechecks_one_hundred_thirty_six_assertions_twenty_builds_php_all_passed
+    steps: gitguardian_audit_format_lint_manifest_twelve_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_twenty_typechecks_one_hundred_forty_five_assertions_twenty_builds_php_all_passed
   source_validation:
     status: passed
-    run_id: 30318999952
-    job_id: 90150731352
-    tested_head: c92d0a713c2257e6cd49903ca292f41150141890
+    run_id: 30322016826
+    job_id: 90159676583
+    tested_head: 46ed30424a191bb9baad9bbc60442ef847f3c75f
     completed: 2026-07-28
-    steps: gitguardian_audit_format_lint_manifest_twelve_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_twenty_typechecks_one_hundred_thirty_six_assertions_twenty_builds_php_all_passed
+    steps: gitguardian_audit_format_lint_manifest_twelve_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_twenty_typechecks_one_hundred_forty_five_assertions_twenty_builds_php_all_passed
     observability_tests: 3_of_3_passed
     api_observability_tests: 4_of_4_passed
+    lease_heartbeat_unit_tests: 3_of_3_passed
+    provider_abort_on_lease_loss_tests: 3_of_3_passed
+    postgresql_owner_checked_renewal_tests: 3_of_3_passed
   pending_follow_up:
-    - source_branch_remote_ci_validation
     - observability_metrics_traces_exporters_and_managed_backend
     - production_source_hook_deployment_and_explicit_pilot_store_selection
     - pilot_outcome_collection_and_calibration
@@ -341,5 +342,5 @@ notes:
   - durable_worker_heartbeat_defaults_to_one_third_of_the_lease
   - lease_renewal_interval_must_not_exceed_half_the_lease
   - heartbeat_renewal_and_final_state_transitions_do_not_overlap
-  - pro_context_was_refreshed_after_durable_worker_heartbeat_documentation
+  - pro_context_was_refreshed_after_merged_durable_worker_heartbeat_ci_evidence
   - update_this_file_after_every_material_milestone
