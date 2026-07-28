@@ -4,7 +4,7 @@ This directory is the long-term product and engineering source of truth. New dev
 
 ## Current verified milestone
 
-The durable worker heartbeat milestone is merged on `main` as `6ab01a78713afdef47fde3a8d462f2bd6a43403a`, with verification evidence merged as `f19e9b4183b9b809f5f8cc45e301a1fa8a819a8b`. Feature CI run `30322016826`, job `90159676583`, passed the twelve-migration baseline, 20 typechecks, 31 Turbo tasks with 145 assertions, 20 builds, GitGuardian, audit, restore, runtime-role, and PHP gates. Courier, webhook, and verification workers renew owner-checked leases, abort active provider I/O on renewal loss, and drain heartbeats before final state transitions. The current retention/archive slice adds migration `0013` and remains source-branch work until its PostgreSQL-integrated CI evidence is recorded.
+The durable work retention milestone is merged on `main` as `8788da49db5bc0726db97ad0b021fd30b06600e5`. Feature CI run `30325144458`, job `90168867190`, passed thirteen migrations, 20 typechecks, 31 Turbo tasks with 154 assertions, 20 builds, GitGuardian, audit, clean restore, runtime-role, and PHP gates. Old terminal courier, webhook, and verification work can now be previewed and archived only through the maintenance boundary; archive evidence is secret-free, records the maintenance database identity, is persisted before source deletion, and remains inaccessible to application runtime roles.
 
 ## Architecture
 

@@ -124,14 +124,14 @@ Concrete provider selection and provisioning remain external production work.
 
 - Formatting check: passed
 - ESLint with zero warnings: passed
-- Thirteen migration files ordered/non-empty/non-destructive: passed locally; source-branch CI is pending
+- Thirteen migration files ordered/non-empty/non-destructive: passed locally and in source-branch CI
 - First migration apply and immediate migration replay: passed
 - Architecture import boundaries: passed
-- Typecheck: 20 of 20 workspaces passed locally; source-branch CI is pending
-- Test/build dependency tasks: 31 of 31 passed locally; source-branch CI is pending
-- Repository assertion inventory: 154 source assertions, including four retention input-boundary tests, four PostgreSQL retention/archive tests, and runtime archive-access denial; PostgreSQL-integrated source-branch CI is pending
-- Production builds: 20 of 20 workspaces passed locally; source-branch CI is pending
-- WooCommerce PHP syntax: unchanged; source-branch CI validation is pending
+- Typecheck: 20 of 20 workspaces passed locally and in source-branch CI
+- Test/build dependency tasks: 31 of 31 passed locally and in source-branch CI
+- Repository assertions: 154 passed in PostgreSQL-integrated source-branch CI, including four retention input-boundary tests, four PostgreSQL retention/archive tests, and runtime archive-access denial
+- Production builds: 20 of 20 workspaces passed locally and in source-branch CI
+- WooCommerce PHP syntax: passed in source-branch CI
 - npm high/critical audit threshold: passed after the ESLint toolchain update; five moderate findings remain
 - Worker lease final CI run `29545309665`, job `87776201468`: all gates passed at head `b886fcb57c9a5c9ebae3b23334966468ae1733c3`
 - The verified worker lease change was squash-merged to `main` as `d748bde10920e5a35a7e90f3a00b3b3bf02b96f3`
@@ -164,11 +164,13 @@ Concrete provider selection and provisioning remain external production work.
 - The verified API request observability milestone was squash-merged through PR #28 to `main` as `00d6eecb69f1edd48209cb8653137c8e8a57ab7f`
 - Durable worker heartbeat final CI run `30322016826`, job `90159676583`: GitGuardian, audit, formatting, lint, twelve migrations, replay, history integrity, clean restore, runtime-role grants, architecture, 20 typechecks, 145 assertions, 20 builds, and PHP lint passed at head `46ed30424a191bb9baad9bbc60442ef847f3c75f`
 - The verified durable worker heartbeat milestone was squash-merged through PR #30 to `main` as `6ab01a78713afdef47fde3a8d462f2bd6a43403a`
+- Durable work retention final CI run `30325144458`, job `90168867190`: GitGuardian, audit, formatting, lint, thirteen migrations, replay, history integrity, clean restore, runtime-role grants, architecture, 20 typechecks, 154 assertions, 20 builds, and PHP lint passed at head `e0f18f0e3a51e484d1995f523d0572c09a3e0bba`
+- The verified durable work retention milestone was squash-merged through PR #32 to `main` as `8788da49db5bc0726db97ad0b021fd30b06600e5`
 - Canonical documentation links before this slice: zero known broken internal links
 - `tracker.yml` YAML structure remains valid
 - Prohibited source-pattern search: no matches
 
-The repository-local continuation exporter was refreshed after the durable work retention milestone documentation and tracker were finalized.
+The repository-local continuation exporter was refreshed after the merged durable work retention verification evidence was recorded.
 
 ## Next production milestone
 
