@@ -4,7 +4,7 @@ This directory is the long-term product and engineering source of truth. New dev
 
 ## Current verified milestone
 
-The critical-path domain-metrics milestone remains merged on `main` as `dfaf92c4f1f29a0068363d815b9cc3d0902be6fe`; feature CI run `30348649679`, job `90240703555`, passed fourteen migrations, 20 typechecks, 31 Turbo tasks with 186 tests, 20 builds, GitGuardian, audit, clean restore, runtime-role, and PHP gates. The current browser/integration-metrics source branch adds finite session authentication, rate-limit, CSRF, relational authorization, dashboard/admin/rollout/dead-letter/audit repository metrics plus native-shadow rollout/comparison/attempt success, replay, rejection, conflict, and error outcomes without business identifiers or error detail. Local source inventory is 191 tests; remote CI evidence is pending.
+The browser/integration metrics milestone is merged on `main` as `c697935549c427e4a4a6c81ad642416363e89e8e`. Feature CI run `30386368200`, job `90366572706`, passed fourteen migrations, 20 typechecks, 31 Turbo tasks with 191 tests, 20 builds, GitGuardian, audit, clean restore, runtime-role, and PHP gates. Finite session authentication, rate-limit, CSRF, relational authorization, dashboard/admin/rollout/dead-letter/audit repository metrics plus native-shadow rollout/comparison/attempt success, replay, rejection, conflict, and error outcomes are implemented without business identifiers or error detail.
 
 ## Architecture
 
