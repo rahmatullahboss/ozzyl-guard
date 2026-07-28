@@ -4,7 +4,7 @@ Updated: 2026-07-28
 
 ## Current state
 
-A runnable standalone MVP foundation and nineteen production-hardening slices are complete:
+A runnable standalone MVP foundation and twenty production-hardening slices are complete:
 
 1. dashboard/admin browser authentication with live PostgreSQL data and tenant revalidation;
 2. accepted provider-neutral infrastructure ADRs for deployment, managed PostgreSQL, durable work/cache, KMS envelope encryption, and observability;
@@ -24,7 +24,8 @@ A runnable standalone MVP foundation and nineteen production-hardening slices ar
 16. owner-checked renewable leases for courier, webhook, and verification workers, with non-overlapping heartbeats, abort-on-renewal-loss provider I/O, and heartbeat drain before final queue transitions;
 17. maintenance-only preview-first retention for old terminal durable work, with secret-free archive evidence persisted before atomic source deletion, bounded batches, runtime-role denial, and preserved replay/audit evidence;
 18. vendor-neutral finite-cardinality application metrics for API requests, private-worker operations/duration, and durable claim failures, with prohibited identifier/secret/contact/URL/payload labels and sink-failure isolation;
-19. finite-cardinality durable repository and provider-call timing plus aggregate queue depth/oldest-ready-age gauges for courier, webhook, and verification workers, with configurable cadence and telemetry-only snapshot failure behavior.
+19. finite-cardinality durable repository and provider-call timing plus aggregate queue depth/oldest-ready-age gauges for courier, webhook, and verification workers, with configurable cadence and telemetry-only snapshot failure behavior;
+20. vendor-neutral W3C trace-context propagation from API server and durable producer spans through courier, webhook, and verification queue rows into worker consumer and provider-client spans, with finite attributes, nullable legacy context, verification-failure webhook continuation, and telemetry-failure isolation.
 
 Concrete provider selection and provisioning remain external production work.
 
@@ -33,7 +34,7 @@ Concrete provider selection and provisioning remain external production work.
 - [x] Repository, canonical GitHub remote, documentation, ADR, status, risk register, tracker, and continuation setup
 - [x] npm workspaces, Turborepo, TypeScript, formatting, linting, tests, and CI
 - [x] Canonical shared API/error/event contracts
-- [x] PostgreSQL/Drizzle schema and thirteen append-only migrations
+- [x] PostgreSQL/Drizzle schema and fourteen append-only migrations
 - [x] Users, organizations, stores, memberships, plans, audit events, hash-only API keys, and explicit platform role
 - [x] Argon2 password utilities and opaque hash-only browser sessions with CSRF protection
 - [x] Transaction-safe PostgreSQL usage reservation and durable idempotency
@@ -71,6 +72,12 @@ Concrete provider selection and provisioning remain external production work.
 - [x] Courier API/browser, webhook HTTP, and OTP provider calls emit bounded success/retryable/permanent count/duration metrics without vendor/account/destination labels
 - [x] Durable queue snapshots expose only aggregate queued/retry-scheduled/claimed/processing/failed depth and oldest-ready age
 - [x] Queue snapshot cadence defaults to 30000 milliseconds per durable worker and snapshot failure never stops polling or state transitions
+- [x] Strict W3C version-00 `traceparent` parsing rejects malformed and all-zero identifiers; bounded optional `tracestate` is propagated but not exported as a span attribute
+- [x] API requests emit server spans and durable assessment/outcome/courier/OTP enqueue operations emit producer spans with finite route/operation/queue/outcome attributes
+- [x] Courier, webhook, and verification rows persist nullable validated trace context outside payloads; legacy null rows remain processable and archive evidence does not copy trace context
+- [x] Courier, webhook, verification, and courier-session workers emit consumer/root operation spans with provider-client child spans and no business identifiers, phone/OTP values, credentials, URLs, payloads, or arbitrary error codes
+- [x] Verification failure events continue the active worker trace into the newly queued webhook delivery
+- [x] Missing or invalid persisted context starts a fresh root trace, while trace validation, clock, serialization, or sink failure cannot change API or worker behavior
 - [x] Concurrent duplicate usage reservations serialize into one charge and replay responses
 - [x] Concurrent usage reservations cannot exceed the plan limit
 - [x] Concurrent assessment saves return the single persisted assessment without orphan signal writes
@@ -135,15 +142,15 @@ Concrete provider selection and provisioning remain external production work.
 
 - Formatting check: passed
 - ESLint with zero warnings: passed
-- Thirteen migration files ordered/non-empty/non-destructive: passed locally and in source-branch CI
-- First migration apply and immediate migration replay: passed
-- Architecture import boundaries: passed locally and in source-branch CI
-- Typecheck: 20 of 20 workspaces passed locally and in source-branch CI
-- Test/build dependency tasks: 31 of 31 passed locally and in source-branch CI
-- Repository assertions: 168 passed in PostgreSQL-integrated source-branch CI
-- Metrics coverage: eleven shared observability assertions, four worker/provider integrations, and three PostgreSQL aggregate queue snapshot tests passed locally and in source-branch CI
-- Production builds: 20 of 20 workspaces passed locally and in source-branch CI
-- WooCommerce PHP syntax: passed in source-branch CI
+- Fourteen migration files ordered/non-empty/non-destructive: passed locally; current source-branch CI is pending
+- First migration apply and immediate migration replay: previous merged baseline passed remotely; migration 0014 source-branch CI is pending
+- Architecture import boundaries: passed locally; current source-branch CI is pending
+- Typecheck: 20 of 20 workspaces passed locally; current source-branch CI is pending
+- Test/build dependency tasks: 31 of 31 passed locally; current source-branch CI is pending
+- Repository assertion inventory: 180 source tests; previous merged remote baseline is 168; current PostgreSQL-integrated source-branch CI is pending
+- Tracing coverage: 18 shared observability tests, one API durable-producer lineage test, four worker/provider lineage integrations, and three PostgreSQL durable-context tests are present; real PostgreSQL execution is pending CI
+- Production builds: 20 of 20 workspaces passed locally; current source-branch CI is pending
+- WooCommerce PHP syntax: passed locally; current source-branch CI is pending
 - npm high/critical audit threshold: passed after the ESLint toolchain update; five moderate findings remain
 - Worker lease final CI run `29545309665`, job `87776201468`: all gates passed at head `b886fcb57c9a5c9ebae3b23334966468ae1733c3`
 - The verified worker lease change was squash-merged to `main` as `d748bde10920e5a35a7e90f3a00b3b3bf02b96f3`
@@ -186,7 +193,7 @@ Concrete provider selection and provisioning remain external production work.
 - `tracker.yml` YAML structure remains valid
 - Prohibited source-pattern search: no matches
 
-The repository-local continuation exporter was refreshed after the merged repository/provider/queue metrics verification evidence was recorded.
+The repository-local continuation exporter was refreshed after distributed trace-context documentation and tracker updates were finalized.
 
 ## Next production milestone
 
@@ -206,7 +213,7 @@ The repository-local continuation exporter was refreshed after the merged reposi
 - Managed PostgreSQL provider and service tier
 - Separately provisioned retention-maintenance identity, approved completed/failed windows, incident/legal holds, monitoring, and backup/PITR recovery
 - Managed secret store and KMS/vault provider
-- OpenTelemetry exporter/collector, distributed tracing, broader API/domain repository metrics, managed observability backend, dashboards, alerts, and retention policy
+- OpenTelemetry exporter/collector, sampling policy, broader API/domain repository metrics, managed observability backend, dashboards, alerts, and retention policy
 - OTP provider account and credentials
 - Production account recovery/MFA or managed identity-provider decision
 - Repository visibility correction from currently reported public to expected private

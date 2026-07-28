@@ -2,9 +2,15 @@ import { AesGcmEnvelopeCipher } from '@ozzyl/encryption';
 import { chromium } from 'playwright';
 import type { CourierSession } from '@ozzyl/courier-adapters';
 import {
+  endProviderOperationSpan,
+  endWorkerOperationSpan,
   recordProviderOperation,
   recordWorkerOperation,
+  startProviderOperationSpan,
+  startWorkerOperationSpan,
   type MetricRecorder,
+  type TraceContext,
+  type Tracer,
 } from '@ozzyl/observability';
 
 export type SessionFailureCode =
@@ -151,6 +157,7 @@ export class CourierSessionWorker {
       cipher: AesGcmEnvelopeCipher;
       driver: SteadfastSessionDriver;
       metrics?: MetricRecorder;
+      tracer?: Tracer;
       monotonicNow?: () => number;
     },
   ) {}
@@ -158,14 +165,19 @@ export class CourierSessionWorker {
   async refresh(accountId: string): Promise<{ status: 'connected' }> {
     const monotonicNow = this.dependencies.monotonicNow ?? (() => Date.now());
     const startedAt = monotonicNow();
+    const span = startWorkerOperationSpan(this.dependencies.tracer, {
+      workerType: 'courier_session',
+      operation: 'refresh',
+    });
     try {
-      const result = await this.refreshSession(accountId);
+      const result = await this.refreshSession(accountId, span.context);
       recordWorkerOperation(this.dependencies.metrics, {
         workerType: 'courier_session',
         operation: 'refresh',
         outcome: 'completed',
         durationMs: monotonicNow() - startedAt,
       });
+      endWorkerOperationSpan(span, 'completed');
       return result;
     } catch (error) {
       recordWorkerOperation(this.dependencies.metrics, {
@@ -174,11 +186,15 @@ export class CourierSessionWorker {
         outcome: 'failed',
         durationMs: monotonicNow() - startedAt,
       });
+      endWorkerOperationSpan(span, 'failed');
       throw error;
     }
   }
 
-  private async refreshSession(accountId: string): Promise<{ status: 'connected' }> {
+  private async refreshSession(
+    accountId: string,
+    traceContext: TraceContext,
+  ): Promise<{ status: 'connected' }> {
     const credentials = await this.dependencies.credentials.load(accountId);
     if (!credentials) {
       const error = new SessionDriverError(
@@ -193,6 +209,11 @@ export class CourierSessionWorker {
     try {
       const monotonicNow = this.dependencies.monotonicNow ?? (() => Date.now());
       const providerStartedAt = monotonicNow();
+      const providerSpan = startProviderOperationSpan(this.dependencies.tracer, {
+        providerType: 'courier_browser',
+        operation: 'login',
+        parent: traceContext,
+      });
       let session: SessionDriverResult;
       try {
         session = await this.dependencies.driver.login(credentials);
@@ -202,16 +223,19 @@ export class CourierSessionWorker {
           outcome: 'success',
           durationMs: monotonicNow() - providerStartedAt,
         });
+        endProviderOperationSpan(providerSpan, 'success');
       } catch (error) {
+        const providerOutcome =
+          error instanceof SessionDriverError && !error.retryable
+            ? 'permanent_failure'
+            : 'retryable_failure';
         recordProviderOperation(this.dependencies.metrics, {
           providerType: 'courier_browser',
           operation: 'login',
-          outcome:
-            error instanceof SessionDriverError && !error.retryable
-              ? 'permanent_failure'
-              : 'retryable_failure',
+          outcome: providerOutcome,
           durationMs: monotonicNow() - providerStartedAt,
         });
+        endProviderOperationSpan(providerSpan, providerOutcome);
         throw error;
       }
       const encrypted = this.dependencies.cipher.encrypt(session, `courier-session:${accountId}`);

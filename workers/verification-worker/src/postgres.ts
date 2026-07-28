@@ -1,5 +1,5 @@
 import type { Pool, PoolClient } from 'pg';
-import type { DurableQueueSnapshot } from '@ozzyl/observability';
+import type { DurableQueueSnapshot, PersistedTraceContext } from '@ozzyl/observability';
 import type { DomainEvent } from '@ozzyl/shared-types';
 import type { VerificationDeliveryReporter } from './index.js';
 
@@ -14,6 +14,7 @@ export interface ClaimedVerificationDelivery {
   payloadEncrypted: string;
   expiresAt: Date;
   attempts: number;
+  traceContext?: PersistedTraceContext;
 }
 
 export class VerificationDeliveryLeaseError extends Error {
@@ -83,6 +84,8 @@ export class PostgresVerificationDeliveryQueue {
         payload_encrypted: string;
         expires_at: Date;
         attempts: number;
+        trace_parent: string | null;
+        trace_state: string | null;
       }>(
         `
           with candidate as (
@@ -127,7 +130,8 @@ export class PostgresVerificationDeliveryQueue {
           select
             claimed.id, claimed.verification_session_id, claimed.organization_id,
             claimed.store_id, vs.purpose, vs.phone_hash, oa.otp_hash,
-            claimed.payload_encrypted, vs.expires_at, claimed.attempts
+            claimed.payload_encrypted, vs.expires_at, claimed.attempts,
+            claimed.trace_parent, claimed.trace_state
           from claimed
           join verification_sessions vs on vs.id = claimed.verification_session_id
           join lateral (
@@ -153,6 +157,14 @@ export class PostgresVerificationDeliveryQueue {
             payloadEncrypted: row.payload_encrypted,
             expiresAt: row.expires_at,
             attempts: row.attempts,
+            ...(row.trace_parent === null
+              ? {}
+              : {
+                  traceContext: {
+                    traceParent: row.trace_parent,
+                    ...(row.trace_state === null ? {} : { traceState: row.trace_state }),
+                  },
+                }),
           }
         : null;
     } catch (error) {
@@ -279,7 +291,7 @@ export class PostgresVerificationDeliveryQueue {
   async failed(
     jobId: string,
     workerId: string,
-    input: { errorCode: string; at: Date },
+    input: { errorCode: string; at: Date; traceContext?: PersistedTraceContext },
   ): Promise<void> {
     const client = await this.pool.connect();
     try {
@@ -308,7 +320,14 @@ export class PostgresVerificationDeliveryQueue {
       this.assertOwned(result.rowCount);
       const row = result.rows[0];
       if (!row) throw new VerificationDeliveryLeaseError();
-      await this.failSession(client, row.verification_session_id, input.errorCode, input.at);
+      await this.failSession(
+        client,
+        row.verification_session_id,
+        input.errorCode,
+        input.at,
+        false,
+        input.traceContext,
+      );
       await client.query('commit');
     } catch (error) {
       await client.query('rollback').catch(() => undefined);
@@ -375,10 +394,14 @@ export class PostgresVerificationDeliveryQueue {
         await beforeTransition();
         await this.retry(jobId, workerId, { errorCode, nextAttemptAt, at });
       },
-      failed: async (jobId, errorCode, at) => {
+      failed: async (jobId, errorCode, at, traceContext) => {
         this.assertIdentity(delivery, jobId);
         await beforeTransition();
-        await this.failed(jobId, workerId, { errorCode, at });
+        await this.failed(jobId, workerId, {
+          errorCode,
+          at,
+          ...(traceContext === undefined ? {} : { traceContext }),
+        });
       },
     };
   }
@@ -434,6 +457,7 @@ export class PostgresVerificationDeliveryQueue {
     errorCode: string,
     at: Date,
     expired = false,
+    traceContext?: PersistedTraceContext,
   ): Promise<void> {
     const session = await client.query<{
       organization_id: string;
@@ -457,14 +481,18 @@ export class PostgresVerificationDeliveryQueue {
     );
     const row = session.rows[0];
     if (row) {
-      await enqueueVerificationFailure(client, {
-        id: `evt_verification_failed_${verificationId}`,
-        type: 'verification.failed',
-        organizationId: row.organization_id,
-        storeId: row.store_id,
-        occurredAt: at.toISOString(),
-        payload: { verificationId, purpose: row.purpose, errorCode },
-      });
+      await enqueueVerificationFailure(
+        client,
+        {
+          id: `evt_verification_failed_${verificationId}`,
+          type: 'verification.failed',
+          organizationId: row.organization_id,
+          storeId: row.store_id,
+          occurredAt: at.toISOString(),
+          payload: { verificationId, purpose: row.purpose, errorCode },
+        },
+        traceContext,
+      );
     }
   }
 
@@ -481,16 +509,20 @@ export class PostgresVerificationDeliveryQueue {
   }
 }
 
-async function enqueueVerificationFailure(client: PoolClient, event: DomainEvent): Promise<void> {
+async function enqueueVerificationFailure(
+  client: PoolClient,
+  event: DomainEvent,
+  traceContext?: PersistedTraceContext,
+): Promise<void> {
   await client.query(
     `
       insert into webhook_deliveries (
         id, endpoint_id, organization_id, store_id, event_id, event_type,
-        event_payload, occurred_at, status, next_attempt_at
+        event_payload, occurred_at, status, next_attempt_at, trace_parent, trace_state
       )
       select
         'whd_' || md5(we.id || ':' || $1), we.id, $2, $3, $1, $4,
-        $5::jsonb, $6, 'queued', now()
+        $5::jsonb, $6, 'queued', now(), $7, $8
       from webhook_endpoints we
       where we.organization_id = $2
         and (we.store_id is null or we.store_id = $3)
@@ -505,6 +537,8 @@ async function enqueueVerificationFailure(client: PoolClient, event: DomainEvent
       event.type,
       JSON.stringify(event),
       event.occurredAt,
+      traceContext?.traceParent ?? null,
+      traceContext?.traceState ?? null,
     ],
   );
 }

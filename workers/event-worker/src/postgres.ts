@@ -1,5 +1,5 @@
 import type { Pool } from 'pg';
-import type { DurableQueueSnapshot } from '@ozzyl/observability';
+import type { DurableQueueSnapshot, PersistedTraceContext } from '@ozzyl/observability';
 import type { WebhookDeliveryRepository } from './index.js';
 
 export interface ClaimedWebhookDelivery {
@@ -15,6 +15,7 @@ export interface ClaimedWebhookDelivery {
   eventPayload: unknown;
   occurredAt: Date;
   attempts: number;
+  traceContext?: PersistedTraceContext;
 }
 
 export class WebhookDeliveryLeaseError extends Error {
@@ -96,6 +97,8 @@ export class PostgresWebhookDeliveryQueue {
         event_payload: unknown;
         occurred_at: Date;
         attempts: number;
+        trace_parent: string | null;
+        trace_state: string | null;
       }>(
         `
           with candidate as (
@@ -149,7 +152,9 @@ export class PostgresWebhookDeliveryQueue {
             claimed.event_type,
             claimed.event_payload,
             claimed.occurred_at,
-            claimed.attempts
+            claimed.attempts,
+            claimed.trace_parent,
+            claimed.trace_state
           from claimed
           join webhook_endpoints we on we.id = claimed.endpoint_id
         `,
@@ -171,6 +176,14 @@ export class PostgresWebhookDeliveryQueue {
             eventPayload: row.event_payload,
             occurredAt: row.occurred_at,
             attempts: row.attempts,
+            ...(row.trace_parent === null
+              ? {}
+              : {
+                  traceContext: {
+                    traceParent: row.trace_parent,
+                    ...(row.trace_state === null ? {} : { traceState: row.trace_state }),
+                  },
+                }),
           }
         : null;
     } catch (error) {

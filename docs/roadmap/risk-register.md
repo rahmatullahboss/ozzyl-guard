@@ -27,6 +27,7 @@ Updated: 2026-07-28
 | R-021 | Durable payloads are retained indefinitely or archived before support/incident review |     High | Terminal-only preview, age floor, bounded archive-before-delete transaction, secret-free evidence, preserved replay/audit, no scheduler | Operations / open                |
 | R-022 | Retention maintenance privileges leak into API or worker runtime identities           | Critical | Archive table explicitly denied to runtime, no runtime DELETE, separate reviewed maintenance identity, privilege preflight              | Operations / blocking            |
 | R-023 | Telemetry labels leak identifiers/secrets or create uncontrolled cardinality/cost     |     High | Descriptor-owned finite value sets, prohibited identifier/secret/contact/URL/payload keys, canonical route templates, sink isolation    | Operations / partially mitigated |
+| R-024 | Untrusted trace context is spoofed, malformed, or used to carry sensitive baggage     |     High | Strict version-00/non-zero parsing, bounded no-baggage tracestate, finite span attributes, DB checks, invalid-context root fallback     | Operations / partially mitigated |
 
 ## Review cadence
 

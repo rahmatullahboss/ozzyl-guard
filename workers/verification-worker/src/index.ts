@@ -1,7 +1,15 @@
 import {
+  endProviderOperationSpan,
+  endWorkerOperationSpan,
   recordProviderOperation,
   recordWorkerOperation,
+  startProviderOperationSpan,
+  startWorkerOperationSpan,
+  toPersistedTraceContext,
   type MetricRecorder,
+  type PersistedTraceContext,
+  type TraceContext,
+  type Tracer,
 } from '@ozzyl/observability';
 import { OtpProviderError, formatOtpMessage, type OtpDeliveryProvider } from '@ozzyl/verification';
 
@@ -16,12 +24,29 @@ export interface VerificationDelivery {
   expiresAt: Date;
   attempt: number;
   signal?: AbortSignal;
+  traceContext?: TraceContext;
 }
 
 export interface VerificationDeliveryReporter {
-  delivered(jobId: string, providerMessageId: string, at: Date): Promise<void>;
-  retry(jobId: string, errorCode: string, nextAttemptAt: Date, at: Date): Promise<void>;
-  failed(jobId: string, errorCode: string, at: Date): Promise<void>;
+  delivered(
+    jobId: string,
+    providerMessageId: string,
+    at: Date,
+    traceContext?: PersistedTraceContext,
+  ): Promise<void>;
+  retry(
+    jobId: string,
+    errorCode: string,
+    nextAttemptAt: Date,
+    at: Date,
+    traceContext?: PersistedTraceContext,
+  ): Promise<void>;
+  failed(
+    jobId: string,
+    errorCode: string,
+    at: Date,
+    traceContext?: PersistedTraceContext,
+  ): Promise<void>;
 }
 
 export type VerificationDeliveryResult =
@@ -34,6 +59,7 @@ export class VerificationWorker {
   private readonly timeoutMs: number;
   private readonly now: () => Date;
   private readonly metrics: MetricRecorder | undefined;
+  private readonly tracer: Tracer | undefined;
   private readonly monotonicNow: () => number;
 
   constructor(
@@ -44,6 +70,7 @@ export class VerificationWorker {
       timeoutMs?: number;
       now?: () => Date;
       metrics?: MetricRecorder;
+      tracer?: Tracer;
       monotonicNow?: () => number;
     } = {},
   ) {
@@ -51,24 +78,32 @@ export class VerificationWorker {
     this.timeoutMs = options.timeoutMs ?? 10_000;
     this.now = options.now ?? (() => new Date());
     this.metrics = options.metrics;
+    this.tracer = options.tracer;
     this.monotonicNow = options.monotonicNow ?? (() => Date.now());
   }
 
   async process(delivery: VerificationDelivery): Promise<VerificationDeliveryResult> {
     const monotonicStartedAt = this.monotonicNow();
+    const span = startWorkerOperationSpan(this.tracer, {
+      workerType: 'verification_delivery',
+      operation: 'send',
+      ...(delivery.traceContext === undefined ? {} : { parent: delivery.traceContext }),
+    });
     try {
-      const result = await this.processDelivery(delivery);
+      const result = await this.processDelivery(delivery, span.context);
+      const outcome =
+        result.status === 'delivered'
+          ? 'completed'
+          : result.status === 'retry_scheduled'
+            ? 'retry_scheduled'
+            : 'failed';
       recordWorkerOperation(this.metrics, {
         workerType: 'verification_delivery',
         operation: 'send',
-        outcome:
-          result.status === 'delivered'
-            ? 'completed'
-            : result.status === 'retry_scheduled'
-              ? 'retry_scheduled'
-              : 'failed',
+        outcome,
         durationMs: this.monotonicNow() - monotonicStartedAt,
       });
+      endWorkerOperationSpan(span, outcome);
       return result;
     } catch (error) {
       recordWorkerOperation(this.metrics, {
@@ -77,16 +112,23 @@ export class VerificationWorker {
         outcome: 'failed',
         durationMs: this.monotonicNow() - monotonicStartedAt,
       });
+      endWorkerOperationSpan(span, 'failed');
       throw error;
     }
   }
 
   private async processDelivery(
     delivery: VerificationDelivery,
+    traceContext: TraceContext,
   ): Promise<VerificationDeliveryResult> {
     const startedAt = this.now();
     if (delivery.expiresAt.getTime() <= startedAt.getTime() + this.timeoutMs) {
-      await this.reporter.failed(delivery.jobId, 'OTP_EXPIRED_BEFORE_DELIVERY', startedAt);
+      await this.reporter.failed(
+        delivery.jobId,
+        'OTP_EXPIRED_BEFORE_DELIVERY',
+        startedAt,
+        toPersistedTraceContext(traceContext),
+      );
       return { status: 'failed', errorCode: 'OTP_EXPIRED_BEFORE_DELIVERY' };
     }
 
@@ -96,6 +138,11 @@ export class VerificationWorker {
     else delivery.signal?.addEventListener('abort', abortFromCaller, { once: true });
     const timeout = setTimeout(() => controller.abort(), this.timeoutMs);
     const providerStartedAt = this.monotonicNow();
+    const providerSpan = startProviderOperationSpan(this.tracer, {
+      providerType: 'verification_delivery',
+      operation: 'send',
+      parent: traceContext,
+    });
     try {
       const result = await this.provider.send({
         phone: delivery.phone,
@@ -110,7 +157,13 @@ export class VerificationWorker {
           outcome: 'permanent_failure',
           durationMs: this.monotonicNow() - providerStartedAt,
         });
-        await this.reporter.failed(delivery.jobId, 'OTP_PROVIDER_REJECTED', this.now());
+        endProviderOperationSpan(providerSpan, 'permanent_failure');
+        await this.reporter.failed(
+          delivery.jobId,
+          'OTP_PROVIDER_REJECTED',
+          this.now(),
+          toPersistedTraceContext(traceContext),
+        );
         return { status: 'failed', errorCode: 'OTP_PROVIDER_REJECTED' };
       }
       recordProviderOperation(this.metrics, {
@@ -119,28 +172,47 @@ export class VerificationWorker {
         outcome: 'success',
         durationMs: this.monotonicNow() - providerStartedAt,
       });
-      await this.reporter.delivered(delivery.jobId, result.providerMessageId, this.now());
+      endProviderOperationSpan(providerSpan, 'success');
+      await this.reporter.delivered(
+        delivery.jobId,
+        result.providerMessageId,
+        this.now(),
+        toPersistedTraceContext(traceContext),
+      );
       return { status: 'delivered', providerMessageId: result.providerMessageId };
     } catch (error) {
       const classified = classifyProviderError(error);
+      const providerOutcome = classified.retryable ? 'retryable_failure' : 'permanent_failure';
       recordProviderOperation(this.metrics, {
         providerType: 'verification_delivery',
         operation: 'send',
-        outcome: classified.retryable ? 'retryable_failure' : 'permanent_failure',
+        outcome: providerOutcome,
         durationMs: this.monotonicNow() - providerStartedAt,
       });
+      endProviderOperationSpan(providerSpan, providerOutcome);
       const at = this.now();
       if (classified.retryable && delivery.attempt < this.maxAttempts) {
         const delayMs = Math.min(60 * 60 * 1_000, 2 ** Math.max(0, delivery.attempt - 1) * 30_000);
         const nextAttemptAt = new Date(at.getTime() + delayMs);
-        await this.reporter.retry(delivery.jobId, classified.code, nextAttemptAt, at);
+        await this.reporter.retry(
+          delivery.jobId,
+          classified.code,
+          nextAttemptAt,
+          at,
+          toPersistedTraceContext(traceContext),
+        );
         return {
           status: 'retry_scheduled',
           errorCode: classified.code,
           nextAttemptAt: nextAttemptAt.toISOString(),
         };
       }
-      await this.reporter.failed(delivery.jobId, classified.code, at);
+      await this.reporter.failed(
+        delivery.jobId,
+        classified.code,
+        at,
+        toPersistedTraceContext(traceContext),
+      );
       return { status: 'failed', errorCode: classified.code };
     } finally {
       clearTimeout(timeout);

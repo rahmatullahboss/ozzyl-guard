@@ -126,7 +126,7 @@ not affect source checkout or the effective legacy decision.
 
 The helper recursively redacts sensitive field names before serialization. Passwords, secrets, tokens, API keys, cookies, OTPs, raw phone values, credentials, provider responses, DNS answers, payloads, request/response bodies, and URLs are replaced rather than emitted. `phone_hash` is permitted as a non-reversible correlation reference. Error values expose only a bounded name and structured code; messages and stacks are omitted. Circular objects, binary values, big integers, excessive depth, oversized strings, and large collections are converted to bounded safe representations.
 
-Serialization or log/metric-sink failure is swallowed at this boundary so telemetry cannot break API or worker execution. API request logs use only accepted/generated opaque request IDs, an allowlisted route or bounded route template, HTTP method, status/status class, and duration. API metrics use normalized method, the same canonical route/template, and status class without the request ID. Durable repository operations, provider calls, and aggregate queue depth/oldest-ready-age are instrumented with finite categories only. Raw URLs, query strings, dynamic assessment identifiers, tenant/job/account identifiers, provider/vendor names, arbitrary error codes, payloads, and contact data are not metric attributes. Distributed traces, broader API/domain repository metrics, OpenTelemetry exporters/collector topology, dashboards, alerts, managed retention, and the managed backend remain production follow-up work.
+Serialization or log/metric/span-sink failure is swallowed at this boundary so telemetry cannot break API or worker execution. API request logs use only accepted/generated opaque request IDs, an allowlisted route or bounded route template, HTTP method, status/status class, and duration. API metrics use normalized method, the same canonical route/template, and status class without the request ID. Durable repository operations, provider calls, and aggregate queue depth/oldest-ready-age are instrumented with finite categories only. Traces use descriptor-owned finite attributes and carry opaque W3C context separately from logs and metrics. Raw URLs, query strings, dynamic assessment identifiers, tenant/job/account identifiers, provider/vendor names, arbitrary error codes, payloads, and contact data are not metric or span attributes. Broader API/domain repository metrics, OpenTelemetry exporter/collector topology, sampling, dashboards, alerts, managed retention, and the managed backend remain production follow-up work.
 
 Use structured logs with:
 
@@ -143,7 +143,7 @@ Use structured logs with:
 
 Redact all secrets and sensitive values before export. Full phone numbers, raw provider responses, credentials, cookies, OTPs, access tokens, raw API keys, decrypted payloads, webhook signing secrets, destination URL credentials, and unrestricted request/event bodies are prohibited.
 
-The API emits startup/shutdown, request-completion, and unhandled-error records, and all four private workers emit startup and structured error records through the shared redaction boundary. The API records request count/duration; private workers record operation count/duration; durable courier/event/verification queue repositories record transition count/duration and periodic aggregate depth/oldest-ready-age; courier API/browser, webhook HTTP, and OTP delivery boundaries record provider count/duration; durable claim failures remain separately counted. Production instrumentation must still add broader API/domain repository measurements and correlation spans without serializing signing secrets, encrypted/decrypted payload bodies, phone/OTP values, identifiers, provider credentials, URLs, arbitrary error codes, or DNS answer details that disclose internal topology.
+The API emits startup/shutdown, request-completion, and unhandled-error records, and all four private workers emit startup and structured error records through the shared redaction boundary. The API records request count/duration; private workers record operation count/duration; durable courier/event/verification queue repositories record transition count/duration and periodic aggregate depth/oldest-ready-age; courier API/browser, webhook HTTP, and OTP delivery boundaries record provider count/duration; durable claim failures remain separately counted. API requests now emit server spans, durable queue creation emits producer children, private workers continue persisted context as consumer spans, and provider calls emit client children. Production instrumentation must still add broader API/domain repository measurements plus a reviewed exporter/collector and sampling policy without serializing signing secrets, encrypted/decrypted payload bodies, phone/OTP values, business identifiers, provider credentials, URLs, arbitrary error codes, or DNS answer details that disclose internal topology.
 
 Recommended event-worker error codes include:
 
@@ -161,22 +161,21 @@ Recommended event-worker error codes include:
 
 ## Tracing
 
-Trace synchronous API work and asynchronous jobs using correlation IDs. Propagate assessment, job, event, delivery, and request references without propagating secret material.
+`@ozzyl/observability` implements an exporter-neutral W3C trace boundary. It accepts only version-00 `traceparent` values with non-zero trace and span identifiers. Optional `tracestate` is syntactically bounded to 512 characters and 32 unique members. Malformed caller or persisted context is ignored and the component starts a fresh root trace; trace input is never an authorization or tenant identity.
 
-Recommended span boundaries:
+Implemented topology:
 
-- request authentication and authorization;
-- usage reservation and idempotency;
-- feature assembly and PostgreSQL reads;
-- pure risk-engine invocation as an internal span only;
-- assessment/outcome persistence;
-- transactional outbox insert;
-- durable job/delivery claim and completion;
-- provider adapter call;
-- webhook DNS validation and HTTP attempt without sensitive attributes;
-- verification queue transaction, job claim, payload validation, provider attempt, and completion without phone/OTP attributes.
+- every API request creates an `ozzyl.api.request` server span and returns its `traceparent`;
+- assessment/outcome webhook creation, courier refresh, and OTP delivery enqueue create `ozzyl.api.durable.produce` producer children;
+- producer context is stored only in nullable `trace_parent`/`trace_state` columns on `courier_jobs`, `webhook_deliveries`, and `verification_jobs`;
+- courier-sync, event, and verification workers continue valid persisted context as `ozzyl.worker.operation` consumer spans;
+- courier API, webhook HTTP, and OTP delivery calls create `ozzyl.provider.operation` client children;
+- courier-session refresh starts a root worker span with a browser-login provider child;
+- verification failure event creation persists the active worker context into the new webhook delivery.
 
-The event ID links API persistence and asynchronous delivery. The delivery ID links claim, attempt, retry, and completion operations. Telemetry export failure must not break scoring, persistence, or synchronous checkout handling.
+Span attributes are finite categories only: normalized method, canonical route/template, status class, durable operation/queue type/outcome, worker type/operation/outcome, and broad provider type/operation/outcome. Request, organization, store, account, job, event, delivery, assessment, API-key, endpoint, phone/hash, OTP, credential, URL, payload/body, provider-response, vendor-name, and arbitrary error-code attributes are prohibited. `tracestate` is propagated but not emitted inside span JSON. Trace context is not copied into archive evidence and legacy null-context work remains processable.
+
+The current tracer emits one local JSON line per completed span and performs no network I/O. ID generation, validation, clock, serialization, or sink failure is swallowed and cannot break scoring, persistence, queue transitions, provider execution, or synchronous checkout. Exporter/collector wiring, sampling policy, managed retention, dashboards, and alerts remain production work.
 
 ## Alerts
 
@@ -281,7 +280,7 @@ A webhook endpoint outage, provider outage, or telemetry outage must not necessa
 
 ## Provider selection still pending
 
-An OpenTelemetry exporter/collector implementation, managed observability backend, telemetry retention policy, alert-delivery channel, deployment runtime, PostgreSQL service, and managed KMS/vault remain to be selected. Broader API/domain repository metrics, distributed traces, dashboards, and alerts remain unimplemented. Those choices must satisfy ADRs 0006–0010 and must not introduce vendor-specific SDK calls into the risk engine.
+An OpenTelemetry exporter/collector implementation, sampling policy, managed observability backend, telemetry retention policy, alert-delivery channel, deployment runtime, PostgreSQL service, and managed KMS/vault remain to be selected. Broader API/domain repository metrics, dashboards, and alerts remain unimplemented. Those choices must satisfy ADRs 0006–0010 and must not introduce vendor-specific SDK calls into the risk engine.
 
 ## Browser dead-letter operations surface
 

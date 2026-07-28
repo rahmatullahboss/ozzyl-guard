@@ -385,7 +385,11 @@ The ciphertext context is `verification-job:<job-id>`. Before provider I/O, the 
 - terminal and source-created timestamps
 - archive timestamp, opaque archive-run ID, and maintenance database identity
 
-The archive table stores no courier payload, webhook event payload, encrypted verification payload, OTP/contact material, endpoint data, credentials, or provider message reference. A maintenance-only transaction locks old terminal source rows, writes or validates matching archive evidence, and deletes the source row only after evidence exists. The application runtime role is explicitly denied all archive-table privileges and retains no durable-source `DELETE` privilege.
+The archive table stores no courier payload, webhook event payload, encrypted verification payload, OTP/contact material, endpoint data, credentials, provider message reference, or trace context. A maintenance-only transaction locks old terminal source rows, writes or validates matching archive evidence, and deletes the source row only after evidence exists. The application runtime role is explicitly denied all archive-table privileges and retains no durable-source `DELETE` privilege.
+
+### Durable trace context
+
+`courier_jobs`, `webhook_deliveries`, and `verification_jobs` have nullable `trace_parent` and `trace_state` columns. `trace_parent` is constrained to lowercase W3C version 00 with non-zero trace and span IDs. `trace_state` is optional, bounded to 512 printable characters, and cannot exist without `trace_parent`; the application parser applies stricter member syntax before writes. Existing rows remain valid with both columns null. Context is stored outside queue/event/encrypted payloads, is not a tenant or authorization key, requires no query index, and is deleted with the source row rather than copied into `durable_work_archives`.
 
 ## Initial migration boundaries
 
@@ -418,6 +422,7 @@ Current ordered migrations:
 11. `0011_native_shadow_pilot.sql` — sampled attempt evidence and pilot reporting support.
 12. `0012_durable_work_replays.sql` — immutable secret-free dead-letter replay evidence.
 13. `0013_durable_work_archives.sql` — maintenance-only secret-free terminal work archive evidence.
+14. `0014_durable_trace_context.sql` — nullable validated W3C context columns for courier, webhook, and verification durable work.
 
 Migration 0006 does not store raw session material. `user_sessions.token_hash` remains the only persisted session-token representation. The merchant dashboard repository authorizes with `(user_id, organization_id, store_id)` before running any aggregate query.
 

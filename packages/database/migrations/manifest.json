@@ -53,6 +53,10 @@
     {
       "name": "0013_durable_work_archives.sql",
       "checksum_sha256": "d9366dec7301f2ff5432d6581439fff757aa67b868921262ee0553ec792ecf77"
+    },
+    {
+      "name": "0014_durable_trace_context.sql",
+      "checksum_sha256": "9581bda9815e14078cfa15f66d8958e0dfc03e9ba5b5c06ef525955867001e66"
     }
   ]
 }

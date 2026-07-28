@@ -1,8 +1,14 @@
 import type { CourierAdapter, CourierObservation } from '@ozzyl/courier-adapters';
 import {
+  endProviderOperationSpan,
+  endWorkerOperationSpan,
   recordProviderOperation,
   recordWorkerOperation,
+  startProviderOperationSpan,
+  startWorkerOperationSpan,
   type MetricRecorder,
+  type TraceContext,
+  type Tracer,
 } from '@ozzyl/observability';
 
 export interface ObservationRepository {
@@ -34,6 +40,7 @@ export interface CourierSyncInput {
   phoneHash: string;
   force?: boolean;
   signal?: AbortSignal;
+  traceContext?: TraceContext;
 }
 
 export interface CourierSyncResult {
@@ -48,6 +55,7 @@ export class CourierSyncWorker {
       observations: ObservationRepository;
       health: SyncJobHealth;
       metrics?: MetricRecorder;
+      tracer?: Tracer;
       monotonicNow?: () => number;
     },
   ) {}
@@ -55,14 +63,21 @@ export class CourierSyncWorker {
   async sync(input: CourierSyncInput): Promise<CourierSyncResult> {
     const monotonicNow = this.dependencies.monotonicNow ?? (() => Date.now());
     const startedAt = monotonicNow();
+    const span = startWorkerOperationSpan(this.dependencies.tracer, {
+      workerType: 'courier_sync',
+      operation: 'sync',
+      ...(input.traceContext === undefined ? {} : { parent: input.traceContext }),
+    });
     try {
-      const result = await this.syncJob(input);
+      const result = await this.syncJob(input, span.context);
+      const outcome = result.cached ? 'cached' : 'completed';
       recordWorkerOperation(this.dependencies.metrics, {
         workerType: 'courier_sync',
         operation: 'sync',
-        outcome: result.cached ? 'cached' : 'completed',
+        outcome,
         durationMs: monotonicNow() - startedAt,
       });
+      endWorkerOperationSpan(span, outcome);
       return result;
     } catch (error) {
       recordWorkerOperation(this.dependencies.metrics, {
@@ -71,11 +86,15 @@ export class CourierSyncWorker {
         outcome: 'failed',
         durationMs: monotonicNow() - startedAt,
       });
+      endWorkerOperationSpan(span, 'failed');
       throw error;
     }
   }
 
-  private async syncJob(input: CourierSyncInput): Promise<CourierSyncResult> {
+  private async syncJob(
+    input: CourierSyncInput,
+    traceContext: TraceContext,
+  ): Promise<CourierSyncResult> {
     await this.dependencies.health.started(input.jobId, new Date());
     try {
       if (!input.force) {
@@ -95,6 +114,11 @@ export class CourierSyncWorker {
       if (!adapter) throw new Error(`Courier adapter ${input.provider} is not registered`);
       const monotonicNow = this.dependencies.monotonicNow ?? (() => Date.now());
       const providerStartedAt = monotonicNow();
+      const providerSpan = startProviderOperationSpan(this.dependencies.tracer, {
+        providerType: 'courier_api',
+        operation: 'lookup',
+        parent: traceContext,
+      });
       let observation: CourierObservation;
       try {
         observation = await adapter.fetchCustomerObservation({
@@ -108,14 +132,18 @@ export class CourierSyncWorker {
           outcome: 'success',
           durationMs: monotonicNow() - providerStartedAt,
         });
+        endProviderOperationSpan(providerSpan, 'success');
       } catch (error) {
         const providerError = error as { retryable?: unknown };
+        const providerOutcome =
+          providerError.retryable === true ? 'retryable_failure' : 'permanent_failure';
         recordProviderOperation(this.dependencies.metrics, {
           providerType: 'courier_api',
           operation: 'lookup',
-          outcome: providerError.retryable === true ? 'retryable_failure' : 'permanent_failure',
+          outcome: providerOutcome,
           durationMs: monotonicNow() - providerStartedAt,
         });
+        endProviderOperationSpan(providerSpan, providerOutcome);
         throw error;
       }
       await this.dependencies.observations.save({

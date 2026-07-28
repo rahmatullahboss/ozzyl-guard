@@ -1,6 +1,6 @@
 import { createHmac } from 'node:crypto';
 import { describe, expect, it, vi } from 'vitest';
-import { createMetricRecorder } from '@ozzyl/observability';
+import { createMetricRecorder, createTracer, type SpanPoint } from '@ozzyl/observability';
 import { EventWorker, assertSafeWebhookDestination, assertSafeWebhookUrl } from './index.js';
 function parseMetricLine(line: string): unknown {
   return JSON.parse(line) as unknown;
@@ -78,6 +78,8 @@ describe('webhook destination validation', () => {
 describe('EventWorker', () => {
   it('signs, delivers, and records bounded operation metrics', async () => {
     const metricLines: string[] = [];
+    const tracePoints: SpanPoint[] = [];
+    const spanIds = ['bbbbbbbbbbbbbbbb', 'cccccccccccccccc'];
     const ticks = [100, 105, 117, 125];
     const fetcher = vi.fn<typeof fetch>().mockImplementation(async (_url, init) => {
       const headers = new Headers(init?.headers);
@@ -99,6 +101,14 @@ describe('EventWorker', () => {
         environment: 'test',
         write: (line) => metricLines.push(line),
       }),
+      tracer: createTracer({
+        service: 'event-worker-test',
+        environment: 'test',
+        clock: () => new Date('2026-07-28T00:00:00.000Z'),
+        monotonicNow: () => 1,
+        generateSpanId: () => spanIds.shift()!,
+        write: (_line, point) => tracePoints.push(point),
+      }),
     });
     const result = await worker.deliver({
       endpoint: {
@@ -109,6 +119,11 @@ describe('EventWorker', () => {
       },
       event,
       attempt: 1,
+      traceContext: {
+        traceId: '11111111111111111111111111111111',
+        spanId: 'aaaaaaaaaaaaaaaa',
+        traceFlags: '01',
+      },
     });
     expect(result.status).toBe('delivered');
     expect(metricLines.map(parseMetricLine)).toEqual([
@@ -153,6 +168,31 @@ describe('EventWorker', () => {
     ]);
     expect(metricLines.join('\n')).not.toContain('evt_1');
     expect(metricLines.join('\n')).not.toContain('we_1');
+    expect(tracePoints).toEqual([
+      expect.objectContaining({
+        name: 'ozzyl.provider.operation',
+        trace_id: '11111111111111111111111111111111',
+        span_id: 'cccccccccccccccc',
+        parent_span_id: 'bbbbbbbbbbbbbbbb',
+        attributes: {
+          provider_type: 'webhook_http',
+          operation: 'deliver',
+          outcome: 'success',
+        },
+      }),
+      expect.objectContaining({
+        name: 'ozzyl.worker.operation',
+        trace_id: '11111111111111111111111111111111',
+        span_id: 'bbbbbbbbbbbbbbbb',
+        parent_span_id: 'aaaaaaaaaaaaaaaa',
+        attributes: {
+          worker_type: 'webhook_delivery',
+          operation: 'deliver',
+          outcome: 'completed',
+        },
+      }),
+    ]);
+    expect(JSON.stringify(tracePoints)).not.toMatch(/evt_1|we_1|org_1|sto_1|merchant\.example/);
   });
 
   it('fails an unsafe destination without retrying or fetching', async () => {
