@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { Hono } from 'hono';
 import { z } from 'zod';
-import type { PlanCode, UsageLedger } from '@ozzyl/billing';
+import { UsageLimitError, type PlanCode, type UsageLedger } from '@ozzyl/billing';
 import {
   createMetricRecorder,
   createStructuredLogger,
@@ -9,7 +9,11 @@ import {
   defineMetric,
   defineSpan,
   formatTraceParent,
+  observeApiDependency,
   parseTraceContext,
+  recordApiControlEvent,
+  recordRiskAssessmentDistribution,
+  recordRiskOutcomeDistribution,
   toPersistedTraceContext,
   type MetricRecorder,
   type PersistedTraceContext,
@@ -370,20 +374,56 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
     const requestId = context.get('requestId');
     const authorization = context.req.header('Authorization');
     if (!authorization?.startsWith('Bearer ')) {
+      recordApiControlEvent(metrics, 'authentication', 'rejected');
       return apiError(requestId, 401, 'UNAUTHORIZED', 'A Bearer API key is required');
     }
     const rawApiKey = authorization.slice('Bearer '.length).trim();
     if (!/^ozg_(test|live)_/.test(rawApiKey)) {
+      recordApiControlEvent(metrics, 'authentication', 'rejected');
       return apiError(requestId, 401, 'INVALID_API_KEY', 'API key format is invalid');
     }
-    const identity = await dependencies.apiKeys.resolve(rawApiKey);
+    let identity: ApiKeyIdentity | null;
+    try {
+      identity = await observeApiDependency(
+        metrics,
+        {
+          dependencyType: 'api_key',
+          operation: 'resolve',
+          classify: (value) => (value === null ? 'empty' : 'success'),
+          monotonicNow,
+        },
+        () => dependencies.apiKeys.resolve(rawApiKey),
+      );
+    } catch (error) {
+      recordApiControlEvent(metrics, 'authentication', 'error');
+      throw error;
+    }
     if (!identity) {
+      recordApiControlEvent(metrics, 'authentication', 'rejected');
       return apiError(requestId, 401, 'INVALID_API_KEY', 'API key is invalid or revoked');
     }
-    const allowed = await dependencies.rateLimiter.consume(`api:${identity.apiKeyId}`, 120, 60_000);
+    recordApiControlEvent(metrics, 'authentication', 'allowed');
+    let allowed: boolean;
+    try {
+      allowed = await observeApiDependency(
+        metrics,
+        {
+          dependencyType: 'rate_limiter',
+          operation: 'consume',
+          classify: (value) => (value ? 'success' : 'rejected'),
+          monotonicNow,
+        },
+        () => dependencies.rateLimiter.consume(`api:${identity.apiKeyId}`, 120, 60_000),
+      );
+    } catch (error) {
+      recordApiControlEvent(metrics, 'rate_limit', 'error');
+      throw error;
+    }
     if (!allowed) {
+      recordApiControlEvent(metrics, 'rate_limit', 'rejected');
       return apiError(requestId, 429, 'RATE_LIMITED', 'Too many requests');
     }
+    recordApiControlEvent(metrics, 'rate_limit', 'allowed');
     context.set('identity', identity);
     await next();
     context.header('X-Request-ID', requestId);
@@ -392,20 +432,35 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
   app.post('/v1/risk-assessments', async (context) => {
     const requestId = context.get('requestId');
     const identity = context.get('identity');
-    const scopeError = requireScope(identity, 'risk:write', requestId);
+    const scopeError = requireScope(identity, 'risk:write', requestId, metrics);
     if (scopeError) return scopeError;
 
     const idempotencyKey = readIdempotencyKey(context.req.header('Idempotency-Key'));
     if (!idempotencyKey) {
+      recordApiControlEvent(metrics, 'idempotency', 'rejected');
       return apiError(requestId, 400, 'IDEMPOTENCY_KEY_REQUIRED', 'Idempotency-Key is required');
     }
 
-    const existing = await dependencies.assessments.findByIdempotency({
-      organizationId: identity.organizationId,
-      storeId: identity.storeId,
-      idempotencyKey,
-    });
-    if (existing) return context.json(existing.response, 200);
+    const existing = await observeApiDependency(
+      metrics,
+      {
+        dependencyType: 'assessment_repository',
+        operation: 'find_by_idempotency',
+        classify: (value) => (value === null ? 'empty' : 'replay'),
+        monotonicNow,
+      },
+      () =>
+        dependencies.assessments.findByIdempotency({
+          organizationId: identity.organizationId,
+          storeId: identity.storeId,
+          idempotencyKey,
+        }),
+    );
+    if (existing) {
+      recordApiControlEvent(metrics, 'idempotency', 'replay');
+      return context.json(existing.response, 200);
+    }
+    recordApiControlEvent(metrics, 'idempotency', 'allowed');
 
     const parsedBody = await parseJson(context.req.raw, riskAssessmentRequestSchema);
     if (!parsedBody.success) return apiError(requestId, 400, 'INVALID_REQUEST', parsedBody.message);
@@ -421,25 +476,44 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
     }
 
     try {
-      await dependencies.usage.reserve({
-        organizationId: identity.organizationId,
-        period: billingPeriod(now()),
-        requestId: idempotencyKey,
-        units: 1,
-        plan: identity.plan,
-      });
-    } catch (error) {
-      return apiError(
-        requestId,
-        429,
-        'USAGE_LIMIT_EXCEEDED',
-        error instanceof Error ? error.message : 'Usage limit exceeded',
+      await observeApiDependency(
+        metrics,
+        {
+          dependencyType: 'usage_ledger',
+          operation: 'reserve',
+          classifyError: (error) => (error instanceof UsageLimitError ? 'rejected' : 'error'),
+          monotonicNow,
+        },
+        () =>
+          dependencies.usage.reserve({
+            organizationId: identity.organizationId,
+            period: billingPeriod(now()),
+            requestId: idempotencyKey,
+            units: 1,
+            plan: identity.plan,
+          }),
       );
+      recordApiControlEvent(metrics, 'quota', 'allowed');
+    } catch (error) {
+      if (!(error instanceof UsageLimitError)) {
+        recordApiControlEvent(metrics, 'quota', 'error');
+        throw error;
+      }
+      recordApiControlEvent(metrics, 'quota', 'rejected');
+      return apiError(requestId, 429, 'USAGE_LIMIT_EXCEEDED', error.message);
     }
 
     const startedAt = Date.now();
     const phoneHash = dependencies.hashPhone(phone);
-    const features = await dependencies.features.load({ identity, phone, phoneHash, request });
+    const features = await observeApiDependency(
+      metrics,
+      {
+        dependencyType: 'feature_provider',
+        operation: 'load',
+        monotonicNow,
+      },
+      () => dependencies.features.load({ identity, phone, phoneHash, request }),
+    );
     const order = {
       total: request.order_total,
       paymentMethod: request.payment_method,
@@ -486,35 +560,66 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
       'assessment_event',
       'webhook_delivery',
       (traceContext) =>
-        dependencies.assessments.save({
-          traceContext,
-          identity: {
-            apiKeyId: identity.apiKeyId,
-            organizationId: identity.organizationId,
-            storeId: identity.storeId,
+        observeApiDependency(
+          metrics,
+          {
+            dependencyType: 'assessment_repository',
+            operation: 'save',
+            classify: (value) =>
+              value.response.assessment_id === response.assessment_id ? 'success' : 'replay',
+            monotonicNow,
           },
-          idempotencyKey,
-          phoneHash,
-          request,
-          response,
-        }),
+          () =>
+            dependencies.assessments.save({
+              traceContext,
+              identity: {
+                apiKeyId: identity.apiKeyId,
+                organizationId: identity.organizationId,
+                storeId: identity.storeId,
+              },
+              idempotencyKey,
+              phoneHash,
+              request,
+              response,
+            }),
+        ),
     );
-    return context.json(
-      stored.response,
-      stored.response.assessment_id === response.assessment_id ? 201 : 200,
-    );
+    const created = stored.response.assessment_id === response.assessment_id;
+    if (created) {
+      recordRiskAssessmentDistribution(metrics, {
+        decision: stored.response.decision,
+        riskLevel: stored.response.risk_level,
+        score: stored.response.risk_score,
+        confidence: stored.response.confidence,
+        degraded: stored.response.meta?.degraded ?? true,
+        freshness: features.courier.freshness,
+      });
+    } else {
+      recordApiControlEvent(metrics, 'idempotency', 'replay');
+    }
+    return context.json(stored.response, created ? 201 : 200);
   });
 
   app.get('/v1/risk-assessments/:assessmentId', async (context) => {
     const requestId = context.get('requestId');
     const identity = context.get('identity');
-    const scopeError = requireScope(identity, 'risk:read', requestId);
+    const scopeError = requireScope(identity, 'risk:read', requestId, metrics);
     if (scopeError) return scopeError;
-    const record = await dependencies.assessments.findById({
-      organizationId: identity.organizationId,
-      storeId: identity.storeId,
-      assessmentId: context.req.param('assessmentId'),
-    });
+    const record = await observeApiDependency(
+      metrics,
+      {
+        dependencyType: 'assessment_repository',
+        operation: 'find_by_id',
+        classify: (value) => (value === null ? 'empty' : 'success'),
+        monotonicNow,
+      },
+      () =>
+        dependencies.assessments.findById({
+          organizationId: identity.organizationId,
+          storeId: identity.storeId,
+          assessmentId: context.req.param('assessmentId'),
+        }),
+    );
     if (!record) return apiError(requestId, 404, 'ASSESSMENT_NOT_FOUND', 'Assessment not found');
     return context.json(record.response);
   });
@@ -522,20 +627,31 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
   app.post('/v1/order-outcomes', async (context) => {
     const requestId = context.get('requestId');
     const identity = context.get('identity');
-    const scopeError = requireScope(identity, 'outcomes:write', requestId);
+    const scopeError = requireScope(identity, 'outcomes:write', requestId, metrics);
     if (scopeError) return scopeError;
     const idempotencyKey = readIdempotencyKey(context.req.header('Idempotency-Key'));
     if (!idempotencyKey) {
+      recordApiControlEvent(metrics, 'idempotency', 'rejected');
       return apiError(requestId, 400, 'IDEMPOTENCY_KEY_REQUIRED', 'Idempotency-Key is required');
     }
     const parsedBody = await parseJson(context.req.raw, orderOutcomeSchema);
     if (!parsedBody.success) return apiError(requestId, 400, 'INVALID_REQUEST', parsedBody.message);
     if (parsedBody.value.assessment_id) {
-      const assessment = await dependencies.assessments.findById({
-        organizationId: identity.organizationId,
-        storeId: identity.storeId,
-        assessmentId: parsedBody.value.assessment_id,
-      });
+      const assessment = await observeApiDependency(
+        metrics,
+        {
+          dependencyType: 'assessment_repository',
+          operation: 'find_by_id',
+          classify: (value) => (value === null ? 'empty' : 'success'),
+          monotonicNow,
+        },
+        () =>
+          dependencies.assessments.findById({
+            organizationId: identity.organizationId,
+            storeId: identity.storeId,
+            assessmentId: parsedBody.value.assessment_id!,
+          }),
+      );
       if (!assessment) {
         return apiError(
           requestId,
@@ -551,14 +667,31 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
       'outcome_event',
       'webhook_delivery',
       (traceContext) =>
-        dependencies.outcomes.save({
-          organizationId: identity.organizationId,
-          storeId: identity.storeId,
-          idempotencyKey,
-          outcome: parsedBody.value,
-          traceContext,
-        }),
+        observeApiDependency(
+          metrics,
+          {
+            dependencyType: 'outcome_repository',
+            operation: 'save',
+            classify: (value) => (value.replay ? 'replay' : 'success'),
+            monotonicNow,
+          },
+          () =>
+            dependencies.outcomes.save({
+              organizationId: identity.organizationId,
+              storeId: identity.storeId,
+              idempotencyKey,
+              outcome: parsedBody.value,
+              traceContext,
+            }),
+        ),
     );
+    recordApiControlEvent(metrics, 'idempotency', saved.replay ? 'replay' : 'allowed');
+    if (!saved.replay) {
+      recordRiskOutcomeDistribution(metrics, {
+        outcome: parsedBody.value.outcome,
+        linkedAssessment: parsedBody.value.assessment_id !== undefined,
+      });
+    }
     return context.json(
       { success: true as const, outcome_id: saved.outcomeId, replay: saved.replay },
       saved.replay ? 200 : 201,
@@ -568,7 +701,7 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
   app.get('/v1/integration-rollouts/native-shadow', async (context) => {
     const requestId = context.get('requestId');
     const identity = context.get('identity');
-    const scopeError = requireScope(identity, 'comparisons:write', requestId);
+    const scopeError = requireScope(identity, 'comparisons:write', requestId, metrics);
     if (scopeError) return scopeError;
     if (!dependencies.nativeShadowRollouts) {
       return apiError(
@@ -602,7 +735,7 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
   app.post('/v1/integration-comparisons/native-shadow', async (context) => {
     const requestId = context.get('requestId');
     const identity = context.get('identity');
-    const scopeError = requireScope(identity, 'comparisons:write', requestId);
+    const scopeError = requireScope(identity, 'comparisons:write', requestId, metrics);
     if (scopeError) return scopeError;
     if (!dependencies.shadowComparisons) {
       return apiError(
@@ -681,7 +814,7 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
   app.post('/v1/integration-attempts/native-shadow', async (context) => {
     const requestId = context.get('requestId');
     const identity = context.get('identity');
-    const scopeError = requireScope(identity, 'comparisons:write', requestId);
+    const scopeError = requireScope(identity, 'comparisons:write', requestId, metrics);
     if (scopeError) return scopeError;
     if (!dependencies.nativeShadowAttempts) {
       return apiError(
@@ -738,15 +871,29 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
   app.post('/v1/courier-observations/refresh', async (context) => {
     const requestId = context.get('requestId');
     const identity = context.get('identity');
-    const scopeError = requireScope(identity, 'courier:refresh', requestId);
+    const scopeError = requireScope(identity, 'courier:refresh', requestId, metrics);
     if (scopeError) return scopeError;
     const idempotencyKey = readIdempotencyKey(context.req.header('Idempotency-Key'));
     if (!idempotencyKey) {
+      recordApiControlEvent(metrics, 'idempotency', 'rejected');
       return apiError(requestId, 400, 'IDEMPOTENCY_KEY_REQUIRED', 'Idempotency-Key is required');
     }
     const operationKey = operationIdempotencyKey(identity, 'courier-refresh', idempotencyKey);
-    const existing = await dependencies.idempotency.get(operationKey);
-    if (existing) return context.json(existing, 200);
+    const existing = await observeApiDependency(
+      metrics,
+      {
+        dependencyType: 'idempotency_store',
+        operation: 'get',
+        classify: (value) => (value === null ? 'empty' : 'replay'),
+        monotonicNow,
+      },
+      () => dependencies.idempotency.get(operationKey),
+    );
+    if (existing) {
+      recordApiControlEvent(metrics, 'idempotency', 'replay');
+      return context.json(existing, 200);
+    }
+    recordApiControlEvent(metrics, 'idempotency', 'allowed');
     const parsedBody = await parseJson(context.req.raw, refreshSchema);
     if (!parsedBody.success) return apiError(requestId, 400, 'INVALID_REQUEST', parsedBody.message);
     const phone = normalizeBangladeshPhone(parsedBody.value.phone);
@@ -766,15 +913,24 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
         'courier_refresh',
         'courier_refresh',
         (traceContext) =>
-          dependencies.refreshQueue.enqueue({
-            organizationId: identity.organizationId,
-            storeId: identity.storeId,
-            phone,
-            phoneHash: dependencies.hashPhone(phone),
-            providers: parsedBody.value.providers,
-            force: parsedBody.value.force,
-            traceContext,
-          }),
+          observeApiDependency(
+            metrics,
+            {
+              dependencyType: 'courier_queue',
+              operation: 'enqueue',
+              monotonicNow,
+            },
+            () =>
+              dependencies.refreshQueue.enqueue({
+                organizationId: identity.organizationId,
+                storeId: identity.storeId,
+                phone,
+                phoneHash: dependencies.hashPhone(phone),
+                providers: parsedBody.value.providers,
+                force: parsedBody.value.force,
+                traceContext,
+              }),
+          ),
       );
     } catch (error) {
       const code =
@@ -789,14 +945,22 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
       );
     }
     const response = { success: true as const, job_id: queued.jobId, status: 'queued' as const };
-    await dependencies.idempotency.set(operationKey, response);
+    await observeApiDependency(
+      metrics,
+      {
+        dependencyType: 'idempotency_store',
+        operation: 'set',
+        monotonicNow,
+      },
+      () => dependencies.idempotency.set(operationKey, response),
+    );
     return context.json(response, 202);
   });
 
   app.post('/v1/verifications/otp/send', async (context) => {
     const requestId = context.get('requestId');
     const identity = context.get('identity');
-    const scopeError = requireScope(identity, 'verification:write', requestId);
+    const scopeError = requireScope(identity, 'verification:write', requestId, metrics);
     if (scopeError) return scopeError;
     if (!dependencies.verificationRequests) {
       return apiError(
@@ -808,11 +972,25 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
     }
     const idempotencyKey = readIdempotencyKey(context.req.header('Idempotency-Key'));
     if (!idempotencyKey) {
+      recordApiControlEvent(metrics, 'idempotency', 'rejected');
       return apiError(requestId, 400, 'IDEMPOTENCY_KEY_REQUIRED', 'Idempotency-Key is required');
     }
     const operationKey = operationIdempotencyKey(identity, 'otp-send', idempotencyKey);
-    const existing = await dependencies.idempotency.get(operationKey);
-    if (existing) return context.json(existing, 200);
+    const existing = await observeApiDependency(
+      metrics,
+      {
+        dependencyType: 'idempotency_store',
+        operation: 'get',
+        classify: (value) => (value === null ? 'empty' : 'replay'),
+        monotonicNow,
+      },
+      () => dependencies.idempotency.get(operationKey),
+    );
+    if (existing) {
+      recordApiControlEvent(metrics, 'idempotency', 'replay');
+      return context.json(existing, 200);
+    }
+    recordApiControlEvent(metrics, 'idempotency', 'allowed');
     const parsedBody = await parseJson(context.req.raw, otpSendSchema);
     if (!parsedBody.success) return apiError(requestId, 400, 'INVALID_REQUEST', parsedBody.message);
     const phone = normalizeBangladeshPhone(parsedBody.value.phone);
@@ -831,18 +1009,28 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
         'otp_delivery',
         'verification_delivery',
         (traceContext) =>
-          dependencies.verificationRequests!.enqueueSend({
-            organizationId: identity.organizationId,
-            storeId: identity.storeId,
-            ...(parsedBody.value.assessment_id === undefined
-              ? {}
-              : { assessmentId: parsedBody.value.assessment_id }),
-            phone,
-            phoneHash: dependencies.hashPhone(phone),
-            purpose: parsedBody.value.purpose,
-            idempotencyKey,
-            traceContext,
-          }),
+          observeApiDependency(
+            metrics,
+            {
+              dependencyType: 'verification_queue',
+              operation: 'enqueue',
+              classify: (value) => (value.replay ? 'replay' : 'success'),
+              monotonicNow,
+            },
+            () =>
+              dependencies.verificationRequests!.enqueueSend({
+                organizationId: identity.organizationId,
+                storeId: identity.storeId,
+                ...(parsedBody.value.assessment_id === undefined
+                  ? {}
+                  : { assessmentId: parsedBody.value.assessment_id }),
+                phone,
+                phoneHash: dependencies.hashPhone(phone),
+                purpose: parsedBody.value.purpose,
+                idempotencyKey,
+                traceContext,
+              }),
+          ),
       );
       const response = {
         success: true as const,
@@ -850,7 +1038,16 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
         expires_at: queued.expiresAt,
         status: 'queued' as const,
       };
-      await dependencies.idempotency.set(operationKey, response);
+      await observeApiDependency(
+        metrics,
+        {
+          dependencyType: 'idempotency_store',
+          operation: 'set',
+          monotonicNow,
+        },
+        () => dependencies.idempotency.set(operationKey, response),
+      );
+      if (queued.replay) recordApiControlEvent(metrics, 'idempotency', 'replay');
       return context.json(response, queued.replay ? 200 : 202);
     } catch (error) {
       return verificationApiError(requestId, error);
@@ -860,7 +1057,7 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
   app.post('/v1/verifications/otp/verify', async (context) => {
     const requestId = context.get('requestId');
     const identity = context.get('identity');
-    const scopeError = requireScope(identity, 'verification:write', requestId);
+    const scopeError = requireScope(identity, 'verification:write', requestId, metrics);
     if (scopeError) return scopeError;
     if (!dependencies.otpVerifier) {
       return apiError(
@@ -873,12 +1070,22 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
     const parsedBody = await parseJson(context.req.raw, otpVerifySchema);
     if (!parsedBody.success) return apiError(requestId, 400, 'INVALID_REQUEST', parsedBody.message);
     try {
-      await dependencies.otpVerifier.verify({
-        organizationId: identity.organizationId,
-        storeId: identity.storeId,
-        verificationId: parsedBody.value.verification_id,
-        otp: parsedBody.value.otp,
-      });
+      await observeApiDependency(
+        metrics,
+        {
+          dependencyType: 'otp_verifier',
+          operation: 'verify',
+          classifyError: (error) => (error instanceof VerificationError ? 'rejected' : 'error'),
+          monotonicNow,
+        },
+        () =>
+          dependencies.otpVerifier!.verify({
+            organizationId: identity.organizationId,
+            storeId: identity.storeId,
+            verificationId: parsedBody.value.verification_id,
+            otp: parsedBody.value.otp,
+          }),
+      );
       return context.json({ success: true as const, verified: true as const });
     } catch (error) {
       return verificationApiError(requestId, error);
@@ -1207,8 +1414,17 @@ export class MissingFeatureProvider implements AssessmentFeatureProvider {
   }
 }
 
-function requireScope(identity: ApiKeyIdentity, scope: string, requestId: string): Response | null {
-  if (identity.scopes.has('*') || identity.scopes.has(scope)) return null;
+function requireScope(
+  identity: ApiKeyIdentity,
+  scope: string,
+  requestId: string,
+  metrics?: MetricRecorder,
+): Response | null {
+  if (identity.scopes.has('*') || identity.scopes.has(scope)) {
+    recordApiControlEvent(metrics, 'authorization', 'allowed');
+    return null;
+  }
+  recordApiControlEvent(metrics, 'authorization', 'rejected');
   return apiError(requestId, 403, 'INSUFFICIENT_SCOPE', `API key requires ${scope} scope`);
 }
 
