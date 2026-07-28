@@ -17,6 +17,7 @@
 - Runtime-role identifier validation and explicit table-policy completeness
 - Native shadow off mode, deterministic sampling, post-persist source revalidation, legacy-authoritative disagreement, timeout classification, and safe assessment/persistence failures
 - Structured-log fixed metadata, recursive sensitive-field redaction, safe error-code-only serialization, circular/binary/bigint handling, bounded truncation, and telemetry-sink failure isolation
+- Non-overlapping lease heartbeat scheduling, failure propagation, abort signaling, and idempotent stop behavior
 - API request-ID validation, bounded route templates, status/latency lifecycle records, and safe unhandled-error serialization
 
 ## Contract tests
@@ -59,7 +60,7 @@ Webhook delivery contract tests cover:
 - Lease-owned OTP provider delivery and retry/failure state
 - Courier session refresh
 - Transactional assessment/outcome webhook outbox emission
-- Lease-owned webhook delivery and retry
+- Lease-owned webhook delivery, renewal, abort-on-loss, and retry
 - Multi-tenant isolation
 - Organization/store membership authorization
 - API-wide request correlation for public, authenticated, browser, not-found, and unhandled-error paths without raw dynamic routes or query values
@@ -190,7 +191,7 @@ Production-managed point-in-time recovery remains a provider provisioning gate r
 
 Future PostgreSQL coverage must include:
 
-- lease renewal during future jobs whose bounded execution time can exceed the configured lease;
+- owner-checked lease renewal during courier, webhook, and verification jobs whose execution crosses the initial lease window;
 - selected-provider smoke tests for distinct API/worker runtime identities and migration-owner grant execution;
 - operational replay/dead-letter authorization and audit coverage.
 
@@ -224,7 +225,7 @@ Future PostgreSQL coverage must include:
 - Injection attacks
 - Session fixation/rotation
 - Credential decryption failure
-- Worker lease ownership and stale-owner rejection
+- Worker lease ownership, renewal cadence, stale-owner rejection, provider abort on renewal loss, and drain-before-transition ordering
 - Job payload scope, encryption-context, phone-HMAC, and OTP-hash tampering
 - Runtime database role privilege escape, ownership, migration-history, DELETE, and DDL attempts
 

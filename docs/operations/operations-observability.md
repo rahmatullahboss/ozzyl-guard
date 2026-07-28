@@ -226,8 +226,9 @@ A webhook endpoint outage, provider outage, or telemetry outage must not necessa
 ## Event-worker operational contract
 
 - `EVENT_WORKER_ID` should be stable and unique per replica in production.
-- `EVENT_WORKER_POLL_MS`, `EVENT_WORKER_LEASE_MS`, `EVENT_WORKER_MAX_ATTEMPTS`, and `WEBHOOK_TIMEOUT_MS` must be positive integers.
-- `EVENT_WORKER_LEASE_MS` must exceed `WEBHOOK_TIMEOUT_MS` by more than five seconds.
+- Courier, event, and verification poll, lease, lease-renewal, max-attempt, and provider-timeout values must be positive integers.
+- Every lease-renewal interval must be no greater than half its lease; event and verification leases must also exceed their provider timeout by more than five seconds.
+- Alert on heartbeat renewal failure because active provider I/O is aborted and the job remains available only through stale-lease recovery or reviewed replay.
 - PostgreSQL is authoritative for due time, attempts, owner, lease expiry, retry, and terminal state.
 - Only the current unexpired owner may complete, retry, or fail a claimed delivery.
 - A worker crash leaves recoverable state; the next worker may reclaim after lease expiry.

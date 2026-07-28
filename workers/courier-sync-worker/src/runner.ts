@@ -6,6 +6,7 @@ import {
   type CourierSession,
 } from '@ozzyl/courier-adapters';
 import { AesGcmEnvelopeCipher } from '@ozzyl/courier-session-worker';
+import { LeaseHeartbeat } from '@ozzyl/database';
 import { createStructuredLogger } from '@ozzyl/observability';
 import { CourierSyncWorker } from './index.js';
 import { PostgresCourierJobQueue, type ClaimedCourierJob } from './postgres.js';
@@ -23,6 +24,12 @@ const cipher = new AesGcmEnvelopeCipher(
 );
 const pollMs = Number(process.env.WORKER_POLL_MS ?? 5_000);
 const leaseMs = Number(process.env.WORKER_LEASE_MS ?? 5 * 60_000);
+const leaseRenewMs = Number(process.env.WORKER_LEASE_RENEW_MS ?? Math.floor(leaseMs / 3));
+if (!Number.isSafeInteger(leaseRenewMs) || leaseRenewMs <= 0 || leaseRenewMs * 2 > leaseMs) {
+  throw new Error(
+    'WORKER_LEASE_RENEW_MS must be a positive integer no greater than half the lease',
+  );
+}
 const workerId = process.env.WORKER_ID ?? `courier-sync-${randomUUID()}`;
 const log = createStructuredLogger({
   service: 'courier-sync-worker',
@@ -30,6 +37,7 @@ const log = createStructuredLogger({
 });
 const jobs = new PostgresCourierJobQueue(pool, { leaseMs });
 let stopping = false;
+let activeHeartbeat: LeaseHeartbeat | null = null;
 
 const steadfast = new SteadfastAdapter({
   sessionProvider: {
@@ -98,9 +106,11 @@ const syncWorker = new CourierSyncWorker({
       await jobs.started(jobId, workerId, at);
     },
     async completed(jobId, at): Promise<void> {
+      await activeHeartbeat?.stop();
       await jobs.completed(jobId, workerId, at);
     },
     async failed(jobId, code, retryable, at): Promise<void> {
+      await activeHeartbeat?.stop();
       await jobs.failed(jobId, workerId, code, retryable, at);
     },
   },
@@ -115,10 +125,15 @@ async function run(): Promise<void> {
         await new Promise((resolve) => setTimeout(resolve, pollMs));
         continue;
       }
+      activeHeartbeat = new LeaseHeartbeat({
+        intervalMs: leaseRenewMs,
+        renew: (at) => jobs.renew(job.id, workerId, at),
+      }).start();
       let payload: ReturnType<typeof parsePayload>;
       try {
         payload = parsePayload(job.payload, job);
       } catch (error) {
+        await activeHeartbeat.stop();
         await jobs.failed(job.id, workerId, errorCode(error, 'INVALID_JOB_PAYLOAD'), false);
         throw error;
       }
@@ -130,8 +145,13 @@ async function run(): Promise<void> {
         phone: payload.phone,
         phoneHash: payload.phoneHash,
         force: payload.force,
+        signal: activeHeartbeat.signal,
       });
+      await activeHeartbeat.stopQuietly();
+      activeHeartbeat = null;
     } catch (error) {
+      await activeHeartbeat?.stopQuietly();
+      activeHeartbeat = null;
       log.error('courier.sync.worker.error', {
         code: errorCode(error, 'WORKER_TICK_FAILED'),
         worker_id: workerId,

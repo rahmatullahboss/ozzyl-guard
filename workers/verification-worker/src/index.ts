@@ -10,6 +10,7 @@ export interface VerificationDelivery {
   purpose: string;
   expiresAt: Date;
   attempt: number;
+  signal?: AbortSignal;
 }
 
 export interface VerificationDeliveryReporter {
@@ -46,6 +47,9 @@ export class VerificationWorker {
     }
 
     const controller = new AbortController();
+    const abortFromCaller = (): void => controller.abort(delivery.signal?.reason);
+    if (delivery.signal?.aborted) abortFromCaller();
+    else delivery.signal?.addEventListener('abort', abortFromCaller, { once: true });
     const timeout = setTimeout(() => controller.abort(), this.timeoutMs);
     try {
       const result = await this.provider.send({
@@ -77,6 +81,7 @@ export class VerificationWorker {
       return { status: 'failed', errorCode: classified.code };
     } finally {
       clearTimeout(timeout);
+      delivery.signal?.removeEventListener('abort', abortFromCaller);
     }
   }
 }

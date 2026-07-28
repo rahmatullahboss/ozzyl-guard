@@ -130,6 +130,7 @@ export class EventWorker {
     endpoint: WebhookEndpoint;
     event: DomainEvent;
     attempt: number;
+    signal?: AbortSignal;
   }): Promise<DeliveryResult> {
     if (!input.endpoint.active) {
       await this.repository.markFailed({
@@ -160,6 +161,9 @@ export class EventWorker {
     const payload = JSON.stringify(input.event);
     const timestamp = String(Math.floor(this.now().getTime() / 1_000));
     const controller = new AbortController();
+    const abortFromCaller = (): void => controller.abort(input.signal?.reason);
+    if (input.signal?.aborted) abortFromCaller();
+    else input.signal?.addEventListener('abort', abortFromCaller, { once: true });
     const timeout = setTimeout(() => controller.abort(), this.timeoutMs);
 
     try {
@@ -207,6 +211,7 @@ export class EventWorker {
       });
     } finally {
       clearTimeout(timeout);
+      input.signal?.removeEventListener('abort', abortFromCaller);
     }
   }
 

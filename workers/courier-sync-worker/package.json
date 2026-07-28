@@ -19,6 +19,7 @@
   "dependencies": {
     "@ozzyl/courier-adapters": "*",
     "@ozzyl/courier-session-worker": "*",
+    "@ozzyl/database": "*",
     "pg": "^8.16.3",
     "@ozzyl/observability": "*"
   },
