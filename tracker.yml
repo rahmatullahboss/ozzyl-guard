@@ -92,6 +92,9 @@ invariants:
   - telemetry_failures_never_break_application_or_worker_execution
   - api_request_ids_are_server_generated_or_bounded_opaque_values
   - api_logs_never_export_raw_urls_query_values_or_dynamic_route_identifiers
+  - durable_worker_leases_renew_only_for_the_current_owner_while_unexpired
+  - lease_renewal_failure_aborts_active_provider_io
+  - final_queue_transitions_drain_the_heartbeat_before_state_change
 
 implemented:
   - typescript_monorepo_and_ci
@@ -147,6 +150,9 @@ implemented:
   - telemetry_serialization_and_sink_failure_isolation_tests
   - api_request_lifecycle_and_safe_correlation_logging
   - api_unhandled_error_redaction_and_sink_failure_isolation_tests
+  - shared_non_overlapping_lease_heartbeat_and_abort_signal
+  - courier_webhook_and_verification_owner_checked_lease_renewal
+  - provider_io_abort_on_lease_renewal_loss
 
 verification:
   command: npm run verify
@@ -160,12 +166,13 @@ verification:
     architecture_boundaries: passed
     typecheck: 20_of_20_passed
     test_tasks: 31_of_31_passed
-    remote_assertions: 136_passed
+    source_assertions: 145_total
+    previous_main_remote_assertions: 136_passed
     migration_integrity_tests: 7_of_7_passed
     postgresql_concurrency_tests: 7_of_7_passed
-    postgresql_courier_worker_lease_tests: 5_of_5_passed
-    postgresql_webhook_worker_lease_tests: 5_of_5_passed
-    postgresql_verification_worker_lease_tests: 5_of_5_passed
+    postgresql_courier_worker_lease_tests: 6_source_tests_remote_ci_pending
+    postgresql_webhook_worker_lease_tests: 6_source_tests_remote_ci_pending
+    postgresql_verification_worker_lease_tests: 6_source_tests_remote_ci_pending
     verification_payload_validation_tests: 3_of_3_passed
     postgresql_tenant_admin_isolation_tests: 7_of_7_passed
     postgresql_runtime_role_tests: 7_of_7_passed
@@ -180,6 +187,8 @@ verification:
     browser_dead_letter_api_tests: 3_of_3_passed
     observability_tests: 3_of_3_passed
     api_observability_tests: 4_of_4_passed
+    lease_heartbeat_unit_tests: 3_of_3_passed
+    provider_abort_on_lease_loss_tests: 3_of_3_passed
     builds: 20_of_20_passed
     php_syntax: passed
     high_critical_dependency_check: passed
@@ -187,8 +196,8 @@ verification:
     documentation_links: 57_reviewed_0_known_broken
   continuation_bundle:
     status: refreshed_locally
-    canonical_main_sync: verified_at_00d6eecb69f1edd48209cb8653137c8e8a57ab7f
-    local_exporter: completed_after_merged_api_observability_ci_evidence
+    canonical_main_sync: verified_at_3c31ae76980c0fa3eef7b67aaef2627b436a616a
+    local_exporter: completed_after_durable_worker_heartbeat_docs
   remote_ci:
     status: passed
     run_id: 30318999952
@@ -208,6 +217,7 @@ verification:
     observability_tests: 3_of_3_passed
     api_observability_tests: 4_of_4_passed
   pending_follow_up:
+    - source_branch_remote_ci_validation
     - observability_metrics_traces_exporters_and_managed_backend
     - production_source_hook_deployment_and_explicit_pilot_store_selection
     - pilot_outcome_collection_and_calibration
@@ -328,5 +338,8 @@ notes:
   - private_worker_logging_uses_the_shared_telemetry_failure_isolation_boundary
   - api_request_logs_use_opaque_ids_bounded_routes_status_and_latency_only
   - api_unhandled_errors_export_safe_name_and_code_without_message_or_stack
-  - pro_context_was_refreshed_after_merged_api_observability_ci_evidence
+  - durable_worker_heartbeat_defaults_to_one_third_of_the_lease
+  - lease_renewal_interval_must_not_exceed_half_the_lease
+  - heartbeat_renewal_and_final_state_transitions_do_not_overlap
+  - pro_context_was_refreshed_after_durable_worker_heartbeat_documentation
   - update_this_file_after_every_material_milestone

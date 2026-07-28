@@ -19,6 +19,7 @@
   "dependencies": {
     "@ozzyl/shared-types": "*",
     "@ozzyl/encryption": "*",
+    "@ozzyl/database": "*",
     "pg": "^8.16.3",
     "@ozzyl/observability": "*"
   },

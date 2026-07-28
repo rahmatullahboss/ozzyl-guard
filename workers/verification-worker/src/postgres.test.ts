@@ -92,6 +92,36 @@ integration('PostgreSQL verification delivery leases', () => {
     expect(stored.rows[0]).toEqual({ status: 'delivered', attempts: 2, claimed_by: null });
   });
 
+  it('renews an active processing lease and rejects another owner', async () => {
+    const queue = new PostgresVerificationDeliveryQueue(pool, { leaseMs: 60_000 });
+    const at = new Date('2026-07-17T13:30:00.000Z');
+    const worker = `renew-verification-${suffix}`;
+    const jobId = await insertJob('renew-processing', {
+      at,
+      expiresAt: new Date(at.getTime() + 600_000),
+    });
+
+    await expect(queue.claim(worker, at)).resolves.toMatchObject({ id: jobId });
+    await queue.started(jobId, worker, new Date(at.getTime() + 1_000));
+    const renewedAt = new Date(at.getTime() + 30_000);
+    await queue.renew(jobId, worker, renewedAt);
+
+    await expect(
+      queue.renew(jobId, `other-verification-${suffix}`, new Date(at.getTime() + 31_000)),
+    ).rejects.toBeInstanceOf(VerificationDeliveryLeaseError);
+    await expect(
+      queue.claim(`competitor-verification-${suffix}`, new Date(at.getTime() + 62_000)),
+    ).resolves.toBeNull();
+
+    const stored = await pool.query<{ lease_expires_at: Date }>(
+      `select lease_expires_at from verification_jobs where id = $1`,
+      [jobId],
+    );
+    expect(stored.rows[0]?.lease_expires_at.toISOString()).toBe(
+      new Date(renewedAt.getTime() + 60_000).toISOString(),
+    );
+  });
+
   it('clears ownership when retryable delivery is rescheduled', async () => {
     const queue = new PostgresVerificationDeliveryQueue(pool, { leaseMs: 60_000 });
     const at = new Date('2026-07-17T14:00:00.000Z');

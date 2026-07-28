@@ -4,7 +4,7 @@ Updated: 2026-07-28
 
 ## Current state
 
-A runnable standalone MVP foundation and fifteen production-hardening slices are complete:
+A runnable standalone MVP foundation and sixteen production-hardening slices are complete:
 
 1. dashboard/admin browser authentication with live PostgreSQL data and tenant revalidation;
 2. accepted provider-neutral infrastructure ADRs for deployment, managed PostgreSQL, durable work/cache, KMS envelope encryption, and observability;
@@ -20,7 +20,8 @@ A runnable standalone MVP foundation and fifteen production-hardening slices are
 12. tenant-scoped durable-work dead-letter inspection and explicit idempotent replay with lease reset, structural failure guards, immutable evidence, and audit records;
 13. authenticated merchant browser dead-letter operations with exact owner/admin store scope, secret-free listing, CSRF-protected replay, and synchronous stable replay keys;
 14. a canonical vendor-neutral structured logging/redaction package integrated into all four private workers, with bounded serialization and telemetry-failure isolation;
-15. API-wide safe request correlation and structured lifecycle logging with opaque request IDs, bounded route templates, response status/latency, redacted unhandled errors, and telemetry-failure isolation.
+15. API-wide safe request correlation and structured lifecycle logging with opaque request IDs, bounded route templates, response status/latency, redacted unhandled errors, and telemetry-failure isolation;
+16. owner-checked renewable leases for courier, webhook, and verification workers, with non-overlapping heartbeats, abort-on-renewal-loss provider I/O, and heartbeat drain before final queue transitions.
 
 Concrete provider selection and provisioning remain external production work.
 
@@ -68,6 +69,9 @@ Concrete provider selection and provisioning remain external production work.
 - [x] Expired or previous courier owners cannot complete or fail jobs
 - [x] Retryable courier failures clear ownership and return jobs to the durable queue with backoff
 - [x] Courier job organization/store/provider scope is derived from account relationships, not trusted payload fields
+- [x] Courier, webhook, and verification workers renew only their own active unexpired leases while work is running
+- [x] Lease heartbeat failure aborts active courier/webhook/OTP provider calls and prevents stale-owner completion, retry, or failure transitions
+- [x] Heartbeats are drained before every terminal or retry queue transition so renewal and final-state writes cannot race
 - [x] Assessments and outcomes enqueue matching webhook deliveries inside the same PostgreSQL transaction
 - [x] Webhook deliveries persist explicit organization/store scope and canonical event payloads without raw phone values
 - [x] Competing event workers claim distinct webhook deliveries with `SKIP LOCKED`
@@ -116,11 +120,11 @@ Concrete provider selection and provisioning remain external production work.
 - Twelve migration files ordered/non-empty/non-destructive: passed
 - First migration apply and immediate migration replay: passed
 - Architecture import boundaries: passed
-- Typecheck: 20 of 20 workspaces passed locally and in source-branch CI
-- Test/build dependency tasks: 31 of 31 passed locally and in source-branch CI
-- Repository assertions: 136 passed in PostgreSQL-integrated source-branch CI, including four API request-correlation, bounded-route, unhandled-error redaction, and sink-failure tests
-- Production builds: 20 of 20 workspaces passed locally and in source-branch CI
-- WooCommerce PHP syntax: passed in source-branch CI
+- Typecheck: 20 of 20 workspaces passed locally; source-branch CI is pending
+- Test/build dependency tasks: 31 of 31 passed locally; source-branch CI is pending
+- Repository assertion inventory: 145, including three heartbeat lifecycle tests, three provider-abort tests, and three PostgreSQL owner-checked renewal tests; PostgreSQL-integrated source-branch CI is pending
+- Production builds: 20 of 20 workspaces passed locally; source-branch CI is pending
+- WooCommerce PHP syntax: unchanged; source-branch CI validation is pending
 - npm high/critical audit threshold: passed after the ESLint toolchain update; five moderate findings remain
 - Worker lease final CI run `29545309665`, job `87776201468`: all gates passed at head `b886fcb57c9a5c9ebae3b23334966468ae1733c3`
 - The verified worker lease change was squash-merged to `main` as `d748bde10920e5a35a7e90f3a00b3b3bf02b96f3`
@@ -155,7 +159,7 @@ Concrete provider selection and provisioning remain external production work.
 - `tracker.yml` YAML structure remains valid
 - Prohibited source-pattern search: no matches
 
-The repository-local continuation exporter was refreshed after the merged API observability verification evidence was recorded.
+The repository-local continuation exporter was refreshed after the durable worker heartbeat milestone documentation was finalized, so its embedded snapshots match the current branch state.
 
 ## Next production milestone
 

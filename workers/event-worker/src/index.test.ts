@@ -127,4 +127,47 @@ describe('EventWorker', () => {
     expect(isolatedRepository.markRetry).not.toHaveBeenCalled();
     expect(isolatedRepository.markFailed).toHaveBeenCalledOnce();
   });
+
+  it('aborts an active webhook request when the worker lease is lost', async () => {
+    const isolatedRepository = {
+      markDelivered: vi.fn(async () => undefined),
+      markRetry: vi.fn(async () => undefined),
+      markFailed: vi.fn(async () => undefined),
+    };
+    const fetcher = vi.fn<typeof fetch>().mockImplementation(
+      async (_url, init) =>
+        new Promise<Response>((_resolve, reject) => {
+          const abort = (): void => reject(new DOMException('Aborted', 'AbortError'));
+          if (init?.signal?.aborted) abort();
+          else init?.signal?.addEventListener('abort', abort, { once: true });
+        }),
+    );
+    const worker = new EventWorker(isolatedRepository, {
+      fetcher,
+      resolver: publicResolver,
+      timeoutMs: 60_000,
+      now: () => new Date('2026-07-17T00:00:00.000Z'),
+    });
+    const controller = new AbortController();
+    const result = worker.deliver({
+      endpoint: {
+        id: 'we_lease',
+        url: 'https://merchant.example/hook',
+        signingSecret: 'x'.repeat(32),
+        active: true,
+      },
+      event,
+      attempt: 1,
+      signal: controller.signal,
+    });
+
+    controller.abort(
+      Object.assign(new Error('lease lost'), { code: 'WEBHOOK_DELIVERY_LEASE_LOST' }),
+    );
+    await expect(result).resolves.toMatchObject({
+      status: 'retry_scheduled',
+      errorCode: 'TIMEOUT',
+    });
+    expect(isolatedRepository.markRetry).toHaveBeenCalledOnce();
+  });
 });

@@ -33,7 +33,8 @@ The repository now contains a runnable MVP foundation:
 - Steadfast adapter, Playwright session driver, encrypted session storage, and runnable courier workers
 - Transactional encrypted OTP delivery queue, tenant-scoped verification, and lease-owned private verification worker
 - Provider-neutral OTP adapter boundary with hashing, expiry, attempt/rate limits, payload validation, and no synchronous provider I/O
-- Durable signed webhook outbox/worker with retries, leases, encrypted secrets, and DNS-aware SSRF protection
+- Durable signed webhook outbox/worker with retries, renewable leases, encrypted secrets, and DNS-aware SSRF protection
+- Owner-checked lease heartbeats for courier, webhook, and verification work; renewal loss aborts active provider I/O before stale final-state writes
 - Tenant-scoped, owner/admin-authorized dead-letter inspection and idempotent controlled replay for courier, webhook, and verification work, with immutable replay/audit evidence
 - Merchant dashboard and platform operations admin applications
 - WooCommerce plugin, Shopify adapter, custom JavaScript/server adapter, and native multi-store adapter

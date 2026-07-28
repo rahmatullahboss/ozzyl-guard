@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { Pool } from 'pg';
+import { LeaseHeartbeat } from '@ozzyl/database';
 import { AesGcmEnvelopeCipher } from '@ozzyl/encryption';
 import { createStructuredLogger } from '@ozzyl/observability';
 import type { OtpDeliveryProvider } from '@ozzyl/verification';
@@ -29,12 +30,16 @@ const otpSecret = required('OTP_HASH_SECRET');
 const phoneHmacKey = required('PHONE_HMAC_KEY');
 const pollMs = positiveInteger('VERIFICATION_WORKER_POLL_MS', 5_000);
 const leaseMs = positiveInteger('VERIFICATION_WORKER_LEASE_MS', 60_000);
+const leaseRenewMs = positiveInteger('VERIFICATION_WORKER_LEASE_RENEW_MS', Math.floor(leaseMs / 3));
 const timeoutMs = positiveInteger('OTP_PROVIDER_TIMEOUT_MS', 10_000);
 const maxAttempts = positiveInteger('VERIFICATION_WORKER_MAX_ATTEMPTS', 5);
 if (leaseMs <= timeoutMs + 5_000) {
   throw new Error(
     'VERIFICATION_WORKER_LEASE_MS must exceed OTP_PROVIDER_TIMEOUT_MS by more than 5000ms',
   );
+}
+if (leaseRenewMs * 2 > leaseMs) {
+  throw new Error('VERIFICATION_WORKER_LEASE_RENEW_MS must not exceed half the lease');
 }
 const workerId = process.env.VERIFICATION_WORKER_ID ?? `verification-${randomUUID()}`;
 const log = createStructuredLogger({
@@ -57,17 +62,26 @@ async function run(): Promise<void> {
       continue;
     }
 
+    let heartbeat: LeaseHeartbeat | null = null;
     try {
       await queue.started(delivery.id, workerId);
+      heartbeat = new LeaseHeartbeat({
+        intervalMs: leaseRenewMs,
+        renew: (at) => queue.renew(delivery.id, workerId, at),
+      }).start();
       const payload = decryptAndValidateVerificationPayload(delivery, {
         cipher,
         phoneHmacKey,
         otpSecret,
       });
-      const worker = new VerificationWorker(provider, queue.reporterFor(delivery, workerId), {
-        maxAttempts,
-        timeoutMs,
-      });
+      const worker = new VerificationWorker(
+        provider,
+        queue.reporterFor(delivery, workerId, () => heartbeat?.stop() ?? Promise.resolve()),
+        {
+          maxAttempts,
+          timeoutMs,
+        },
+      );
       await worker.process({
         jobId: delivery.id,
         verificationId: delivery.verificationId,
@@ -78,15 +92,27 @@ async function run(): Promise<void> {
         purpose: delivery.purpose,
         expiresAt: delivery.expiresAt,
         attempt: delivery.attempts + 1,
+        signal: heartbeat.signal,
       });
+      await heartbeat.stopQuietly();
+      heartbeat = null;
     } catch (error) {
-      if (!(error instanceof VerificationDeliveryLeaseError)) {
-        const code = errorCode(error, 'VERIFICATION_DELIVERY_FAILED');
+      let failure = error;
+      if (heartbeat) {
+        try {
+          await heartbeat.stop();
+        } catch (leaseError) {
+          failure = leaseError;
+        }
+        heartbeat = null;
+      }
+      if (!(failure instanceof VerificationDeliveryLeaseError)) {
+        const code = errorCode(failure, 'VERIFICATION_DELIVERY_FAILED');
         await queue
           .failed(delivery.id, workerId, { errorCode: code, at: new Date() })
-          .catch((failure) => logError(failure, 'VERIFICATION_FAILURE_STATE_LOST'));
+          .catch((stateError) => logError(stateError, 'VERIFICATION_FAILURE_STATE_LOST'));
       }
-      logError(error, 'VERIFICATION_DELIVERY_FAILED');
+      logError(failure, 'VERIFICATION_DELIVERY_FAILED');
     }
   }
   await pool.end();

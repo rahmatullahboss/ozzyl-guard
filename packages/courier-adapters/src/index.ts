@@ -16,6 +16,7 @@ export interface CourierSession {
 export interface CustomerLookup {
   accountId: string;
   phone: string;
+  signal?: AbortSignal;
 }
 
 export interface CourierObservation {
@@ -107,6 +108,9 @@ export class SteadfastAdapter implements CourierAdapter {
     }
 
     const controller = new AbortController();
+    const abortFromCaller = (): void => controller.abort(input.signal?.reason);
+    if (input.signal?.aborted) abortFromCaller();
+    else input.signal?.addEventListener('abort', abortFromCaller, { once: true });
     const timeout = setTimeout(() => controller.abort(), this.timeoutMs);
     try {
       const response = await this.fetcher(
@@ -173,6 +177,7 @@ export class SteadfastAdapter implements CourierAdapter {
       throw new CourierProviderError('PROVIDER_UNAVAILABLE', 'Steadfast request failed', true);
     } finally {
       clearTimeout(timeout);
+      input.signal?.removeEventListener('abort', abortFromCaller);
     }
   }
 }

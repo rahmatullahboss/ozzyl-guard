@@ -37,6 +37,7 @@ export class CourierSyncWorker {
     phone: string;
     phoneHash: string;
     force?: boolean;
+    signal?: AbortSignal;
   }): Promise<{ observation: CourierObservation; cached: boolean }> {
     await this.dependencies.health.started(input.jobId, new Date());
     try {
@@ -58,6 +59,7 @@ export class CourierSyncWorker {
       const observation = await adapter.fetchCustomerObservation({
         accountId: input.courierAccountId,
         phone: input.phone,
+        ...(input.signal === undefined ? {} : { signal: input.signal }),
       });
       await this.dependencies.observations.save({
         storeId: input.storeId,

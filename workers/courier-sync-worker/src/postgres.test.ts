@@ -119,6 +119,33 @@ integration('PostgreSQL courier job leases', () => {
     });
   });
 
+  it('renews an active processing lease and rejects another owner', async () => {
+    const queue = new PostgresCourierJobQueue(pool, { leaseMs: 60_000 });
+    const at = new Date('2026-07-17T01:30:00.000Z');
+    const worker = `renew-worker-${suffix}`;
+    const jobId = await insertJob('renew-processing', { scheduledAt: at });
+
+    await expect(queue.claim(worker, at)).resolves.toMatchObject({ id: jobId });
+    await queue.started(jobId, worker, new Date(at.getTime() + 1_000));
+    const renewedAt = new Date(at.getTime() + 30_000);
+    await queue.renew(jobId, worker, renewedAt);
+
+    await expect(
+      queue.renew(jobId, `other-worker-${suffix}`, new Date(at.getTime() + 31_000)),
+    ).rejects.toBeInstanceOf(CourierJobLeaseError);
+    await expect(
+      queue.claim(`competitor-${suffix}`, new Date(at.getTime() + 62_000)),
+    ).resolves.toBeNull();
+
+    const stored = await pool.query<{ lease_expires_at: Date }>(
+      `select lease_expires_at from courier_jobs where id = $1`,
+      [jobId],
+    );
+    expect(stored.rows[0]?.lease_expires_at.toISOString()).toBe(
+      new Date(renewedAt.getTime() + 60_000).toISOString(),
+    );
+  });
+
   it('clears lease ownership when a retryable attempt is requeued', async () => {
     const queue = new PostgresCourierJobQueue(pool, { leaseMs: 60_000 });
     const at = new Date('2026-07-17T02:00:00.000Z');

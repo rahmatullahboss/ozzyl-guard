@@ -77,4 +77,35 @@ describe('VerificationWorker', () => {
     expect(state.failed).toHaveBeenCalledOnce();
     expect(state.retry).not.toHaveBeenCalled();
   });
+
+  it('aborts an active OTP request when the worker lease is lost', async () => {
+    const state = reporter();
+    const provider = {
+      send: vi.fn(
+        async ({ signal }: { signal?: AbortSignal }) =>
+          new Promise<{ providerMessageId: string; accepted: boolean }>((_resolve, reject) => {
+            signal?.addEventListener(
+              'abort',
+              () => reject(new DOMException('Aborted', 'AbortError')),
+              { once: true },
+            );
+          }),
+      ),
+    };
+    const worker = new VerificationWorker(provider, state, {
+      timeoutMs: 60_000,
+      now: () => new Date('2026-07-17T10:00:00.000Z'),
+    });
+    const controller = new AbortController();
+    const result = worker.process({ ...delivery, signal: controller.signal });
+
+    controller.abort(
+      Object.assign(new Error('lease lost'), { code: 'VERIFICATION_DELIVERY_LEASE_LOST' }),
+    );
+    await expect(result).resolves.toMatchObject({
+      status: 'retry_scheduled',
+      errorCode: 'OTP_PROVIDER_TIMEOUT',
+    });
+    expect(state.retry).toHaveBeenCalledOnce();
+  });
 });

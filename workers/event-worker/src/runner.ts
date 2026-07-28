@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { Pool } from 'pg';
+import { LeaseHeartbeat } from '@ozzyl/database';
 import { AesGcmEnvelopeCipher } from '@ozzyl/encryption';
 import { createStructuredLogger } from '@ozzyl/observability';
 import type { DomainEvent } from '@ozzyl/shared-types';
@@ -31,10 +32,14 @@ const cipher = new AesGcmEnvelopeCipher(
 );
 const pollMs = positiveInteger('EVENT_WORKER_POLL_MS', 5_000);
 const leaseMs = positiveInteger('EVENT_WORKER_LEASE_MS', 60_000);
+const leaseRenewMs = positiveInteger('EVENT_WORKER_LEASE_RENEW_MS', Math.floor(leaseMs / 3));
 const timeoutMs = positiveInteger('WEBHOOK_TIMEOUT_MS', 5_000);
 const maxAttempts = positiveInteger('EVENT_WORKER_MAX_ATTEMPTS', 5);
 if (leaseMs <= timeoutMs + 5_000) {
   throw new Error('EVENT_WORKER_LEASE_MS must exceed WEBHOOK_TIMEOUT_MS by more than 5000ms');
+}
+if (leaseRenewMs * 2 > leaseMs) {
+  throw new Error('EVENT_WORKER_LEASE_RENEW_MS must not exceed half the lease');
 }
 const workerId = process.env.EVENT_WORKER_ID ?? `event-${randomUUID()}`;
 const log = createStructuredLogger({
@@ -56,22 +61,32 @@ async function run(): Promise<void> {
       continue;
     }
 
+    let heartbeat: LeaseHeartbeat | null = null;
     try {
       const startedAt = new Date();
       await queue.started(delivery.id, workerId, startedAt);
+      heartbeat = new LeaseHeartbeat({
+        intervalMs: leaseRenewMs,
+        renew: (at) => queue.renew(delivery.id, workerId, at),
+      }).start();
       const event = parseEvent(delivery);
       if (!delivery.endpointActive) {
+        await heartbeat.stop();
         await queue.failed(delivery.id, workerId, {
           errorCode: 'ENDPOINT_INACTIVE',
           at: new Date(),
         });
+        heartbeat = null;
         continue;
       }
       const signingSecret = decryptSigningSecret(delivery);
-      const worker = new EventWorker(queue.repositoryFor(delivery, workerId), {
-        timeoutMs,
-        maxAttempts,
-      });
+      const worker = new EventWorker(
+        queue.repositoryFor(delivery, workerId, () => heartbeat?.stop() ?? Promise.resolve()),
+        {
+          timeoutMs,
+          maxAttempts,
+        },
+      );
       await worker.deliver({
         endpoint: {
           id: delivery.endpointId,
@@ -81,15 +96,27 @@ async function run(): Promise<void> {
         },
         event,
         attempt: delivery.attempts + 1,
+        signal: heartbeat.signal,
       });
+      await heartbeat.stopQuietly();
+      heartbeat = null;
     } catch (error) {
-      if (!(error instanceof WebhookDeliveryLeaseError)) {
-        const code = errorCode(error, 'EVENT_DELIVERY_FAILED');
+      let failure = error;
+      if (heartbeat) {
+        try {
+          await heartbeat.stop();
+        } catch (leaseError) {
+          failure = leaseError;
+        }
+        heartbeat = null;
+      }
+      if (!(failure instanceof WebhookDeliveryLeaseError)) {
+        const code = errorCode(failure, 'EVENT_DELIVERY_FAILED');
         await queue
           .failed(delivery.id, workerId, { errorCode: code, at: new Date() })
-          .catch((failure) => logError(failure, 'EVENT_FAILURE_STATE_LOST'));
+          .catch((stateError) => logError(stateError, 'EVENT_FAILURE_STATE_LOST'));
       }
-      logError(error, 'EVENT_DELIVERY_FAILED');
+      logError(failure, 'EVENT_DELIVERY_FAILED');
     }
   }
   await pool.end();

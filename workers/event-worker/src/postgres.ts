@@ -198,6 +198,21 @@ export class PostgresWebhookDeliveryQueue {
     this.assertOwned(result.rowCount);
   }
 
+  async renew(deliveryId: string, workerId: string, at = new Date()): Promise<void> {
+    const result = await this.pool.query(
+      `
+        update webhook_deliveries
+        set lease_expires_at = $3, updated_at = now()
+        where id = $1
+          and claimed_by = $2
+          and status in ('claimed', 'processing')
+          and lease_expires_at > $4
+      `,
+      [deliveryId, workerId, new Date(at.getTime() + this.leaseMs), at],
+    );
+    this.assertOwned(result.rowCount);
+  }
+
   async delivered(
     deliveryId: string,
     workerId: string,
@@ -290,7 +305,11 @@ export class PostgresWebhookDeliveryQueue {
     this.assertOwned(result.rowCount);
   }
 
-  repositoryFor(delivery: ClaimedWebhookDelivery, workerId: string): WebhookDeliveryRepository {
+  repositoryFor(
+    delivery: ClaimedWebhookDelivery,
+    workerId: string,
+    beforeTransition: () => Promise<void> = async () => undefined,
+  ): WebhookDeliveryRepository {
     const assertIdentity = (endpointId: string, eventId: string): void => {
       if (endpointId !== delivery.endpointId || eventId !== delivery.eventId) {
         throw new WebhookDeliveryLeaseError('Webhook delivery identity does not match the claim');
@@ -299,14 +318,17 @@ export class PostgresWebhookDeliveryQueue {
     return {
       markDelivered: async (input) => {
         assertIdentity(input.endpointId, input.eventId);
+        await beforeTransition();
         await this.delivered(delivery.id, workerId, input.responseStatus, input.at);
       },
       markRetry: async (input) => {
         assertIdentity(input.endpointId, input.eventId);
+        await beforeTransition();
         await this.retry(delivery.id, workerId, input);
       },
       markFailed: async (input) => {
         assertIdentity(input.endpointId, input.eventId);
+        await beforeTransition();
         await this.failed(delivery.id, workerId, input);
       },
     };

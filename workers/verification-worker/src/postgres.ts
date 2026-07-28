@@ -181,6 +181,25 @@ export class PostgresVerificationDeliveryQueue {
     this.assertOwned(result.rowCount);
   }
 
+  async renew(jobId: string, workerId: string, at = new Date()): Promise<void> {
+    const result = await this.pool.query(
+      `
+        update verification_jobs vj
+        set lease_expires_at = $3, updated_at = now()
+        from verification_sessions vs
+        where vj.id = $1 and vj.claimed_by = $2
+          and vj.status in ('claimed', 'processing')
+          and vj.lease_expires_at > $4
+          and vs.id = vj.verification_session_id
+          and vs.organization_id = vj.organization_id
+          and vs.store_id = vj.store_id
+          and vs.status = 'queued' and vs.expires_at > $4
+      `,
+      [jobId, workerId, new Date(at.getTime() + this.leaseMs), at],
+    );
+    this.assertOwned(result.rowCount);
+  }
+
   async delivered(
     jobId: string,
     workerId: string,
@@ -301,18 +320,22 @@ export class PostgresVerificationDeliveryQueue {
   reporterFor(
     delivery: ClaimedVerificationDelivery,
     workerId: string,
+    beforeTransition: () => Promise<void> = async () => undefined,
   ): VerificationDeliveryReporter {
     return {
       delivered: async (jobId, providerMessageId, at) => {
         this.assertIdentity(delivery, jobId);
+        await beforeTransition();
         await this.delivered(jobId, workerId, providerMessageId, at);
       },
       retry: async (jobId, errorCode, nextAttemptAt, at) => {
         this.assertIdentity(delivery, jobId);
+        await beforeTransition();
         await this.retry(jobId, workerId, { errorCode, nextAttemptAt, at });
       },
       failed: async (jobId, errorCode, at) => {
         this.assertIdentity(delivery, jobId);
+        await beforeTransition();
         await this.failed(jobId, workerId, { errorCode, at });
       },
     };
