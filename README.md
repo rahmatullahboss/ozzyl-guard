@@ -24,7 +24,7 @@ The full context bundle includes the important specifications, accepted ADRs, mi
 The repository now contains a runnable MVP foundation:
 
 - TypeScript npm/Turborepo monorepo
-- PostgreSQL schema, twelve append-only migrations, committed SHA-256 manifest, and non-null history checksums
+- PostgreSQL schema, thirteen append-only migrations, committed SHA-256 manifest, and non-null history checksums
 - Argon2id user-password utilities and opaque user sessions
 - Hash-only `ozg_test_` / `ozg_live_` API-key lifecycle utilities
 - Organizations, stores, memberships, plans, usage events, audit events, and tenant scope
@@ -36,6 +36,7 @@ The repository now contains a runnable MVP foundation:
 - Durable signed webhook outbox/worker with retries, renewable leases, encrypted secrets, and DNS-aware SSRF protection
 - Owner-checked lease heartbeats for courier, webhook, and verification work; renewal loss aborts active provider I/O before stale final-state writes
 - Tenant-scoped, owner/admin-authorized dead-letter inspection and idempotent controlled replay for courier, webhook, and verification work, with immutable replay/audit evidence
+- Maintenance-only preview-first archival of old terminal durable work into secret-free evidence before atomic source deletion; runtime services cannot access the archive table or delete queue rows
 - Merchant dashboard and platform operations admin applications
 - WooCommerce plugin, Shopify adapter, custom JavaScript/server adapter, and native multi-store adapter
 - Docker, Docker Compose, migration integrity verification, clean logical restore rehearsal, and least-privilege runtime-role verification in CI
@@ -53,6 +54,7 @@ The following require external accounts or production decisions before live use:
 - OTP provider selection and credentials
 - Authenticated dashboard/admin live data wiring is complete; production hosting, distributed rate limiting, account recovery, MFA, and managed identity supersession remain
 - Production queue/cache/observability providers
+- A separately provisioned retention-maintenance database identity, approved retention windows/holds, monitoring, and backup/PITR recovery before any scheduled archival
 - Production source-platform hook deployment, explicit pilot-store selection, and outcome calibration before any enforcement or broad automatic blocking
 
 See [implementation status](.ai-bridge/implementation-status.md) and [risk register](docs/roadmap/risk-register.md).

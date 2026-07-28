@@ -47,6 +47,7 @@ integration('PostgreSQL runtime role isolation', () => {
           ),
         ).resolves.toBeDefined();
         await expectPermissionDenied(runtimePool.query('select * from ozzyl_guard_migrations'));
+        await expectPermissionDenied(runtimePool.query('select * from durable_work_archives'));
         await expectPermissionDenied(
           runtimePool.query(`delete from audit_events where id = $1`, [auditId]),
         );

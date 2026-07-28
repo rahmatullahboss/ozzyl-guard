@@ -33,6 +33,13 @@ describe('runtime role policy', () => {
     expect(runtimeRolePolicy.update).not.toContain('durable_work_replays');
   });
 
+  it('keeps archive maintenance evidence outside the application runtime role', () => {
+    expect(runtimeRolePolicy.denied).toContain('durable_work_archives');
+    expect(runtimeRolePolicy.select).not.toContain('durable_work_archives');
+    expect(runtimeRolePolicy.insert).not.toContain('durable_work_archives');
+    expect(runtimeRolePolicy.update).not.toContain('durable_work_archives');
+  });
+
   it('requires every writable table to remain explicitly readable', () => {
     const readable = new Set<string>(runtimeRolePolicy.select);
     expect(runtimeRolePolicy.insert.every((table) => readable.has(table))).toBe(true);

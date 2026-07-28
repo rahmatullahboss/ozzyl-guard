@@ -49,6 +49,10 @@
     {
       "name": "0012_durable_work_replays.sql",
       "checksum_sha256": "61d64b8a1c1cfd1a89ddec66778d7b704b2c63961b05982fd3163a313561534b"
+    },
+    {
+      "name": "0013_durable_work_archives.sql",
+      "checksum_sha256": "d9366dec7301f2ff5432d6581439fff757aa67b868921262ee0553ec792ecf77"
     }
   ]
 }

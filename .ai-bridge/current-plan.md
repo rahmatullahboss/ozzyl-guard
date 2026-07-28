@@ -4,7 +4,7 @@ Updated: 2026-07-28
 
 ## Current state
 
-A runnable standalone MVP foundation and sixteen production-hardening slices are complete:
+A runnable standalone MVP foundation and seventeen production-hardening slices are complete:
 
 1. dashboard/admin browser authentication with live PostgreSQL data and tenant revalidation;
 2. accepted provider-neutral infrastructure ADRs for deployment, managed PostgreSQL, durable work/cache, KMS envelope encryption, and observability;
@@ -21,7 +21,8 @@ A runnable standalone MVP foundation and sixteen production-hardening slices are
 13. authenticated merchant browser dead-letter operations with exact owner/admin store scope, secret-free listing, CSRF-protected replay, and synchronous stable replay keys;
 14. a canonical vendor-neutral structured logging/redaction package integrated into all four private workers, with bounded serialization and telemetry-failure isolation;
 15. API-wide safe request correlation and structured lifecycle logging with opaque request IDs, bounded route templates, response status/latency, redacted unhandled errors, and telemetry-failure isolation;
-16. owner-checked renewable leases for courier, webhook, and verification workers, with non-overlapping heartbeats, abort-on-renewal-loss provider I/O, and heartbeat drain before final queue transitions.
+16. owner-checked renewable leases for courier, webhook, and verification workers, with non-overlapping heartbeats, abort-on-renewal-loss provider I/O, and heartbeat drain before final queue transitions;
+17. maintenance-only preview-first retention for old terminal durable work, with secret-free archive evidence persisted before atomic source deletion, bounded batches, runtime-role denial, and preserved replay/audit evidence.
 
 Concrete provider selection and provisioning remain external production work.
 
@@ -30,7 +31,7 @@ Concrete provider selection and provisioning remain external production work.
 - [x] Repository, canonical GitHub remote, documentation, ADR, status, risk register, tracker, and continuation setup
 - [x] npm workspaces, Turborepo, TypeScript, formatting, linting, tests, and CI
 - [x] Canonical shared API/error/event contracts
-- [x] PostgreSQL/Drizzle schema and twelve append-only migrations
+- [x] PostgreSQL/Drizzle schema and thirteen append-only migrations
 - [x] Users, organizations, stores, memberships, plans, audit events, hash-only API keys, and explicit platform role
 - [x] Argon2 password utilities and opaque hash-only browser sessions with CSRF protection
 - [x] Transaction-safe PostgreSQL usage reservation and durable idempotency
@@ -112,19 +113,25 @@ Concrete provider selection and provisioning remain external production work.
 - [x] Non-admin members cannot see the failed-work navigation or call its browser operations successfully
 - [x] The dashboard assigns one replay key synchronously per visible work item and retains it after failed network requests
 - [x] Browser replay responses map replay, conflict, not-found, and structural-blocked states without exposing internal payloads or credentials
+- [x] Retention preview selects only old `completed`/`failed` courier, webhook, and verification work through a maintenance-only identity
+- [x] Archive batches are globally bounded to 500, require a cutoff at least 24 hours old, and re-lock/revalidate rows with `SKIP LOCKED`
+- [x] Secret-free archive evidence is inserted or exactly matched before source deletion in the same transaction
+- [x] Queue payloads, webhook bodies, encrypted verification payloads, provider references, endpoint material, OTP/contact data, and credentials are never copied into archive evidence
+- [x] The application runtime role cannot access `durable_work_archives` or delete durable source rows; replay and audit evidence remain untouched
+- [x] No unattended scheduler or archive-to-source rehydration exists; approved windows, holds, maintenance identity, monitoring, and backup/PITR remain production controls
 
 ## Verified baseline
 
 - Formatting check: passed
 - ESLint with zero warnings: passed
-- Twelve migration files ordered/non-empty/non-destructive: passed
+- Thirteen migration files ordered/non-empty/non-destructive: passed locally; source-branch CI is pending
 - First migration apply and immediate migration replay: passed
 - Architecture import boundaries: passed
-- Typecheck: 20 of 20 workspaces passed locally and in source-branch CI
-- Test/build dependency tasks: 31 of 31 passed locally and in source-branch CI
-- Repository assertions: 145 passed in PostgreSQL-integrated source-branch CI, including three heartbeat lifecycle tests, three provider-abort tests, and three PostgreSQL owner-checked renewal tests
-- Production builds: 20 of 20 workspaces passed locally and in source-branch CI
-- WooCommerce PHP syntax: passed in source-branch CI
+- Typecheck: 20 of 20 workspaces passed locally; source-branch CI is pending
+- Test/build dependency tasks: 31 of 31 passed locally; source-branch CI is pending
+- Repository assertion inventory: 154 source assertions, including four retention input-boundary tests, four PostgreSQL retention/archive tests, and runtime archive-access denial; PostgreSQL-integrated source-branch CI is pending
+- Production builds: 20 of 20 workspaces passed locally; source-branch CI is pending
+- WooCommerce PHP syntax: unchanged; source-branch CI validation is pending
 - npm high/critical audit threshold: passed after the ESLint toolchain update; five moderate findings remain
 - Worker lease final CI run `29545309665`, job `87776201468`: all gates passed at head `b886fcb57c9a5c9ebae3b23334966468ae1733c3`
 - The verified worker lease change was squash-merged to `main` as `d748bde10920e5a35a7e90f3a00b3b3bf02b96f3`
@@ -161,11 +168,11 @@ Concrete provider selection and provisioning remain external production work.
 - `tracker.yml` YAML structure remains valid
 - Prohibited source-pattern search: no matches
 
-The repository-local continuation exporter was refreshed after the merged durable worker heartbeat verification evidence was recorded.
+The repository-local continuation exporter was refreshed after the durable work retention milestone documentation and tracker were finalized.
 
 ## Next production milestone
 
-1. Select and provision the managed runtime, PostgreSQL, KMS/vault, and observability providers under ADRs 0006–0010, including distinct production migration/runtime identities and a managed-provider point-in-time restore drill.
+1. Select and provision the managed runtime, PostgreSQL, KMS/vault, and observability providers under ADRs 0006–0010, including distinct production migration/runtime/retention-maintenance identities and a managed-provider point-in-time restore drill.
 2. Select and provision a reviewed KMS/vault adapter, component service identities, access auditing, and an audited PostgreSQL background re-encryption runner before switching runtime writes from local v1 to managed v2.
 3. Add an authorized Steadfast test account, live opt-in tests, selector monitoring, and provider-terms approval.
 4. Select, review, bundle, and configure the production OTP provider adapter/account for the existing verification runner.
@@ -179,6 +186,7 @@ The repository-local continuation exporter was refreshed after the merged durabl
 - Steadfast provider-terms and merchant-authorization review
 - Deployment platform, account, primary region, and budget
 - Managed PostgreSQL provider and service tier
+- Separately provisioned retention-maintenance identity, approved completed/failed windows, incident/legal holds, monitoring, and backup/PITR recovery
 - Managed secret store and KMS/vault provider
 - Observability backend and retention policy
 - OTP provider account and credentials

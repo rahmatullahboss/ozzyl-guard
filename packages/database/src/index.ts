@@ -6,6 +6,7 @@ export * from './durable-work-schema.js';
 export * from './runtime-role.js';
 export * from './dead-letter-operations.js';
 export * from './lease-heartbeat.js';
+export * from './durable-work-retention.js';
 
 export function createDatabase(databaseUrl: string) {
   const pool = new Pool({ connectionString: databaseUrl, max: 10 });
