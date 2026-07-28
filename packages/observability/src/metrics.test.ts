@@ -2,11 +2,17 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   createMetricRecorder,
   defineMetric,
+  observeApiDependency,
   observeRepositoryOperation,
+  recordApiControlEvent,
   recordDurableQueueSnapshot,
   recordProviderOperation,
+  recordRiskAssessmentDistribution,
+  recordRiskOutcomeDistribution,
   recordWorkerClaimFailure,
   recordWorkerOperation,
+  riskConfidenceBand,
+  riskScoreBand,
   serializeMetricPoint,
 } from './metrics.js';
 function parseMetricLine(line: string): unknown {
@@ -309,6 +315,161 @@ describe('vendor-neutral metrics', () => {
         async () => 'repository-result',
       ),
     ).resolves.toBe('repository-result');
+  });
+
+  it('records API control and dependency outcomes without dependency values', async () => {
+    const lines: string[] = [];
+    const recorder = createMetricRecorder({
+      service: 'api-test',
+      environment: 'test',
+      write: (line) => lines.push(line),
+    });
+    const clock = vi
+      .fn()
+      .mockReturnValueOnce(10)
+      .mockReturnValueOnce(15)
+      .mockReturnValueOnce(20)
+      .mockReturnValueOnce(27);
+
+    recordApiControlEvent(recorder, 'authentication', 'rejected');
+    recordApiControlEvent(recorder, 'idempotency', 'replay');
+    await expect(
+      observeApiDependency(
+        recorder,
+        {
+          dependencyType: 'assessment_repository',
+          operation: 'find_by_idempotency',
+          classify: (value) => (value === null ? 'empty' : 'replay'),
+          monotonicNow: clock,
+        },
+        async () => ({ assessmentId: 'ras-sensitive' }),
+      ),
+    ).resolves.toEqual({ assessmentId: 'ras-sensitive' });
+    await expect(
+      observeApiDependency(
+        recorder,
+        {
+          dependencyType: 'usage_ledger',
+          operation: 'reserve',
+          classifyError: () => 'rejected',
+          monotonicNow: clock,
+        },
+        async () => {
+          throw new Error('plan limit for org-sensitive');
+        },
+      ),
+    ).rejects.toThrow('plan limit for org-sensitive');
+
+    const points = lines.map(parseMetricLine);
+    expect(points).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'ozzyl.api.control.events',
+          attributes: { control: 'authentication', outcome: 'rejected' },
+        }),
+        expect.objectContaining({
+          name: 'ozzyl.api.control.events',
+          attributes: { control: 'idempotency', outcome: 'replay' },
+        }),
+        expect.objectContaining({
+          name: 'ozzyl.api.dependency.operations',
+          attributes: {
+            dependency_type: 'assessment_repository',
+            operation: 'find_by_idempotency',
+            outcome: 'replay',
+          },
+        }),
+        expect.objectContaining({
+          name: 'ozzyl.api.dependency.operation.duration',
+          value: 5,
+          attributes: {
+            dependency_type: 'assessment_repository',
+            operation: 'find_by_idempotency',
+            outcome: 'replay',
+          },
+        }),
+        expect.objectContaining({
+          name: 'ozzyl.api.dependency.operations',
+          attributes: {
+            dependency_type: 'usage_ledger',
+            operation: 'reserve',
+            outcome: 'rejected',
+          },
+        }),
+      ]),
+    );
+    expect(lines.join('\n')).not.toContain('ras-sensitive');
+    expect(lines.join('\n')).not.toContain('org-sensitive');
+  });
+
+  it('records bounded risk assessment and verified-outcome distributions', () => {
+    const lines: string[] = [];
+    const recorder = createMetricRecorder({
+      service: 'api-test',
+      environment: 'test',
+      write: (line) => lines.push(line),
+    });
+
+    recordRiskAssessmentDistribution(recorder, {
+      decision: 'verify',
+      riskLevel: 'unknown',
+      score: 19,
+      confidence: 0.74,
+      degraded: true,
+      freshness: 'missing',
+    });
+    recordRiskOutcomeDistribution(recorder, {
+      outcome: 'delivered',
+      linkedAssessment: true,
+    });
+
+    expect(riskScoreBand(-1)).toBe('0_19');
+    expect(riskScoreBand(20)).toBe('20_39');
+    expect(riskScoreBand(1000)).toBe('80_100');
+    expect(riskConfidenceBand(Number.NaN)).toBe('0_24');
+    expect(riskConfidenceBand(0.5)).toBe('50_74');
+    expect(riskConfidenceBand(1)).toBe('75_100');
+    expect(lines.map(parseMetricLine)).toEqual([
+      expect.objectContaining({
+        name: 'ozzyl.risk.assessments',
+        attributes: {
+          decision: 'verify',
+          risk_level: 'unknown',
+          score_band: '0_19',
+          confidence_band: '50_74',
+          degraded: true,
+          freshness: 'missing',
+        },
+      }),
+      expect.objectContaining({
+        name: 'ozzyl.risk.outcomes',
+        attributes: { outcome: 'delivered', linked_assessment: true },
+      }),
+    ]);
+  });
+
+  it('keeps API dependency execution available when telemetry clocks and sinks fail', async () => {
+    const recorder = createMetricRecorder({
+      service: 'api-test',
+      environment: 'test',
+      write: () => {
+        throw new Error('collector unavailable');
+      },
+    });
+
+    await expect(
+      observeApiDependency(
+        recorder,
+        {
+          dependencyType: 'feature_provider',
+          operation: 'load',
+          monotonicNow: () => {
+            throw new Error('clock unavailable');
+          },
+        },
+        async () => 'domain-result',
+      ),
+    ).resolves.toBe('domain-result');
   });
 
   it('swallows descriptor, serialization, clock, and sink failures', () => {

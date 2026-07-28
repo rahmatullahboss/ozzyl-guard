@@ -1,6 +1,6 @@
 import { createHmac } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
-import { MemoryUsageLedger } from '@ozzyl/billing';
+import { MemoryUsageLedger, UsageLimitError, type UsageLedger } from '@ozzyl/billing';
 import {
   createMetricRecorder,
   createStructuredLogger,
@@ -31,6 +31,7 @@ const apiKey = ['ozg', 'test', 'fixture-a'].join('_');
 function createTestApp(input?: {
   identity?: ApiKeyIdentity;
   assessments?: AssessmentRepository;
+  usage?: UsageLedger;
   rawApiKey?: string;
   logger?: StructuredLogger;
   metrics?: MetricRecorder;
@@ -86,7 +87,7 @@ function createTestApp(input?: {
         return rawApiKey === acceptedKey ? identity : null;
       },
     },
-    usage: new MemoryUsageLedger(),
+    usage: input?.usage ?? new MemoryUsageLedger(),
     features: new MissingFeatureProvider(),
     assessments: input?.assessments ?? new MemoryAssessmentRepository(),
     outcomes: new MemoryOutcomeRepository(),
@@ -162,29 +163,31 @@ describe('Ozzyl Guard API', () => {
     });
     expect(lines.join('\n')).not.toContain('ras-sensitive-value');
     expect(lines.join('\n')).not.toContain('discard-me');
-    expect(metricLines.map(parseMetricLine)).toEqual([
-      expect.objectContaining({
-        name: 'ozzyl.api.requests',
-        kind: 'counter',
-        value: 1,
-        attributes: {
-          method: 'GET',
-          route: '/v1/risk-assessments/:assessment_id',
-          status_class: '4xx',
-        },
-      }),
-      expect.objectContaining({
-        name: 'ozzyl.api.request.duration',
-        kind: 'histogram',
-        unit: 'ms',
-        value: 25,
-        attributes: {
-          method: 'GET',
-          route: '/v1/risk-assessments/:assessment_id',
-          status_class: '4xx',
-        },
-      }),
-    ]);
+    expect(metricLines.map(parseMetricLine)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'ozzyl.api.requests',
+          kind: 'counter',
+          value: 1,
+          attributes: {
+            method: 'GET',
+            route: '/v1/risk-assessments/:assessment_id',
+            status_class: '4xx',
+          },
+        }),
+        expect.objectContaining({
+          name: 'ozzyl.api.request.duration',
+          kind: 'histogram',
+          unit: 'ms',
+          value: 25,
+          attributes: {
+            method: 'GET',
+            route: '/v1/risk-assessments/:assessment_id',
+            status_class: '4xx',
+          },
+        }),
+      ]),
+    );
     expect(metricLines.join('\n')).not.toContain('ras-sensitive-value');
     expect(metricLines.join('\n')).not.toContain('discard-me');
   });
@@ -280,7 +283,7 @@ describe('Ozzyl Guard API', () => {
     expect(lines.join('\n')).not.toContain(unsafeRequestId);
   });
 
-  it('keeps request handling available when the telemetry sink fails', async () => {
+  it('keeps authenticated domain handling available when telemetry sinks fail', async () => {
     const logger = createStructuredLogger({
       service: 'api-test',
       environment: 'test',
@@ -295,10 +298,14 @@ describe('Ozzyl Guard API', () => {
         throw new Error('metric sink unavailable');
       },
     });
-    const response = await createTestApp({ logger, metrics }).request('/health');
+    const response = await createTestApp({ logger, metrics }).request('/v1/risk-assessments', {
+      method: 'POST',
+      headers: authorizedHeaders,
+      body: JSON.stringify(assessmentRequest),
+    });
 
-    expect(response.status).toBe(200);
-    await expect(response.json()).resolves.toMatchObject({ status: 'ok' });
+    expect(response.status).toBe(201);
+    await expect(response.json()).resolves.toMatchObject({ success: true, decision: 'verify' });
   });
 
   it('records unhandled errors without exporting their messages or stacks', async () => {
@@ -395,6 +402,219 @@ describe('Ozzyl Guard API', () => {
     const firstBody = (await first.json()) as { assessment_id: string };
     const secondBody = (await second.json()) as { assessment_id: string };
     expect(secondBody.assessment_id).toBe(firstBody.assessment_id);
+  });
+
+  it('records bounded critical-path and risk-quality metrics without business identifiers', async () => {
+    const metricLines: string[] = [];
+    const metrics = createMetricRecorder({
+      service: 'api-test',
+      environment: 'test',
+      clock: () => new Date('2026-07-28T00:00:00.000Z'),
+      write: (line) => metricLines.push(line),
+    });
+    const app = createTestApp({ metrics });
+
+    const firstAssessment = await app.request('/v1/risk-assessments', {
+      method: 'POST',
+      headers: { ...authorizedHeaders, 'Idempotency-Key': 'sensitive-assessment-key' },
+      body: JSON.stringify(assessmentRequest),
+    });
+    const secondAssessment = await app.request('/v1/risk-assessments', {
+      method: 'POST',
+      headers: { ...authorizedHeaders, 'Idempotency-Key': 'sensitive-assessment-key' },
+      body: JSON.stringify(assessmentRequest),
+    });
+    const outcomeBody = {
+      external_order_id: 'WC-sensitive-order',
+      outcome: 'delivered',
+      occurred_at: '2026-07-16T10:30:00.000Z',
+    };
+    const firstOutcome = await app.request('/v1/order-outcomes', {
+      method: 'POST',
+      headers: { ...authorizedHeaders, 'Idempotency-Key': 'sensitive-outcome-key' },
+      body: JSON.stringify(outcomeBody),
+    });
+    const secondOutcome = await app.request('/v1/order-outcomes', {
+      method: 'POST',
+      headers: { ...authorizedHeaders, 'Idempotency-Key': 'sensitive-outcome-key' },
+      body: JSON.stringify(outcomeBody),
+    });
+    const unauthenticated = await app.request('/v1/risk-assessments', { method: 'POST' });
+
+    expect(firstAssessment.status).toBe(201);
+    expect(secondAssessment.status).toBe(200);
+    expect(firstOutcome.status).toBe(201);
+    expect(secondOutcome.status).toBe(200);
+    expect(unauthenticated.status).toBe(401);
+
+    const points = metricLines.map(
+      (line) => JSON.parse(line) as { name: string; attributes: Record<string, unknown> },
+    );
+    const assessmentPoints = points.filter((point) => point.name === 'ozzyl.risk.assessments');
+    const outcomePoints = points.filter((point) => point.name === 'ozzyl.risk.outcomes');
+    const dependencyCountPoints = points.filter(
+      (point) => point.name === 'ozzyl.api.dependency.operations',
+    );
+    const controlPoints = points.filter((point) => point.name === 'ozzyl.api.control.events');
+
+    expect(assessmentPoints).toEqual([
+      expect.objectContaining({
+        attributes: {
+          decision: 'verify',
+          risk_level: 'unknown',
+          score_band: '0_19',
+          confidence_band: '0_24',
+          degraded: true,
+          freshness: 'missing',
+        },
+      }),
+    ]);
+    expect(outcomePoints).toEqual([
+      expect.objectContaining({
+        attributes: { outcome: 'delivered', linked_assessment: false },
+      }),
+    ]);
+    expect(dependencyCountPoints).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          attributes: {
+            dependency_type: 'usage_ledger',
+            operation: 'reserve',
+            outcome: 'success',
+          },
+        }),
+        expect.objectContaining({
+          attributes: {
+            dependency_type: 'feature_provider',
+            operation: 'load',
+            outcome: 'success',
+          },
+        }),
+        expect.objectContaining({
+          attributes: {
+            dependency_type: 'assessment_repository',
+            operation: 'find_by_idempotency',
+            outcome: 'replay',
+          },
+        }),
+        expect.objectContaining({
+          attributes: {
+            dependency_type: 'outcome_repository',
+            operation: 'save',
+            outcome: 'replay',
+          },
+        }),
+      ]),
+    );
+    expect(controlPoints).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          attributes: { control: 'idempotency', outcome: 'replay' },
+        }),
+        expect.objectContaining({
+          attributes: { control: 'authentication', outcome: 'rejected' },
+        }),
+      ]),
+    );
+
+    const serialized = metricLines.join('\n');
+    for (const sensitive of [
+      'org_1',
+      'store_1',
+      'key_1',
+      '01712345678',
+      'sensitive-assessment-key',
+      'sensitive-outcome-key',
+      'WC-sensitive-order',
+    ]) {
+      expect(serialized).not.toContain(sensitive);
+    }
+  });
+
+  it('records quota rejection without exporting the tenant or failure detail', async () => {
+    const metricLines: string[] = [];
+    const metrics = createMetricRecorder({
+      service: 'api-test',
+      environment: 'test',
+      write: (line) => metricLines.push(line),
+    });
+    const usage: UsageLedger = {
+      async reserve() {
+        throw new UsageLimitError('private quota detail for org_1');
+      },
+    };
+    const response = await createTestApp({ metrics, usage }).request('/v1/risk-assessments', {
+      method: 'POST',
+      headers: { ...authorizedHeaders, 'Idempotency-Key': 'quota-sensitive-key' },
+      body: JSON.stringify(assessmentRequest),
+    });
+
+    expect(response.status).toBe(429);
+    const points = metricLines.map(
+      (line) => JSON.parse(line) as { name: string; attributes: Record<string, unknown> },
+    );
+    expect(points).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'ozzyl.api.dependency.operations',
+          attributes: {
+            dependency_type: 'usage_ledger',
+            operation: 'reserve',
+            outcome: 'rejected',
+          },
+        }),
+        expect.objectContaining({
+          name: 'ozzyl.api.control.events',
+          attributes: { control: 'quota', outcome: 'rejected' },
+        }),
+      ]),
+    );
+    expect(metricLines.join('\n')).not.toContain('private quota detail');
+    expect(metricLines.join('\n')).not.toContain('org_1');
+    expect(metricLines.join('\n')).not.toContain('quota-sensitive-key');
+  });
+
+  it('does not hide an unexpected usage dependency failure as a quota rejection', async () => {
+    const metricLines: string[] = [];
+    const metrics = createMetricRecorder({
+      service: 'api-test',
+      environment: 'test',
+      write: (line) => metricLines.push(line),
+    });
+    const usage: UsageLedger = {
+      async reserve() {
+        throw new Error('private database failure for org_1');
+      },
+    };
+    const response = await createTestApp({ metrics, usage }).request('/v1/risk-assessments', {
+      method: 'POST',
+      headers: { ...authorizedHeaders, 'Idempotency-Key': 'database-sensitive-key' },
+      body: JSON.stringify(assessmentRequest),
+    });
+
+    expect(response.status).toBe(500);
+    const points = metricLines.map(
+      (line) => JSON.parse(line) as { name: string; attributes: Record<string, unknown> },
+    );
+    expect(points).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'ozzyl.api.dependency.operations',
+          attributes: {
+            dependency_type: 'usage_ledger',
+            operation: 'reserve',
+            outcome: 'error',
+          },
+        }),
+        expect.objectContaining({
+          name: 'ozzyl.api.control.events',
+          attributes: { control: 'quota', outcome: 'error' },
+        }),
+      ]),
+    );
+    expect(metricLines.join('\n')).not.toContain('private database failure');
+    expect(metricLines.join('\n')).not.toContain('org_1');
+    expect(metricLines.join('\n')).not.toContain('database-sensitive-key');
   });
 
   it('enforces store isolation when reading an assessment', async () => {

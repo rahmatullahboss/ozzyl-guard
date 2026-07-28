@@ -493,6 +493,233 @@ export function recordDurableQueueSnapshot(
   });
 }
 
+export type ApiControlType =
+  'authentication' | 'authorization' | 'rate_limit' | 'quota' | 'idempotency';
+export type ApiControlOutcome = 'allowed' | 'rejected' | 'replay' | 'conflict' | 'error';
+
+const API_CONTROL_EVENTS = defineMetric({
+  name: 'ozzyl.api.control.events',
+  kind: 'counter',
+  unit: '{event}',
+  attributes: {
+    control: {
+      values: ['authentication', 'authorization', 'rate_limit', 'quota', 'idempotency'],
+    },
+    outcome: { values: ['allowed', 'rejected', 'replay', 'conflict', 'error'] },
+  },
+});
+
+export function recordApiControlEvent(
+  recorder: MetricRecorder | undefined,
+  control: ApiControlType,
+  outcome: ApiControlOutcome,
+): void {
+  recorder?.record(API_CONTROL_EVENTS, 1, { control, outcome });
+}
+
+export type ApiDependencyType =
+  | 'api_key'
+  | 'rate_limiter'
+  | 'usage_ledger'
+  | 'feature_provider'
+  | 'assessment_repository'
+  | 'outcome_repository'
+  | 'idempotency_store'
+  | 'courier_queue'
+  | 'verification_queue'
+  | 'otp_verifier';
+export type ApiDependencyOperation =
+  | 'resolve'
+  | 'consume'
+  | 'reserve'
+  | 'load'
+  | 'find_by_idempotency'
+  | 'find_by_id'
+  | 'save'
+  | 'get'
+  | 'set'
+  | 'enqueue'
+  | 'verify';
+export type ApiDependencyOutcome = 'success' | 'empty' | 'replay' | 'rejected' | 'error';
+
+const API_DEPENDENCY_ATTRIBUTES = {
+  dependency_type: {
+    values: [
+      'api_key',
+      'rate_limiter',
+      'usage_ledger',
+      'feature_provider',
+      'assessment_repository',
+      'outcome_repository',
+      'idempotency_store',
+      'courier_queue',
+      'verification_queue',
+      'otp_verifier',
+    ],
+  },
+  operation: {
+    values: [
+      'resolve',
+      'consume',
+      'reserve',
+      'load',
+      'find_by_idempotency',
+      'find_by_id',
+      'save',
+      'get',
+      'set',
+      'enqueue',
+      'verify',
+    ],
+  },
+  outcome: { values: ['success', 'empty', 'replay', 'rejected', 'error'] },
+} as const;
+const API_DEPENDENCY_OPERATION_COUNT = defineMetric({
+  name: 'ozzyl.api.dependency.operations',
+  kind: 'counter',
+  unit: '{operation}',
+  attributes: API_DEPENDENCY_ATTRIBUTES,
+});
+const API_DEPENDENCY_OPERATION_DURATION = defineMetric({
+  name: 'ozzyl.api.dependency.operation.duration',
+  kind: 'histogram',
+  unit: 'ms',
+  attributes: API_DEPENDENCY_ATTRIBUTES,
+});
+
+export async function observeApiDependency<T>(
+  recorder: MetricRecorder | undefined,
+  input: {
+    dependencyType: ApiDependencyType;
+    operation: ApiDependencyOperation;
+    classify?: (value: T) => ApiDependencyOutcome;
+    classifyError?: (error: unknown) => Extract<ApiDependencyOutcome, 'rejected' | 'error'>;
+    monotonicNow?: () => number;
+  },
+  task: () => Promise<T>,
+): Promise<T> {
+  const monotonicNow = input.monotonicNow ?? (() => Date.now());
+  const startedAt = safeMonotonicNow(monotonicNow);
+  try {
+    const value = await task();
+    recordApiDependencyOperation(recorder, {
+      dependencyType: input.dependencyType,
+      operation: input.operation,
+      outcome: input.classify?.(value) ?? 'success',
+      durationMs: safeDuration(monotonicNow, startedAt),
+    });
+    return value;
+  } catch (error) {
+    recordApiDependencyOperation(recorder, {
+      dependencyType: input.dependencyType,
+      operation: input.operation,
+      outcome: input.classifyError?.(error) ?? 'error',
+      durationMs: safeDuration(monotonicNow, startedAt),
+    });
+    throw error;
+  }
+}
+
+export function recordApiDependencyOperation(
+  recorder: MetricRecorder | undefined,
+  input: {
+    dependencyType: ApiDependencyType;
+    operation: ApiDependencyOperation;
+    outcome: ApiDependencyOutcome;
+    durationMs: number;
+  },
+): void {
+  if (!recorder) return;
+  const attributes = {
+    dependency_type: input.dependencyType,
+    operation: input.operation,
+    outcome: input.outcome,
+  } as const;
+  recorder.record(API_DEPENDENCY_OPERATION_COUNT, 1, attributes);
+  recorder.record(API_DEPENDENCY_OPERATION_DURATION, Math.max(0, input.durationMs), attributes);
+}
+
+export type RiskMetricDecision = 'allow' | 'verify' | 'review' | 'hold' | 'block';
+export type RiskMetricLevel = 'low' | 'moderate' | 'high' | 'critical' | 'unknown';
+export type RiskMetricFreshness = 'fresh' | 'stale' | 'missing';
+export type RiskScoreBand = '0_19' | '20_39' | '40_59' | '60_79' | '80_100';
+export type RiskConfidenceBand = '0_24' | '25_49' | '50_74' | '75_100';
+export type RiskOutcomeType =
+  'delivered' | 'returned' | 'cancelled_before_shipping' | 'customer_confirmed';
+
+const RISK_ASSESSMENTS = defineMetric({
+  name: 'ozzyl.risk.assessments',
+  kind: 'counter',
+  unit: '{assessment}',
+  attributes: {
+    decision: { values: ['allow', 'verify', 'review', 'hold', 'block'] },
+    risk_level: { values: ['low', 'moderate', 'high', 'critical', 'unknown'] },
+    score_band: { values: ['0_19', '20_39', '40_59', '60_79', '80_100'] },
+    confidence_band: { values: ['0_24', '25_49', '50_74', '75_100'] },
+    degraded: { values: [true, false] },
+    freshness: { values: ['fresh', 'stale', 'missing'] },
+  },
+});
+const RISK_OUTCOMES = defineMetric({
+  name: 'ozzyl.risk.outcomes',
+  kind: 'counter',
+  unit: '{outcome}',
+  attributes: {
+    outcome: {
+      values: ['delivered', 'returned', 'cancelled_before_shipping', 'customer_confirmed'],
+    },
+    linked_assessment: { values: [true, false] },
+  },
+});
+
+export function recordRiskAssessmentDistribution(
+  recorder: MetricRecorder | undefined,
+  input: {
+    decision: RiskMetricDecision;
+    riskLevel: RiskMetricLevel;
+    score: number;
+    confidence: number;
+    degraded: boolean;
+    freshness: RiskMetricFreshness;
+  },
+): void {
+  recorder?.record(RISK_ASSESSMENTS, 1, {
+    decision: input.decision,
+    risk_level: input.riskLevel,
+    score_band: riskScoreBand(input.score),
+    confidence_band: riskConfidenceBand(input.confidence),
+    degraded: input.degraded,
+    freshness: input.freshness,
+  });
+}
+
+export function recordRiskOutcomeDistribution(
+  recorder: MetricRecorder | undefined,
+  input: { outcome: RiskOutcomeType; linkedAssessment: boolean },
+): void {
+  recorder?.record(RISK_OUTCOMES, 1, {
+    outcome: input.outcome,
+    linked_assessment: input.linkedAssessment,
+  });
+}
+
+export function riskScoreBand(score: number): RiskScoreBand {
+  const bounded = Math.min(100, Math.max(0, Number.isFinite(score) ? score : 0));
+  if (bounded < 20) return '0_19';
+  if (bounded < 40) return '20_39';
+  if (bounded < 60) return '40_59';
+  if (bounded < 80) return '60_79';
+  return '80_100';
+}
+
+export function riskConfidenceBand(confidence: number): RiskConfidenceBand {
+  const bounded = Math.min(1, Math.max(0, Number.isFinite(confidence) ? confidence : 0));
+  if (bounded < 0.25) return '0_24';
+  if (bounded < 0.5) return '25_49';
+  if (bounded < 0.75) return '50_74';
+  return '75_100';
+}
+
 function safeMonotonicNow(monotonicNow: () => number): number {
   try {
     const value = monotonicNow();
