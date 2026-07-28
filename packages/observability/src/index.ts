@@ -1,3 +1,5 @@
+export * from './metrics.js';
+
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
 export type LogAttributes = Readonly<Record<string, unknown>>;

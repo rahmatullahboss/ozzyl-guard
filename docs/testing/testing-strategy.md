@@ -19,6 +19,7 @@
 - Structured-log fixed metadata, recursive sensitive-field redaction, safe error-code-only serialization, circular/binary/bigint handling, bounded truncation, and telemetry-sink failure isolation
 - Non-overlapping lease heartbeat scheduling, failure propagation, abort signaling, and idempotent stop behavior
 - API request-ID validation, bounded route templates, status/latency lifecycle records, and safe unhandled-error serialization
+- Metric descriptor/name/unit validation, finite categorical attribute allowlists, high-cardinality/secret-like key rejection, value/sign validation, JSON point serialization, worker helper output, and metric-sink failure isolation
 
 ## Contract tests
 
@@ -63,7 +64,8 @@ Webhook delivery contract tests cover:
 - Lease-owned webhook delivery, renewal, abort-on-loss, and retry
 - Multi-tenant isolation
 - Organization/store membership authorization
-- API-wide request correlation for public, authenticated, browser, not-found, and unhandled-error paths without raw dynamic routes or query values
+- API-wide request correlation plus request count/duration metrics for public, authenticated, browser, not-found, and unhandled-error paths without raw dynamic routes, query values, request IDs, or tenant identifiers in metric attributes
+- Courier-session, courier-sync, event, and verification operation metrics with bounded worker/operation/outcome labels and no job, account, event, endpoint, phone, OTP, credential, URL, payload, or provider-response values
 - Concurrent tenant-scoped native shadow comparison and sampled-attempt persistence, default-off rollout, owner/admin opt-in, idempotency-conflict rejection, negative tenant references, and bounded pilot reporting
 
 ### PostgreSQL concurrency and idempotency coverage
@@ -216,7 +218,8 @@ Current PostgreSQL coverage includes owner-checked lease renewal, durable dead-l
 - Webhook signing-secret decryption failure
 - Envelope authenticated-context mismatch
 - Secret redaction, including nested payload/body/URL/credential fields and error-message omission
-- Telemetry serialization/export failure isolation from application and worker execution
+- Log and metric serialization/export failure isolation from application and worker execution
+- Metric attribute rejection for identifier/hash/key/URL/payload/body/token/secret-style names and values outside descriptor-owned finite sets
 - Caller request-ID rejection when the value is not an approved opaque format, plus raw path/query suppression
 - Injection attacks
 - Session fixation/rotation

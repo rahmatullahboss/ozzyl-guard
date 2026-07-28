@@ -1,6 +1,7 @@
 import { AesGcmEnvelopeCipher } from '@ozzyl/encryption';
 import { chromium } from 'playwright';
 import type { CourierSession } from '@ozzyl/courier-adapters';
+import { recordWorkerOperation, type MetricRecorder } from '@ozzyl/observability';
 
 export type SessionFailureCode =
   | 'INVALID_CREDENTIALS'
@@ -145,10 +146,35 @@ export class CourierSessionWorker {
       health: AccountHealthStore;
       cipher: AesGcmEnvelopeCipher;
       driver: SteadfastSessionDriver;
+      metrics?: MetricRecorder;
+      monotonicNow?: () => number;
     },
   ) {}
 
   async refresh(accountId: string): Promise<{ status: 'connected' }> {
+    const monotonicNow = this.dependencies.monotonicNow ?? (() => Date.now());
+    const startedAt = monotonicNow();
+    try {
+      const result = await this.refreshSession(accountId);
+      recordWorkerOperation(this.dependencies.metrics, {
+        workerType: 'courier_session',
+        operation: 'refresh',
+        outcome: 'completed',
+        durationMs: monotonicNow() - startedAt,
+      });
+      return result;
+    } catch (error) {
+      recordWorkerOperation(this.dependencies.metrics, {
+        workerType: 'courier_session',
+        operation: 'refresh',
+        outcome: 'failed',
+        durationMs: monotonicNow() - startedAt,
+      });
+      throw error;
+    }
+  }
+
+  private async refreshSession(accountId: string): Promise<{ status: 'connected' }> {
     const credentials = await this.dependencies.credentials.load(accountId);
     if (!credentials) {
       const error = new SessionDriverError(

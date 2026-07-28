@@ -1,6 +1,10 @@
 import { describe, expect, it, vi } from 'vitest';
+import { createMetricRecorder } from '@ozzyl/observability';
 import { OtpProviderError } from '@ozzyl/verification';
 import { VerificationWorker } from './index.js';
+function parseMetricLine(line: string): unknown {
+  return JSON.parse(line) as unknown;
+}
 
 const delivery = {
   jobId: 'vjob_1',
@@ -23,8 +27,10 @@ function reporter() {
 }
 
 describe('VerificationWorker', () => {
-  it('delivers without exposing the OTP to reporter state', async () => {
+  it('delivers with bounded metrics without exposing the OTP', async () => {
     const state = reporter();
+    const metricLines: string[] = [];
+    const ticks = [10, 18];
     const provider = {
       send: vi.fn(async ({ message }: { message: string }) => {
         expect(message).toContain('123456');
@@ -33,6 +39,12 @@ describe('VerificationWorker', () => {
     };
     const worker = new VerificationWorker(provider, state, {
       now: () => new Date('2026-07-17T10:00:00.000Z'),
+      monotonicNow: () => ticks.shift() ?? 18,
+      metrics: createMetricRecorder({
+        service: 'verification-worker-test',
+        environment: 'test',
+        write: (line) => metricLines.push(line),
+      }),
     });
     await expect(worker.process(delivery)).resolves.toEqual({
       status: 'delivered',
@@ -40,6 +52,27 @@ describe('VerificationWorker', () => {
     });
     expect(state.delivered).toHaveBeenCalledOnce();
     expect(JSON.stringify(state.delivered.mock.calls)).not.toContain('123456');
+    expect(metricLines.map(parseMetricLine)).toEqual([
+      expect.objectContaining({
+        name: 'ozzyl.worker.operations',
+        attributes: {
+          worker_type: 'verification_delivery',
+          operation: 'send',
+          outcome: 'completed',
+        },
+      }),
+      expect.objectContaining({
+        name: 'ozzyl.worker.operation.duration',
+        value: 8,
+        attributes: {
+          worker_type: 'verification_delivery',
+          operation: 'send',
+          outcome: 'completed',
+        },
+      }),
+    ]);
+    expect(metricLines.join('\n')).not.toContain('123456');
+    expect(metricLines.join('\n')).not.toContain('ver_1');
   });
 
   it('schedules retryable provider failures with bounded backoff', async () => {

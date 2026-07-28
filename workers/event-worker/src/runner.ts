@@ -2,7 +2,11 @@ import { randomUUID } from 'node:crypto';
 import { Pool } from 'pg';
 import { LeaseHeartbeat } from '@ozzyl/database';
 import { AesGcmEnvelopeCipher } from '@ozzyl/encryption';
-import { createStructuredLogger } from '@ozzyl/observability';
+import {
+  createMetricRecorder,
+  createStructuredLogger,
+  recordWorkerClaimFailure,
+} from '@ozzyl/observability';
 import type { DomainEvent } from '@ozzyl/shared-types';
 import { EventWorker } from './index.js';
 import {
@@ -46,6 +50,10 @@ const log = createStructuredLogger({
   service: 'event-worker',
   environment: process.env.NODE_ENV ?? 'development',
 });
+const metrics = createMetricRecorder({
+  service: 'event-worker',
+  environment: process.env.NODE_ENV ?? 'development',
+});
 const queue = new PostgresWebhookDeliveryQueue(pool, { leaseMs, maxAttempts });
 let stopping = false;
 
@@ -53,6 +61,7 @@ async function run(): Promise<void> {
   log.info('event.worker.started', { worker_id: workerId });
   while (!stopping) {
     const delivery = await queue.claim(workerId).catch((error) => {
+      recordWorkerClaimFailure(metrics, 'webhook_delivery');
       logError(error, 'EVENT_CLAIM_FAILED');
       return null;
     });
@@ -85,6 +94,7 @@ async function run(): Promise<void> {
         {
           timeoutMs,
           maxAttempts,
+          metrics,
         },
       );
       await worker.deliver({

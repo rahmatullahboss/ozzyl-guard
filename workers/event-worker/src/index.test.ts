@@ -1,6 +1,10 @@
 import { createHmac } from 'node:crypto';
 import { describe, expect, it, vi } from 'vitest';
+import { createMetricRecorder } from '@ozzyl/observability';
 import { EventWorker, assertSafeWebhookDestination, assertSafeWebhookUrl } from './index.js';
+function parseMetricLine(line: string): unknown {
+  return JSON.parse(line) as unknown;
+}
 
 const repository = {
   markDelivered: vi.fn(async () => undefined),
@@ -72,7 +76,9 @@ describe('webhook destination validation', () => {
 });
 
 describe('EventWorker', () => {
-  it('signs and delivers an event', async () => {
+  it('signs, delivers, and records bounded operation metrics', async () => {
+    const metricLines: string[] = [];
+    const ticks = [100, 125];
     const fetcher = vi.fn<typeof fetch>().mockImplementation(async (_url, init) => {
       const headers = new Headers(init?.headers);
       const timestamp = headers.get('X-Ozzyl-Timestamp') ?? '';
@@ -87,6 +93,12 @@ describe('EventWorker', () => {
       fetcher,
       resolver: publicResolver,
       now: () => new Date('2026-07-17T00:00:00.000Z'),
+      monotonicNow: () => ticks.shift() ?? 125,
+      metrics: createMetricRecorder({
+        service: 'event-worker-test',
+        environment: 'test',
+        write: (line) => metricLines.push(line),
+      }),
     });
     const result = await worker.deliver({
       endpoint: {
@@ -99,6 +111,29 @@ describe('EventWorker', () => {
       attempt: 1,
     });
     expect(result.status).toBe('delivered');
+    expect(metricLines.map(parseMetricLine)).toEqual([
+      expect.objectContaining({
+        name: 'ozzyl.worker.operations',
+        value: 1,
+        attributes: {
+          worker_type: 'webhook_delivery',
+          operation: 'deliver',
+          outcome: 'completed',
+        },
+      }),
+      expect.objectContaining({
+        name: 'ozzyl.worker.operation.duration',
+        value: 25,
+        unit: 'ms',
+        attributes: {
+          worker_type: 'webhook_delivery',
+          operation: 'deliver',
+          outcome: 'completed',
+        },
+      }),
+    ]);
+    expect(metricLines.join('\n')).not.toContain('evt_1');
+    expect(metricLines.join('\n')).not.toContain('we_1');
   });
 
   it('fails an unsafe destination without retrying or fetching', async () => {

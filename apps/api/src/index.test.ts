@@ -1,7 +1,12 @@
 import { createHmac } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import { MemoryUsageLedger } from '@ozzyl/billing';
-import { createStructuredLogger, type StructuredLogger } from '@ozzyl/observability';
+import {
+  createMetricRecorder,
+  createStructuredLogger,
+  type MetricRecorder,
+  type StructuredLogger,
+} from '@ozzyl/observability';
 import {
   createApiApp,
   MemoryAssessmentRepository,
@@ -13,6 +18,9 @@ import {
   type ApiKeyIdentity,
   type AssessmentRepository,
 } from './index.js';
+function parseMetricLine(line: string): unknown {
+  return JSON.parse(line) as unknown;
+}
 
 const apiKey = ['ozg', 'test', 'fixture-a'].join('_');
 
@@ -21,6 +29,7 @@ function createTestApp(input?: {
   assessments?: AssessmentRepository;
   rawApiKey?: string;
   logger?: StructuredLogger;
+  metrics?: MetricRecorder;
   monotonicNow?: () => number;
   verificationRequests?: {
     enqueueSend(input: {
@@ -73,6 +82,7 @@ function createTestApp(input?: {
       : { verificationRequests: input.verificationRequests }),
     ...(input?.otpVerifier === undefined ? {} : { otpVerifier: input.otpVerifier }),
     ...(input?.logger === undefined ? {} : { logger: input.logger }),
+    ...(input?.metrics === undefined ? {} : { metrics: input.metrics }),
     ...(input?.monotonicNow === undefined ? {} : { monotonicNow: input.monotonicNow }),
     idFactory: (prefix) => `${prefix}_${++counter}`,
     now: () => new Date('2026-07-16T10:00:00.000Z'),
@@ -94,6 +104,7 @@ const authorizedHeaders = {
 describe('Ozzyl Guard API', () => {
   it('records a bounded request lifecycle without logging dynamic path values', async () => {
     const lines: string[] = [];
+    const metricLines: string[] = [];
     const ticks = [100, 125];
     const logger = createStructuredLogger({
       service: 'api-test',
@@ -101,8 +112,15 @@ describe('Ozzyl Guard API', () => {
       clock: () => new Date('2026-07-28T00:00:00.000Z'),
       write: (line) => lines.push(line),
     });
+    const metrics = createMetricRecorder({
+      service: 'api-test',
+      environment: 'test',
+      clock: () => new Date('2026-07-28T00:00:00.000Z'),
+      write: (line) => metricLines.push(line),
+    });
     const response = await createTestApp({
       logger,
+      metrics,
       monotonicNow: () => ticks.shift() ?? 125,
     }).request('/v1/risk-assessments/ras-sensitive-value?query=discard-me', {
       headers: {
@@ -126,6 +144,31 @@ describe('Ozzyl Guard API', () => {
     });
     expect(lines.join('\n')).not.toContain('ras-sensitive-value');
     expect(lines.join('\n')).not.toContain('discard-me');
+    expect(metricLines.map(parseMetricLine)).toEqual([
+      expect.objectContaining({
+        name: 'ozzyl.api.requests',
+        kind: 'counter',
+        value: 1,
+        attributes: {
+          method: 'GET',
+          route: '/v1/risk-assessments/:assessment_id',
+          status_class: '4xx',
+        },
+      }),
+      expect.objectContaining({
+        name: 'ozzyl.api.request.duration',
+        kind: 'histogram',
+        unit: 'ms',
+        value: 25,
+        attributes: {
+          method: 'GET',
+          route: '/v1/risk-assessments/:assessment_id',
+          status_class: '4xx',
+        },
+      }),
+    ]);
+    expect(metricLines.join('\n')).not.toContain('ras-sensitive-value');
+    expect(metricLines.join('\n')).not.toContain('discard-me');
   });
 
   it('rejects arbitrary caller request identifiers instead of reflecting them', async () => {
@@ -153,7 +196,14 @@ describe('Ozzyl Guard API', () => {
         throw new Error('sink unavailable');
       },
     });
-    const response = await createTestApp({ logger }).request('/health');
+    const metrics = createMetricRecorder({
+      service: 'api-test',
+      environment: 'test',
+      write: () => {
+        throw new Error('metric sink unavailable');
+      },
+    });
+    const response = await createTestApp({ logger, metrics }).request('/health');
 
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toMatchObject({ status: 'ok' });
