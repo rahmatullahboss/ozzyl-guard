@@ -154,10 +154,9 @@ verification:
     migration_history_integrity: passed
     clean_restore_rehearsal: passed_with_schema_data_sequence_history_and_replay
     architecture_boundaries: passed
-    typecheck: 20_of_20_local
-    test_tasks: 31_of_31_local
-    source_assertions: 132_total
-    previous_main_remote_assertions: 129_passed
+    typecheck: 20_of_20_passed
+    test_tasks: 31_of_31_passed
+    remote_assertions: 132_passed
     migration_integrity_tests: 7_of_7_passed
     postgresql_concurrency_tests: 7_of_7_passed
     postgresql_courier_worker_lease_tests: 5_of_5_passed
@@ -176,34 +175,33 @@ verification:
     durable_dead_letter_postgresql_tests: 5_of_5_passed
     browser_dead_letter_api_tests: 3_of_3_passed
     observability_tests: 3_of_3_passed
-    builds: 20_of_20_local
+    builds: 20_of_20_passed
     php_syntax: passed
     high_critical_dependency_check: passed
     moderate_dependency_findings: 5
     documentation_links: 57_reviewed_0_known_broken
   continuation_bundle:
     status: refreshed_locally
-    canonical_main_sync: verified_at_b61af364a828f9742fc95a6a18314c0a82540d29
-    local_exporter: completed_after_observability_milestone_docs
+    canonical_main_sync: verified_at_d8ef4acadb39ad33337f3e2c0ef0e6f1c9d4d8a7
+    local_exporter: completed_after_merged_observability_ci_evidence
   remote_ci:
     status: passed
-    run_id: 29645967968
-    job_id: 88084164235
+    run_id: 30317190971
+    job_id: 90145176143
     job: verify
-    tested_head: 2129b51ca7393b3c942f2f5c074cb3990b615b89
-    merged_main_commit: 27cff21a9fd024e7b8094da3397c79387c83ea02
-    completed: 2026-07-18
-    steps: audit_format_lint_manifest_twelve_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_typecheck_tests_build_php_all_passed
+    tested_head: 533979f6c5abe2cadf51de05bdd3b4844a647dd8
+    merged_main_commit: d8ef4acadb39ad33337f3e2c0ef0e6f1c9d4d8a7
+    completed: 2026-07-28
+    steps: audit_format_lint_manifest_twelve_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_twenty_typechecks_one_hundred_thirty_two_assertions_twenty_builds_php_all_passed
   source_validation:
     status: passed
-    run_id: 29645967968
-    job_id: 88084164235
-    tested_head: 2129b51ca7393b3c942f2f5c074cb3990b615b89
-    completed: 2026-07-18
-    steps: audit_format_lint_manifest_twelve_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_typecheck_tests_build_php_all_passed
-    browser_dead_letter_api_tests: 3_of_3_passed
+    run_id: 30317190971
+    job_id: 90145176143
+    tested_head: 533979f6c5abe2cadf51de05bdd3b4844a647dd8
+    completed: 2026-07-28
+    steps: audit_format_lint_manifest_twelve_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_twenty_typechecks_one_hundred_thirty_two_assertions_twenty_builds_php_all_passed
+    observability_tests: 3_of_3_passed
   pending_follow_up:
-    - source_branch_remote_ci_validation
     - observability_metrics_traces_exporters_and_managed_backend
     - production_source_hook_deployment_and_explicit_pilot_store_selection
     - pilot_outcome_collection_and_calibration
@@ -322,5 +320,5 @@ notes:
   - merchant_dead_letter_ui_hides_operations_from_non_admin_members
   - structured_log_redaction_is_canonicalized_in_packages_observability
   - private_worker_logging_uses_the_shared_telemetry_failure_isolation_boundary
-  - pro_context_was_refreshed_after_observability_milestone_documentation
+  - pro_context_was_refreshed_after_merged_observability_ci_evidence
   - update_this_file_after_every_material_milestone

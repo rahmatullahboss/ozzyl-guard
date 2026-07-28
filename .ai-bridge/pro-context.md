@@ -1,6 +1,6 @@
 # Ozzyl Guard Continuation Context
 
-Generated: 2026-07-28T00:21:05.297Z
+Generated: 2026-07-28T00:29:19.704Z
 Workspace: /Users/rahmatullahzisan/Desktop/Dev/Ozzyl Guard
 Workspace ID: ws_dfece19fe5040cc4a5675d02
 Write mode: workspace
@@ -238,46 +238,172 @@ Instruction for ChatGPT: use this as repository context, produce a narrow Codex 
 ## Git Status
 
 ```text
-## feat/observability-structured-logging
+## docs/observability-verification-evidence
  M .ai-bridge/current-plan.md
- M .ai-bridge/decisions.md
  M .ai-bridge/implementation-status.md
- M .ai-bridge/pro-context.md
- M AGENTS.md
- M README.md
- M docs/operations/operations-observability.md
- M docs/testing/testing-strategy.md
- M package-lock.json
- M package.json
  M tracker.yml
- M workers/courier-session-worker/package.json
- M workers/courier-session-worker/src/runner.ts
- M workers/courier-sync-worker/package.json
- M workers/courier-sync-worker/src/runner.ts
- M workers/event-worker/package.json
- M workers/event-worker/src/runner.ts
- M workers/verification-worker/package.json
- M workers/verification-worker/src/runner.ts
-?? packages/observability/
 ```
 
 ## Recent Commits
 
 ```text
-b61af36 (HEAD -> feat/observability-structured-logging, origin/main, main) docs: sync browser dead-letter evidence
+d8ef4ac (HEAD -> docs/observability-verification-evidence, origin/main, main) feat(observability): add safe structured worker logging (#26)
+b61af36 docs: sync browser dead-letter evidence
 27cff21 feat: add browser dead-letter operations
 57f7b3a docs: sync durable work dead-letter evidence
 2d68620 feat: add durable work dead-letter operations
 a028848 docs: sync selected source shadow pilot evidence (#21)
 c478170 feat: wire selected source shadow pilot (#20)
 de6f1eb docs: record native shadow verification evidence
-446d6eb feat: add native shadow rollout controls
 ```
 
 ## Git Diff
 
 ```diff
-git unavailable or failed: spawnSync git ENOBUFS
+diff --git a/.ai-bridge/current-plan.md b/.ai-bridge/current-plan.md
+index b6913c7..21239cb 100644
+--- a/.ai-bridge/current-plan.md
++++ b/.ai-bridge/current-plan.md
+@@ -113,11 +113,11 @@ Concrete provider selection and provisioning remain external production work.
+ - Twelve migration files ordered/non-empty/non-destructive: passed
+ - First migration apply and immediate migration replay: passed
+ - Architecture import boundaries: passed
+-- Typecheck: 20 of 20 workspaces passed locally
+-- Test/build dependency tasks: 31 of 31 passed locally
+-- Repository assertion inventory: 132, including the previous 129 remotely verified assertions plus three structured-log redaction/serialization/failure-isolation tests; PostgreSQL-integrated source-branch CI remains pending
+-- Production builds: 20 of 20 workspaces passed locally
+-- WooCommerce PHP syntax: unchanged; source-branch CI validation remains pending
++- Typecheck: 20 of 20 workspaces passed locally and in source-branch CI
++- Test/build dependency tasks: 31 of 31 passed locally and in source-branch CI
++- Repository assertions: 132 passed in PostgreSQL-integrated source-branch CI, including three structured-log redaction/serialization/failure-isolation tests
++- Production builds: 20 of 20 workspaces passed locally and in source-branch CI
++- WooCommerce PHP syntax: passed in source-branch CI
+ - npm high/critical audit threshold: passed after the ESLint toolchain update; five moderate findings remain
+ - Worker lease final CI run `29545309665`, job `87776201468`: all gates passed at head `b886fcb57c9a5c9ebae3b23334966468ae1733c3`
+ - The verified worker lease change was squash-merged to `main` as `d748bde10920e5a35a7e90f3a00b3b3bf02b96f3`
+@@ -144,11 +144,13 @@ Concrete provider selection and provisioning remain external production work.
+ - The verified durable-work dead-letter operations milestone was squash-merged through PR #22 to `main` as `2d686206456960bf9b3e14571e3bf2c9169d94f9`
+ - Browser dead-letter operations final CI run `29645967968`, job `88084164235`: audit, formatting, lint, twelve migrations, replay, history integrity, clean restore, runtime-role grants, architecture, 19 typechecks, 129 assertions, 19 builds, and PHP lint passed at head `2129b51ca7393b3c942f2f5c074cb3990b615b89`
+ - The verified browser dead-letter operations milestone was squash-merged through PR #24 to `main` as `27cff21a9fd024e7b8094da3397c79387c83ea02`
++- Structured observability final CI run `30317190971`, job `90145176143`: audit, formatting, lint, twelve migrations, replay, history integrity, clean restore, runtime-role grants, architecture, 20 typechecks, 132 assertions, 20 builds, and PHP lint passed at head `533979f6c5abe2cadf51de05bdd3b4844a647dd8`
++- The verified structured observability milestone was squash-merged through PR #26 to `main` as `d8ef4acadb39ad33337f3e2c0ef0e6f1c9d4d8a7`
+ - Canonical documentation links before this slice: zero known broken internal links
+ - `tracker.yml` YAML structure remains valid
+ - Prohibited source-pattern search: no matches
+
+-The repository-local continuation exporter was refreshed after the observability milestone documentation was finalized, so the embedded snapshots match the current branch state.
++The repository-local continuation exporter was refreshed after recording the merged observability verification evidence, so the embedded snapshots match the current branch state.
+
+ ## Next production milestone
+
+diff --git a/.ai-bridge/implementation-status.md b/.ai-bridge/implementation-status.md
+index c71e7aa..b70e958 100644
+--- a/.ai-bridge/implementation-status.md
++++ b/.ai-bridge/implementation-status.md
+@@ -85,9 +85,9 @@ Applied migrations must remain immutable.
+ - `npm run db:integrity`: complete contiguous history and checksums passed
+ - `npm run db:restore-rehearsal`: clean logical restore, schema fingerprint, full table data hashes, sequence state, history, and replay passed
+ - `npm run check:architecture`: passed
+-- `npm run typecheck`: 20/20 workspaces passed locally
+-- `npm run test`: 31/31 Turbo dependency tasks passed locally; source inventory contains 132 assertions, including three new observability tests
+-- `npm run build`: 20/20 workspace builds passed locally
++- `npm run typecheck`: 20/20 workspaces passed locally and in source-branch CI
++- `npm run test`: 31/31 Turbo dependency tasks and 132 assertions passed in PostgreSQL-integrated source-branch CI, including three observability tests
++- `npm run build`: 20/20 workspace builds passed locally and in source-branch CI
+ - `npm audit --audit-level=high`: passed after updating ESLint, `@eslint/js`, and `typescript-eslint`; five moderate findings remain
+ - Observability tests prove fixed metadata, nested redaction, error message/stack omission, circular/binary/bigint handling, bounded strings, reserved-field protection, and sink-failure isolation
+ - Webhook outbox final run `29550097719`, job `87790624617`: all gates passed at head `fb0a68bac4628a96f82413b5d71092e4f0367536`
+@@ -127,12 +127,14 @@ Applied migrations must remain immutable.
+ - Three browser dead-letter tests cover secret-free exact-store listing, wrong-store hiding, owner/admin authorization, member rejection, CSRF protection, stable idempotency forwarding, replay serialization, and structured conflict mapping
+ - Browser dead-letter operations final run `29645967968`, job `88084164235`: twelve migrations, 19 typechecks, 28 test tasks with 129 assertions, 19 builds, audit, formatting, lint, clean restore, runtime-role grants, architecture, and PHP lint passed at head `2129b51ca7393b3c942f2f5c074cb3990b615b89`
+ - The verified browser dead-letter operations milestone was squash-merged through PR #24 to `main` as `27cff21a9fd024e7b8094da3397c79387c83ea02`
++- Structured observability final run `30317190971`, job `90145176143`: twelve migrations, 20 typechecks, 31 Turbo test/build dependency tasks with 132 assertions, 20 builds, audit, formatting, lint, clean restore, runtime-role grants, architecture, and PHP lint passed at head `533979f6c5abe2cadf51de05bdd3b4844a647dd8`
++- The verified structured observability milestone was squash-merged through PR #26 to `main` as `d8ef4acadb39ad33337f3e2c0ef0e6f1c9d4d8a7`
+ - Seven real-PostgreSQL tests cover API-key/feature/write tenant mismatch, dashboard aggregation isolation, platform-admin reauthorization, and secret-free webhook/verification administration
+ - Seven database-role tests cover identifier safety, explicit policy completeness, insert-only replay evidence, real allowed DML, migration-history/DELETE/DDL denial, elevated-role rejection, and inherited-role rejection
+ - Previous canonical documentation checks found zero broken internal links
+ - Prohibited insecure-pattern scan: zero matches
+
+-The repository-local exporter was refreshed after this milestone documentation was completed. Source-branch remote CI is pending.
++The repository-local exporter was refreshed after the merged observability verification evidence was recorded.
+
+ ## External blockers and production requirements
+
+diff --git a/tracker.yml b/tracker.yml
+index 572820e..23b3106 100644
+--- a/tracker.yml
++++ b/tracker.yml
+@@ -154,10 +154,9 @@ verification:
+     migration_history_integrity: passed
+     clean_restore_rehearsal: passed_with_schema_data_sequence_history_and_replay
+     architecture_boundaries: passed
+-    typecheck: 20_of_20_local
+-    test_tasks: 31_of_31_local
+-    source_assertions: 132_total
+-    previous_main_remote_assertions: 129_passed
++    typecheck: 20_of_20_passed
++    test_tasks: 31_of_31_passed
++    remote_assertions: 132_passed
+     migration_integrity_tests: 7_of_7_passed
+     postgresql_concurrency_tests: 7_of_7_passed
+     postgresql_courier_worker_lease_tests: 5_of_5_passed
+@@ -176,34 +175,33 @@ verification:
+     durable_dead_letter_postgresql_tests: 5_of_5_passed
+     browser_dead_letter_api_tests: 3_of_3_passed
+     observability_tests: 3_of_3_passed
+-    builds: 20_of_20_local
++    builds: 20_of_20_passed
+     php_syntax: passed
+     high_critical_dependency_check: passed
+     moderate_dependency_findings: 5
+     documentation_links: 57_reviewed_0_known_broken
+   continuation_bundle:
+     status: refreshed_locally
+-    canonical_main_sync: verified_at_b61af364a828f9742fc95a6a18314c0a82540d29
+-    local_exporter: completed_after_observability_milestone_docs
++    canonical_main_sync: verified_at_d8ef4acadb39ad33337f3e2c0ef0e6f1c9d4d8a7
++    local_exporter: completed_after_merged_observability_ci_evidence
+   remote_ci:
+     status: passed
+-    run_id: 29645967968
+-    job_id: 88084164235
++    run_id: 30317190971
++    job_id: 90145176143
+     job: verify
+-    tested_head: 2129b51ca7393b3c942f2f5c074cb3990b615b89
+-    merged_main_commit: 27cff21a9fd024e7b8094da3397c79387c83ea02
+-    completed: 2026-07-18
+-    steps: audit_format_lint_manifest_twelve_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_typecheck_tests_build_php_all_passed
++    tested_head: 533979f6c5abe2cadf51de05bdd3b4844a647dd8
++    merged_main_commit: d8ef4acadb39ad33337f3e2c0ef0e6f1c9d4d8a7
++    completed: 2026-07-28
++    steps: audit_format_lint_manifest_twelve_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_twenty_typechecks_one_hundred_thirty_two_assertions_twenty_builds_php_all_passed
+   source_validation:
+     status: passed
+-    run_id: 29645967968
+-    job_id: 88084164235
+-    tested_head: 2129b51ca7393b3c942f2f5c074cb3990b615b89
+-    completed: 2026-07-18
+-    steps: audit_format_lint_manifest_twelve_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_typecheck_tests_build_php_all_passed
+-    browser_dead_letter_api_tests: 3_of_3_passed
++    run_id: 30317190971
++    job_id: 90145176143
++    tested_head: 533979f6c5abe2cadf51de05bdd3b4844a647dd8
++    completed: 2026-07-28
++    steps: audit_format_lint_manifest_twelve_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_twenty_typechecks_one_hundred_thirty_two_assertions_twenty_builds_php_all_passed
++    observability_tests: 3_of_3_passed
+   pending_follow_up:
+-    - source_branch_remote_ci_validation
+     - observability_metrics_traces_exporters_and_managed_backend
+     - production_source_hook_deployment_and_explicit_pilot_store_selection
+     - pilot_outcome_collection_and_calibration
+@@ -322,5 +320,5 @@ notes:
+   - merchant_dead_letter_ui_hides_operations_from_non_admin_members
+   - structured_log_redaction_is_canonicalized_in_packages_observability
+   - private_worker_logging_uses_the_shared_telemetry_failure_isolation_boundary
+-  - pro_context_was_refreshed_after_observability_milestone_documentation
++  - pro_context_was_refreshed_after_merged_observability_ci_evidence
+   - update_this_file_after_every_material_milestone
 ```
 
 ## Existing AI Bridge Context
@@ -398,11 +524,11 @@ git unavailable or failed: spawnSync git ENOBUFS
 113 | - Twelve migration files ordered/non-empty/non-destructive: passed
 114 | - First migration apply and immediate migration replay: passed
 115 | - Architecture import boundaries: passed
-116 | - Typecheck: 20 of 20 workspaces passed locally
-117 | - Test/build dependency tasks: 31 of 31 passed locally
-118 | - Repository assertion inventory: 132, including the previous 129 remotely verified assertions plus three structured-log redaction/serialization/failure-isolation tests; PostgreSQL-integrated source-branch CI remains pending
-119 | - Production builds: 20 of 20 workspaces passed locally
-120 | - WooCommerce PHP syntax: unchanged; source-branch CI validation remains pending
+116 | - Typecheck: 20 of 20 workspaces passed locally and in source-branch CI
+117 | - Test/build dependency tasks: 31 of 31 passed locally and in source-branch CI
+118 | - Repository assertions: 132 passed in PostgreSQL-integrated source-branch CI, including three structured-log redaction/serialization/failure-isolation tests
+119 | - Production builds: 20 of 20 workspaces passed locally and in source-branch CI
+120 | - WooCommerce PHP syntax: passed in source-branch CI
 121 | - npm high/critical audit threshold: passed after the ESLint toolchain update; five moderate findings remain
 122 | - Worker lease final CI run `29545309665`, job `87776201468`: all gates passed at head `b886fcb57c9a5c9ebae3b23334966468ae1733c3`
 123 | - The verified worker lease change was squash-merged to `main` as `d748bde10920e5a35a7e90f3a00b3b3bf02b96f3`
@@ -429,49 +555,51 @@ git unavailable or failed: spawnSync git ENOBUFS
 144 | - The verified durable-work dead-letter operations milestone was squash-merged through PR #22 to `main` as `2d686206456960bf9b3e14571e3bf2c9169d94f9`
 145 | - Browser dead-letter operations final CI run `29645967968`, job `88084164235`: audit, formatting, lint, twelve migrations, replay, history integrity, clean restore, runtime-role grants, architecture, 19 typechecks, 129 assertions, 19 builds, and PHP lint passed at head `2129b51ca7393b3c942f2f5c074cb3990b615b89`
 146 | - The verified browser dead-letter operations milestone was squash-merged through PR #24 to `main` as `27cff21a9fd024e7b8094da3397c79387c83ea02`
-147 | - Canonical documentation links before this slice: zero known broken internal links
-148 | - `tracker.yml` YAML structure remains valid
-149 | - Prohibited source-pattern search: no matches
-150 |
-151 | The repository-local continuation exporter was refreshed after the observability milestone documentation was finalized, so the embedded snapshots match the current branch state.
+147 | - Structured observability final CI run `30317190971`, job `90145176143`: audit, formatting, lint, twelve migrations, replay, history integrity, clean restore, runtime-role grants, architecture, 20 typechecks, 132 assertions, 20 builds, and PHP lint passed at head `533979f6c5abe2cadf51de05bdd3b4844a647dd8`
+148 | - The verified structured observability milestone was squash-merged through PR #26 to `main` as `d8ef4acadb39ad33337f3e2c0ef0e6f1c9d4d8a7`
+149 | - Canonical documentation links before this slice: zero known broken internal links
+150 | - `tracker.yml` YAML structure remains valid
+151 | - Prohibited source-pattern search: no matches
 152 |
-153 | ## Next production milestone
+153 | The repository-local continuation exporter was refreshed after recording the merged observability verification evidence, so the embedded snapshots match the current branch state.
 154 |
-155 | 1. Select and provision the managed runtime, PostgreSQL, KMS/vault, and observability providers under ADRs 0006–0010, including distinct production migration/runtime identities and a managed-provider point-in-time restore drill.
-156 | 2. Select and provision a reviewed KMS/vault adapter, component service identities, access auditing, and an audited PostgreSQL background re-encryption runner before switching runtime writes from local v1 to managed v2.
-157 | 3. Add an authorized Steadfast test account, live opt-in tests, selector monitoring, and provider-terms approval.
-158 | 4. Select, review, bundle, and configure the production OTP provider adapter/account for the existing verification runner.
-159 | 5. Add distributed rate limiting/cache only when multiple replicas require it.
-160 | 6. Deploy the verified post-persist source hook only to explicitly opted-in pilot stores and validate production observability without using Guard as the effective decision source.
-161 | 7. Run the selected-merchant pilot, collect verified outcomes, calibrate confidence/thresholds, and keep broad automatic blocking disabled until reviewed.
-162 |
-163 | ## External blockers
+155 | ## Next production milestone
+156 |
+157 | 1. Select and provision the managed runtime, PostgreSQL, KMS/vault, and observability providers under ADRs 0006–0010, including distinct production migration/runtime identities and a managed-provider point-in-time restore drill.
+158 | 2. Select and provision a reviewed KMS/vault adapter, component service identities, access auditing, and an audited PostgreSQL background re-encryption runner before switching runtime writes from local v1 to managed v2.
+159 | 3. Add an authorized Steadfast test account, live opt-in tests, selector monitoring, and provider-terms approval.
+160 | 4. Select, review, bundle, and configure the production OTP provider adapter/account for the existing verification runner.
+161 | 5. Add distributed rate limiting/cache only when multiple replicas require it.
+162 | 6. Deploy the verified post-persist source hook only to explicitly opted-in pilot stores and validate production observability without using Guard as the effective decision source.
+163 | 7. Run the selected-merchant pilot, collect verified outcomes, calibrate confidence/thresholds, and keep broad automatic blocking disabled until reviewed.
 164 |
-165 | - Authorized Steadfast merchant/test credentials
-166 | - Steadfast provider-terms and merchant-authorization review
-167 | - Deployment platform, account, primary region, and budget
-168 | - Managed PostgreSQL provider and service tier
-169 | - Managed secret store and KMS/vault provider
-170 | - Observability backend and retention policy
-171 | - OTP provider account and credentials
-172 | - Production account recovery/MFA or managed identity-provider decision
-173 | - Repository visibility correction from currently reported public to expected private
-174 | - Pilot outcome data for false-positive/false-negative calibration
-175 |
-176 | ## Non-negotiable continuation rules
+165 | ## External blockers
+166 |
+167 | - Authorized Steadfast merchant/test credentials
+168 | - Steadfast provider-terms and merchant-authorization review
+169 | - Deployment platform, account, primary region, and budget
+170 | - Managed PostgreSQL provider and service tier
+171 | - Managed secret store and KMS/vault provider
+172 | - Observability backend and retention policy
+173 | - OTP provider account and credentials
+174 | - Production account recovery/MFA or managed identity-provider decision
+175 | - Repository visibility correction from currently reported public to expected private
+176 | - Pilot outcome data for false-positive/false-negative calibration
 177 |
-178 | - Do not add a second risk engine.
-179 | - Do not call providers from the risk engine or synchronous checkout path.
-180 | - Do not deliver webhooks or OTP messages synchronously in checkout/API request handling.
-181 | - Do not store/log raw API keys, passwords, OTPs, courier cookies, provider credentials, or webhook signing secrets.
-182 | - Do not use API keys as dashboard user sessions.
-183 | - Require organization/store scope in all merchant repositories, events, and jobs.
-184 | - Add new migrations; never edit applied migrations.
-185 | - Keep PostgreSQL authoritative for durable jobs/outbox through the pilot unless ADR 0008 is superseded.
-186 | - Keep Redis/cache state non-authoritative.
-187 | - Keep unknown/provider failure explicit and policy-controlled.
-188 | - Update `tracker.yml`, documentation, implementation status, decisions, and the continuation bundle with every material milestone.
-189 |
+178 | ## Non-negotiable continuation rules
+179 |
+180 | - Do not add a second risk engine.
+181 | - Do not call providers from the risk engine or synchronous checkout path.
+182 | - Do not deliver webhooks or OTP messages synchronously in checkout/API request handling.
+183 | - Do not store/log raw API keys, passwords, OTPs, courier cookies, provider credentials, or webhook signing secrets.
+184 | - Do not use API keys as dashboard user sessions.
+185 | - Require organization/store scope in all merchant repositories, events, and jobs.
+186 | - Add new migrations; never edit applied migrations.
+187 | - Keep PostgreSQL authoritative for durable jobs/outbox through the pilot unless ADR 0008 is superseded.
+188 | - Keep Redis/cache state non-authoritative.
+189 | - Keep unknown/provider failure explicit and policy-controlled.
+190 | - Update `tracker.yml`, documentation, implementation status, decisions, and the continuation bundle with every material milestone.
+191 |
 
 --- .ai-bridge/agent-status.md ---
 1 | # Agent Status
@@ -598,12 +726,12 @@ git unavailable or failed: spawnSync git ENOBUFS
 
 ## Selected Files
 
-Changed files detected: .ai-bridge/current-plan.md, .ai-bridge/decisions.md, .ai-bridge/implementation-status.md, .ai-bridge/pro-context.md, AGENTS.md, README.md, docs/operations/operations-observability.md, docs/testing/testing-strategy.md, package-lock.json, package.json, tracker.yml, workers/courier-session-worker/package.json, workers/courier-session-worker/src/runner.ts, workers/courier-sync-worker/package.json, workers/courier-sync-worker/src/runner.ts, workers/event-worker/package.json, workers/event-worker/src/runner.ts, workers/verification-worker/package.json, workers/verification-worker/src/runner.ts, packages/observability/
+Changed files detected: .ai-bridge/current-plan.md, .ai-bridge/implementation-status.md, tracker.yml
 Auto-include important root files: yes
 Auto-include changed files: yes
 Explicit selected paths: tracker.yml, AGENTS.md, README.md, .ai-bridge/current-plan.md, .ai-bridge/implementation-status.md, .ai-bridge/decisions.md, docs/operations/operations-observability.md, docs/testing/testing-strategy.md, docs/roadmap/implementation-roadmap.md, docs/roadmap/initial-backlog.md, packages/observability/src/index.ts, packages/observability/src/index.test.ts
 Extra globs: none
-Files included below: AGENTS.md, README.md, .ai-bridge/current-plan.md, .ai-bridge/decisions.md, .ai-bridge/implementation-status.md, docs/operations/operations-observability.md, docs/roadmap/implementation-roadmap.md, docs/roadmap/initial-backlog.md, docs/testing/testing-strategy.md, packages/observability/src/index.test.ts, packages/observability/src/index.ts, tracker.yml, eslint.config.js, package.json, turbo.json, workers/courier-session-worker/package.json, workers/courier-sync-worker/package.json, workers/event-worker/package.json, workers/verification-worker/package.json, package-lock.json, packages/observability/, workers/courier-session-worker/src/runner.ts, workers/courier-sync-worker/src/runner.ts, workers/event-worker/src/runner.ts, workers/verification-worker/src/runner.ts
+Files included below: AGENTS.md, README.md, .ai-bridge/current-plan.md, .ai-bridge/decisions.md, .ai-bridge/implementation-status.md, docs/operations/operations-observability.md, docs/roadmap/implementation-roadmap.md, docs/roadmap/initial-backlog.md, docs/testing/testing-strategy.md, packages/observability/src/index.test.ts, packages/observability/src/index.ts, tracker.yml, eslint.config.js, package.json, turbo.json
 
 ## File Contents
 
@@ -866,9 +994,9 @@ Lines: 1-146 of 146
 
 ### .ai-bridge/current-plan.md
 
-Bytes: 19970
-SHA-256: 0045cb462cb69d4be5f1075df4f00fd9c2017f717dfca99c74231847ac31c888
-Lines: 1-189 of 189
+Bytes: 20395
+SHA-256: d400177410e059269733d4386f5c277a5f02639b7e909dd8913e1b5aae79cfeb
+Lines: 1-191 of 191
 
 ```markdown
   1 | # Ozzyl Guard — Current Implementation Plan
@@ -986,11 +1114,11 @@ Lines: 1-189 of 189
 113 | - Twelve migration files ordered/non-empty/non-destructive: passed
 114 | - First migration apply and immediate migration replay: passed
 115 | - Architecture import boundaries: passed
-116 | - Typecheck: 20 of 20 workspaces passed locally
-117 | - Test/build dependency tasks: 31 of 31 passed locally
-118 | - Repository assertion inventory: 132, including the previous 129 remotely verified assertions plus three structured-log redaction/serialization/failure-isolation tests; PostgreSQL-integrated source-branch CI remains pending
-119 | - Production builds: 20 of 20 workspaces passed locally
-120 | - WooCommerce PHP syntax: unchanged; source-branch CI validation remains pending
+116 | - Typecheck: 20 of 20 workspaces passed locally and in source-branch CI
+117 | - Test/build dependency tasks: 31 of 31 passed locally and in source-branch CI
+118 | - Repository assertions: 132 passed in PostgreSQL-integrated source-branch CI, including three structured-log redaction/serialization/failure-isolation tests
+119 | - Production builds: 20 of 20 workspaces passed locally and in source-branch CI
+120 | - WooCommerce PHP syntax: passed in source-branch CI
 121 | - npm high/critical audit threshold: passed after the ESLint toolchain update; five moderate findings remain
 122 | - Worker lease final CI run `29545309665`, job `87776201468`: all gates passed at head `b886fcb57c9a5c9ebae3b23334966468ae1733c3`
 123 | - The verified worker lease change was squash-merged to `main` as `d748bde10920e5a35a7e90f3a00b3b3bf02b96f3`
@@ -1017,49 +1145,51 @@ Lines: 1-189 of 189
 144 | - The verified durable-work dead-letter operations milestone was squash-merged through PR #22 to `main` as `2d686206456960bf9b3e14571e3bf2c9169d94f9`
 145 | - Browser dead-letter operations final CI run `29645967968`, job `88084164235`: audit, formatting, lint, twelve migrations, replay, history integrity, clean restore, runtime-role grants, architecture, 19 typechecks, 129 assertions, 19 builds, and PHP lint passed at head `2129b51ca7393b3c942f2f5c074cb3990b615b89`
 146 | - The verified browser dead-letter operations milestone was squash-merged through PR #24 to `main` as `27cff21a9fd024e7b8094da3397c79387c83ea02`
-147 | - Canonical documentation links before this slice: zero known broken internal links
-148 | - `tracker.yml` YAML structure remains valid
-149 | - Prohibited source-pattern search: no matches
-150 |
-151 | The repository-local continuation exporter was refreshed after the observability milestone documentation was finalized, so the embedded snapshots match the current branch state.
+147 | - Structured observability final CI run `30317190971`, job `90145176143`: audit, formatting, lint, twelve migrations, replay, history integrity, clean restore, runtime-role grants, architecture, 20 typechecks, 132 assertions, 20 builds, and PHP lint passed at head `533979f6c5abe2cadf51de05bdd3b4844a647dd8`
+148 | - The verified structured observability milestone was squash-merged through PR #26 to `main` as `d8ef4acadb39ad33337f3e2c0ef0e6f1c9d4d8a7`
+149 | - Canonical documentation links before this slice: zero known broken internal links
+150 | - `tracker.yml` YAML structure remains valid
+151 | - Prohibited source-pattern search: no matches
 152 |
-153 | ## Next production milestone
+153 | The repository-local continuation exporter was refreshed after recording the merged observability verification evidence, so the embedded snapshots match the current branch state.
 154 |
-155 | 1. Select and provision the managed runtime, PostgreSQL, KMS/vault, and observability providers under ADRs 0006–0010, including distinct production migration/runtime identities and a managed-provider point-in-time restore drill.
-156 | 2. Select and provision a reviewed KMS/vault adapter, component service identities, access auditing, and an audited PostgreSQL background re-encryption runner before switching runtime writes from local v1 to managed v2.
-157 | 3. Add an authorized Steadfast test account, live opt-in tests, selector monitoring, and provider-terms approval.
-158 | 4. Select, review, bundle, and configure the production OTP provider adapter/account for the existing verification runner.
-159 | 5. Add distributed rate limiting/cache only when multiple replicas require it.
-160 | 6. Deploy the verified post-persist source hook only to explicitly opted-in pilot stores and validate production observability without using Guard as the effective decision source.
-161 | 7. Run the selected-merchant pilot, collect verified outcomes, calibrate confidence/thresholds, and keep broad automatic blocking disabled until reviewed.
-162 |
-163 | ## External blockers
+155 | ## Next production milestone
+156 |
+157 | 1. Select and provision the managed runtime, PostgreSQL, KMS/vault, and observability providers under ADRs 0006–0010, including distinct production migration/runtime identities and a managed-provider point-in-time restore drill.
+158 | 2. Select and provision a reviewed KMS/vault adapter, component service identities, access auditing, and an audited PostgreSQL background re-encryption runner before switching runtime writes from local v1 to managed v2.
+159 | 3. Add an authorized Steadfast test account, live opt-in tests, selector monitoring, and provider-terms approval.
+160 | 4. Select, review, bundle, and configure the production OTP provider adapter/account for the existing verification runner.
+161 | 5. Add distributed rate limiting/cache only when multiple replicas require it.
+162 | 6. Deploy the verified post-persist source hook only to explicitly opted-in pilot stores and validate production observability without using Guard as the effective decision source.
+163 | 7. Run the selected-merchant pilot, collect verified outcomes, calibrate confidence/thresholds, and keep broad automatic blocking disabled until reviewed.
 164 |
-165 | - Authorized Steadfast merchant/test credentials
-166 | - Steadfast provider-terms and merchant-authorization review
-167 | - Deployment platform, account, primary region, and budget
-168 | - Managed PostgreSQL provider and service tier
-169 | - Managed secret store and KMS/vault provider
-170 | - Observability backend and retention policy
-171 | - OTP provider account and credentials
-172 | - Production account recovery/MFA or managed identity-provider decision
-173 | - Repository visibility correction from currently reported public to expected private
-174 | - Pilot outcome data for false-positive/false-negative calibration
-175 |
-176 | ## Non-negotiable continuation rules
+165 | ## External blockers
+166 |
+167 | - Authorized Steadfast merchant/test credentials
+168 | - Steadfast provider-terms and merchant-authorization review
+169 | - Deployment platform, account, primary region, and budget
+170 | - Managed PostgreSQL provider and service tier
+171 | - Managed secret store and KMS/vault provider
+172 | - Observability backend and retention policy
+173 | - OTP provider account and credentials
+174 | - Production account recovery/MFA or managed identity-provider decision
+175 | - Repository visibility correction from currently reported public to expected private
+176 | - Pilot outcome data for false-positive/false-negative calibration
 177 |
-178 | - Do not add a second risk engine.
-179 | - Do not call providers from the risk engine or synchronous checkout path.
-180 | - Do not deliver webhooks or OTP messages synchronously in checkout/API request handling.
-181 | - Do not store/log raw API keys, passwords, OTPs, courier cookies, provider credentials, or webhook signing secrets.
-182 | - Do not use API keys as dashboard user sessions.
-183 | - Require organization/store scope in all merchant repositories, events, and jobs.
-184 | - Add new migrations; never edit applied migrations.
-185 | - Keep PostgreSQL authoritative for durable jobs/outbox through the pilot unless ADR 0008 is superseded.
-186 | - Keep Redis/cache state non-authoritative.
-187 | - Keep unknown/provider failure explicit and policy-controlled.
-188 | - Update `tracker.yml`, documentation, implementation status, decisions, and the continuation bundle with every material milestone.
-189 |
+178 | ## Non-negotiable continuation rules
+179 |
+180 | - Do not add a second risk engine.
+181 | - Do not call providers from the risk engine or synchronous checkout path.
+182 | - Do not deliver webhooks or OTP messages synchronously in checkout/API request handling.
+183 | - Do not store/log raw API keys, passwords, OTPs, courier cookies, provider credentials, or webhook signing secrets.
+184 | - Do not use API keys as dashboard user sessions.
+185 | - Require organization/store scope in all merchant repositories, events, and jobs.
+186 | - Add new migrations; never edit applied migrations.
+187 | - Keep PostgreSQL authoritative for durable jobs/outbox through the pilot unless ADR 0008 is superseded.
+188 | - Keep Redis/cache state non-authoritative.
+189 | - Keep unknown/provider failure explicit and policy-controlled.
+190 | - Update `tracker.yml`, documentation, implementation status, decisions, and the continuation bundle with every material milestone.
+191 |
 ```
 
 ### .ai-bridge/decisions.md
@@ -1172,9 +1302,9 @@ Lines: 1-99 of 99
 
 ### .ai-bridge/implementation-status.md
 
-Bytes: 23576
-SHA-256: 5e2f37cf648ad9512db67ac3ca6f88743f3dbf092888e8c19c9cf2d0efa5b932
-Lines: 1-170 of 170
+Bytes: 24071
+SHA-256: 0ca28efa8bc3fee2d1b923381a900ff913e00f1e5f9e879a6c8bde508ec02117
+Lines: 1-172 of 172
 
 ```markdown
   1 | # Ozzyl Guard — Implementation Status
@@ -1264,9 +1394,9 @@ Lines: 1-170 of 170
  85 | - `npm run db:integrity`: complete contiguous history and checksums passed
  86 | - `npm run db:restore-rehearsal`: clean logical restore, schema fingerprint, full table data hashes, sequence state, history, and replay passed
  87 | - `npm run check:architecture`: passed
- 88 | - `npm run typecheck`: 20/20 workspaces passed locally
- 89 | - `npm run test`: 31/31 Turbo dependency tasks passed locally; source inventory contains 132 assertions, including three new observability tests
- 90 | - `npm run build`: 20/20 workspace builds passed locally
+ 88 | - `npm run typecheck`: 20/20 workspaces passed locally and in source-branch CI
+ 89 | - `npm run test`: 31/31 Turbo dependency tasks and 132 assertions passed in PostgreSQL-integrated source-branch CI, including three observability tests
+ 90 | - `npm run build`: 20/20 workspace builds passed locally and in source-branch CI
  91 | - `npm audit --audit-level=high`: passed after updating ESLint, `@eslint/js`, and `typescript-eslint`; five moderate findings remain
  92 | - Observability tests prove fixed metadata, nested redaction, error message/stack omission, circular/binary/bigint handling, bounded strings, reserved-field protection, and sink-failure isolation
  93 | - Webhook outbox final run `29550097719`, job `87790624617`: all gates passed at head `fb0a68bac4628a96f82413b5d71092e4f0367536`
@@ -1306,47 +1436,49 @@ Lines: 1-170 of 170
 127 | - Three browser dead-letter tests cover secret-free exact-store listing, wrong-store hiding, owner/admin authorization, member rejection, CSRF protection, stable idempotency forwarding, replay serialization, and structured conflict mapping
 128 | - Browser dead-letter operations final run `29645967968`, job `88084164235`: twelve migrations, 19 typechecks, 28 test tasks with 129 assertions, 19 builds, audit, formatting, lint, clean restore, runtime-role grants, architecture, and PHP lint passed at head `2129b51ca7393b3c942f2f5c074cb3990b615b89`
 129 | - The verified browser dead-letter operations milestone was squash-merged through PR #24 to `main` as `27cff21a9fd024e7b8094da3397c79387c83ea02`
-130 | - Seven real-PostgreSQL tests cover API-key/feature/write tenant mismatch, dashboard aggregation isolation, platform-admin reauthorization, and secret-free webhook/verification administration
-131 | - Seven database-role tests cover identifier safety, explicit policy completeness, insert-only replay evidence, real allowed DML, migration-history/DELETE/DDL denial, elevated-role rejection, and inherited-role rejection
-132 | - Previous canonical documentation checks found zero broken internal links
-133 | - Prohibited insecure-pattern scan: zero matches
-134 |
-135 | The repository-local exporter was refreshed after this milestone documentation was completed. Source-branch remote CI is pending.
+130 | - Structured observability final run `30317190971`, job `90145176143`: twelve migrations, 20 typechecks, 31 Turbo test/build dependency tasks with 132 assertions, 20 builds, audit, formatting, lint, clean restore, runtime-role grants, architecture, and PHP lint passed at head `533979f6c5abe2cadf51de05bdd3b4844a647dd8`
+131 | - The verified structured observability milestone was squash-merged through PR #26 to `main` as `d8ef4acadb39ad33337f3e2c0ef0e6f1c9d4d8a7`
+132 | - Seven real-PostgreSQL tests cover API-key/feature/write tenant mismatch, dashboard aggregation isolation, platform-admin reauthorization, and secret-free webhook/verification administration
+133 | - Seven database-role tests cover identifier safety, explicit policy completeness, insert-only replay evidence, real allowed DML, migration-history/DELETE/DDL denial, elevated-role rejection, and inherited-role rejection
+134 | - Previous canonical documentation checks found zero broken internal links
+135 | - Prohibited insecure-pattern scan: zero matches
 136 |
-137 | ## External blockers and production requirements
+137 | The repository-local exporter was refreshed after the merged observability verification evidence was recorded.
 138 |
-139 | - Concrete deployment platform, account, primary region, DNS, and TLS setup
-140 | - Managed PostgreSQL provider/service tier, automated backup retention, and production-equivalent point-in-time restore drill
-141 | - Managed secret store and KMS/vault provider
-142 | - Observability backend, retention, dashboards, alerts, and incident channels
-143 | - Optional Redis-compatible cache only when distributed coordination is required
-144 | - Authorized Steadfast test/merchant account
-145 | - Provider-terms and merchant-authorization review
-146 | - OTP provider selection/account
-147 | - Production account recovery/MFA or managed identity-provider decision
-148 | - Pilot merchants and verified outcome data for calibration
-149 |
-150 | ## Remaining risks
+139 | ## External blockers and production requirements
+140 |
+141 | - Concrete deployment platform, account, primary region, DNS, and TLS setup
+142 | - Managed PostgreSQL provider/service tier, automated backup retention, and production-equivalent point-in-time restore drill
+143 | - Managed secret store and KMS/vault provider
+144 | - Observability backend, retention, dashboards, alerts, and incident channels
+145 | - Optional Redis-compatible cache only when distributed coordination is required
+146 | - Authorized Steadfast test/merchant account
+147 | - Provider-terms and merchant-authorization review
+148 | - OTP provider selection/account
+149 | - Production account recovery/MFA or managed identity-provider decision
+150 | - Pilot merchants and verified outcome data for calibration
 151 |
-152 | - Steadfast UI/internal endpoint changes can break automation.
-153 | - The managed v2 boundary is implemented, but runtime call sites remain on local v1 until a reviewed provider adapter, service identities, access audits, and background rewrite procedure are provisioned.
-154 | - DNS validation reduces hostname-based SSRF risk, but production still requires controlled egress and network policy against DNS rebinding/route changes.
-155 | - In-process API and browser-session rate limiting is not distributed across replicas.
-156 | - Controlled dead-letter inspection and browser replay are implemented; future work still includes lease renewal for executions that may exceed one lease and a reviewed retention/archival policy.
-157 | - The repository runtime-role policy is verified, but the selected managed PostgreSQL provider must still provision distinct credentials, run the grant command after migrations, and pass a production smoke test.
-158 | - The verification runner has no bundled production provider adapter; provider selection, account credentials, terms, delivery callbacks, and staging validation remain external.
-159 | - Browser login has no account recovery, invitation, MFA, or managed identity-provider integration yet.
-160 | - GitHub currently reports public repository visibility although the expected policy is private.
-161 | - Provider-specific infrastructure has not been provisioned or smoke-tested.
-162 | - Structured logs are implemented for private worker startup/error paths, but API/repository/provider metrics, traces, exporters, dashboards, alerts, and managed retention are not yet implemented.
-163 | - Five moderate dependency advisories remain; the high/critical audit threshold is clear. One affects the Hono Node adapter on Windows static serving, while the remaining findings are development/build tooling; production upgrade review remains pending.
-164 | - Native shadow mode is advisory only; the verified post-persist hook still requires production deployment to explicitly selected stores, and pilot outcomes must be reviewed before any enforcement design.
-165 | - Automatic blocking remains merchant-controlled and disabled by default until pilot calibration.
-166 |
-167 | ## Next milestone
+152 | ## Remaining risks
+153 |
+154 | - Steadfast UI/internal endpoint changes can break automation.
+155 | - The managed v2 boundary is implemented, but runtime call sites remain on local v1 until a reviewed provider adapter, service identities, access audits, and background rewrite procedure are provisioned.
+156 | - DNS validation reduces hostname-based SSRF risk, but production still requires controlled egress and network policy against DNS rebinding/route changes.
+157 | - In-process API and browser-session rate limiting is not distributed across replicas.
+158 | - Controlled dead-letter inspection and browser replay are implemented; future work still includes lease renewal for executions that may exceed one lease and a reviewed retention/archival policy.
+159 | - The repository runtime-role policy is verified, but the selected managed PostgreSQL provider must still provision distinct credentials, run the grant command after migrations, and pass a production smoke test.
+160 | - The verification runner has no bundled production provider adapter; provider selection, account credentials, terms, delivery callbacks, and staging validation remain external.
+161 | - Browser login has no account recovery, invitation, MFA, or managed identity-provider integration yet.
+162 | - GitHub currently reports public repository visibility although the expected policy is private.
+163 | - Provider-specific infrastructure has not been provisioned or smoke-tested.
+164 | - Structured logs are implemented for private worker startup/error paths, but API/repository/provider metrics, traces, exporters, dashboards, alerts, and managed retention are not yet implemented.
+165 | - Five moderate dependency advisories remain; the high/critical audit threshold is clear. One affects the Hono Node adapter on Windows static serving, while the remaining findings are development/build tooling; production upgrade review remains pending.
+166 | - Native shadow mode is advisory only; the verified post-persist hook still requires production deployment to explicitly selected stores, and pilot outcomes must be reviewed before any enforcement design.
+167 | - Automatic blocking remains merchant-controlled and disabled by default until pilot calibration.
 168 |
-169 | Provision the accepted infrastructure baseline with distinct database identities and a production point-in-time restore drill, select and wire the managed KMS adapter plus audited re-encryption runner, validate Steadfast, select and bundle the OTP provider adapter, deploy the verified source hook to explicit pilot stores, and collect outcomes for calibration.
+169 | ## Next milestone
 170 |
+171 | Provision the accepted infrastructure baseline with distinct database identities and a production point-in-time restore drill, select and wire the managed KMS adapter plus audited re-encryption runner, validate Steadfast, select and bundle the OTP provider adapter, deploy the verified source hook to explicit pilot stores, and collect outcomes for calibration.
+172 |
 ```
 
 ### docs/operations/operations-observability.md
@@ -2484,9 +2616,9 @@ Lines: 1-224 of 224
 
 ### tracker.yml
 
-Bytes: 16720
-SHA-256: 8f041d455c72f1050711d42d7a00d4b319bc8cb6284f02fc07b6af7f90a50f91
-Lines: 1-327 of 327
+Bytes: 16712
+SHA-256: fdffc44b9343aa9d1d9b604290efc522b8289410f4451b34051b6a85386a8c69
+Lines: 1-325 of 325
 
 ```yaml
   1 | schema_version: 1
@@ -2645,177 +2777,175 @@ Lines: 1-327 of 327
 154 |     migration_history_integrity: passed
 155 |     clean_restore_rehearsal: passed_with_schema_data_sequence_history_and_replay
 156 |     architecture_boundaries: passed
-157 |     typecheck: 20_of_20_local
-158 |     test_tasks: 31_of_31_local
-159 |     source_assertions: 132_total
-160 |     previous_main_remote_assertions: 129_passed
-161 |     migration_integrity_tests: 7_of_7_passed
-162 |     postgresql_concurrency_tests: 7_of_7_passed
-163 |     postgresql_courier_worker_lease_tests: 5_of_5_passed
-164 |     postgresql_webhook_worker_lease_tests: 5_of_5_passed
-165 |     postgresql_verification_worker_lease_tests: 5_of_5_passed
-166 |     verification_payload_validation_tests: 3_of_3_passed
-167 |     postgresql_tenant_admin_isolation_tests: 7_of_7_passed
-168 |     postgresql_runtime_role_tests: 7_of_7_passed
-169 |     managed_envelope_tests: 11_of_11_passed
-170 |     native_shadow_adapter_tests: 10_of_10_passed
-171 |     native_shadow_api_tests: 7_of_7_passed
-172 |     native_shadow_postgresql_tests: 7_of_7_passed
-173 |     native_shadow_browser_tests: 2_of_2_passed
-174 |     native_shadow_sdk_tests: 2_of_2_passed
-175 |     native_shadow_total_tests: 28_of_28_passed
-176 |     durable_dead_letter_postgresql_tests: 5_of_5_passed
-177 |     browser_dead_letter_api_tests: 3_of_3_passed
-178 |     observability_tests: 3_of_3_passed
-179 |     builds: 20_of_20_local
-180 |     php_syntax: passed
-181 |     high_critical_dependency_check: passed
-182 |     moderate_dependency_findings: 5
-183 |     documentation_links: 57_reviewed_0_known_broken
-184 |   continuation_bundle:
-185 |     status: refreshed_locally
-186 |     canonical_main_sync: verified_at_b61af364a828f9742fc95a6a18314c0a82540d29
-187 |     local_exporter: completed_after_observability_milestone_docs
-188 |   remote_ci:
-189 |     status: passed
-190 |     run_id: 29645967968
-191 |     job_id: 88084164235
-192 |     job: verify
-193 |     tested_head: 2129b51ca7393b3c942f2f5c074cb3990b615b89
-194 |     merged_main_commit: 27cff21a9fd024e7b8094da3397c79387c83ea02
-195 |     completed: 2026-07-18
-196 |     steps: audit_format_lint_manifest_twelve_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_typecheck_tests_build_php_all_passed
-197 |   source_validation:
-198 |     status: passed
-199 |     run_id: 29645967968
-200 |     job_id: 88084164235
-201 |     tested_head: 2129b51ca7393b3c942f2f5c074cb3990b615b89
-202 |     completed: 2026-07-18
-203 |     steps: audit_format_lint_manifest_twelve_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_typecheck_tests_build_php_all_passed
-204 |     browser_dead_letter_api_tests: 3_of_3_passed
-205 |   pending_follow_up:
-206 |     - source_branch_remote_ci_validation
-207 |     - observability_metrics_traces_exporters_and_managed_backend
-208 |     - production_source_hook_deployment_and_explicit_pilot_store_selection
-209 |     - pilot_outcome_collection_and_calibration
-210 |
-211 | migrations:
-212 |   immutable: true
-213 |   manifest: packages/database/migrations/manifest.json
-214 |   history_checksum_column: checksum_sha256_not_null
-215 |   files:
-216 |     - packages/database/migrations/0001_foundation.sql
-217 |     - packages/database/migrations/0002_courier.sql
-218 |     - packages/database/migrations/0003_risk.sql
-219 |     - packages/database/migrations/0004_verification_events.sql
-220 |     - packages/database/migrations/0005_durable_operations.sql
-221 |     - packages/database/migrations/0006_browser_access.sql
-222 |     - packages/database/migrations/0007_worker_leases.sql
-223 |     - packages/database/migrations/0008_webhook_delivery_leases.sql
-224 |     - packages/database/migrations/0009_verification_delivery_queue.sql
-225 |     - packages/database/migrations/0010_native_shadow_comparisons.sql
-226 |     - packages/database/migrations/0011_native_shadow_pilot.sql
-227 |     - packages/database/migrations/0012_durable_work_replays.sql
-228 |
-229 | accepted_adrs:
-230 |   - docs/adr/0006-production-deployment-topology.md
-231 |   - docs/adr/0007-managed-postgresql-production-baseline.md
-232 |   - docs/adr/0008-postgresql-first-durable-work-and-cache.md
-233 |   - docs/adr/0009-managed-secrets-and-kms-envelope-encryption.md
-234 |   - docs/adr/0010-vendor-neutral-production-observability.md
-235 |   - docs/adr/0011-selected-source-shadow-pilot.md
-236 |   - docs/adr/0012-durable-work-dead-letter-operations.md
-237 |
-238 | external_dependencies:
-239 |   - authorized_steadfast_test_account
-240 |   - provider_authorization_review
-241 |   - deployment_platform_account_region_and_budget
-242 |   - managed_postgresql_provider_and_service_tier
-243 |   - managed_secret_store_and_kms_vault_provider
-244 |   - observability_backend_and_retention_policy
-245 |   - otp_provider_account
-246 |   - pilot_outcome_data
-247 |
-248 | next_milestone:
-249 |   name: production-hardening-and-pilot-readiness
-250 |   tasks:
-251 |     - select_and_provision_accepted_infrastructure_providers
-252 |     - select_and_wire_a_reviewed_managed_kms_adapter_and_audited_reencryption_runner
-253 |     - validate_steadfast_with_an_authorized_account
-254 |     - implement_the_selected_otp_provider_adapter
-255 |     - add_distributed_cache_only_when_replica_coordination_requires_it
-256 |     - deploy_the_selected_source_post_persist_hook_to_explicitly_opted_in_pilot_stores
-257 |     - run_a_selected_merchant_pilot_and_collect_verified_outcomes
-258 |     - calibrate_decisions_before_broad_automatic_blocking
-259 |
-260 | release_policy:
-261 |   branch: main
-262 |   before_push:
-263 |     - npm_run_verify_passes
-264 |     - documentation_and_tracker_are_current
-265 |     - repository_review_is_clean
-266 |   rules:
-267 |     - no_force_push_to_main
-268 |     - do_not_edit_applied_migrations
-269 |     - use_descriptive_commits
-270 |
-271 | notes:
-272 |   - codexpro_and_local_mcp_files_are_workspace_tooling_and_ignored
-273 |   - dashboard_and_admin_use_separate_authenticated_live_browser_sessions
-274 |   - github_connector_reports_public_visibility_while_expected_state_is_private
-275 |   - infrastructure_architecture_is_accepted_but_provider_selection_is_pending
-276 |   - postgresql_remains_the_pilot_durable_job_and_outbox_source_of_truth
-277 |   - assessment_and_outcome_idempotency_races_resolve_to_the_scoped_persisted_winner
-278 |   - assessment_and_outcome_winners_enqueue_matching_webhook_rows_transactionally
-279 |   - webhook_event_payloads_do_not_include_raw_phone_values
-280 |   - courier_jobs_use_atomic_claims_expiring_leases_and_owner_checked_transitions
-281 |   - webhook_deliveries_use_atomic_claims_expiring_leases_and_owner_checked_transitions
-282 |   - webhook_worker_scope_is_revalidated_against_endpoint_and_store_relationships
-283 |   - webhook_signing_secrets_are_decrypted_only_inside_the_event_worker
-284 |   - webhook_destinations_require_https_public_dns_results_and_redirect_rejection
-285 |   - production_egress_policy_is_still_required_for_dns_rebinding_defense
-286 |   - otp_send_requests_create_session_hash_and_encrypted_job_in_one_transaction
-287 |   - otp_provider_delivery_occurs_only_in_the_private_verification_worker
-288 |   - verification_jobs_use_atomic_claims_expiring_leases_and_owner_checked_transitions
-289 |   - verification_scope_mismatch_fails_the_job_and_authoritative_session_closed
-290 |   - verification_payloads_are_bound_to_job_context_tenant_phone_hmac_and_otp_hash
-291 |   - selected_otp_provider_module_and_credentials_remain_external
-292 |   - migration_files_are_bound_to_a_committed_sha256_manifest
-293 |   - migration_history_unknown_gap_or_checksum_mismatch_fails_closed
-294 |   - legacy_name_only_history_is_backfilled_only_from_the_committed_manifest
-295 |   - migration_execution_uses_one_session_advisory_lock
-296 |   - ci_restores_pg_dump_into_a_clean_distinct_database_and_compares_schema_data_sequences_history_and_replay
-297 |   - managed_provider_point_in_time_restore_drill_remains_external
-298 |   - api_keys_feature_assembly_assessment_and_outcome_writes_fail_closed_on_relational_tenant_mismatch
-299 |   - webhook_and_verification_administration_queries_reauthorize_active_owner_or_admin_scope_and_return_no_secret_material
-300 |   - platform_admin_repository_rechecks_active_explicit_role_on_every_call
-301 |   - runtime_role_grants_are_explicit_current_table_only_and_exclude_migration_history_delete_and_ddl
-302 |   - runtime_role_must_be_externally_created_non_owner_login_without_elevated_privileges_or_memberships
-303 |   - runtime_grants_must_be_reapplied_by_the_migration_owner_after_each_migration_release
-304 |   - managed_envelope_v2_uses_one_random_dek_per_record_and_authenticated_wrapped_key_metadata
-305 |   - managed_envelope_context_mismatch_is_rejected_before_key_unwrap
-306 |   - legacy_ciphertext_is_dual_read_only_through_explicitly_configured_legacy_keys
-307 |   - production_runtime_stays_on_local_v1_until_a_reviewed_kms_adapter_and_identity_policy_are_provisioned
-308 |   - native_shadow_sampling_is_deterministic_by_store_key_and_order_id
-309 |   - native_shadow_guard_or_persistence_failure_keeps_the_legacy_result_authoritative
-310 |   - native_shadow_comparisons_are_immutable_tenant_scoped_and_idempotent
-311 |   - native_shadow_sampled_attempts_record_success_timeout_assessment_and_persistence_states
-312 |   - native_shadow_dashboard_and_admin_reporting_is_secret_free_and_tenant_scoped
-313 |   - native_shadow_enforcement_is_not_implemented_and_requires_pilot_review
-314 |   - broad_automatic_blocking_remains_disabled_until_pilot_calibration
-315 |   - durable_dead_letter_listing_is_secret_free_and_exact_store_scoped
-316 |   - durable_replay_resets_only_failed_replayable_work_and_clears_old_leases
-317 |   - durable_replay_ledger_is_insert_only_for_the_runtime_role
-318 |   - durable_replay_never_performs_provider_or_webhook_network_io
-319 |   - merchant_dead_letter_browser_routes_reauthorize_session_visible_owner_or_admin_scope
-320 |   - merchant_dead_letter_replay_requires_csrf_and_forwards_one_stable_idempotency_key
-321 |   - browser_replay_key_is_assigned_synchronously_before_network_io_and_retained_on_failure
-322 |   - merchant_dead_letter_ui_hides_operations_from_non_admin_members
-323 |   - structured_log_redaction_is_canonicalized_in_packages_observability
-324 |   - private_worker_logging_uses_the_shared_telemetry_failure_isolation_boundary
-325 |   - pro_context_was_refreshed_after_observability_milestone_documentation
-326 |   - update_this_file_after_every_material_milestone
-327 |
+157 |     typecheck: 20_of_20_passed
+158 |     test_tasks: 31_of_31_passed
+159 |     remote_assertions: 132_passed
+160 |     migration_integrity_tests: 7_of_7_passed
+161 |     postgresql_concurrency_tests: 7_of_7_passed
+162 |     postgresql_courier_worker_lease_tests: 5_of_5_passed
+163 |     postgresql_webhook_worker_lease_tests: 5_of_5_passed
+164 |     postgresql_verification_worker_lease_tests: 5_of_5_passed
+165 |     verification_payload_validation_tests: 3_of_3_passed
+166 |     postgresql_tenant_admin_isolation_tests: 7_of_7_passed
+167 |     postgresql_runtime_role_tests: 7_of_7_passed
+168 |     managed_envelope_tests: 11_of_11_passed
+169 |     native_shadow_adapter_tests: 10_of_10_passed
+170 |     native_shadow_api_tests: 7_of_7_passed
+171 |     native_shadow_postgresql_tests: 7_of_7_passed
+172 |     native_shadow_browser_tests: 2_of_2_passed
+173 |     native_shadow_sdk_tests: 2_of_2_passed
+174 |     native_shadow_total_tests: 28_of_28_passed
+175 |     durable_dead_letter_postgresql_tests: 5_of_5_passed
+176 |     browser_dead_letter_api_tests: 3_of_3_passed
+177 |     observability_tests: 3_of_3_passed
+178 |     builds: 20_of_20_passed
+179 |     php_syntax: passed
+180 |     high_critical_dependency_check: passed
+181 |     moderate_dependency_findings: 5
+182 |     documentation_links: 57_reviewed_0_known_broken
+183 |   continuation_bundle:
+184 |     status: refreshed_locally
+185 |     canonical_main_sync: verified_at_d8ef4acadb39ad33337f3e2c0ef0e6f1c9d4d8a7
+186 |     local_exporter: completed_after_merged_observability_ci_evidence
+187 |   remote_ci:
+188 |     status: passed
+189 |     run_id: 30317190971
+190 |     job_id: 90145176143
+191 |     job: verify
+192 |     tested_head: 533979f6c5abe2cadf51de05bdd3b4844a647dd8
+193 |     merged_main_commit: d8ef4acadb39ad33337f3e2c0ef0e6f1c9d4d8a7
+194 |     completed: 2026-07-28
+195 |     steps: audit_format_lint_manifest_twelve_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_twenty_typechecks_one_hundred_thirty_two_assertions_twenty_builds_php_all_passed
+196 |   source_validation:
+197 |     status: passed
+198 |     run_id: 30317190971
+199 |     job_id: 90145176143
+200 |     tested_head: 533979f6c5abe2cadf51de05bdd3b4844a647dd8
+201 |     completed: 2026-07-28
+202 |     steps: audit_format_lint_manifest_twelve_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_twenty_typechecks_one_hundred_thirty_two_assertions_twenty_builds_php_all_passed
+203 |     observability_tests: 3_of_3_passed
+204 |   pending_follow_up:
+205 |     - observability_metrics_traces_exporters_and_managed_backend
+206 |     - production_source_hook_deployment_and_explicit_pilot_store_selection
+207 |     - pilot_outcome_collection_and_calibration
+208 |
+209 | migrations:
+210 |   immutable: true
+211 |   manifest: packages/database/migrations/manifest.json
+212 |   history_checksum_column: checksum_sha256_not_null
+213 |   files:
+214 |     - packages/database/migrations/0001_foundation.sql
+215 |     - packages/database/migrations/0002_courier.sql
+216 |     - packages/database/migrations/0003_risk.sql
+217 |     - packages/database/migrations/0004_verification_events.sql
+218 |     - packages/database/migrations/0005_durable_operations.sql
+219 |     - packages/database/migrations/0006_browser_access.sql
+220 |     - packages/database/migrations/0007_worker_leases.sql
+221 |     - packages/database/migrations/0008_webhook_delivery_leases.sql
+222 |     - packages/database/migrations/0009_verification_delivery_queue.sql
+223 |     - packages/database/migrations/0010_native_shadow_comparisons.sql
+224 |     - packages/database/migrations/0011_native_shadow_pilot.sql
+225 |     - packages/database/migrations/0012_durable_work_replays.sql
+226 |
+227 | accepted_adrs:
+228 |   - docs/adr/0006-production-deployment-topology.md
+229 |   - docs/adr/0007-managed-postgresql-production-baseline.md
+230 |   - docs/adr/0008-postgresql-first-durable-work-and-cache.md
+231 |   - docs/adr/0009-managed-secrets-and-kms-envelope-encryption.md
+232 |   - docs/adr/0010-vendor-neutral-production-observability.md
+233 |   - docs/adr/0011-selected-source-shadow-pilot.md
+234 |   - docs/adr/0012-durable-work-dead-letter-operations.md
+235 |
+236 | external_dependencies:
+237 |   - authorized_steadfast_test_account
+238 |   - provider_authorization_review
+239 |   - deployment_platform_account_region_and_budget
+240 |   - managed_postgresql_provider_and_service_tier
+241 |   - managed_secret_store_and_kms_vault_provider
+242 |   - observability_backend_and_retention_policy
+243 |   - otp_provider_account
+244 |   - pilot_outcome_data
+245 |
+246 | next_milestone:
+247 |   name: production-hardening-and-pilot-readiness
+248 |   tasks:
+249 |     - select_and_provision_accepted_infrastructure_providers
+250 |     - select_and_wire_a_reviewed_managed_kms_adapter_and_audited_reencryption_runner
+251 |     - validate_steadfast_with_an_authorized_account
+252 |     - implement_the_selected_otp_provider_adapter
+253 |     - add_distributed_cache_only_when_replica_coordination_requires_it
+254 |     - deploy_the_selected_source_post_persist_hook_to_explicitly_opted_in_pilot_stores
+255 |     - run_a_selected_merchant_pilot_and_collect_verified_outcomes
+256 |     - calibrate_decisions_before_broad_automatic_blocking
+257 |
+258 | release_policy:
+259 |   branch: main
+260 |   before_push:
+261 |     - npm_run_verify_passes
+262 |     - documentation_and_tracker_are_current
+263 |     - repository_review_is_clean
+264 |   rules:
+265 |     - no_force_push_to_main
+266 |     - do_not_edit_applied_migrations
+267 |     - use_descriptive_commits
+268 |
+269 | notes:
+270 |   - codexpro_and_local_mcp_files_are_workspace_tooling_and_ignored
+271 |   - dashboard_and_admin_use_separate_authenticated_live_browser_sessions
+272 |   - github_connector_reports_public_visibility_while_expected_state_is_private
+273 |   - infrastructure_architecture_is_accepted_but_provider_selection_is_pending
+274 |   - postgresql_remains_the_pilot_durable_job_and_outbox_source_of_truth
+275 |   - assessment_and_outcome_idempotency_races_resolve_to_the_scoped_persisted_winner
+276 |   - assessment_and_outcome_winners_enqueue_matching_webhook_rows_transactionally
+277 |   - webhook_event_payloads_do_not_include_raw_phone_values
+278 |   - courier_jobs_use_atomic_claims_expiring_leases_and_owner_checked_transitions
+279 |   - webhook_deliveries_use_atomic_claims_expiring_leases_and_owner_checked_transitions
+280 |   - webhook_worker_scope_is_revalidated_against_endpoint_and_store_relationships
+281 |   - webhook_signing_secrets_are_decrypted_only_inside_the_event_worker
+282 |   - webhook_destinations_require_https_public_dns_results_and_redirect_rejection
+283 |   - production_egress_policy_is_still_required_for_dns_rebinding_defense
+284 |   - otp_send_requests_create_session_hash_and_encrypted_job_in_one_transaction
+285 |   - otp_provider_delivery_occurs_only_in_the_private_verification_worker
+286 |   - verification_jobs_use_atomic_claims_expiring_leases_and_owner_checked_transitions
+287 |   - verification_scope_mismatch_fails_the_job_and_authoritative_session_closed
+288 |   - verification_payloads_are_bound_to_job_context_tenant_phone_hmac_and_otp_hash
+289 |   - selected_otp_provider_module_and_credentials_remain_external
+290 |   - migration_files_are_bound_to_a_committed_sha256_manifest
+291 |   - migration_history_unknown_gap_or_checksum_mismatch_fails_closed
+292 |   - legacy_name_only_history_is_backfilled_only_from_the_committed_manifest
+293 |   - migration_execution_uses_one_session_advisory_lock
+294 |   - ci_restores_pg_dump_into_a_clean_distinct_database_and_compares_schema_data_sequences_history_and_replay
+295 |   - managed_provider_point_in_time_restore_drill_remains_external
+296 |   - api_keys_feature_assembly_assessment_and_outcome_writes_fail_closed_on_relational_tenant_mismatch
+297 |   - webhook_and_verification_administration_queries_reauthorize_active_owner_or_admin_scope_and_return_no_secret_material
+298 |   - platform_admin_repository_rechecks_active_explicit_role_on_every_call
+299 |   - runtime_role_grants_are_explicit_current_table_only_and_exclude_migration_history_delete_and_ddl
+300 |   - runtime_role_must_be_externally_created_non_owner_login_without_elevated_privileges_or_memberships
+301 |   - runtime_grants_must_be_reapplied_by_the_migration_owner_after_each_migration_release
+302 |   - managed_envelope_v2_uses_one_random_dek_per_record_and_authenticated_wrapped_key_metadata
+303 |   - managed_envelope_context_mismatch_is_rejected_before_key_unwrap
+304 |   - legacy_ciphertext_is_dual_read_only_through_explicitly_configured_legacy_keys
+305 |   - production_runtime_stays_on_local_v1_until_a_reviewed_kms_adapter_and_identity_policy_are_provisioned
+306 |   - native_shadow_sampling_is_deterministic_by_store_key_and_order_id
+307 |   - native_shadow_guard_or_persistence_failure_keeps_the_legacy_result_authoritative
+308 |   - native_shadow_comparisons_are_immutable_tenant_scoped_and_idempotent
+309 |   - native_shadow_sampled_attempts_record_success_timeout_assessment_and_persistence_states
+310 |   - native_shadow_dashboard_and_admin_reporting_is_secret_free_and_tenant_scoped
+311 |   - native_shadow_enforcement_is_not_implemented_and_requires_pilot_review
+312 |   - broad_automatic_blocking_remains_disabled_until_pilot_calibration
+313 |   - durable_dead_letter_listing_is_secret_free_and_exact_store_scoped
+314 |   - durable_replay_resets_only_failed_replayable_work_and_clears_old_leases
+315 |   - durable_replay_ledger_is_insert_only_for_the_runtime_role
+316 |   - durable_replay_never_performs_provider_or_webhook_network_io
+317 |   - merchant_dead_letter_browser_routes_reauthorize_session_visible_owner_or_admin_scope
+318 |   - merchant_dead_letter_replay_requires_csrf_and_forwards_one_stable_idempotency_key
+319 |   - browser_replay_key_is_assigned_synchronously_before_network_io_and_retained_on_failure
+320 |   - merchant_dead_letter_ui_hides_operations_from_non_admin_members
+321 |   - structured_log_redaction_is_canonicalized_in_packages_observability
+322 |   - private_worker_logging_uses_the_shared_telemetry_failure_isolation_boundary
+323 |   - pro_context_was_refreshed_after_merged_observability_ci_evidence
+324 |   - update_this_file_after_every_material_milestone
+325 |
 ```
 
 ### eslint.config.js
@@ -2966,873 +3096,6 @@ Lines: 1-23 of 23
 23 |
 ```
 
-### workers/courier-session-worker/package.json
-
-Bytes: 686
-SHA-256: 4de4e85e345661868d851289cac3ac0478b1826f39f3a9ec591c57961f8f93ee
-Lines: 1-30 of 30
-
-```json
- 1 | {
- 2 |   "name": "@ozzyl/courier-session-worker",
- 3 |   "version": "0.1.0",
- 4 |   "private": true,
- 5 |   "type": "module",
- 6 |   "types": "./src/index.ts",
- 7 |   "exports": {
- 8 |     ".": {
- 9 |       "types": "./src/index.ts",
-10 |       "import": "./dist/index.js"
-11 |     }
-12 |   },
-13 |   "scripts": {
-14 |     "build": "tsup src/index.ts src/runner.ts --format esm --dts --sourcemap --clean",
-15 |     "start": "node dist/runner.js",
-16 |     "typecheck": "tsc -p tsconfig.json --noEmit",
-17 |     "test": "vitest run"
-18 |   },
-19 |   "dependencies": {
-20 |     "@ozzyl/courier-adapters": "*",
-21 |     "pg": "^8.16.3",
-22 |     "playwright": "^1.57.0",
-23 |     "@ozzyl/encryption": "*",
-24 |     "@ozzyl/observability": "*"
-25 |   },
-26 |   "devDependencies": {
-27 |     "@types/pg": "^8.15.5"
-28 |   }
-29 | }
-30 |
-```
-
-### workers/courier-sync-worker/package.json
-
-Bytes: 666
-SHA-256: 7e9eb44fa20f07c023eba1a385688d6dbd9420f828daf50f7cc5e5728e6b8c75
-Lines: 1-29 of 29
-
-```json
- 1 | {
- 2 |   "name": "@ozzyl/courier-sync-worker",
- 3 |   "version": "0.1.0",
- 4 |   "private": true,
- 5 |   "type": "module",
- 6 |   "types": "./src/index.ts",
- 7 |   "exports": {
- 8 |     ".": {
- 9 |       "types": "./src/index.ts",
-10 |       "import": "./dist/index.js"
-11 |     }
-12 |   },
-13 |   "scripts": {
-14 |     "build": "tsup src/index.ts src/runner.ts --format esm --dts --sourcemap --clean",
-15 |     "start": "node dist/runner.js",
-16 |     "typecheck": "tsc -p tsconfig.json --noEmit",
-17 |     "test": "vitest run"
-18 |   },
-19 |   "dependencies": {
-20 |     "@ozzyl/courier-adapters": "*",
-21 |     "@ozzyl/courier-session-worker": "*",
-22 |     "pg": "^8.16.3",
-23 |     "@ozzyl/observability": "*"
-24 |   },
-25 |   "devDependencies": {
-26 |     "@types/pg": "^8.15.5"
-27 |   }
-28 | }
-29 |
-```
-
-### workers/event-worker/package.json
-
-Bytes: 659
-SHA-256: aabdc36b6cf50ab0349376276e0cd81a414df544d3cf46d5693fd0bbb0043f84
-Lines: 1-29 of 29
-
-```json
- 1 | {
- 2 |   "name": "@ozzyl/event-worker",
- 3 |   "version": "0.1.0",
- 4 |   "private": true,
- 5 |   "type": "module",
- 6 |   "types": "./src/index.ts",
- 7 |   "exports": {
- 8 |     ".": {
- 9 |       "types": "./src/index.ts",
-10 |       "import": "./dist/index.js"
-11 |     }
-12 |   },
-13 |   "scripts": {
-14 |     "build": "tsup src/index.ts src/postgres.ts src/runner.ts --format esm --dts --sourcemap --clean",
-15 |     "typecheck": "tsc -p tsconfig.json --noEmit",
-16 |     "test": "vitest run",
-17 |     "start": "node dist/runner.js"
-18 |   },
-19 |   "dependencies": {
-20 |     "@ozzyl/shared-types": "*",
-21 |     "@ozzyl/encryption": "*",
-22 |     "pg": "^8.16.3",
-23 |     "@ozzyl/observability": "*"
-24 |   },
-25 |   "devDependencies": {
-26 |     "@types/pg": "^8.15.5"
-27 |   }
-28 | }
-29 |
-```
-
-### workers/verification-worker/package.json
-
-Bytes: 698
-SHA-256: 2f671e0dc4f07d32ddc071a1bd3e514783d75606c9cfc427e273d14b5a6bff22
-Lines: 1-30 of 30
-
-```json
- 1 | {
- 2 |   "name": "@ozzyl/verification-worker",
- 3 |   "version": "0.1.0",
- 4 |   "private": true,
- 5 |   "type": "module",
- 6 |   "types": "./src/index.ts",
- 7 |   "exports": {
- 8 |     ".": {
- 9 |       "types": "./src/index.ts",
-10 |       "import": "./dist/index.js"
-11 |     }
-12 |   },
-13 |   "scripts": {
-14 |     "build": "tsup src/index.ts src/postgres.ts src/runner.ts --format esm --dts --sourcemap --clean",
-15 |     "typecheck": "tsc -p tsconfig.json --noEmit",
-16 |     "test": "vitest run",
-17 |     "start": "node dist/runner.js"
-18 |   },
-19 |   "dependencies": {
-20 |     "@ozzyl/encryption": "*",
-21 |     "@ozzyl/shared-types": "*",
-22 |     "@ozzyl/verification": "*",
-23 |     "pg": "^8.16.3",
-24 |     "@ozzyl/observability": "*"
-25 |   },
-26 |   "devDependencies": {
-27 |     "@types/pg": "^8.15.5"
-28 |   }
-29 | }
-30 |
-```
-
-### workers/courier-session-worker/src/runner.ts
-
-Bytes: 5036
-SHA-256: 73a79217b57fd68dea12e991ac0cb29917e86d82f26827f4ff921f3d9a6fe33a
-Lines: 1-162 of 162
-
-```typescript
-  1 | import { Pool } from 'pg';
-  2 | import { createStructuredLogger } from '@ozzyl/observability';
-  3 | import {
-  4 |   AesGcmEnvelopeCipher,
-  5 |   CourierSessionWorker,
-  6 |   SteadfastSessionDriver,
-  7 |   type SessionFailureCode,
-  8 |   type SteadfastCredentials,
-  9 | } from './index.js';
- 10 |
- 11 | const required = (name: string): string => {
- 12 |   const value = process.env[name];
- 13 |   if (!value) throw new Error(`${name} is required`);
- 14 |   return value;
- 15 | };
- 16 |
- 17 | const pool = new Pool({ connectionString: required('DATABASE_URL'), max: 5 });
- 18 | const cipher = new AesGcmEnvelopeCipher(
- 19 |   Buffer.from(required('CREDENTIAL_ENCRYPTION_KEY'), 'base64'),
- 20 |   required('CREDENTIAL_ENCRYPTION_KEY_VERSION'),
- 21 | );
- 22 | const refreshHours = Number(process.env.COURIER_SESSION_REFRESH_HOURS ?? 6);
- 23 | const pollMs = Number(process.env.WORKER_POLL_MS ?? 60_000);
- 24 | const log = createStructuredLogger({
- 25 |   service: 'courier-session-worker',
- 26 |   environment: process.env.NODE_ENV ?? 'development',
- 27 | });
- 28 | let stopping = false;
- 29 |
- 30 | const worker = new CourierSessionWorker({
- 31 |   credentials: {
- 32 |     async load(accountId): Promise<SteadfastCredentials | null> {
- 33 |       const result = await pool.query<{ encrypted_payload: string }>(
- 34 |         'select encrypted_payload from courier_credentials where courier_account_id = $1',
- 35 |         [accountId],
- 36 |       );
- 37 |       const payload = result.rows[0]?.encrypted_payload;
- 38 |       return payload
- 39 |         ? cipher.decrypt<SteadfastCredentials>(payload, `courier-credential:${accountId}`)
- 40 |         : null;
- 41 |     },
- 42 |   },
- 43 |   vault: {
- 44 |     async save(accountId, encryptedPayload, keyVersion): Promise<void> {
- 45 |       await pool.query(
- 46 |         `
- 47 |           insert into courier_sessions (
- 48 |             courier_account_id, encrypted_payload, encryption_key_version,
- 49 |             validated_at, status, expires_at
- 50 |           ) values ($1, $2, $3, now(), 'valid', now() + interval '6 hours')
- 51 |           on conflict (courier_account_id) do update set
- 52 |             encrypted_payload = excluded.encrypted_payload,
- 53 |             encryption_key_version = excluded.encryption_key_version,
- 54 |             validated_at = now(),
- 55 |             status = 'valid',
- 56 |             expires_at = excluded.expires_at,
- 57 |             updated_at = now()
- 58 |         `,
- 59 |         [accountId, encryptedPayload, keyVersion],
- 60 |       );
- 61 |     },
- 62 |   },
- 63 |   health: {
- 64 |     async markConnected(accountId, at): Promise<void> {
- 65 |       await pool.query(
- 66 |         `
- 67 |           update courier_accounts set status = 'connected', last_connected_at = $2,
- 68 |             last_success_at = $2, failure_code = null, updated_at = now()
- 69 |           where id = $1
- 70 |         `,
- 71 |         [accountId, at],
- 72 |       );
- 73 |     },
- 74 |     async markFailure(accountId, code: SessionFailureCode, at): Promise<void> {
- 75 |       const status = [
- 76 |         'INVALID_CREDENTIALS',
- 77 |         'CAPTCHA_REQUIRED',
- 78 |         'TWO_FACTOR_REQUIRED',
- 79 |         'SELECTOR_CHANGED',
- 80 |       ].includes(code)
- 81 |         ? 'reconnect_required'
- 82 |         : 'degraded';
- 83 |       await pool.query(
- 84 |         `
- 85 |           update courier_accounts set status = $2, last_failure_at = $3,
- 86 |             failure_code = $4, updated_at = now()
- 87 |           where id = $1
- 88 |         `,
- 89 |         [accountId, status, at, code],
- 90 |       );
- 91 |     },
- 92 |   },
- 93 |   cipher,
- 94 |   driver: new SteadfastSessionDriver(),
- 95 | });
- 96 |
- 97 | async function tick(): Promise<void> {
- 98 |   const accounts = await pool.query<{ id: string }>(
- 99 |     `
-100 |       select id from courier_accounts
-101 |       where provider = 'steadfast'
-102 |         and status <> 'disabled'
-103 |         and (
-104 |           last_success_at is null
-105 |           or last_success_at < now() - ($1::text || ' hours')::interval
-106 |           or status in ('pending', 'expired', 'degraded')
-107 |         )
-108 |       order by coalesce(last_success_at, to_timestamp(0)) asc
-109 |       limit 10
-110 |     `,
-111 |     [String(refreshHours)],
-112 |   );
-113 |
-114 |   for (const account of accounts.rows) {
-115 |     if (stopping) return;
-116 |     const client = await pool.connect();
-117 |     try {
-118 |       const lock = await client.query<{ locked: boolean }>(
-119 |         'select pg_try_advisory_lock(hashtext($1)) as locked',
-120 |         [`courier-session:${account.id}`],
-121 |       );
-122 |       if (!lock.rows[0]?.locked) continue;
-123 |       try {
-124 |         await worker.refresh(account.id);
-125 |         log.info('courier.session.refreshed', { account_id: account.id });
-126 |       } catch (error) {
-127 |         const code =
-128 |           error && typeof error === 'object' && 'code' in error
-129 |             ? String(error.code)
-130 |             : 'SESSION_REFRESH_FAILED';
-131 |         log.error('courier.session.failed', { account_id: account.id, code });
-132 |       } finally {
-133 |         await client.query('select pg_advisory_unlock(hashtext($1))', [
-134 |           `courier-session:${account.id}`,
-135 |         ]);
-136 |       }
-137 |     } finally {
-138 |       client.release();
-139 |     }
-140 |   }
-141 | }
-142 |
-143 | async function run(): Promise<void> {
-144 |   log.info('courier.session.worker.started');
-145 |   while (!stopping) {
-146 |     try {
-147 |       await tick();
-148 |     } catch {
-149 |       log.error('courier.session.worker.tick_failed');
-150 |     }
-151 |     if (!stopping) await new Promise((resolve) => setTimeout(resolve, pollMs));
-152 |   }
-153 |   await pool.end();
-154 | }
-155 |
-156 | const stop = (): void => {
-157 |   stopping = true;
-158 | };
-159 | process.once('SIGTERM', stop);
-160 | process.once('SIGINT', stop);
-161 | await run();
-162 |
-```
-
-### workers/courier-sync-worker/src/runner.ts
-
-Bytes: 7506
-SHA-256: 229555ebf2dddd84539151ccf893701aae000f46ce576202886b0a92d38dd581
-Lines: 1-212 of 212
-
-```typescript
-  1 | import { randomUUID } from 'node:crypto';
-  2 | import { Pool } from 'pg';
-  3 | import {
-  4 |   SteadfastAdapter,
-  5 |   type CourierObservation,
-  6 |   type CourierSession,
-  7 | } from '@ozzyl/courier-adapters';
-  8 | import { AesGcmEnvelopeCipher } from '@ozzyl/courier-session-worker';
-  9 | import { createStructuredLogger } from '@ozzyl/observability';
- 10 | import { CourierSyncWorker } from './index.js';
- 11 | import { PostgresCourierJobQueue, type ClaimedCourierJob } from './postgres.js';
- 12 |
- 13 | const required = (name: string): string => {
- 14 |   const value = process.env[name];
- 15 |   if (!value) throw new Error(`${name} is required`);
- 16 |   return value;
- 17 | };
- 18 |
- 19 | const pool = new Pool({ connectionString: required('DATABASE_URL'), max: 8 });
- 20 | const cipher = new AesGcmEnvelopeCipher(
- 21 |   Buffer.from(required('CREDENTIAL_ENCRYPTION_KEY'), 'base64'),
- 22 |   required('CREDENTIAL_ENCRYPTION_KEY_VERSION'),
- 23 | );
- 24 | const pollMs = Number(process.env.WORKER_POLL_MS ?? 5_000);
- 25 | const leaseMs = Number(process.env.WORKER_LEASE_MS ?? 5 * 60_000);
- 26 | const workerId = process.env.WORKER_ID ?? `courier-sync-${randomUUID()}`;
- 27 | const log = createStructuredLogger({
- 28 |   service: 'courier-sync-worker',
- 29 |   environment: process.env.NODE_ENV ?? 'development',
- 30 | });
- 31 | const jobs = new PostgresCourierJobQueue(pool, { leaseMs });
- 32 | let stopping = false;
- 33 |
- 34 | const steadfast = new SteadfastAdapter({
- 35 |   sessionProvider: {
- 36 |     async getSession(accountId): Promise<CourierSession | null> {
- 37 |       const result = await pool.query<{ encrypted_payload: string; expires_at: Date | null }>(
- 38 |         `select encrypted_payload, expires_at from courier_sessions where courier_account_id = $1 and status = 'valid'`,
- 39 |         [accountId],
- 40 |       );
- 41 |       const row = result.rows[0];
- 42 |       if (!row) return null;
- 43 |       const session = cipher.decrypt<CourierSession>(
- 44 |         row.encrypted_payload,
- 45 |         `courier-session:${accountId}`,
- 46 |       );
- 47 |       return { ...session, ...(row.expires_at ? { expiresAt: row.expires_at.toISOString() } : {}) };
- 48 |     },
- 49 |   },
- 50 | });
- 51 |
- 52 | const syncWorker = new CourierSyncWorker({
- 53 |   adapters: new Map([['steadfast', steadfast]]),
- 54 |   observations: {
- 55 |     async findFresh(input): Promise<CourierObservation | null> {
- 56 |       const result = await pool.query<ObservationRow>(
- 57 |         `
- 58 |           select provider, total_orders, delivered_orders, returned_orders,
- 59 |             cancelled_before_shipping, success_rate, confidence, source_type,
- 60 |             observed_at, expires_at
- 61 |           from courier_observations
- 62 |           where store_id = $1 and provider = $2 and phone_hash = $3 and expires_at > $4
- 63 |           order by observed_at desc limit 1
- 64 |         `,
- 65 |         [input.storeId, input.provider, input.phoneHash, input.at],
- 66 |       );
- 67 |       return result.rows[0] ? observationFromRow(result.rows[0]) : null;
- 68 |     },
- 69 |     async save(input): Promise<void> {
- 70 |       await pool.query(
- 71 |         `
- 72 |           insert into courier_observations (
- 73 |             id, store_id, provider, phone_hash, total_orders, delivered_orders,
- 74 |             returned_orders, cancelled_before_shipping, success_rate, confidence,
- 75 |             source_type, observed_at, expires_at
- 76 |           ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
- 77 |         `,
- 78 |         [
- 79 |           `cob_${randomUUID()}`,
- 80 |           input.storeId,
- 81 |           input.observation.provider,
- 82 |           input.phoneHash,
- 83 |           input.observation.totalOrders,
- 84 |           input.observation.deliveredOrders,
- 85 |           input.observation.returnedOrders,
- 86 |           input.observation.cancelledBeforeShipping,
- 87 |           input.observation.successRate,
- 88 |           input.observation.confidence,
- 89 |           input.observation.source,
- 90 |           input.observation.observedAt,
- 91 |           input.observation.expiresAt,
- 92 |         ],
- 93 |       );
- 94 |     },
- 95 |   },
- 96 |   health: {
- 97 |     async started(jobId, at): Promise<void> {
- 98 |       await jobs.started(jobId, workerId, at);
- 99 |     },
-100 |     async completed(jobId, at): Promise<void> {
-101 |       await jobs.completed(jobId, workerId, at);
-102 |     },
-103 |     async failed(jobId, code, retryable, at): Promise<void> {
-104 |       await jobs.failed(jobId, workerId, code, retryable, at);
-105 |     },
-106 |   },
-107 | });
-108 |
-109 | async function run(): Promise<void> {
-110 |   log.info('courier.sync.worker.started', { worker_id: workerId });
-111 |   while (!stopping) {
-112 |     try {
-113 |       const job = await jobs.claim(workerId);
-114 |       if (!job) {
-115 |         await new Promise((resolve) => setTimeout(resolve, pollMs));
-116 |         continue;
-117 |       }
-118 |       let payload: ReturnType<typeof parsePayload>;
-119 |       try {
-120 |         payload = parsePayload(job.payload, job);
-121 |       } catch (error) {
-122 |         await jobs.failed(job.id, workerId, errorCode(error, 'INVALID_JOB_PAYLOAD'), false);
-123 |         throw error;
-124 |       }
-125 |       await syncWorker.sync({
-126 |         jobId: job.id,
-127 |         storeId: job.storeId,
-128 |         courierAccountId: job.courierAccountId,
-129 |         provider: job.provider,
-130 |         phone: payload.phone,
-131 |         phoneHash: payload.phoneHash,
-132 |         force: payload.force,
-133 |       });
-134 |     } catch (error) {
-135 |       log.error('courier.sync.worker.error', {
-136 |         code: errorCode(error, 'WORKER_TICK_FAILED'),
-137 |         worker_id: workerId,
-138 |       });
-139 |       await new Promise((resolve) => setTimeout(resolve, Math.min(pollMs, 5_000)));
-140 |     }
-141 |   }
-142 |   await pool.end();
-143 | }
-144 |
-145 | interface ObservationRow {
-146 |   provider: 'steadfast' | 'pathao' | 'redx' | 'aggregator';
-147 |   total_orders: number;
-148 |   delivered_orders: number;
-149 |   returned_orders: number;
-150 |   cancelled_before_shipping: number;
-151 |   success_rate: string | null;
-152 |   confidence: string;
-153 |   source_type: 'merchant_session' | 'merchant_api' | 'shared_network' | 'third_party';
-154 |   observed_at: Date;
-155 |   expires_at: Date;
-156 | }
-157 |
-158 | function parsePayload(
-159 |   value: unknown,
-160 |   job: ClaimedCourierJob,
-161 | ): { phone: string; phoneHash: string; force: boolean } {
-162 |   if (!value || typeof value !== 'object') throw invalidPayload('Courier job payload is invalid');
-163 |   const row = value as Record<string, unknown>;
-164 |   if (![row.phone, row.phoneHash].every((item) => typeof item === 'string')) {
-165 |     throw invalidPayload('Courier job payload is incomplete');
-166 |   }
-167 |   if (typeof row.organizationId === 'string' && row.organizationId !== job.organizationId) {
-168 |     throw invalidPayload('Courier job organization scope does not match the account');
-169 |   }
-170 |   if (typeof row.storeId === 'string' && row.storeId !== job.storeId) {
-171 |     throw invalidPayload('Courier job store scope does not match the account');
-172 |   }
-173 |   if (typeof row.provider === 'string' && row.provider !== job.provider) {
-174 |     throw invalidPayload('Courier job provider does not match the account');
-175 |   }
-176 |   return {
-177 |     phone: String(row.phone),
-178 |     phoneHash: String(row.phoneHash),
-179 |     force: row.force === true,
-180 |   };
-181 | }
-182 |
-183 | function invalidPayload(message: string): Error & { code: string } {
-184 |   return Object.assign(new Error(message), { code: 'INVALID_JOB_PAYLOAD' });
-185 | }
-186 |
-187 | function errorCode(error: unknown, fallback: string): string {
-188 |   return error && typeof error === 'object' && 'code' in error ? String(error.code) : fallback;
-189 | }
-190 |
-191 | function observationFromRow(row: ObservationRow): CourierObservation {
-192 |   return {
-193 |     provider: row.provider,
-194 |     totalOrders: row.total_orders,
-195 |     deliveredOrders: row.delivered_orders,
-196 |     returnedOrders: row.returned_orders,
-197 |     cancelledBeforeShipping: row.cancelled_before_shipping,
-198 |     successRate: row.success_rate === null ? null : Number(row.success_rate),
-199 |     confidence: Number(row.confidence),
-200 |     source: row.source_type,
-201 |     observedAt: row.observed_at.toISOString(),
-202 |     expiresAt: row.expires_at.toISOString(),
-203 |   };
-204 | }
-205 |
-206 | const stop = (): void => {
-207 |   stopping = true;
-208 | };
-209 | process.once('SIGTERM', stop);
-210 | process.once('SIGINT', stop);
-211 | await run();
-212 |
-```
-
-### workers/event-worker/src/runner.ts
-
-Bytes: 5669
-SHA-256: bcced6907a3c5d69551f2341df74e1c55d401fcaad84cce6b386feb8cbc44187
-Lines: 1-173 of 173
-
-```typescript
-  1 | import { randomUUID } from 'node:crypto';
-  2 | import { Pool } from 'pg';
-  3 | import { AesGcmEnvelopeCipher } from '@ozzyl/encryption';
-  4 | import { createStructuredLogger } from '@ozzyl/observability';
-  5 | import type { DomainEvent } from '@ozzyl/shared-types';
-  6 | import { EventWorker } from './index.js';
-  7 | import {
-  8 |   PostgresWebhookDeliveryQueue,
-  9 |   WebhookDeliveryLeaseError,
- 10 |   type ClaimedWebhookDelivery,
- 11 | } from './postgres.js';
- 12 |
- 13 | const required = (name: string): string => {
- 14 |   const value = process.env[name];
- 15 |   if (!value) throw new Error(`${name} is required`);
- 16 |   return value;
- 17 | };
- 18 |
- 19 | const positiveInteger = (name: string, fallback: number): number => {
- 20 |   const value = Number(process.env[name] ?? fallback);
- 21 |   if (!Number.isSafeInteger(value) || value <= 0) {
- 22 |     throw new Error(`${name} must be a positive integer`);
- 23 |   }
- 24 |   return value;
- 25 | };
- 26 |
- 27 | const pool = new Pool({ connectionString: required('DATABASE_URL'), max: 8 });
- 28 | const cipher = new AesGcmEnvelopeCipher(
- 29 |   Buffer.from(required('CREDENTIAL_ENCRYPTION_KEY'), 'base64'),
- 30 |   required('CREDENTIAL_ENCRYPTION_KEY_VERSION'),
- 31 | );
- 32 | const pollMs = positiveInteger('EVENT_WORKER_POLL_MS', 5_000);
- 33 | const leaseMs = positiveInteger('EVENT_WORKER_LEASE_MS', 60_000);
- 34 | const timeoutMs = positiveInteger('WEBHOOK_TIMEOUT_MS', 5_000);
- 35 | const maxAttempts = positiveInteger('EVENT_WORKER_MAX_ATTEMPTS', 5);
- 36 | if (leaseMs <= timeoutMs + 5_000) {
- 37 |   throw new Error('EVENT_WORKER_LEASE_MS must exceed WEBHOOK_TIMEOUT_MS by more than 5000ms');
- 38 | }
- 39 | const workerId = process.env.EVENT_WORKER_ID ?? `event-${randomUUID()}`;
- 40 | const log = createStructuredLogger({
- 41 |   service: 'event-worker',
- 42 |   environment: process.env.NODE_ENV ?? 'development',
- 43 | });
- 44 | const queue = new PostgresWebhookDeliveryQueue(pool, { leaseMs, maxAttempts });
- 45 | let stopping = false;
- 46 |
- 47 | async function run(): Promise<void> {
- 48 |   log.info('event.worker.started', { worker_id: workerId });
- 49 |   while (!stopping) {
- 50 |     const delivery = await queue.claim(workerId).catch((error) => {
- 51 |       logError(error, 'EVENT_CLAIM_FAILED');
- 52 |       return null;
- 53 |     });
- 54 |     if (!delivery) {
- 55 |       await sleep(pollMs);
- 56 |       continue;
- 57 |     }
- 58 |
- 59 |     try {
- 60 |       const startedAt = new Date();
- 61 |       await queue.started(delivery.id, workerId, startedAt);
- 62 |       const event = parseEvent(delivery);
- 63 |       if (!delivery.endpointActive) {
- 64 |         await queue.failed(delivery.id, workerId, {
- 65 |           errorCode: 'ENDPOINT_INACTIVE',
- 66 |           at: new Date(),
- 67 |         });
- 68 |         continue;
- 69 |       }
- 70 |       const signingSecret= [REDACTED_SECRET](delivery);
- 71 |       const worker = new EventWorker(queue.repositoryFor(delivery, workerId), {
- 72 |         timeoutMs,
- 73 |         maxAttempts,
- 74 |       });
- 75 |       await worker.deliver({
- 76 |         endpoint: {
- 77 |           id: delivery.endpointId,
- 78 |           url: delivery.endpointUrl,
- 79 |           signingSecret,
- 80 |           active: true,
- 81 |         },
- 82 |         event,
- 83 |         attempt: delivery.attempts + 1,
- 84 |       });
- 85 |     } catch (error) {
- 86 |       if (!(error instanceof WebhookDeliveryLeaseError)) {
- 87 |         const code = errorCode(error, 'EVENT_DELIVERY_FAILED');
- 88 |         await queue
- 89 |           .failed(delivery.id, workerId, { errorCode: code, at: new Date() })
- 90 |           .catch((failure) => logError(failure, 'EVENT_FAILURE_STATE_LOST'));
- 91 |       }
- 92 |       logError(error, 'EVENT_DELIVERY_FAILED');
- 93 |     }
- 94 |   }
- 95 |   await pool.end();
- 96 | }
- 97 |
- 98 | function parseEvent(delivery: ClaimedWebhookDelivery): DomainEvent {
- 99 |   const value = delivery.eventPayload;
-100 |   if (!value || typeof value !== 'object') throw coded('INVALID_EVENT_PAYLOAD');
-101 |   const event = value as Record<string, unknown>;
-102 |   const allowedTypes = new Set([
-103 |     'assessment.completed',
-104 |     'verification.verified',
-105 |     'verification.failed',
-106 |     'courier.connection_failed',
-107 |     'order.outcome_recorded',
-108 |     'usage.limit_warning',
-109 |   ]);
-110 |   if (
-111 |     event.id !== delivery.eventId ||
-112 |     event.type !== delivery.eventType ||
-113 |     typeof event.type !== 'string' ||
-114 |     !allowedTypes.has(event.type) ||
-115 |     event.organizationId !== delivery.organizationId ||
-116 |     (delivery.storeId === null
-117 |       ? event.storeId !== undefined
-118 |       : event.storeId !== delivery.storeId) ||
-119 |     typeof event.occurredAt !== 'string' ||
-120 |     Number.isNaN(Date.parse(event.occurredAt)) ||
-121 |     new Date(event.occurredAt).getTime() !== delivery.occurredAt.getTime() ||
-122 |     !event.payload ||
-123 |     typeof event.payload !== 'object'
-124 |   ) {
-125 |     throw coded('INVALID_EVENT_PAYLOAD');
-126 |   }
-127 |   return event as unknown as DomainEvent;
-128 | }
-129 |
-130 | function decryptSigningSecret(delivery: ClaimedWebhookDelivery): string {
-131 |   try {
-132 |     const value = cipher.decrypt<unknown>(
-133 |       delivery.secretEncrypted,
-134 |       `webhook-endpoint:${delivery.endpointId}`,
-135 |     );
-136 |     const signingSecret =
-137 |       typeof value === 'string'
-138 |         ? value
-139 |         : value && typeof value === 'object' && 'signingSecret' in value
-140 |           ? String(value.signingSecret)
-141 |           : '';
-142 |     if (signingSecret.length < 16) throw new Error('Signing secret is invalid');
-143 |     return signingSecret;
-144 |   } catch {
-145 |     throw coded('WEBHOOK_SECRET_DECRYPTION_FAILED');
-146 |   }
-147 | }
-148 |
-149 | function coded(code: string): Error & { code: string } {
-150 |   return Object.assign(new Error(code), { code });
-151 | }
-152 |
-153 | function errorCode(error: unknown, fallback: string): string {
-154 |   return error && typeof error === 'object' && 'code' in error ? String(error.code) : fallback;
-155 | }
-156 |
-157 | function logError(error: unknown, fallback: string): void {
-158 |   log.error('event.worker.error', {
-159 |     code: errorCode(error, fallback),
-160 |     worker_id: workerId,
-161 |   });
-162 | }
-163 |
-164 | const sleep = (milliseconds: number): Promise<void> =>
-165 |   new Promise((resolve) => setTimeout(resolve, milliseconds));
-166 |
-167 | const stop = (): void => {
-168 |   stopping = true;
-169 | };
-170 | process.once('SIGTERM', stop);
-171 | process.once('SIGINT', stop);
-172 | await run();
-173 |
-```
-
-### workers/verification-worker/src/runner.ts
-
-Bytes: 4727
-SHA-256: cb4690fd4ab6335cdd4c52f5dcbc9663be6aed8b78d8449e2fba7b043a02230a
-Lines: 1-129 of 129
-
-```typescript
-  1 | import { randomUUID } from 'node:crypto';
-  2 | import { Pool } from 'pg';
-  3 | import { AesGcmEnvelopeCipher } from '@ozzyl/encryption';
-  4 | import { createStructuredLogger } from '@ozzyl/observability';
-  5 | import type { OtpDeliveryProvider } from '@ozzyl/verification';
-  6 | import { VerificationWorker } from './index.js';
-  7 | import { PostgresVerificationDeliveryQueue, VerificationDeliveryLeaseError } from './postgres.js';
-  8 | import { decryptAndValidateVerificationPayload } from './payload.js';
-  9 |
- 10 | const required = (name: string): string => {
- 11 |   const value = process.env[name];
- 12 |   if (!value) throw new Error(`${name} is required`);
- 13 |   return value;
- 14 | };
- 15 |
- 16 | const positiveInteger = (name: string, fallback: number): number => {
- 17 |   const value = Number(process.env[name] ?? fallback);
- 18 |   if (!Number.isSafeInteger(value) || value <= 0)
- 19 |     throw new Error(`${name} must be a positive integer`);
- 20 |   return value;
- 21 | };
- 22 |
- 23 | const pool = new Pool({ connectionString: required('DATABASE_URL'), max: 8 });
- 24 | const cipher = new AesGcmEnvelopeCipher(
- 25 |   Buffer.from(required('CREDENTIAL_ENCRYPTION_KEY'), 'base64'),
- 26 |   required('CREDENTIAL_ENCRYPTION_KEY_VERSION'),
- 27 | );
- 28 | const otpSecret = required('OTP_HASH_SECRET');
- 29 | const phoneHmacKey = required('PHONE_HMAC_KEY');
- 30 | const pollMs = positiveInteger('VERIFICATION_WORKER_POLL_MS', 5_000);
- 31 | const leaseMs = positiveInteger('VERIFICATION_WORKER_LEASE_MS', 60_000);
- 32 | const timeoutMs = positiveInteger('OTP_PROVIDER_TIMEOUT_MS', 10_000);
- 33 | const maxAttempts = positiveInteger('VERIFICATION_WORKER_MAX_ATTEMPTS', 5);
- 34 | if (leaseMs <= timeoutMs + 5_000) {
- 35 |   throw new Error(
- 36 |     'VERIFICATION_WORKER_LEASE_MS must exceed OTP_PROVIDER_TIMEOUT_MS by more than 5000ms',
- 37 |   );
- 38 | }
- 39 | const workerId = process.env.VERIFICATION_WORKER_ID ?? `verification-${randomUUID()}`;
- 40 | const log = createStructuredLogger({
- 41 |   service: 'verification-worker',
- 42 |   environment: process.env.NODE_ENV ?? 'development',
- 43 | });
- 44 | const provider = await loadProvider(required('OTP_PROVIDER_MODULE'));
- 45 | const queue = new PostgresVerificationDeliveryQueue(pool, { leaseMs, maxAttempts });
- 46 | let stopping = false;
- 47 |
- 48 | async function run(): Promise<void> {
- 49 |   log.info('verification.worker.started', { worker_id: workerId });
- 50 |   while (!stopping) {
- 51 |     const delivery = await queue.claim(workerId).catch((error) => {
- 52 |       logError(error, 'VERIFICATION_CLAIM_FAILED');
- 53 |       return null;
- 54 |     });
- 55 |     if (!delivery) {
- 56 |       await sleep(pollMs);
- 57 |       continue;
- 58 |     }
- 59 |
- 60 |     try {
- 61 |       await queue.started(delivery.id, workerId);
- 62 |       const payload = decryptAndValidateVerificationPayload(delivery, {
- 63 |         cipher,
- 64 |         phoneHmacKey,
- 65 |         otpSecret,
- 66 |       });
- 67 |       const worker = new VerificationWorker(provider, queue.reporterFor(delivery, workerId), {
- 68 |         maxAttempts,
- 69 |         timeoutMs,
- 70 |       });
- 71 |       await worker.process({
- 72 |         jobId: delivery.id,
- 73 |         verificationId: delivery.verificationId,
- 74 |         organizationId: delivery.organizationId,
- 75 |         storeId: delivery.storeId,
- 76 |         phone: payload.phone,
- 77 |         otp: payload.otp,
- 78 |         purpose: delivery.purpose,
- 79 |         expiresAt: delivery.expiresAt,
- 80 |         attempt: delivery.attempts + 1,
- 81 |       });
- 82 |     } catch (error) {
- 83 |       if (!(error instanceof VerificationDeliveryLeaseError)) {
- 84 |         const code = errorCode(error, 'VERIFICATION_DELIVERY_FAILED');
- 85 |         await queue
- 86 |           .failed(delivery.id, workerId, { errorCode: code, at: new Date() })
- 87 |           .catch((failure) => logError(failure, 'VERIFICATION_FAILURE_STATE_LOST'));
- 88 |       }
- 89 |       logError(error, 'VERIFICATION_DELIVERY_FAILED');
- 90 |     }
- 91 |   }
- 92 |   await pool.end();
- 93 | }
- 94 |
- 95 | async function loadProvider(moduleName: string): Promise<OtpDeliveryProvider> {
- 96 |   const loaded = (await import(moduleName)) as {
- 97 |     createOtpDeliveryProvider?: () => OtpDeliveryProvider | Promise<OtpDeliveryProvider>;
- 98 |   };
- 99 |   if (typeof loaded.createOtpDeliveryProvider !== 'function') {
-100 |     throw new Error('OTP provider module must export createOtpDeliveryProvider()');
-101 |   }
-102 |   const configured = await loaded.createOtpDeliveryProvider();
-103 |   if (!configured || typeof configured.send !== 'function') {
-104 |     throw new Error('OTP provider module returned an invalid provider');
-105 |   }
-106 |   return configured;
-107 | }
-108 |
-109 | function errorCode(error: unknown, fallback: string): string {
-110 |   return error && typeof error === 'object' && 'code' in error ? String(error.code) : fallback;
-111 | }
-112 |
-113 | function logError(error: unknown, fallback: string): void {
-114 |   log.error('verification.worker.error', {
-115 |     code: errorCode(error, fallback),
-116 |     worker_id: workerId,
-117 |   });
-118 | }
-119 |
-120 | const sleep = (milliseconds: number): Promise<void> =>
-121 |   new Promise((resolve) => setTimeout(resolve, milliseconds));
-122 |
-123 | const stop = (): void => {
-124 |   stopping = true;
-125 | };
-126 | process.once('SIGTERM', stop);
-127 | process.once('SIGINT', stop);
-128 | await run();
-129 |
-```
-
 ## Skipped Files
 
-- package-lock.json [File is too large (251116 bytes). Limit: 100000 bytes.]
-- packages/observability/ [not a file]
+None.
