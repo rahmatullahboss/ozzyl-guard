@@ -30,7 +30,7 @@ describe('VerificationWorker', () => {
   it('delivers with bounded metrics without exposing the OTP', async () => {
     const state = reporter();
     const metricLines: string[] = [];
-    const ticks = [10, 18];
+    const ticks = [10, 12, 16, 18];
     const provider = {
       send: vi.fn(async ({ message }: { message: string }) => {
         expect(message).toContain('123456');
@@ -53,6 +53,23 @@ describe('VerificationWorker', () => {
     expect(state.delivered).toHaveBeenCalledOnce();
     expect(JSON.stringify(state.delivered.mock.calls)).not.toContain('123456');
     expect(metricLines.map(parseMetricLine)).toEqual([
+      expect.objectContaining({
+        name: 'ozzyl.provider.operations',
+        attributes: {
+          provider_type: 'verification_delivery',
+          operation: 'send',
+          outcome: 'success',
+        },
+      }),
+      expect.objectContaining({
+        name: 'ozzyl.provider.operation.duration',
+        value: 4,
+        attributes: {
+          provider_type: 'verification_delivery',
+          operation: 'send',
+          outcome: 'success',
+        },
+      }),
       expect.objectContaining({
         name: 'ozzyl.worker.operations',
         attributes: {

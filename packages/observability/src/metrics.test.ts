@@ -2,6 +2,9 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   createMetricRecorder,
   defineMetric,
+  observeRepositoryOperation,
+  recordDurableQueueSnapshot,
+  recordProviderOperation,
   recordWorkerClaimFailure,
   recordWorkerOperation,
   serializeMetricPoint,
@@ -140,6 +143,172 @@ describe('vendor-neutral metrics', () => {
     ]);
     expect(lines.join('\n')).not.toContain('_id');
     expect(lines.join('\n')).not.toContain('error_code');
+  });
+
+  it('observes repository success, empty, and error outcomes without changing results', async () => {
+    const lines: string[] = [];
+    const recorder = createMetricRecorder({
+      service: 'repository-test',
+      environment: 'test',
+      write: (line) => lines.push(line),
+    });
+    const clock = vi
+      .fn()
+      .mockReturnValueOnce(10)
+      .mockReturnValueOnce(18)
+      .mockReturnValueOnce(20)
+      .mockReturnValueOnce(24)
+      .mockReturnValueOnce(30)
+      .mockReturnValueOnce(37);
+
+    await expect(
+      observeRepositoryOperation(
+        recorder,
+        {
+          repositoryType: 'courier_queue',
+          operation: 'claim',
+          isEmpty: (value) => value === null,
+          monotonicNow: clock,
+        },
+        async () => ({ id: 'opaque-result' }),
+      ),
+    ).resolves.toEqual({ id: 'opaque-result' });
+    await expect(
+      observeRepositoryOperation(
+        recorder,
+        {
+          repositoryType: 'courier_queue',
+          operation: 'claim',
+          isEmpty: (value) => value === null,
+          monotonicNow: clock,
+        },
+        async () => null,
+      ),
+    ).resolves.toBeNull();
+    await expect(
+      observeRepositoryOperation(
+        recorder,
+        {
+          repositoryType: 'courier_queue',
+          operation: 'renew',
+          monotonicNow: clock,
+        },
+        async () => {
+          throw new Error('database unavailable');
+        },
+      ),
+    ).rejects.toThrow('database unavailable');
+
+    const points = lines.map(parseMetricLine);
+    expect(points).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'ozzyl.repository.operations',
+          attributes: {
+            repository_type: 'courier_queue',
+            operation: 'claim',
+            outcome: 'success',
+          },
+        }),
+        expect.objectContaining({
+          name: 'ozzyl.repository.operations',
+          attributes: {
+            repository_type: 'courier_queue',
+            operation: 'claim',
+            outcome: 'empty',
+          },
+        }),
+        expect.objectContaining({
+          name: 'ozzyl.repository.operations',
+          attributes: {
+            repository_type: 'courier_queue',
+            operation: 'renew',
+            outcome: 'error',
+          },
+        }),
+      ]),
+    );
+    expect(lines.join('\n')).not.toContain('opaque-result');
+    expect(lines.join('\n')).not.toContain('database unavailable');
+  });
+
+  it('records provider operations and durable queue gauges with finite labels', () => {
+    const lines: string[] = [];
+    const recorder = createMetricRecorder({
+      service: 'worker-test',
+      environment: 'test',
+      write: (line) => lines.push(line),
+    });
+
+    recordProviderOperation(recorder, {
+      providerType: 'verification_delivery',
+      operation: 'send',
+      outcome: 'retryable_failure',
+      durationMs: 21,
+    });
+    recordDurableQueueSnapshot(recorder, 'verification_delivery', {
+      depths: { queued: 4, processing: 1, failed: 2 },
+      oldestReadyAgeMs: 3_000,
+    });
+
+    const points = lines.map(parseMetricLine);
+    expect(points).toContainEqual(
+      expect.objectContaining({
+        name: 'ozzyl.provider.operations',
+        attributes: {
+          provider_type: 'verification_delivery',
+          operation: 'send',
+          outcome: 'retryable_failure',
+        },
+      }),
+    );
+    expect(points).toContainEqual(
+      expect.objectContaining({
+        name: 'ozzyl.queue.depth',
+        value: 4,
+        attributes: { queue_type: 'verification_delivery', status: 'queued' },
+      }),
+    );
+    expect(points).toContainEqual(
+      expect.objectContaining({
+        name: 'ozzyl.queue.depth',
+        value: 0,
+        attributes: { queue_type: 'verification_delivery', status: 'retry_scheduled' },
+      }),
+    );
+    expect(points).toContainEqual(
+      expect.objectContaining({
+        name: 'ozzyl.queue.oldest_ready.age',
+        value: 3_000,
+        attributes: { queue_type: 'verification_delivery' },
+      }),
+    );
+    expect(lines.join('\n')).not.toContain('_id');
+    expect(lines.join('\n')).not.toContain('phone');
+  });
+
+  it('isolates telemetry clocks while preserving repository execution', async () => {
+    const recorder = createMetricRecorder({
+      service: 'repository-test',
+      environment: 'test',
+      write: () => {
+        throw new Error('metric sink unavailable');
+      },
+    });
+
+    await expect(
+      observeRepositoryOperation(
+        recorder,
+        {
+          repositoryType: 'webhook_queue',
+          operation: 'snapshot',
+          monotonicNow: () => {
+            throw new Error('clock unavailable');
+          },
+        },
+        async () => 'repository-result',
+      ),
+    ).resolves.toBe('repository-result');
   });
 
   it('swallows descriptor, serialization, clock, and sink failures', () => {

@@ -52,7 +52,7 @@ The Playwright, courier-sync, event, and verification workers must not receive p
 
 ## Courier-sync worker runtime
 
-The courier-sync worker uses `WORKER_LEASE_MS` with `WORKER_LEASE_RENEW_MS`, which defaults to one-third of the lease and must not exceed half of it. Each replica requires a stable unique `WORKER_ID`. Renewal loss aborts the active courier request and prevents a stale owner from completing or failing the job.
+The courier-sync worker uses `WORKER_LEASE_MS` with `WORKER_LEASE_RENEW_MS`, which defaults to one-third of the lease and must not exceed half of it. `WORKER_QUEUE_METRICS_MS` controls the positive periodic aggregate queue snapshot cadence and defaults to 30000 milliseconds. Each replica requires a stable unique `WORKER_ID`. Renewal loss aborts the active courier request and prevents a stale owner from completing or failing the job.
 
 ## Event-worker runtime
 
@@ -65,6 +65,7 @@ The event worker requires:
 - optional `EVENT_WORKER_POLL_MS`, default `5000`
 - optional `EVENT_WORKER_LEASE_MS`, default `60000`
 - optional `EVENT_WORKER_LEASE_RENEW_MS`, default one-third of the lease (`20000` for the default lease)
+- optional `EVENT_WORKER_QUEUE_METRICS_MS`, default `30000`
 - optional `EVENT_WORKER_MAX_ATTEMPTS`, default `5`
 - optional `WEBHOOK_TIMEOUT_MS`, default `5000`
 
@@ -94,7 +95,7 @@ The verification worker requires:
 - provider-specific secrets such as sender ID/API key supplied only through the approved secret manager;
 - optional worker ID, poll, lease, lease-renewal, max-attempt, and provider-timeout settings.
 
-`VERIFICATION_WORKER_LEASE_MS` must exceed `OTP_PROVIDER_TIMEOUT_MS` by more than five seconds, and `VERIFICATION_WORKER_LEASE_RENEW_MS` must not exceed half the lease. Renewal loss aborts the active OTP request and prevents stale delivery state. Each replica needs a stable unique worker ID, private ingress, least-privilege database/KMS access, and only the egress required by the selected provider. The Compose service is behind the `verification` profile because no provider is selected or bundled in this milestone.
+`VERIFICATION_WORKER_LEASE_MS` must exceed `OTP_PROVIDER_TIMEOUT_MS` by more than five seconds, and `VERIFICATION_WORKER_LEASE_RENEW_MS` must not exceed half the lease. `VERIFICATION_WORKER_QUEUE_METRICS_MS` is a positive aggregate snapshot cadence and defaults to 30000 milliseconds. Renewal loss aborts the active OTP request and prevents stale delivery state. Each replica needs a stable unique worker ID, private ingress, least-privilege database/KMS access, and only the egress required by the selected provider. The Compose service is behind the `verification` profile because no provider is selected or bundled in this milestone.
 
 ## Environment stages
 

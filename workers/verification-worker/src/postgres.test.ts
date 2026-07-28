@@ -181,6 +181,44 @@ integration('PostgreSQL verification delivery leases', () => {
     });
   });
 
+  it('reports bounded queue depth and oldest ready age without verification identifiers', async () => {
+    const queue = new PostgresVerificationDeliveryQueue(pool, { leaseMs: 60_000 });
+    const at = new Date('2026-07-17T15:30:00.000Z');
+    const baseline = await queue.snapshot(at);
+    await insertJob('snapshot-ready', {
+      at: new Date(at.getTime() - 120_000),
+      expiresAt: new Date(at.getTime() + 600_000),
+    });
+    await insertJob('snapshot-retry', {
+      at: new Date(at.getTime() - 60_000),
+      status: 'retry_scheduled',
+      attempts: 1,
+      expiresAt: new Date(at.getTime() + 600_000),
+    });
+    await insertJob('snapshot-processing', {
+      at: new Date(at.getTime() - 180_000),
+      status: 'processing',
+      attempts: 1,
+      claimedBy: `snapshot-verification-${suffix}`,
+      claimedAt: new Date(at.getTime() - 30_000),
+      leaseExpiresAt: new Date(at.getTime() + 30_000),
+      expiresAt: new Date(at.getTime() + 600_000),
+    });
+    await insertJob('snapshot-failed', {
+      at,
+      status: 'failed',
+      attempts: 5,
+      expiresAt: new Date(at.getTime() + 600_000),
+    });
+
+    const snapshot = await queue.snapshot(at);
+    expect(snapshot.depths.queued).toBe((baseline.depths.queued ?? 0) + 1);
+    expect(snapshot.depths.retry_scheduled).toBe((baseline.depths.retry_scheduled ?? 0) + 1);
+    expect(snapshot.depths.processing).toBe((baseline.depths.processing ?? 0) + 1);
+    expect(snapshot.depths.failed).toBe((baseline.depths.failed ?? 0) + 1);
+    expect(snapshot.oldestReadyAgeMs).toBeGreaterThanOrEqual(120_000);
+  });
+
   it('fails a job whose persisted scope does not match its session', async () => {
     const queue = new PostgresVerificationDeliveryQueue(pool, { leaseMs: 60_000 });
     const at = new Date('2026-07-17T16:00:00.000Z');

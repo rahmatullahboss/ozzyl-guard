@@ -5,7 +5,10 @@ import { AesGcmEnvelopeCipher } from '@ozzyl/encryption';
 import {
   createMetricRecorder,
   createStructuredLogger,
+  observeRepositoryOperation,
+  recordDurableQueueSnapshot,
   recordWorkerClaimFailure,
+  type RepositoryMetricOperation,
 } from '@ozzyl/observability';
 import type { DomainEvent } from '@ozzyl/shared-types';
 import { EventWorker } from './index.js';
@@ -35,6 +38,7 @@ const cipher = new AesGcmEnvelopeCipher(
   required('CREDENTIAL_ENCRYPTION_KEY_VERSION'),
 );
 const pollMs = positiveInteger('EVENT_WORKER_POLL_MS', 5_000);
+const queueMetricsMs = positiveInteger('EVENT_WORKER_QUEUE_METRICS_MS', 30_000);
 const leaseMs = positiveInteger('EVENT_WORKER_LEASE_MS', 60_000);
 const leaseRenewMs = positiveInteger('EVENT_WORKER_LEASE_RENEW_MS', Math.floor(leaseMs / 3));
 const timeoutMs = positiveInteger('WEBHOOK_TIMEOUT_MS', 5_000);
@@ -56,11 +60,40 @@ const metrics = createMetricRecorder({
 });
 const queue = new PostgresWebhookDeliveryQueue(pool, { leaseMs, maxAttempts });
 let stopping = false;
+let nextQueueMetricsAt = 0;
+
+const observeQueue = <T>(
+  operation: RepositoryMetricOperation,
+  task: () => Promise<T>,
+  isEmpty?: (value: T) => boolean,
+): Promise<T> =>
+  observeRepositoryOperation(
+    metrics,
+    {
+      repositoryType: 'webhook_queue',
+      operation,
+      ...(isEmpty === undefined ? {} : { isEmpty }),
+    },
+    task,
+  );
+
+async function recordQueueMetricsIfDue(): Promise<void> {
+  const now = Date.now();
+  if (now < nextQueueMetricsAt) return;
+  nextQueueMetricsAt = now + queueMetricsMs;
+  const snapshot = await observeQueue('snapshot', () => queue.snapshot(new Date(now)));
+  recordDurableQueueSnapshot(metrics, 'webhook_delivery', snapshot);
+}
 
 async function run(): Promise<void> {
   log.info('event.worker.started', { worker_id: workerId });
   while (!stopping) {
-    const delivery = await queue.claim(workerId).catch((error) => {
+    await recordQueueMetricsIfDue().catch((error) => logError(error, 'QUEUE_METRICS_FAILED'));
+    const delivery = await observeQueue(
+      'claim',
+      () => queue.claim(workerId),
+      (value) => value === null,
+    ).catch((error) => {
       recordWorkerClaimFailure(metrics, 'webhook_delivery');
       logError(error, 'EVENT_CLAIM_FAILED');
       return null;
@@ -73,24 +106,35 @@ async function run(): Promise<void> {
     let heartbeat: LeaseHeartbeat | null = null;
     try {
       const startedAt = new Date();
-      await queue.started(delivery.id, workerId, startedAt);
+      await observeQueue('start', () => queue.started(delivery.id, workerId, startedAt));
       heartbeat = new LeaseHeartbeat({
         intervalMs: leaseRenewMs,
-        renew: (at) => queue.renew(delivery.id, workerId, at),
+        renew: (at) => observeQueue('renew', () => queue.renew(delivery.id, workerId, at)),
       }).start();
       const event = parseEvent(delivery);
       if (!delivery.endpointActive) {
         await heartbeat.stop();
-        await queue.failed(delivery.id, workerId, {
-          errorCode: 'ENDPOINT_INACTIVE',
-          at: new Date(),
-        });
+        await observeQueue('fail', () =>
+          queue.failed(delivery.id, workerId, {
+            errorCode: 'ENDPOINT_INACTIVE',
+            at: new Date(),
+          }),
+        );
         heartbeat = null;
         continue;
       }
       const signingSecret = decryptSigningSecret(delivery);
+      const repository = queue.repositoryFor(
+        delivery,
+        workerId,
+        () => heartbeat?.stop() ?? Promise.resolve(),
+      );
       const worker = new EventWorker(
-        queue.repositoryFor(delivery, workerId, () => heartbeat?.stop() ?? Promise.resolve()),
+        {
+          markDelivered: (input) => observeQueue('complete', () => repository.markDelivered(input)),
+          markRetry: (input) => observeQueue('retry', () => repository.markRetry(input)),
+          markFailed: (input) => observeQueue('fail', () => repository.markFailed(input)),
+        },
         {
           timeoutMs,
           maxAttempts,
@@ -122,9 +166,9 @@ async function run(): Promise<void> {
       }
       if (!(failure instanceof WebhookDeliveryLeaseError)) {
         const code = errorCode(failure, 'EVENT_DELIVERY_FAILED');
-        await queue
-          .failed(delivery.id, workerId, { errorCode: code, at: new Date() })
-          .catch((stateError) => logError(stateError, 'EVENT_FAILURE_STATE_LOST'));
+        await observeQueue('fail', () =>
+          queue.failed(delivery.id, workerId, { errorCode: code, at: new Date() }),
+        ).catch((stateError) => logError(stateError, 'EVENT_FAILURE_STATE_LOST'));
       }
       logError(failure, 'EVENT_DELIVERY_FAILED');
     }

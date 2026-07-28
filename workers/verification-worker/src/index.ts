@@ -1,4 +1,8 @@
-import { recordWorkerOperation, type MetricRecorder } from '@ozzyl/observability';
+import {
+  recordProviderOperation,
+  recordWorkerOperation,
+  type MetricRecorder,
+} from '@ozzyl/observability';
 import { OtpProviderError, formatOtpMessage, type OtpDeliveryProvider } from '@ozzyl/verification';
 
 export interface VerificationDelivery {
@@ -91,6 +95,7 @@ export class VerificationWorker {
     if (delivery.signal?.aborted) abortFromCaller();
     else delivery.signal?.addEventListener('abort', abortFromCaller, { once: true });
     const timeout = setTimeout(() => controller.abort(), this.timeoutMs);
+    const providerStartedAt = this.monotonicNow();
     try {
       const result = await this.provider.send({
         phone: delivery.phone,
@@ -99,13 +104,31 @@ export class VerificationWorker {
         signal: controller.signal,
       });
       if (!result.accepted) {
+        recordProviderOperation(this.metrics, {
+          providerType: 'verification_delivery',
+          operation: 'send',
+          outcome: 'permanent_failure',
+          durationMs: this.monotonicNow() - providerStartedAt,
+        });
         await this.reporter.failed(delivery.jobId, 'OTP_PROVIDER_REJECTED', this.now());
         return { status: 'failed', errorCode: 'OTP_PROVIDER_REJECTED' };
       }
+      recordProviderOperation(this.metrics, {
+        providerType: 'verification_delivery',
+        operation: 'send',
+        outcome: 'success',
+        durationMs: this.monotonicNow() - providerStartedAt,
+      });
       await this.reporter.delivered(delivery.jobId, result.providerMessageId, this.now());
       return { status: 'delivered', providerMessageId: result.providerMessageId };
     } catch (error) {
       const classified = classifyProviderError(error);
+      recordProviderOperation(this.metrics, {
+        providerType: 'verification_delivery',
+        operation: 'send',
+        outcome: classified.retryable ? 'retryable_failure' : 'permanent_failure',
+        durationMs: this.monotonicNow() - providerStartedAt,
+      });
       const at = this.now();
       if (classified.retryable && delivery.attempt < this.maxAttempts) {
         const delayMs = Math.min(60 * 60 * 1_000, 2 ** Math.max(0, delivery.attempt - 1) * 30_000);

@@ -1,7 +1,11 @@
 import { createHmac } from 'node:crypto';
 import { lookup } from 'node:dns/promises';
 import { isIP } from 'node:net';
-import { recordWorkerOperation, type MetricRecorder } from '@ozzyl/observability';
+import {
+  recordProviderOperation,
+  recordWorkerOperation,
+  type MetricRecorder,
+} from '@ozzyl/observability';
 import type { DomainEvent } from '@ozzyl/shared-types';
 
 export interface WebhookEndpoint {
@@ -202,8 +206,10 @@ export class EventWorker {
     else input.signal?.addEventListener('abort', abortFromCaller, { once: true });
     const timeout = setTimeout(() => controller.abort(), this.timeoutMs);
 
+    const providerStartedAt = this.monotonicNow();
+    let response: Response;
     try {
-      const response = await this.fetcher(url, {
+      response = await this.fetcher(url, {
         method: 'POST',
         redirect: 'error',
         signal: controller.signal,
@@ -216,26 +222,21 @@ export class EventWorker {
         },
         body: payload,
       });
-
-      if (response.ok) {
-        await this.repository.markDelivered({
-          endpointId: input.endpoint.id,
-          eventId: input.event.id,
-          responseStatus: response.status,
-          at: this.now(),
-        });
-        return { status: 'delivered', responseStatus: response.status };
-      }
-
-      return this.retryOrFail({
-        endpointId: input.endpoint.id,
-        eventId: input.event.id,
-        attempt: input.attempt,
-        responseStatus: response.status,
-        errorCode: response.status === 429 ? 'RATE_LIMITED' : `HTTP_${response.status}`,
-        retryable: response.status === 408 || response.status === 429 || response.status >= 500,
+      const retryable =
+        response.status === 408 || response.status === 429 || response.status >= 500;
+      recordProviderOperation(this.metrics, {
+        providerType: 'webhook_http',
+        operation: 'deliver',
+        outcome: response.ok ? 'success' : retryable ? 'retryable_failure' : 'permanent_failure',
+        durationMs: this.monotonicNow() - providerStartedAt,
       });
     } catch (error) {
+      recordProviderOperation(this.metrics, {
+        providerType: 'webhook_http',
+        operation: 'deliver',
+        outcome: 'retryable_failure',
+        durationMs: this.monotonicNow() - providerStartedAt,
+      });
       const errorCode =
         error instanceof Error && error.name === 'AbortError' ? 'TIMEOUT' : 'NETWORK_ERROR';
       return this.retryOrFail({
@@ -249,6 +250,25 @@ export class EventWorker {
       clearTimeout(timeout);
       input.signal?.removeEventListener('abort', abortFromCaller);
     }
+
+    if (response.ok) {
+      await this.repository.markDelivered({
+        endpointId: input.endpoint.id,
+        eventId: input.event.id,
+        responseStatus: response.status,
+        at: this.now(),
+      });
+      return { status: 'delivered', responseStatus: response.status };
+    }
+
+    return this.retryOrFail({
+      endpointId: input.endpoint.id,
+      eventId: input.event.id,
+      attempt: input.attempt,
+      responseStatus: response.status,
+      errorCode: response.status === 429 ? 'RATE_LIMITED' : `HTTP_${response.status}`,
+      retryable: response.status === 408 || response.status === 429 || response.status >= 500,
+    });
   }
 
   private async retryOrFail(input: {
