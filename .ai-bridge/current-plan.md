@@ -4,7 +4,7 @@ Updated: 2026-07-28
 
 ## Current state
 
-A runnable standalone MVP foundation and twenty-one production-hardening slices are complete:
+A runnable standalone MVP foundation and twenty-two production-hardening slices are complete:
 
 1. dashboard/admin browser authentication with live PostgreSQL data and tenant revalidation;
 2. accepted provider-neutral infrastructure ADRs for deployment, managed PostgreSQL, durable work/cache, KMS envelope encryption, and observability;
@@ -26,7 +26,8 @@ A runnable standalone MVP foundation and twenty-one production-hardening slices 
 18. vendor-neutral finite-cardinality application metrics for API requests, private-worker operations/duration, and durable claim failures, with prohibited identifier/secret/contact/URL/payload labels and sink-failure isolation;
 19. finite-cardinality durable repository and provider-call timing plus aggregate queue depth/oldest-ready-age gauges for courier, webhook, and verification workers, with configurable cadence and telemetry-only snapshot failure behavior;
 20. vendor-neutral W3C trace-context propagation from API server and durable producer spans through courier, webhook, and verification queue rows into worker consumer and provider-client spans, with finite attributes, nullable legacy context, verification-failure webhook continuation, and telemetry-failure isolation;
-21. bounded critical-path API/domain metrics for authentication, authorization, rate limiting, quota, idempotency, API dependency count/duration, risk assessment quality bands, and verified outcomes, with replay de-duplication, outage-vs-limit distinction, and telemetry-failure isolation.
+21. bounded critical-path API/domain metrics for authentication, authorization, rate limiting, quota, idempotency, API dependency count/duration, risk assessment quality bands, and verified outcomes, with replay de-duplication, outage-vs-limit distinction, and telemetry-failure isolation;
+22. finite authenticated browser/admin and native-shadow integration metrics for session authentication, rate limiting, CSRF, relational authorization, dashboard/admin/rollout/dead-letter/audit repositories, rollout reads, comparison/attempt persistence, replay/conflict, and controlled-rejection-vs-infrastructure-error distinction.
 
 Concrete provider selection and provisioning remain external production work.
 
@@ -74,6 +75,11 @@ Concrete provider selection and provisioning remain external production work.
 - [x] New risk assessments emit only bounded decision/level/score-band/confidence-band/degraded/freshness distributions; replays do not double-count
 - [x] New verified outcomes emit only bounded outcome/linkage distributions; replays do not double-count
 - [x] Usage-limit rejection remains distinct from unexpected usage-ledger failure, which surfaces as an error rather than a false 429
+- [x] Browser authentication, authorization, CSRF, and rate-limit controls emit finite allowed/rejected/error events
+- [x] Browser auth, rate limiter, dashboard, platform-admin, rollout, dead-letter, and audit dependencies emit finite count/duration outcomes
+- [x] Native-shadow rollout reads and comparison/attempt persistence emit finite API dependency success/empty/replay/rejected/error outcomes
+- [x] Relational reauthorization failure is rejected, while unknown browser/native-shadow repository failure remains error
+- [x] Browser and native-shadow metrics omit user/session/tenant/store/order/work/idempotency/email/error-detail values and sink failure cannot change responses
 - [x] Durable courier, webhook, and verification repository claim/start/renew/complete/retry/fail/snapshot operations emit bounded count/duration metrics
 - [x] Courier API/browser, webhook HTTP, and OTP provider calls emit bounded success/retryable/permanent count/duration metrics without vendor/account/destination labels
 - [x] Durable queue snapshots expose only aggregate queued/retry-scheduled/claimed/processing/failed depth and oldest-ready age
@@ -148,16 +154,16 @@ Concrete provider selection and provisioning remain external production work.
 
 - Formatting check: passed
 - ESLint with zero warnings: passed
-- Fourteen migration files ordered/non-empty/non-destructive: passed locally and in source-branch CI
-- First migration apply and immediate migration replay: passed remotely; this slice had no migration change
-- Architecture import boundaries: passed locally and in source-branch CI
-- Typecheck: 20 of 20 workspaces passed locally and in source-branch CI
-- Test/build dependency tasks: 31 of 31 passed locally and in source-branch CI
-- Repository tests: 186 passed in PostgreSQL-integrated source-branch CI
-- Critical-path metric coverage: 21 shared observability tests and 52 API source tests passed for control/dependency/risk/outcome metrics, replay de-duplication, quota rejection vs dependency failure, identifier omission, and sink isolation
+- Fourteen migration files ordered/non-empty/non-destructive: passed locally; current source-branch CI is pending
+- First migration apply and immediate migration replay: previous merged baseline passed remotely; this slice has no migration change
+- Architecture import boundaries: passed locally; current source-branch CI is pending
+- Typecheck: 20 of 20 workspaces passed locally; current source-branch CI is pending
+- Test/build dependency tasks: 31 of 31 passed locally; current source-branch CI is pending
+- Repository test inventory: 191 source tests; previous merged remote baseline is 186
+- Browser/integration metric coverage: 22 shared observability tests and 56 API source tests cover browser controls/dependencies, relational reauthorization, native-shadow rollout/comparison/attempt success/replay/conflict/error, identifier omission, and sink isolation
 - Tracing coverage: previous merged source CI passed 18 shared observability tests, one API durable-producer lineage test, four worker/provider lineage integrations, and three PostgreSQL durable-context tests
-- Production builds: 20 of 20 workspaces passed locally and in source-branch CI
-- WooCommerce PHP syntax: passed locally and in source-branch CI
+- Production builds: 20 of 20 workspaces passed locally; current source-branch CI is pending
+- WooCommerce PHP syntax: passed locally; current source-branch CI is pending
 - npm high/critical audit threshold: passed after the ESLint toolchain update; five moderate findings remain
 - Worker lease final CI run `29545309665`, job `87776201468`: all gates passed at head `b886fcb57c9a5c9ebae3b23334966468ae1733c3`
 - The verified worker lease change was squash-merged to `main` as `d748bde10920e5a35a7e90f3a00b3b3bf02b96f3`
@@ -204,7 +210,7 @@ Concrete provider selection and provisioning remain external production work.
 - `tracker.yml` YAML structure remains valid
 - Changed-file secret-pattern scan: passed
 
-The repository-local continuation exporter was refreshed after the merged critical-path domain-metrics verification evidence was recorded.
+The repository-local continuation exporter was refreshed after browser/integration metric documentation and tracker updates were finalized.
 
 ## Next production milestone
 
@@ -224,7 +230,7 @@ The repository-local continuation exporter was refreshed after the merged critic
 - Managed PostgreSQL provider and service tier
 - Separately provisioned retention-maintenance identity, approved completed/failed windows, incident/legal holds, monitoring, and backup/PITR recovery
 - Managed secret store and KMS/vault provider
-- OpenTelemetry exporter/collector, sampling policy, remaining browser/admin/integration metrics, managed observability backend, dashboards, alerts, and retention policy
+- OpenTelemetry exporter/collector, sampling policy, remaining external integration-adapter/client metrics, managed observability backend, dashboards, alerts, and retention policy
 - OTP provider account and credentials
 - Production account recovery/MFA or managed identity-provider decision
 - Repository visibility correction from currently reported public to expected private

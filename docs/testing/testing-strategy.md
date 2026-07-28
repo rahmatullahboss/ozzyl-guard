@@ -19,7 +19,7 @@
 - Structured-log fixed metadata, recursive sensitive-field redaction, safe error-code-only serialization, circular/binary/bigint handling, bounded truncation, and telemetry-sink failure isolation
 - Non-overlapping lease heartbeat scheduling, failure propagation, abort signaling, and idempotent stop behavior
 - API request-ID validation, bounded route templates, status/latency lifecycle records, and safe unhandled-error serialization
-- Metric descriptor/name/unit validation, finite categorical attribute allowlists, high-cardinality/secret-like key rejection, value/sign validation, JSON point serialization, API control/dependency/risk/outcome plus worker/repository/provider/queue helper output, and metric-sink failure isolation
+- Metric descriptor/name/unit validation, finite categorical attribute allowlists, high-cardinality/secret-like key rejection, value/sign validation, JSON point serialization, API/browser control and dependency plus risk/outcome/worker/repository/provider/queue helper output, and metric-sink failure isolation
 - W3C traceparent/tracestate parsing, formatting, persisted-context round-trip, malformed/all-zero rejection, finite span descriptors, one-shot completion, duration/status output, root/child lineage, and ID/clock/serialization/sink failure isolation
 
 ## Contract tests
@@ -69,6 +69,8 @@ Webhook delivery contract tests cover:
 - Authentication, authorization, rate-limit, quota, and idempotency control metrics plus critical API dependency count/duration without business identifiers or error detail
 - Newly persisted assessment/outcome distributions use bounded bands and finite categories, while idempotent replays do not double-count quality points
 - Usage-limit rejection remains a 429/rejected metric, while unexpected usage-ledger failure remains a 500/error metric
+- Browser login/session, rate-limit, CSRF, relational authorization, dashboard/admin/rollout/dead-letter/audit dependency metrics omit user/session/tenant/store/work/email values and preserve responses when the metric sink fails
+- Native-shadow rollout/comparison/attempt metrics cover success, replay, conflict, known rejection, and unknown persistence error without order, assessment, tenant, idempotency, or error-detail values
 - API server-span continuation, response traceparent, bounded tracestate propagation, durable producer child context, and absence of tenant/phone/job values from span output
 - Courier-session, courier-sync, event, and verification operation plus provider-call metrics with bounded category/operation/outcome labels and no job, account, event, endpoint, phone, OTP, credential, URL, payload, vendor, error-text, or provider-response values
 - Courier-session root/provider lineage and courier, webhook, and verification producer→consumer→provider trace lineage without business identifiers or sensitive values
