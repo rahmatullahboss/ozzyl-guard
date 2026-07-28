@@ -176,17 +176,16 @@ implemented:
 verification:
   command: npm run verify
   last_verified: 2026-07-28
-  status: local_passed_remote_ci_pending
+  status: passed
   results:
     migrations: 13_of_13_with_sha256_manifest
     migration_replay: passed
     migration_history_integrity: passed
     clean_restore_rehearsal: passed_with_schema_data_sequence_history_and_replay
-    architecture_boundaries: passed_locally_remote_ci_pending
-    typecheck: 20_of_20_passed_locally_remote_ci_pending
-    test_tasks: 31_of_31_passed_locally_remote_ci_pending
-    source_assertions: 161_total
-    previous_main_remote_assertions: 154_passed
+    architecture_boundaries: passed
+    typecheck: 20_of_20_passed
+    test_tasks: 31_of_31_passed
+    remote_assertions: 161_passed
     migration_integrity_tests: 7_of_7_passed
     postgresql_concurrency_tests: 7_of_7_passed
     postgresql_courier_worker_lease_tests: 6_of_6_passed
@@ -204,38 +203,40 @@ verification:
     native_shadow_total_tests: 28_of_28_passed
     durable_dead_letter_postgresql_tests: 5_of_5_passed
     browser_dead_letter_api_tests: 3_of_3_passed
-    observability_tests: 8_of_8_passed_locally
+    observability_tests: 8_of_8_passed
     api_observability_tests: 4_of_4_passed
-    api_metric_integration_tests: 1_of_1_passed_locally
-    worker_metric_integration_tests: 4_of_4_passed_locally
+    api_metric_integration_tests: 1_of_1_passed
+    worker_metric_integration_tests: 4_of_4_passed
     lease_heartbeat_unit_tests: 3_of_3_passed
     provider_abort_on_lease_loss_tests: 3_of_3_passed
     durable_retention_input_tests: 4_of_4_passed
     durable_retention_postgresql_tests: 4_of_4_passed
-    builds: 20_of_20_passed_locally_remote_ci_pending
-    php_syntax: passed_locally_remote_ci_pending
-    high_critical_dependency_check: passed_locally_remote_ci_pending
+    builds: 20_of_20_passed
+    php_syntax: passed
+    high_critical_dependency_check: passed
     moderate_dependency_findings: 5
     documentation_links: 61_reviewed_0_known_broken
   continuation_bundle:
     status: refreshed_locally
-    canonical_main_sync: verified_at_0851020ed91027132353b4b7f80b2505438b4dab
-    local_exporter: completed_after_vendor_neutral_metrics_docs
+    canonical_main_sync: verified_at_02be8d2aae6c65a4ddce82f1a7a260993ad1252f
+    local_exporter: completed_after_merged_vendor_neutral_metrics_ci_evidence
   remote_ci:
     status: passed
-    run_id: 30325144458
-    job_id: 90168867190
+    run_id: 30327450803
+    job_id: 90175680964
     job: verify
-    tested_head: e0f18f0e3a51e484d1995f523d0572c09a3e0bba
-    merged_main_commit: 8788da49db5bc0726db97ad0b021fd30b06600e5
+    tested_head: 2d3a0dd40f0f9be8d8749f3ef22f9f2448967206
+    merged_main_commit: 02be8d2aae6c65a4ddce82f1a7a260993ad1252f
     completed: 2026-07-28
-    steps: gitguardian_audit_format_lint_manifest_thirteen_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_twenty_typechecks_one_hundred_fifty_four_assertions_twenty_builds_php_all_passed
+    steps: gitguardian_audit_format_lint_manifest_thirteen_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_twenty_typechecks_one_hundred_sixty_one_assertions_twenty_builds_php_all_passed
   source_validation:
-    status: local_passed_remote_ci_pending
+    status: passed
+    run_id: 30327450803
+    job_id: 90175680964
     branch: feat/vendor-neutral-metrics
-    tested_head: pending_feature_commit
+    tested_head: 2d3a0dd40f0f9be8d8749f3ef22f9f2448967206
     completed: 2026-07-28
-    steps: format_lint_thirteen_migration_manifest_architecture_twenty_typechecks_thirty_one_test_tasks_twenty_builds_audit_php_yaml_links_and_secret_scan_passed_locally
+    steps: gitguardian_audit_format_lint_manifest_thirteen_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_twenty_typechecks_one_hundred_sixty_one_assertions_twenty_builds_php_all_passed
     metric_boundary_tests: 5_of_5_passed
     structured_log_tests: 3_of_3_passed
     api_metric_integration: passed
