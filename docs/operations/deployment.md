@@ -196,6 +196,6 @@ Before a selected merchant pilot:
 
 The latest merged feature CI run `30322016826`, job `90159676583`, verifies the twelve-migration heartbeat baseline, immediate replay, non-null history checksums, clean full-data-hash logical restore, runtime-role grants/effective permissions, architecture boundaries, 20 workspace typechecks, 31 Turbo tasks with 145 assertions, 20 builds, dependency audit, formatting, lint, GitGuardian, and WooCommerce PHP syntax.
 
-The current retention source branch adds manifest-bound migration `0013`, a maintenance-only archive repository/CLI, runtime archive-table denial, four local input-boundary tests, and four PostgreSQL archival tests. Thirteen-migration restore/runtime-role and 154-assertion verification remain pending source-branch CI.
+The durable work retention feature is merged on `main` as `8788da49db5bc0726db97ad0b021fd30b06600e5`. Source CI run `30325144458`, job `90168867190`, verifies manifest-bound migration `0013`, immediate replay, history integrity, clean restore, runtime archive-table denial, all four PostgreSQL retention/archive tests, 20 workspace typechecks, 31 Turbo tasks with 154 assertions, 20 builds, audit, GitGuardian, and PHP syntax.
 
 Production provider provisioning, controlled-egress smoke tests, managed-provider PITR validation, selected KMS adapter/service-identity/access-audit validation, audited ciphertext rewrite, provider-specific OTP delivery, and retention-maintenance identity/window/hold/monitoring provisioning remain pending.
