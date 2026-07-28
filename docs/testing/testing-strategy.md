@@ -17,6 +17,7 @@
 - Runtime-role identifier validation and explicit table-policy completeness
 - Native shadow off mode, deterministic sampling, post-persist source revalidation, legacy-authoritative disagreement, timeout classification, and safe assessment/persistence failures
 - Structured-log fixed metadata, recursive sensitive-field redaction, safe error-code-only serialization, circular/binary/bigint handling, bounded truncation, and telemetry-sink failure isolation
+- API request-ID validation, bounded route templates, status/latency lifecycle records, and safe unhandled-error serialization
 
 ## Contract tests
 
@@ -61,6 +62,7 @@ Webhook delivery contract tests cover:
 - Lease-owned webhook delivery and retry
 - Multi-tenant isolation
 - Organization/store membership authorization
+- API-wide request correlation for public, authenticated, browser, not-found, and unhandled-error paths without raw dynamic routes or query values
 - Concurrent tenant-scoped native shadow comparison and sampled-attempt persistence, default-off rollout, owner/admin opt-in, idempotency-conflict rejection, negative tenant references, and bounded pilot reporting
 
 ### PostgreSQL concurrency and idempotency coverage
@@ -218,6 +220,7 @@ Future PostgreSQL coverage must include:
 - Envelope authenticated-context mismatch
 - Secret redaction, including nested payload/body/URL/credential fields and error-message omission
 - Telemetry serialization/export failure isolation from application and worker execution
+- Caller request-ID rejection when the value is not an approved opaque format, plus raw path/query suppression
 - Injection attacks
 - Session fixation/rotation
 - Credential decryption failure

@@ -4,6 +4,7 @@ import { Pool } from 'pg';
 import { verifyApiKey } from '@ozzyl/authentication';
 import { PostgresDurableWorkOperations } from '@ozzyl/database';
 import { AesGcmEnvelopeCipher } from '@ozzyl/encryption';
+import { createStructuredLogger } from '@ozzyl/observability';
 import { MemoryUsageLedger, type PlanCode } from '@ozzyl/billing';
 import {
   createApiApp,
@@ -80,6 +81,10 @@ const phoneHmacKey = required('PHONE_HMAC_KEY');
 const apiKeyPepper = required('API_KEY_PEPPER');
 const databaseUrl = process.env.DATABASE_URL;
 const productionMode = process.env.NODE_ENV === 'production';
+const log = createStructuredLogger({
+  service: 'ozzyl-guard-api',
+  environment: process.env.NODE_ENV ?? 'development',
+});
 
 if (productionMode && !databaseUrl) {
   throw new Error('DATABASE_URL is required in production');
@@ -134,6 +139,7 @@ if (databaseUrl) {
       csrfSecret: sessionCsrfSecret,
       secureCookies: productionMode,
     },
+    logger: log,
   };
 } else {
   dependencies = {
@@ -165,23 +171,20 @@ if (databaseUrl) {
     idempotency: new MemoryOperationIdempotencyStore(),
     rateLimiter: new MemoryRateLimiter(),
     hashPhone: (phone) => createHmac('sha256', phoneHmacKey).update(phone).digest('hex'),
+    logger: log,
   };
 }
 
 const app = createApiApp(dependencies);
 const port = Number(process.env.API_PORT ?? 3000);
 const server = serve({ fetch: app.fetch, port });
-console.info(
-  JSON.stringify({
-    level: 'info',
-    event: 'api.started',
-    port,
-    persistence: databaseUrl ? 'postgresql' : 'memory',
-  }),
-);
+log.info('api.started', {
+  port,
+  persistence: databaseUrl ? 'postgresql' : 'memory',
+});
 
 const shutdown = async (signal: string): Promise<void> => {
-  console.info(JSON.stringify({ level: 'info', event: 'api.stopping', signal }));
+  log.info('api.stopping', { signal });
   server.close();
   await pool?.end();
   process.exit(0);

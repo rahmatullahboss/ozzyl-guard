@@ -42,7 +42,8 @@ The repository now contains a runnable MVP foundation:
 - Provider-neutral managed envelope v2 with per-record data keys, authenticated wrapped-key metadata, structured safe failures, legacy dual-read, and rotation/re-encryption primitives
 - Native multi-store post-persist shadow integration with authoritative source-order revalidation, explicit store opt-in, immutable success/failure attempt evidence, tenant-scoped pilot reporting, and legacy-authoritative behavior
 - Authenticated owner/admin merchant dead-letter page with secret-free inspection and CSRF-protected idempotent replay through the existing PostgreSQL operations repository
-- Canonical structured logging/redaction package used by all four private workers; telemetry sink failures cannot break worker execution
+- Canonical structured logging/redaction package used by the API and all four private workers; telemetry sink failures cannot break request or worker execution
+- API-wide safe request correlation with opaque request IDs, bounded route templates, status classes, latency, and redacted unhandled-error records
 
 The following require external accounts or production decisions before live use:
 

@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { Hono } from 'hono';
 import { z } from 'zod';
 import type { PlanCode, UsageLedger } from '@ozzyl/billing';
+import { createStructuredLogger, type StructuredLogger } from '@ozzyl/observability';
 import {
   assessRisk,
   isValidBangladeshPhone,
@@ -208,7 +209,9 @@ export interface ApiDependencies {
   otpVerifier?: OtpVerifier;
   browser?: BrowserApiDependencies;
   now?: () => Date;
+  monotonicNow?: () => number;
   idFactory?: (prefix: string) => string;
+  logger?: StructuredLogger;
 }
 
 type AppEnvironment = {
@@ -238,7 +241,45 @@ const otpVerifySchema = z.object({
 export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment> {
   const app = new Hono<AppEnvironment>();
   const now = dependencies.now ?? (() => new Date());
+  const monotonicNow = dependencies.monotonicNow ?? (() => Date.now());
   const idFactory = dependencies.idFactory ?? ((prefix: string) => `${prefix}_${randomUUID()}`);
+  const logger =
+    dependencies.logger ??
+    createStructuredLogger({
+      service: 'ozzyl-guard-api',
+      environment: 'test',
+      write: () => undefined,
+    });
+
+  app.use('*', async (context, next) => {
+    const requestId = readRequestId(context.req.header('X-Request-ID')) ?? idFactory('req');
+    const startedAt = monotonicNow();
+    let failed = false;
+    context.set('requestId', requestId);
+
+    try {
+      await next();
+    } catch (error) {
+      failed = true;
+      throw error;
+    } finally {
+      const status = failed ? 500 : context.res.status;
+      const durationMs = Math.max(0, monotonicNow() - startedAt);
+      const attributes = {
+        request_id: requestId,
+        method: context.req.method,
+        route: telemetryRoute(context.req.path),
+        status_code: status,
+        status_class: `${Math.floor(status / 100)}xx`,
+        duration_ms: Math.round(durationMs * 1_000) / 1_000,
+      };
+
+      context.header('X-Request-ID', requestId);
+      if (status >= 500) logger.error('api.request.completed', attributes);
+      else if (status >= 400) logger.warn('api.request.completed', attributes);
+      else logger.info('api.request.completed', attributes);
+    }
+  });
 
   app.get('/', (context) =>
     context.json({
@@ -264,8 +305,7 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
   if (dependencies.browser) app.route('/', createBrowserApi(dependencies.browser));
 
   app.use('/v1/*', async (context, next) => {
-    const requestId = context.req.header('X-Request-ID')?.slice(0, 200) || idFactory('req');
-    context.set('requestId', requestId);
+    const requestId = context.get('requestId');
     const authorization = context.req.header('Authorization');
     if (!authorization?.startsWith('Bearer ')) {
       return apiError(requestId, 401, 'UNAUTHORIZED', 'A Bearer API key is required');
@@ -758,7 +798,13 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
 
   app.onError((error, context) => {
     const requestId = context.get('requestId') || idFactory('req');
-    console.error(JSON.stringify({ level: 'error', requestId, code: 'UNHANDLED_ERROR' }));
+    logger.error('api.request.unhandled_error', {
+      request_id: requestId,
+      method: context.req.method,
+      route: telemetryRoute(context.req.path),
+      code: 'UNHANDLED_ERROR',
+      error,
+    });
     return apiError(
       requestId,
       500,
@@ -768,6 +814,48 @@ export function createApiApp(dependencies: ApiDependencies): Hono<AppEnvironment
   });
 
   return app;
+}
+
+const STATIC_TELEMETRY_ROUTES = new Set([
+  '/',
+  '/health',
+  '/auth/login',
+  '/auth/session',
+  '/auth/logout',
+  '/dashboard/v1/overview',
+  '/dashboard/v1/native-shadow-rollout',
+  '/dashboard/v1/dead-letters',
+  '/dashboard/v1/dead-letter-replays',
+  '/admin/v1/overview',
+  '/v1/risk-assessments',
+  '/v1/order-outcomes',
+  '/v1/integration-rollouts/native-shadow',
+  '/v1/integration-comparisons/native-shadow',
+  '/v1/integration-attempts/native-shadow',
+  '/v1/courier-observations/refresh',
+  '/v1/verifications/otp/send',
+  '/v1/verifications/otp/verify',
+]);
+
+function telemetryRoute(path: string): string {
+  if (STATIC_TELEMETRY_ROUTES.has(path)) return path;
+  if (/^\/v1\/risk-assessments\/[^/]+$/.test(path)) {
+    return '/v1/risk-assessments/:assessment_id';
+  }
+  return 'unmatched';
+}
+
+function readRequestId(value: string | undefined): string | null {
+  const requestId = value?.trim();
+  if (!requestId || requestId.length > 100) return null;
+  if (/^req_[A-Za-z0-9-]{1,80}$/.test(requestId)) return requestId;
+  if (/^[a-f0-9]{16,32}$/i.test(requestId)) return requestId;
+  if (
+    /^[a-f0-9]{8}-[a-f0-9]{4}-[1-5][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(requestId)
+  ) {
+    return requestId;
+  }
+  return null;
 }
 
 export class MemoryAssessmentRepository implements AssessmentRepository {
