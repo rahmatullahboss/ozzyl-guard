@@ -206,17 +206,16 @@ implemented:
 verification:
   command: npm run verify
   last_verified: 2026-07-28
-  status: local_passed_remote_ci_pending
+  status: passed
   results:
     migrations: 14_of_14_with_sha256_manifest
-    migration_replay: previous_main_passed_no_migration_change
-    migration_history_integrity: previous_main_passed_no_migration_change
-    clean_restore_rehearsal: previous_main_passed_no_migration_change
-    architecture_boundaries: passed_locally_remote_ci_pending
-    typecheck: 20_of_20_passed_locally_remote_ci_pending
-    test_tasks: 31_of_31_passed_locally_remote_ci_pending
-    source_tests: 191_total
-    previous_main_remote_tests: 186_passed
+    migration_replay: passed
+    migration_history_integrity: passed
+    clean_restore_rehearsal: passed_with_schema_data_sequence_history_and_replay
+    architecture_boundaries: passed
+    typecheck: 20_of_20_passed
+    test_tasks: 31_of_31_passed
+    remote_tests: 191_passed
     migration_integrity_tests: 7_of_7_passed
     postgresql_concurrency_tests: 7_of_7_passed
     postgresql_courier_worker_lease_tests: 7_of_7_passed
@@ -234,11 +233,11 @@ verification:
     native_shadow_total_tests: 28_of_28_passed
     durable_dead_letter_postgresql_tests: 5_of_5_passed
     browser_dead_letter_api_tests: 3_of_3_passed
-    observability_tests: 22_of_22_passed_locally
-    api_source_tests: 56_of_56_passed_locally
+    observability_tests: 22_of_22_passed
+    api_source_tests: 56_of_56_passed
     critical_path_metric_integrations: 3_of_3_previous_main_passed
-    browser_metric_integrations: 2_of_2_passed_locally
-    native_shadow_metric_integrations: 2_of_2_passed_locally
+    browser_metric_integrations: 2_of_2_passed
+    native_shadow_metric_integrations: 2_of_2_passed
     worker_metric_integration_tests: 4_of_4_passed
     provider_metric_integration_tests: 4_of_4_passed
     repository_metric_helper_tests: 3_of_3_passed
@@ -250,30 +249,32 @@ verification:
     provider_abort_on_lease_loss_tests: 3_of_3_passed
     durable_retention_input_tests: 4_of_4_passed
     durable_retention_postgresql_tests: 4_of_4_passed
-    builds: 20_of_20_passed_locally_remote_ci_pending
-    php_syntax: passed_locally_remote_ci_pending
-    high_critical_dependency_check: passed_locally_remote_ci_pending
+    builds: 20_of_20_passed
+    php_syntax: passed
+    high_critical_dependency_check: passed
     moderate_dependency_findings: 5
     documentation_links: 61_reviewed_0_known_broken
   continuation_bundle:
     status: refreshed_locally
-    canonical_main_sync: verified_at_a09a7828c3bbc4b7b47ada9acff689615e01f2e5
-    local_exporter: completed_after_browser_integration_metric_docs
+    canonical_main_sync: verified_at_c697935549c427e4a4a6c81ad642416363e89e8e
+    local_exporter: completed_after_merged_browser_integration_metric_ci_evidence
   remote_ci:
     status: passed
-    run_id: 30348649679
-    job_id: 90240703555
+    run_id: 30386368200
+    job_id: 90366572706
     job: verify
-    tested_head: 4242c1244a56a1e74de721fb34ba06612bdcae64
-    merged_main_commit: dfaf92c4f1f29a0068363d815b9cc3d0902be6fe
+    tested_head: d29b5ef672ce31d65c6c3bfecacdc363ccf611ad
+    merged_main_commit: c697935549c427e4a4a6c81ad642416363e89e8e
     completed: 2026-07-28
-    steps: gitguardian_audit_format_lint_manifest_fourteen_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_twenty_typechecks_one_hundred_eighty_six_tests_twenty_builds_php_all_passed
+    steps: gitguardian_audit_format_lint_manifest_fourteen_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_twenty_typechecks_one_hundred_ninety_one_tests_twenty_builds_php_all_passed
   source_validation:
-    status: local_passed_remote_ci_pending
+    status: passed
+    run_id: 30386368200
+    job_id: 90366572706
     branch: feat/browser-integration-metrics
-    tested_head: pending_feature_commit
+    tested_head: d29b5ef672ce31d65c6c3bfecacdc363ccf611ad
     completed: 2026-07-28
-    steps: format_lint_fourteen_migration_manifest_architecture_twenty_typechecks_thirty_one_test_tasks_one_hundred_ninety_one_source_tests_twenty_builds_audit_php_yaml_links_and_secret_scan_passed_locally
+    steps: gitguardian_audit_format_lint_manifest_fourteen_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_twenty_typechecks_one_hundred_ninety_one_tests_twenty_builds_php_all_passed
     shared_observability_tests: 22_of_22_passed
     api_source_tests: 56_of_56_passed
     browser_metric_integrations: 2_of_2_passed

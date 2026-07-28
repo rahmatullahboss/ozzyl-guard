@@ -81,12 +81,12 @@ Applied migrations must remain immutable.
 
 - `npm run format:check`: passed
 - `npm run lint`: passed with zero warnings
-- `npm run db:check`: fourteen migrations and committed SHA-256 manifest validated locally; current source-branch CI is pending
-- initial migration apply/replay, history integrity, and clean restore: previous merged baseline passed remotely; this slice has no migration change
-- `npm run check:architecture`: passed locally; current source-branch CI is pending
-- `npm run typecheck`: 20/20 workspaces passed locally; current source-branch CI is pending
-- `npm run test`: 31/31 Turbo tasks passed locally; source inventory is 191 tests and previous merged remote baseline is 186
-- `npm run build`: 20/20 workspace builds passed locally; current source-branch CI is pending
+- `npm run db:check`: fourteen migrations and committed SHA-256 manifest validated locally and in source-branch CI
+- initial migration apply/replay, history integrity, and clean restore: passed remotely; this slice had no migration change
+- `npm run check:architecture`: passed locally and in source-branch CI
+- `npm run typecheck`: 20/20 workspaces passed locally and in source-branch CI
+- `npm run test`: 31/31 Turbo tasks and 191 tests passed in PostgreSQL-integrated source-branch CI
+- `npm run build`: 20/20 workspace builds passed locally and in source-branch CI
 - `npm audit --audit-level=high`: passed after updating ESLint, `@eslint/js`, and `typescript-eslint`; five moderate findings remain
 - Observability tests prove fixed log metadata/redaction, finite metric/span descriptors, strict W3C trace parsing/formatting/persistence, bounded control/dependency/risk distributions, exporter-neutral JSON points, and sink/clock/ID-generation failure isolation
 - API observability tests prove opaque request-ID acceptance, dynamic-route/query suppression, bounded request/API/browser control and dependency metrics, risk/outcome distributions, replay/conflict handling, quota-limit and controlled-rejection vs dependency-error distinctions, identifier omission, safe serialization, and authenticated API/browser availability during metric sink failure
@@ -149,12 +149,14 @@ Applied migrations must remain immutable.
 - The verified distributed trace-context milestone was squash-merged through PR #38 to `main` as `0b6125a7dfb0f4c5ba5092100de120e365e65d9b`
 - Critical-path domain-metrics final run `30348649679`, job `90240703555`: GitGuardian, fourteen migrations, 20 typechecks, 31 Turbo tasks with 186 tests, 20 builds, audit, formatting, lint, clean restore, runtime-role grants, architecture, and PHP lint passed at head `4242c1244a56a1e74de721fb34ba06612bdcae64`
 - The verified critical-path domain-metrics milestone was squash-merged through PR #40 to `main` as `dfaf92c4f1f29a0068363d815b9cc3d0902be6fe`
+- Browser/integration metrics final run `30386368200`, job `90366572706`: GitGuardian, fourteen migrations, 20 typechecks, 31 Turbo tasks with 191 tests, 20 builds, audit, formatting, lint, clean restore, runtime-role grants, architecture, and PHP lint passed at head `d29b5ef672ce31d65c6c3bfecacdc363ccf611ad`
+- The verified browser/integration metrics milestone was squash-merged through PR #42 to `main` as `c697935549c427e4a4a6c81ad642416363e89e8e`
 - Seven real-PostgreSQL tests cover API-key/feature/write tenant mismatch, dashboard aggregation isolation, platform-admin reauthorization, and secret-free webhook/verification administration
 - Seven database-role tests cover identifier safety, explicit policy completeness, insert-only replay evidence, real allowed DML, migration-history/DELETE/DDL denial, elevated-role rejection, and inherited-role rejection
 - Previous canonical documentation checks found zero broken internal links
 - Prohibited insecure-pattern scan: zero matches
 
-The repository-local exporter was refreshed after browser/integration metric documentation and tracker updates were finalized. Current source-branch remote CI is pending.
+The repository-local exporter was refreshed after the merged browser/integration metrics verification evidence was recorded.
 
 ## External blockers and production requirements
 

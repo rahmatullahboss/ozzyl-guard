@@ -154,16 +154,16 @@ Concrete provider selection and provisioning remain external production work.
 
 - Formatting check: passed
 - ESLint with zero warnings: passed
-- Fourteen migration files ordered/non-empty/non-destructive: passed locally; current source-branch CI is pending
-- First migration apply and immediate migration replay: previous merged baseline passed remotely; this slice has no migration change
-- Architecture import boundaries: passed locally; current source-branch CI is pending
-- Typecheck: 20 of 20 workspaces passed locally; current source-branch CI is pending
-- Test/build dependency tasks: 31 of 31 passed locally; current source-branch CI is pending
-- Repository test inventory: 191 source tests; previous merged remote baseline is 186
-- Browser/integration metric coverage: 22 shared observability tests and 56 API source tests cover browser controls/dependencies, relational reauthorization, native-shadow rollout/comparison/attempt success/replay/conflict/error, identifier omission, and sink isolation
+- Fourteen migration files ordered/non-empty/non-destructive: passed locally and in source-branch CI
+- First migration apply and immediate migration replay: passed remotely; this slice had no migration change
+- Architecture import boundaries: passed locally and in source-branch CI
+- Typecheck: 20 of 20 workspaces passed locally and in source-branch CI
+- Test/build dependency tasks: 31 of 31 passed locally and in source-branch CI
+- Repository tests: 191 passed in PostgreSQL-integrated source-branch CI
+- Browser/integration metric coverage: 22 shared observability tests and 56 API source tests passed for browser controls/dependencies, relational reauthorization, native-shadow rollout/comparison/attempt success/replay/conflict/error, identifier omission, and sink isolation
 - Tracing coverage: previous merged source CI passed 18 shared observability tests, one API durable-producer lineage test, four worker/provider lineage integrations, and three PostgreSQL durable-context tests
-- Production builds: 20 of 20 workspaces passed locally; current source-branch CI is pending
-- WooCommerce PHP syntax: passed locally; current source-branch CI is pending
+- Production builds: 20 of 20 workspaces passed locally and in source-branch CI
+- WooCommerce PHP syntax: passed locally and in source-branch CI
 - npm high/critical audit threshold: passed after the ESLint toolchain update; five moderate findings remain
 - Worker lease final CI run `29545309665`, job `87776201468`: all gates passed at head `b886fcb57c9a5c9ebae3b23334966468ae1733c3`
 - The verified worker lease change was squash-merged to `main` as `d748bde10920e5a35a7e90f3a00b3b3bf02b96f3`
@@ -206,11 +206,13 @@ Concrete provider selection and provisioning remain external production work.
 - The verified distributed trace-context milestone was squash-merged through PR #38 to `main` as `0b6125a7dfb0f4c5ba5092100de120e365e65d9b`
 - Critical-path domain-metrics final CI run `30348649679`, job `90240703555`: GitGuardian, audit, formatting, lint, fourteen migrations, replay, history integrity, clean restore, runtime-role grants, architecture, 20 typechecks, 186 tests, 20 builds, and PHP lint passed at head `4242c1244a56a1e74de721fb34ba06612bdcae64`
 - The verified critical-path domain-metrics milestone was squash-merged through PR #40 to `main` as `dfaf92c4f1f29a0068363d815b9cc3d0902be6fe`
+- Browser/integration metrics final CI run `30386368200`, job `90366572706`: GitGuardian, audit, formatting, lint, fourteen migrations, replay, history integrity, clean restore, runtime-role grants, architecture, 20 typechecks, 191 tests, 20 builds, and PHP lint passed at head `d29b5ef672ce31d65c6c3bfecacdc363ccf611ad`
+- The verified browser/integration metrics milestone was squash-merged through PR #42 to `main` as `c697935549c427e4a4a6c81ad642416363e89e8e`
 - Canonical documentation links: 61 reviewed locally with zero known broken internal links
 - `tracker.yml` YAML structure remains valid
 - Changed-file secret-pattern scan: passed
 
-The repository-local continuation exporter was refreshed after browser/integration metric documentation and tracker updates were finalized.
+The repository-local continuation exporter was refreshed after the merged browser/integration metrics verification evidence was recorded.
 
 ## Next production milestone
 

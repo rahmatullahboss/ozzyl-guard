@@ -1,6 +1,6 @@
-# Ozzyl Guard Browser and Integration Metrics Continuation Context
+# Ozzyl Guard Browser and Integration Metrics Verified Context
 
-Generated: 2026-07-28T18:08:39.499Z
+Generated: 2026-07-28T18:18:54.195Z
 Workspace: /Users/rahmatullahzisan/Desktop/Dev/Ozzyl Guard
 Workspace ID: ws_dfece19fe5040cc4a5675d02
 Write mode: workspace
@@ -240,42 +240,218 @@ Instruction for ChatGPT: use this as repository context, produce a narrow Codex 
 ## Git Status
 
 ```text
-## feat/browser-integration-metrics
+## docs/browser-integration-metrics-verification-evidence
  M .ai-bridge/current-plan.md
- M .ai-bridge/decisions.md
  M .ai-bridge/implementation-status.md
- M README.md
- M apps/api/src/browser.test.ts
- M apps/api/src/browser.ts
- M apps/api/src/index.ts
- M apps/api/src/native-shadow.test.ts
  M docs/README.md
- M docs/operations/operations-observability.md
- M docs/roadmap/risk-register.md
- M docs/security/security-privacy.md
- M docs/testing/testing-strategy.md
- M packages/observability/src/metrics.test.ts
- M packages/observability/src/metrics.ts
  M tracker.yml
 ```
 
 ## Recent Commits
 
 ```text
-a09a782 (HEAD -> feat/browser-integration-metrics, origin/main, main) docs: record critical path metrics CI evidence (#41)
+c697935 (HEAD -> docs/browser-integration-metrics-verification-evidence, origin/main, main) feat(observability): instrument browser surfaces (#42)
+a09a782 docs: record critical path metrics CI evidence (#41)
 dfaf92c feat(observability): instrument critical API paths (#40)
 1d31af8 docs: record distributed trace CI evidence (#39)
 0b6125a feat(observability): propagate durable trace context (#38)
 6425136 docs: record durable metrics CI evidence (#37)
 53b8820 feat(observability): instrument durable operations (#36)
 2e71b97 docs: record metrics CI evidence (#35)
-02be8d2 feat(observability): add safe application metrics (#34)
 ```
 
 ## Git Diff
 
 ```diff
-git unavailable or failed: spawnSync git ENOBUFS
+diff --git a/.ai-bridge/current-plan.md b/.ai-bridge/current-plan.md
+index 7989dac..caefae3 100644
+--- a/.ai-bridge/current-plan.md
++++ b/.ai-bridge/current-plan.md
+@@ -154,16 +154,16 @@ Concrete provider selection and provisioning remain external production work.
+
+ - Formatting check: passed
+ - ESLint with zero warnings: passed
+-- Fourteen migration files ordered/non-empty/non-destructive: passed locally; current source-branch CI is pending
+-- First migration apply and immediate migration replay: previous merged baseline passed remotely; this slice has no migration change
+-- Architecture import boundaries: passed locally; current source-branch CI is pending
+-- Typecheck: 20 of 20 workspaces passed locally; current source-branch CI is pending
+-- Test/build dependency tasks: 31 of 31 passed locally; current source-branch CI is pending
+-- Repository test inventory: 191 source tests; previous merged remote baseline is 186
+-- Browser/integration metric coverage: 22 shared observability tests and 56 API source tests cover browser controls/dependencies, relational reauthorization, native-shadow rollout/comparison/attempt success/replay/conflict/error, identifier omission, and sink isolation
++- Fourteen migration files ordered/non-empty/non-destructive: passed locally and in source-branch CI
++- First migration apply and immediate migration replay: passed remotely; this slice had no migration change
++- Architecture import boundaries: passed locally and in source-branch CI
++- Typecheck: 20 of 20 workspaces passed locally and in source-branch CI
++- Test/build dependency tasks: 31 of 31 passed locally and in source-branch CI
++- Repository tests: 191 passed in PostgreSQL-integrated source-branch CI
++- Browser/integration metric coverage: 22 shared observability tests and 56 API source tests passed for browser controls/dependencies, relational reauthorization, native-shadow rollout/comparison/attempt success/replay/conflict/error, identifier omission, and sink isolation
+ - Tracing coverage: previous merged source CI passed 18 shared observability tests, one API durable-producer lineage test, four worker/provider lineage integrations, and three PostgreSQL durable-context tests
+-- Production builds: 20 of 20 workspaces passed locally; current source-branch CI is pending
+-- WooCommerce PHP syntax: passed locally; current source-branch CI is pending
++- Production builds: 20 of 20 workspaces passed locally and in source-branch CI
++- WooCommerce PHP syntax: passed locally and in source-branch CI
+ - npm high/critical audit threshold: passed after the ESLint toolchain update; five moderate findings remain
+ - Worker lease final CI run `29545309665`, job `87776201468`: all gates passed at head `b886fcb57c9a5c9ebae3b23334966468ae1733c3`
+ - The verified worker lease change was squash-merged to `main` as `d748bde10920e5a35a7e90f3a00b3b3bf02b96f3`
+@@ -206,11 +206,13 @@ Concrete provider selection and provisioning remain external production work.
+ - The verified distributed trace-context milestone was squash-merged through PR #38 to `main` as `0b6125a7dfb0f4c5ba5092100de120e365e65d9b`
+ - Critical-path domain-metrics final CI run `30348649679`, job `90240703555`: GitGuardian, audit, formatting, lint, fourteen migrations, replay, history integrity, clean restore, runtime-role grants, architecture, 20 typechecks, 186 tests, 20 builds, and PHP lint passed at head `4242c1244a56a1e74de721fb34ba06612bdcae64`
+ - The verified critical-path domain-metrics milestone was squash-merged through PR #40 to `main` as `dfaf92c4f1f29a0068363d815b9cc3d0902be6fe`
++- Browser/integration metrics final CI run `30386368200`, job `90366572706`: GitGuardian, audit, formatting, lint, fourteen migrations, replay, history integrity, clean restore, runtime-role grants, architecture, 20 typechecks, 191 tests, 20 builds, and PHP lint passed at head `d29b5ef672ce31d65c6c3bfecacdc363ccf611ad`
++- The verified browser/integration metrics milestone was squash-merged through PR #42 to `main` as `c697935549c427e4a4a6c81ad642416363e89e8e`
+ - Canonical documentation links: 61 reviewed locally with zero known broken internal links
+ - `tracker.yml` YAML structure remains valid
+ - Changed-file secret-pattern scan: passed
+
+-The repository-local continuation exporter was refreshed after browser/integration metric documentation and tracker updates were finalized.
++The repository-local continuation exporter was refreshed after the merged browser/integration metrics verification evidence was recorded.
+
+ ## Next production milestone
+
+diff --git a/.ai-bridge/implementation-status.md b/.ai-bridge/implementation-status.md
+index b726069..35d5b25 100644
+--- a/.ai-bridge/implementation-status.md
++++ b/.ai-bridge/implementation-status.md
+@@ -81,12 +81,12 @@ Applied migrations must remain immutable.
+
+ - `npm run format:check`: passed
+ - `npm run lint`: passed with zero warnings
+-- `npm run db:check`: fourteen migrations and committed SHA-256 manifest validated locally; current source-branch CI is pending
+-- initial migration apply/replay, history integrity, and clean restore: previous merged baseline passed remotely; this slice has no migration change
+-- `npm run check:architecture`: passed locally; current source-branch CI is pending
+-- `npm run typecheck`: 20/20 workspaces passed locally; current source-branch CI is pending
+-- `npm run test`: 31/31 Turbo tasks passed locally; source inventory is 191 tests and previous merged remote baseline is 186
+-- `npm run build`: 20/20 workspace builds passed locally; current source-branch CI is pending
++- `npm run db:check`: fourteen migrations and committed SHA-256 manifest validated locally and in source-branch CI
++- initial migration apply/replay, history integrity, and clean restore: passed remotely; this slice had no migration change
++- `npm run check:architecture`: passed locally and in source-branch CI
++- `npm run typecheck`: 20/20 workspaces passed locally and in source-branch CI
++- `npm run test`: 31/31 Turbo tasks and 191 tests passed in PostgreSQL-integrated source-branch CI
++- `npm run build`: 20/20 workspace builds passed locally and in source-branch CI
+ - `npm audit --audit-level=high`: passed after updating ESLint, `@eslint/js`, and `typescript-eslint`; five moderate findings remain
+ - Observability tests prove fixed log metadata/redaction, finite metric/span descriptors, strict W3C trace parsing/formatting/persistence, bounded control/dependency/risk distributions, exporter-neutral JSON points, and sink/clock/ID-generation failure isolation
+ - API observability tests prove opaque request-ID acceptance, dynamic-route/query suppression, bounded request/API/browser control and dependency metrics, risk/outcome distributions, replay/conflict handling, quota-limit and controlled-rejection vs dependency-error distinctions, identifier omission, safe serialization, and authenticated API/browser availability during metric sink failure
+@@ -149,12 +149,14 @@ Applied migrations must remain immutable.
+ - The verified distributed trace-context milestone was squash-merged through PR #38 to `main` as `0b6125a7dfb0f4c5ba5092100de120e365e65d9b`
+ - Critical-path domain-metrics final run `30348649679`, job `90240703555`: GitGuardian, fourteen migrations, 20 typechecks, 31 Turbo tasks with 186 tests, 20 builds, audit, formatting, lint, clean restore, runtime-role grants, architecture, and PHP lint passed at head `4242c1244a56a1e74de721fb34ba06612bdcae64`
+ - The verified critical-path domain-metrics milestone was squash-merged through PR #40 to `main` as `dfaf92c4f1f29a0068363d815b9cc3d0902be6fe`
++- Browser/integration metrics final run `30386368200`, job `90366572706`: GitGuardian, fourteen migrations, 20 typechecks, 31 Turbo tasks with 191 tests, 20 builds, audit, formatting, lint, clean restore, runtime-role grants, architecture, and PHP lint passed at head `d29b5ef672ce31d65c6c3bfecacdc363ccf611ad`
++- The verified browser/integration metrics milestone was squash-merged through PR #42 to `main` as `c697935549c427e4a4a6c81ad642416363e89e8e`
+ - Seven real-PostgreSQL tests cover API-key/feature/write tenant mismatch, dashboard aggregation isolation, platform-admin reauthorization, and secret-free webhook/verification administration
+ - Seven database-role tests cover identifier safety, explicit policy completeness, insert-only replay evidence, real allowed DML, migration-history/DELETE/DDL denial, elevated-role rejection, and inherited-role rejection
+ - Previous canonical documentation checks found zero broken internal links
+ - Prohibited insecure-pattern scan: zero matches
+
+-The repository-local exporter was refreshed after browser/integration metric documentation and tracker updates were finalized. Current source-branch remote CI is pending.
++The repository-local exporter was refreshed after the merged browser/integration metrics verification evidence was recorded.
+
+ ## External blockers and production requirements
+
+diff --git a/docs/README.md b/docs/README.md
+index 037aa3a..e8eac44 100644
+--- a/docs/README.md
++++ b/docs/README.md
+@@ -4,7 +4,7 @@ This directory is the long-term product and engineering source of truth. New dev
+
+ ## Current verified milestone
+
+-The critical-path domain-metrics milestone remains merged on `main` as `dfaf92c4f1f29a0068363d815b9cc3d0902be6fe`; feature CI run `30348649679`, job `90240703555`, passed fourteen migrations, 20 typechecks, 31 Turbo tasks with 186 tests, 20 builds, GitGuardian, audit, clean restore, runtime-role, and PHP gates. The current browser/integration-metrics source branch adds finite session authentication, rate-limit, CSRF, relational authorization, dashboard/admin/rollout/dead-letter/audit repository metrics plus native-shadow rollout/comparison/attempt success, replay, rejection, conflict, and error outcomes without business identifiers or error detail. Local source inventory is 191 tests; remote CI evidence is pending.
++The browser/integration metrics milestone is merged on `main` as `c697935549c427e4a4a6c81ad642416363e89e8e`. Feature CI run `30386368200`, job `90366572706`, passed fourteen migrations, 20 typechecks, 31 Turbo tasks with 191 tests, 20 builds, GitGuardian, audit, clean restore, runtime-role, and PHP gates. Finite session authentication, rate-limit, CSRF, relational authorization, dashboard/admin/rollout/dead-letter/audit repository metrics plus native-shadow rollout/comparison/attempt success, replay, rejection, conflict, and error outcomes are implemented without business identifiers or error detail.
+
+ ## Architecture
+
+diff --git a/tracker.yml b/tracker.yml
+index 31103b2..0447fec 100644
+--- a/tracker.yml
++++ b/tracker.yml
+@@ -206,17 +206,16 @@ implemented:
+ verification:
+   command: npm run verify
+   last_verified: 2026-07-28
+-  status: local_passed_remote_ci_pending
++  status: passed
+   results:
+     migrations: 14_of_14_with_sha256_manifest
+-    migration_replay: previous_main_passed_no_migration_change
+-    migration_history_integrity: previous_main_passed_no_migration_change
+-    clean_restore_rehearsal: previous_main_passed_no_migration_change
+-    architecture_boundaries: passed_locally_remote_ci_pending
+-    typecheck: 20_of_20_passed_locally_remote_ci_pending
+-    test_tasks: 31_of_31_passed_locally_remote_ci_pending
+-    source_tests: 191_total
+-    previous_main_remote_tests: 186_passed
++    migration_replay: passed
++    migration_history_integrity: passed
++    clean_restore_rehearsal: passed_with_schema_data_sequence_history_and_replay
++    architecture_boundaries: passed
++    typecheck: 20_of_20_passed
++    test_tasks: 31_of_31_passed
++    remote_tests: 191_passed
+     migration_integrity_tests: 7_of_7_passed
+     postgresql_concurrency_tests: 7_of_7_passed
+     postgresql_courier_worker_lease_tests: 7_of_7_passed
+@@ -234,11 +233,11 @@ verification:
+     native_shadow_total_tests: 28_of_28_passed
+     durable_dead_letter_postgresql_tests: 5_of_5_passed
+     browser_dead_letter_api_tests: 3_of_3_passed
+-    observability_tests: 22_of_22_passed_locally
+-    api_source_tests: 56_of_56_passed_locally
++    observability_tests: 22_of_22_passed
++    api_source_tests: 56_of_56_passed
+     critical_path_metric_integrations: 3_of_3_previous_main_passed
+-    browser_metric_integrations: 2_of_2_passed_locally
+-    native_shadow_metric_integrations: 2_of_2_passed_locally
++    browser_metric_integrations: 2_of_2_passed
++    native_shadow_metric_integrations: 2_of_2_passed
+     worker_metric_integration_tests: 4_of_4_passed
+     provider_metric_integration_tests: 4_of_4_passed
+     repository_metric_helper_tests: 3_of_3_passed
+@@ -250,30 +249,32 @@ verification:
+     provider_abort_on_lease_loss_tests: 3_of_3_passed
+     durable_retention_input_tests: 4_of_4_passed
+     durable_retention_postgresql_tests: 4_of_4_passed
+-    builds: 20_of_20_passed_locally_remote_ci_pending
+-    php_syntax: passed_locally_remote_ci_pending
+-    high_critical_dependency_check: passed_locally_remote_ci_pending
++    builds: 20_of_20_passed
++    php_syntax: passed
++    high_critical_dependency_check: passed
+     moderate_dependency_findings: 5
+     documentation_links: 61_reviewed_0_known_broken
+   continuation_bundle:
+     status: refreshed_locally
+-    canonical_main_sync: verified_at_a09a7828c3bbc4b7b47ada9acff689615e01f2e5
+-    local_exporter: completed_after_browser_integration_metric_docs
++    canonical_main_sync: verified_at_c697935549c427e4a4a6c81ad642416363e89e8e
++    local_exporter: completed_after_merged_browser_integration_metric_ci_evidence
+   remote_ci:
+     status: passed
+-    run_id: 30348649679
+-    job_id: 90240703555
++    run_id: 30386368200
++    job_id: 90366572706
+     job: verify
+-    tested_head: 4242c1244a56a1e74de721fb34ba06612bdcae64
+-    merged_main_commit: dfaf92c4f1f29a0068363d815b9cc3d0902be6fe
++    tested_head: d29b5ef672ce31d65c6c3bfecacdc363ccf611ad
++    merged_main_commit: c697935549c427e4a4a6c81ad642416363e89e8e
+     completed: 2026-07-28
+-    steps: gitguardian_audit_format_lint_manifest_fourteen_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_twenty_typechecks_one_hundred_eighty_six_tests_twenty_builds_php_all_passed
++    steps: gitguardian_audit_format_lint_manifest_fourteen_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_twenty_typechecks_one_hundred_ninety_one_tests_twenty_builds_php_all_passed
+   source_validation:
+-    status: local_passed_remote_ci_pending
++    status: passed
++    run_id: 30386368200
++    job_id: 90366572706
+     branch: feat/browser-integration-metrics
+-    tested_head: pending_feature_commit
++    tested_head: d29b5ef672ce31d65c6c3bfecacdc363ccf611ad
+     completed: 2026-07-28
+-    steps: format_lint_fourteen_migration_manifest_architecture_twenty_typechecks_thirty_one_test_tasks_one_hundred_ninety_one_source_tests_twenty_builds_audit_php_yaml_links_and_secret_scan_passed_locally
++    steps: gitguardian_audit_format_lint_manifest_fourteen_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_twenty_typechecks_one_hundred_ninety_one_tests_twenty_builds_php_all_passed
+     shared_observability_tests: 22_of_22_passed
+     api_source_tests: 56_of_56_passed
+     browser_metric_integrations: 2_of_2_passed
 ```
 
 ## Existing AI Bridge Context
@@ -437,16 +613,16 @@ git unavailable or failed: spawnSync git ENOBUFS
 154 |
 155 | - Formatting check: passed
 156 | - ESLint with zero warnings: passed
-157 | - Fourteen migration files ordered/non-empty/non-destructive: passed locally; current source-branch CI is pending
-158 | - First migration apply and immediate migration replay: previous merged baseline passed remotely; this slice has no migration change
-159 | - Architecture import boundaries: passed locally; current source-branch CI is pending
-160 | - Typecheck: 20 of 20 workspaces passed locally; current source-branch CI is pending
-161 | - Test/build dependency tasks: 31 of 31 passed locally; current source-branch CI is pending
-162 | - Repository test inventory: 191 source tests; previous merged remote baseline is 186
-163 | - Browser/integration metric coverage: 22 shared observability tests and 56 API source tests cover browser controls/dependencies, relational reauthorization, native-shadow rollout/comparison/attempt success/replay/conflict/error, identifier omission, and sink isolation
+157 | - Fourteen migration files ordered/non-empty/non-destructive: passed locally and in source-branch CI
+158 | - First migration apply and immediate migration replay: passed remotely; this slice had no migration change
+159 | - Architecture import boundaries: passed locally and in source-branch CI
+160 | - Typecheck: 20 of 20 workspaces passed locally and in source-branch CI
+161 | - Test/build dependency tasks: 31 of 31 passed locally and in source-branch CI
+162 | - Repository tests: 191 passed in PostgreSQL-integrated source-branch CI
+163 | - Browser/integration metric coverage: 22 shared observability tests and 56 API source tests passed for browser controls/dependencies, relational reauthorization, native-shadow rollout/comparison/attempt success/replay/conflict/error, identifier omission, and sink isolation
 164 | - Tracing coverage: previous merged source CI passed 18 shared observability tests, one API durable-producer lineage test, four worker/provider lineage integrations, and three PostgreSQL durable-context tests
-165 | - Production builds: 20 of 20 workspaces passed locally; current source-branch CI is pending
-166 | - WooCommerce PHP syntax: passed locally; current source-branch CI is pending
+165 | - Production builds: 20 of 20 workspaces passed locally and in source-branch CI
+166 | - WooCommerce PHP syntax: passed locally and in source-branch CI
 167 | - npm high/critical audit threshold: passed after the ESLint toolchain update; five moderate findings remain
 168 | - Worker lease final CI run `29545309665`, job `87776201468`: all gates passed at head `b886fcb57c9a5c9ebae3b23334966468ae1733c3`
 169 | - The verified worker lease change was squash-merged to `main` as `d748bde10920e5a35a7e90f3a00b3b3bf02b96f3`
@@ -489,50 +665,52 @@ git unavailable or failed: spawnSync git ENOBUFS
 206 | - The verified distributed trace-context milestone was squash-merged through PR #38 to `main` as `0b6125a7dfb0f4c5ba5092100de120e365e65d9b`
 207 | - Critical-path domain-metrics final CI run `30348649679`, job `90240703555`: GitGuardian, audit, formatting, lint, fourteen migrations, replay, history integrity, clean restore, runtime-role grants, architecture, 20 typechecks, 186 tests, 20 builds, and PHP lint passed at head `4242c1244a56a1e74de721fb34ba06612bdcae64`
 208 | - The verified critical-path domain-metrics milestone was squash-merged through PR #40 to `main` as `dfaf92c4f1f29a0068363d815b9cc3d0902be6fe`
-209 | - Canonical documentation links: 61 reviewed locally with zero known broken internal links
-210 | - `tracker.yml` YAML structure remains valid
-211 | - Changed-file secret-pattern scan: passed
-212 |
-213 | The repository-local continuation exporter was refreshed after browser/integration metric documentation and tracker updates were finalized.
+209 | - Browser/integration metrics final CI run `30386368200`, job `90366572706`: GitGuardian, audit, formatting, lint, fourteen migrations, replay, history integrity, clean restore, runtime-role grants, architecture, 20 typechecks, 191 tests, 20 builds, and PHP lint passed at head `d29b5ef672ce31d65c6c3bfecacdc363ccf611ad`
+210 | - The verified browser/integration metrics milestone was squash-merged through PR #42 to `main` as `c697935549c427e4a4a6c81ad642416363e89e8e`
+211 | - Canonical documentation links: 61 reviewed locally with zero known broken internal links
+212 | - `tracker.yml` YAML structure remains valid
+213 | - Changed-file secret-pattern scan: passed
 214 |
-215 | ## Next production milestone
+215 | The repository-local continuation exporter was refreshed after the merged browser/integration metrics verification evidence was recorded.
 216 |
-217 | 1. Select and provision the managed runtime, PostgreSQL, KMS/vault, and observability providers under ADRs 0006–0010, including distinct production migration/runtime/retention-maintenance identities and a managed-provider point-in-time restore drill.
-218 | 2. Select and provision a reviewed KMS/vault adapter, component service identities, access auditing, and an audited PostgreSQL background re-encryption runner before switching runtime writes from local v1 to managed v2.
-219 | 3. Add an authorized Steadfast test account, live opt-in tests, selector monitoring, and provider-terms approval.
-220 | 4. Select, review, bundle, and configure the production OTP provider adapter/account for the existing verification runner.
-221 | 5. Add distributed rate limiting/cache only when multiple replicas require it.
-222 | 6. Deploy the verified post-persist source hook only to explicitly opted-in pilot stores and validate production observability without using Guard as the effective decision source.
-223 | 7. Run the selected-merchant pilot, collect verified outcomes, calibrate confidence/thresholds, and keep broad automatic blocking disabled until reviewed.
-224 |
-225 | ## External blockers
+217 | ## Next production milestone
+218 |
+219 | 1. Select and provision the managed runtime, PostgreSQL, KMS/vault, and observability providers under ADRs 0006–0010, including distinct production migration/runtime/retention-maintenance identities and a managed-provider point-in-time restore drill.
+220 | 2. Select and provision a reviewed KMS/vault adapter, component service identities, access auditing, and an audited PostgreSQL background re-encryption runner before switching runtime writes from local v1 to managed v2.
+221 | 3. Add an authorized Steadfast test account, live opt-in tests, selector monitoring, and provider-terms approval.
+222 | 4. Select, review, bundle, and configure the production OTP provider adapter/account for the existing verification runner.
+223 | 5. Add distributed rate limiting/cache only when multiple replicas require it.
+224 | 6. Deploy the verified post-persist source hook only to explicitly opted-in pilot stores and validate production observability without using Guard as the effective decision source.
+225 | 7. Run the selected-merchant pilot, collect verified outcomes, calibrate confidence/thresholds, and keep broad automatic blocking disabled until reviewed.
 226 |
-227 | - Authorized Steadfast merchant/test credentials
-228 | - Steadfast provider-terms and merchant-authorization review
-229 | - Deployment platform, account, primary region, and budget
-230 | - Managed PostgreSQL provider and service tier
-231 | - Separately provisioned retention-maintenance identity, approved completed/failed windows, incident/legal holds, monitoring, and backup/PITR recovery
-232 | - Managed secret store and KMS/vault provider
-233 | - OpenTelemetry exporter/collector, sampling policy, remaining external integration-adapter/client metrics, managed observability backend, dashboards, alerts, and retention policy
-234 | - OTP provider account and credentials
-235 | - Production account recovery/MFA or managed identity-provider decision
-236 | - Repository visibility correction from currently reported public to expected private
-237 | - Pilot outcome data for false-positive/false-negative calibration
-238 |
-239 | ## Non-negotiable continuation rules
+227 | ## External blockers
+228 |
+229 | - Authorized Steadfast merchant/test credentials
+230 | - Steadfast provider-terms and merchant-authorization review
+231 | - Deployment platform, account, primary region, and budget
+232 | - Managed PostgreSQL provider and service tier
+233 | - Separately provisioned retention-maintenance identity, approved completed/failed windows, incident/legal holds, monitoring, and backup/PITR recovery
+234 | - Managed secret store and KMS/vault provider
+235 | - OpenTelemetry exporter/collector, sampling policy, remaining external integration-adapter/client metrics, managed observability backend, dashboards, alerts, and retention policy
+236 | - OTP provider account and credentials
+237 | - Production account recovery/MFA or managed identity-provider decision
+238 | - Repository visibility correction from currently reported public to expected private
+239 | - Pilot outcome data for false-positive/false-negative calibration
 240 |
-241 | - Do not add a second risk engine.
-242 | - Do not call providers from the risk engine or synchronous checkout path.
-243 | - Do not deliver webhooks or OTP messages synchronously in checkout/API request handling.
-244 | - Do not store/log raw API keys, passwords, OTPs, courier cookies, provider credentials, or webhook signing secrets.
-245 | - Do not use API keys as dashboard user sessions.
-246 | - Require organization/store scope in all merchant repositories, events, and jobs.
-247 | - Add new migrations; never edit applied migrations.
-248 | - Keep PostgreSQL authoritative for durable jobs/outbox through the pilot unless ADR 0008 is superseded.
-249 | - Keep Redis/cache state non-authoritative.
-250 | - Keep unknown/provider failure explicit and policy-controlled.
-251 | - Update `tracker.yml`, documentation, implementation status, decisions, and the continuation bundle with every material milestone.
-252 |
+241 | ## Non-negotiable continuation rules
+242 |
+243 | - Do not add a second risk engine.
+244 | - Do not call providers from the risk engine or synchronous checkout path.
+245 | - Do not deliver webhooks or OTP messages synchronously in checkout/API request handling.
+246 | - Do not store/log raw API keys, passwords, OTPs, courier cookies, provider credentials, or webhook signing secrets.
+247 | - Do not use API keys as dashboard user sessions.
+248 | - Require organization/store scope in all merchant repositories, events, and jobs.
+249 | - Add new migrations; never edit applied migrations.
+250 | - Keep PostgreSQL authoritative for durable jobs/outbox through the pilot unless ADR 0008 is superseded.
+251 | - Keep Redis/cache state non-authoritative.
+252 | - Keep unknown/provider failure explicit and policy-controlled.
+253 | - Update `tracker.yml`, documentation, implementation status, decisions, and the continuation bundle with every material milestone.
+254 |
 
 --- .ai-bridge/agent-status.md ---
 1 | # Agent Status
@@ -667,7 +845,7 @@ git unavailable or failed: spawnSync git ENOBUFS
 
 ## Selected Files
 
-Changed files detected: .ai-bridge/current-plan.md, .ai-bridge/decisions.md, .ai-bridge/implementation-status.md, README.md, apps/api/src/browser.test.ts, apps/api/src/browser.ts, apps/api/src/index.ts, apps/api/src/native-shadow.test.ts, docs/README.md, docs/operations/operations-observability.md, docs/roadmap/risk-register.md, docs/security/security-privacy.md, docs/testing/testing-strategy.md, packages/observability/src/metrics.test.ts, packages/observability/src/metrics.ts, tracker.yml
+Changed files detected: .ai-bridge/current-plan.md, .ai-bridge/implementation-status.md, docs/README.md, tracker.yml
 Auto-include important root files: yes
 Auto-include changed files: yes
 Explicit selected paths: AGENTS.md, README.md, tracker.yml, .ai-bridge/current-plan.md, .ai-bridge/decisions.md, .ai-bridge/implementation-status.md, docs/README.md, docs/operations/operations-observability.md, docs/security/security-privacy.md, docs/testing/testing-strategy.md, docs/roadmap/risk-register.md, packages/observability/src/metrics.ts, packages/observability/src/metrics.test.ts, apps/api/src/browser.ts, apps/api/src/browser.test.ts, apps/api/src/index.ts, apps/api/src/native-shadow.test.ts
@@ -780,8 +958,8 @@ Lines: 1-93 of 93
 
 ### docs/README.md
 
-Bytes: 3364
-SHA-256: 1937186904434f680184754799236ef780a0e47f813ec36d44c7aafc3444aefb
+Bytes: 3247
+SHA-256: 2f161e8c4c49d667907e0b86f6386ed6c0637a631cda509fe5a5e33452d8b0a1
 Lines: 1-56 of 56
 
 ```markdown
@@ -791,7 +969,7 @@ Lines: 1-56 of 56
  4 |
  5 | ## Current verified milestone
  6 |
- 7 | The critical-path domain-metrics milestone remains merged on `main` as `dfaf92c4f1f29a0068363d815b9cc3d0902be6fe`; feature CI run `30348649679`, job `90240703555`, passed fourteen migrations, 20 typechecks, 31 Turbo tasks with 186 tests, 20 builds, GitGuardian, audit, clean restore, runtime-role, and PHP gates. The current browser/integration-metrics source branch adds finite session authentication, rate-limit, CSRF, relational authorization, dashboard/admin/rollout/dead-letter/audit repository metrics plus native-shadow rollout/comparison/attempt success, replay, rejection, conflict, and error outcomes without business identifiers or error detail. Local source inventory is 191 tests; remote CI evidence is pending.
+ 7 | The browser/integration metrics milestone is merged on `main` as `c697935549c427e4a4a6c81ad642416363e89e8e`. Feature CI run `30386368200`, job `90366572706`, passed fourteen migrations, 20 typechecks, 31 Turbo tasks with 191 tests, 20 builds, GitGuardian, audit, clean restore, runtime-role, and PHP gates. Finite session authentication, rate-limit, CSRF, relational authorization, dashboard/admin/rollout/dead-letter/audit repository metrics plus native-shadow rollout/comparison/attempt success, replay, rejection, conflict, and error outcomes are implemented without business identifiers or error detail.
  8 |
  9 | ## Architecture
 10 |
@@ -1006,9 +1184,9 @@ Lines: 1-152 of 152
 
 ### .ai-bridge/current-plan.md
 
-Bytes: 31781
-SHA-256: 49fa9de8fa270c37b009cf91e07005d2e0e3a0b7fa26e636f1a8499261f54431
-Lines: 1-252 of 252
+Bytes: 32131
+SHA-256: 0e4240659d11a5df6bc598e3d411853052b8c770f3d8d7276a320ae48b6e5448
+Lines: 1-254 of 254
 
 ```markdown
   1 | # Ozzyl Guard — Current Implementation Plan
@@ -1167,16 +1345,16 @@ Lines: 1-252 of 252
 154 |
 155 | - Formatting check: passed
 156 | - ESLint with zero warnings: passed
-157 | - Fourteen migration files ordered/non-empty/non-destructive: passed locally; current source-branch CI is pending
-158 | - First migration apply and immediate migration replay: previous merged baseline passed remotely; this slice has no migration change
-159 | - Architecture import boundaries: passed locally; current source-branch CI is pending
-160 | - Typecheck: 20 of 20 workspaces passed locally; current source-branch CI is pending
-161 | - Test/build dependency tasks: 31 of 31 passed locally; current source-branch CI is pending
-162 | - Repository test inventory: 191 source tests; previous merged remote baseline is 186
-163 | - Browser/integration metric coverage: 22 shared observability tests and 56 API source tests cover browser controls/dependencies, relational reauthorization, native-shadow rollout/comparison/attempt success/replay/conflict/error, identifier omission, and sink isolation
+157 | - Fourteen migration files ordered/non-empty/non-destructive: passed locally and in source-branch CI
+158 | - First migration apply and immediate migration replay: passed remotely; this slice had no migration change
+159 | - Architecture import boundaries: passed locally and in source-branch CI
+160 | - Typecheck: 20 of 20 workspaces passed locally and in source-branch CI
+161 | - Test/build dependency tasks: 31 of 31 passed locally and in source-branch CI
+162 | - Repository tests: 191 passed in PostgreSQL-integrated source-branch CI
+163 | - Browser/integration metric coverage: 22 shared observability tests and 56 API source tests passed for browser controls/dependencies, relational reauthorization, native-shadow rollout/comparison/attempt success/replay/conflict/error, identifier omission, and sink isolation
 164 | - Tracing coverage: previous merged source CI passed 18 shared observability tests, one API durable-producer lineage test, four worker/provider lineage integrations, and three PostgreSQL durable-context tests
-165 | - Production builds: 20 of 20 workspaces passed locally; current source-branch CI is pending
-166 | - WooCommerce PHP syntax: passed locally; current source-branch CI is pending
+165 | - Production builds: 20 of 20 workspaces passed locally and in source-branch CI
+166 | - WooCommerce PHP syntax: passed locally and in source-branch CI
 167 | - npm high/critical audit threshold: passed after the ESLint toolchain update; five moderate findings remain
 168 | - Worker lease final CI run `29545309665`, job `87776201468`: all gates passed at head `b886fcb57c9a5c9ebae3b23334966468ae1733c3`
 169 | - The verified worker lease change was squash-merged to `main` as `d748bde10920e5a35a7e90f3a00b3b3bf02b96f3`
@@ -1219,50 +1397,52 @@ Lines: 1-252 of 252
 206 | - The verified distributed trace-context milestone was squash-merged through PR #38 to `main` as `0b6125a7dfb0f4c5ba5092100de120e365e65d9b`
 207 | - Critical-path domain-metrics final CI run `30348649679`, job `90240703555`: GitGuardian, audit, formatting, lint, fourteen migrations, replay, history integrity, clean restore, runtime-role grants, architecture, 20 typechecks, 186 tests, 20 builds, and PHP lint passed at head `4242c1244a56a1e74de721fb34ba06612bdcae64`
 208 | - The verified critical-path domain-metrics milestone was squash-merged through PR #40 to `main` as `dfaf92c4f1f29a0068363d815b9cc3d0902be6fe`
-209 | - Canonical documentation links: 61 reviewed locally with zero known broken internal links
-210 | - `tracker.yml` YAML structure remains valid
-211 | - Changed-file secret-pattern scan: passed
-212 |
-213 | The repository-local continuation exporter was refreshed after browser/integration metric documentation and tracker updates were finalized.
+209 | - Browser/integration metrics final CI run `30386368200`, job `90366572706`: GitGuardian, audit, formatting, lint, fourteen migrations, replay, history integrity, clean restore, runtime-role grants, architecture, 20 typechecks, 191 tests, 20 builds, and PHP lint passed at head `d29b5ef672ce31d65c6c3bfecacdc363ccf611ad`
+210 | - The verified browser/integration metrics milestone was squash-merged through PR #42 to `main` as `c697935549c427e4a4a6c81ad642416363e89e8e`
+211 | - Canonical documentation links: 61 reviewed locally with zero known broken internal links
+212 | - `tracker.yml` YAML structure remains valid
+213 | - Changed-file secret-pattern scan: passed
 214 |
-215 | ## Next production milestone
+215 | The repository-local continuation exporter was refreshed after the merged browser/integration metrics verification evidence was recorded.
 216 |
-217 | 1. Select and provision the managed runtime, PostgreSQL, KMS/vault, and observability providers under ADRs 0006–0010, including distinct production migration/runtime/retention-maintenance identities and a managed-provider point-in-time restore drill.
-218 | 2. Select and provision a reviewed KMS/vault adapter, component service identities, access auditing, and an audited PostgreSQL background re-encryption runner before switching runtime writes from local v1 to managed v2.
-219 | 3. Add an authorized Steadfast test account, live opt-in tests, selector monitoring, and provider-terms approval.
-220 | 4. Select, review, bundle, and configure the production OTP provider adapter/account for the existing verification runner.
-221 | 5. Add distributed rate limiting/cache only when multiple replicas require it.
-222 | 6. Deploy the verified post-persist source hook only to explicitly opted-in pilot stores and validate production observability without using Guard as the effective decision source.
-223 | 7. Run the selected-merchant pilot, collect verified outcomes, calibrate confidence/thresholds, and keep broad automatic blocking disabled until reviewed.
-224 |
-225 | ## External blockers
+217 | ## Next production milestone
+218 |
+219 | 1. Select and provision the managed runtime, PostgreSQL, KMS/vault, and observability providers under ADRs 0006–0010, including distinct production migration/runtime/retention-maintenance identities and a managed-provider point-in-time restore drill.
+220 | 2. Select and provision a reviewed KMS/vault adapter, component service identities, access auditing, and an audited PostgreSQL background re-encryption runner before switching runtime writes from local v1 to managed v2.
+221 | 3. Add an authorized Steadfast test account, live opt-in tests, selector monitoring, and provider-terms approval.
+222 | 4. Select, review, bundle, and configure the production OTP provider adapter/account for the existing verification runner.
+223 | 5. Add distributed rate limiting/cache only when multiple replicas require it.
+224 | 6. Deploy the verified post-persist source hook only to explicitly opted-in pilot stores and validate production observability without using Guard as the effective decision source.
+225 | 7. Run the selected-merchant pilot, collect verified outcomes, calibrate confidence/thresholds, and keep broad automatic blocking disabled until reviewed.
 226 |
-227 | - Authorized Steadfast merchant/test credentials
-228 | - Steadfast provider-terms and merchant-authorization review
-229 | - Deployment platform, account, primary region, and budget
-230 | - Managed PostgreSQL provider and service tier
-231 | - Separately provisioned retention-maintenance identity, approved completed/failed windows, incident/legal holds, monitoring, and backup/PITR recovery
-232 | - Managed secret store and KMS/vault provider
-233 | - OpenTelemetry exporter/collector, sampling policy, remaining external integration-adapter/client metrics, managed observability backend, dashboards, alerts, and retention policy
-234 | - OTP provider account and credentials
-235 | - Production account recovery/MFA or managed identity-provider decision
-236 | - Repository visibility correction from currently reported public to expected private
-237 | - Pilot outcome data for false-positive/false-negative calibration
-238 |
-239 | ## Non-negotiable continuation rules
+227 | ## External blockers
+228 |
+229 | - Authorized Steadfast merchant/test credentials
+230 | - Steadfast provider-terms and merchant-authorization review
+231 | - Deployment platform, account, primary region, and budget
+232 | - Managed PostgreSQL provider and service tier
+233 | - Separately provisioned retention-maintenance identity, approved completed/failed windows, incident/legal holds, monitoring, and backup/PITR recovery
+234 | - Managed secret store and KMS/vault provider
+235 | - OpenTelemetry exporter/collector, sampling policy, remaining external integration-adapter/client metrics, managed observability backend, dashboards, alerts, and retention policy
+236 | - OTP provider account and credentials
+237 | - Production account recovery/MFA or managed identity-provider decision
+238 | - Repository visibility correction from currently reported public to expected private
+239 | - Pilot outcome data for false-positive/false-negative calibration
 240 |
-241 | - Do not add a second risk engine.
-242 | - Do not call providers from the risk engine or synchronous checkout path.
-243 | - Do not deliver webhooks or OTP messages synchronously in checkout/API request handling.
-244 | - Do not store/log raw API keys, passwords, OTPs, courier cookies, provider credentials, or webhook signing secrets.
-245 | - Do not use API keys as dashboard user sessions.
-246 | - Require organization/store scope in all merchant repositories, events, and jobs.
-247 | - Add new migrations; never edit applied migrations.
-248 | - Keep PostgreSQL authoritative for durable jobs/outbox through the pilot unless ADR 0008 is superseded.
-249 | - Keep Redis/cache state non-authoritative.
-250 | - Keep unknown/provider failure explicit and policy-controlled.
-251 | - Update `tracker.yml`, documentation, implementation status, decisions, and the continuation bundle with every material milestone.
-252 |
+241 | ## Non-negotiable continuation rules
+242 |
+243 | - Do not add a second risk engine.
+244 | - Do not call providers from the risk engine or synchronous checkout path.
+245 | - Do not deliver webhooks or OTP messages synchronously in checkout/API request handling.
+246 | - Do not store/log raw API keys, passwords, OTPs, courier cookies, provider credentials, or webhook signing secrets.
+247 | - Do not use API keys as dashboard user sessions.
+248 | - Require organization/store scope in all merchant repositories, events, and jobs.
+249 | - Add new migrations; never edit applied migrations.
+250 | - Keep PostgreSQL authoritative for durable jobs/outbox through the pilot unless ADR 0008 is superseded.
+251 | - Keep Redis/cache state non-authoritative.
+252 | - Keep unknown/provider failure explicit and policy-controlled.
+253 | - Update `tracker.yml`, documentation, implementation status, decisions, and the continuation bundle with every material milestone.
+254 |
 ```
 
 ### .ai-bridge/decisions.md
@@ -1383,9 +1563,9 @@ Lines: 1-107 of 107
 
 ### .ai-bridge/implementation-status.md
 
-Bytes: 31223
-SHA-256: b045325fb20b6fca6740ee61899c0866636ba1802ee97f0ae143b6fb16a8781b
-Lines: 1-193 of 193
+Bytes: 31527
+SHA-256: 5cf12a8d20d40914a637bc3a0be66622e3820ed46b1b2d378709f300cdc9c5c9
+Lines: 1-195 of 195
 
 ```markdown
   1 | # Ozzyl Guard — Implementation Status
@@ -1471,12 +1651,12 @@ Lines: 1-193 of 193
  81 |
  82 | - `npm run format:check`: passed
  83 | - `npm run lint`: passed with zero warnings
- 84 | - `npm run db:check`: fourteen migrations and committed SHA-256 manifest validated locally; current source-branch CI is pending
- 85 | - initial migration apply/replay, history integrity, and clean restore: previous merged baseline passed remotely; this slice has no migration change
- 86 | - `npm run check:architecture`: passed locally; current source-branch CI is pending
- 87 | - `npm run typecheck`: 20/20 workspaces passed locally; current source-branch CI is pending
- 88 | - `npm run test`: 31/31 Turbo tasks passed locally; source inventory is 191 tests and previous merged remote baseline is 186
- 89 | - `npm run build`: 20/20 workspace builds passed locally; current source-branch CI is pending
+ 84 | - `npm run db:check`: fourteen migrations and committed SHA-256 manifest validated locally and in source-branch CI
+ 85 | - initial migration apply/replay, history integrity, and clean restore: passed remotely; this slice had no migration change
+ 86 | - `npm run check:architecture`: passed locally and in source-branch CI
+ 87 | - `npm run typecheck`: 20/20 workspaces passed locally and in source-branch CI
+ 88 | - `npm run test`: 31/31 Turbo tasks and 191 tests passed in PostgreSQL-integrated source-branch CI
+ 89 | - `npm run build`: 20/20 workspace builds passed locally and in source-branch CI
  90 | - `npm audit --audit-level=high`: passed after updating ESLint, `@eslint/js`, and `typescript-eslint`; five moderate findings remain
  91 | - Observability tests prove fixed log metadata/redaction, finite metric/span descriptors, strict W3C trace parsing/formatting/persistence, bounded control/dependency/risk distributions, exporter-neutral JSON points, and sink/clock/ID-generation failure isolation
  92 | - API observability tests prove opaque request-ID acceptance, dynamic-route/query suppression, bounded request/API/browser control and dependency metrics, risk/outcome distributions, replay/conflict handling, quota-limit and controlled-rejection vs dependency-error distinctions, identifier omission, safe serialization, and authenticated API/browser availability during metric sink failure
@@ -1539,48 +1719,50 @@ Lines: 1-193 of 193
 149 | - The verified distributed trace-context milestone was squash-merged through PR #38 to `main` as `0b6125a7dfb0f4c5ba5092100de120e365e65d9b`
 150 | - Critical-path domain-metrics final run `30348649679`, job `90240703555`: GitGuardian, fourteen migrations, 20 typechecks, 31 Turbo tasks with 186 tests, 20 builds, audit, formatting, lint, clean restore, runtime-role grants, architecture, and PHP lint passed at head `4242c1244a56a1e74de721fb34ba06612bdcae64`
 151 | - The verified critical-path domain-metrics milestone was squash-merged through PR #40 to `main` as `dfaf92c4f1f29a0068363d815b9cc3d0902be6fe`
-152 | - Seven real-PostgreSQL tests cover API-key/feature/write tenant mismatch, dashboard aggregation isolation, platform-admin reauthorization, and secret-free webhook/verification administration
-153 | - Seven database-role tests cover identifier safety, explicit policy completeness, insert-only replay evidence, real allowed DML, migration-history/DELETE/DDL denial, elevated-role rejection, and inherited-role rejection
-154 | - Previous canonical documentation checks found zero broken internal links
-155 | - Prohibited insecure-pattern scan: zero matches
-156 |
-157 | The repository-local exporter was refreshed after browser/integration metric documentation and tracker updates were finalized. Current source-branch remote CI is pending.
+152 | - Browser/integration metrics final run `30386368200`, job `90366572706`: GitGuardian, fourteen migrations, 20 typechecks, 31 Turbo tasks with 191 tests, 20 builds, audit, formatting, lint, clean restore, runtime-role grants, architecture, and PHP lint passed at head `d29b5ef672ce31d65c6c3bfecacdc363ccf611ad`
+153 | - The verified browser/integration metrics milestone was squash-merged through PR #42 to `main` as `c697935549c427e4a4a6c81ad642416363e89e8e`
+154 | - Seven real-PostgreSQL tests cover API-key/feature/write tenant mismatch, dashboard aggregation isolation, platform-admin reauthorization, and secret-free webhook/verification administration
+155 | - Seven database-role tests cover identifier safety, explicit policy completeness, insert-only replay evidence, real allowed DML, migration-history/DELETE/DDL denial, elevated-role rejection, and inherited-role rejection
+156 | - Previous canonical documentation checks found zero broken internal links
+157 | - Prohibited insecure-pattern scan: zero matches
 158 |
-159 | ## External blockers and production requirements
+159 | The repository-local exporter was refreshed after the merged browser/integration metrics verification evidence was recorded.
 160 |
-161 | - Concrete deployment platform, account, primary region, DNS, and TLS setup
-162 | - Managed PostgreSQL provider/service tier, automated backup retention, and production-equivalent point-in-time restore drill
-163 | - Separately provisioned retention-maintenance identity, approved completed/failed retention windows, incident/legal holds, monitoring, and recovery procedure
-164 | - Managed secret store and KMS/vault provider
-165 | - OpenTelemetry exporter/collector, sampling policy, remaining external integration-adapter/client metrics, managed observability backend, retention, dashboards, alerts, and incident channels
-166 | - Optional Redis-compatible cache only when distributed coordination is required
-167 | - Authorized Steadfast test/merchant account
-168 | - Provider-terms and merchant-authorization review
-169 | - OTP provider selection/account
-170 | - Production account recovery/MFA or managed identity-provider decision
-171 | - Pilot merchants and verified outcome data for calibration
-172 |
-173 | ## Remaining risks
+161 | ## External blockers and production requirements
+162 |
+163 | - Concrete deployment platform, account, primary region, DNS, and TLS setup
+164 | - Managed PostgreSQL provider/service tier, automated backup retention, and production-equivalent point-in-time restore drill
+165 | - Separately provisioned retention-maintenance identity, approved completed/failed retention windows, incident/legal holds, monitoring, and recovery procedure
+166 | - Managed secret store and KMS/vault provider
+167 | - OpenTelemetry exporter/collector, sampling policy, remaining external integration-adapter/client metrics, managed observability backend, retention, dashboards, alerts, and incident channels
+168 | - Optional Redis-compatible cache only when distributed coordination is required
+169 | - Authorized Steadfast test/merchant account
+170 | - Provider-terms and merchant-authorization review
+171 | - OTP provider selection/account
+172 | - Production account recovery/MFA or managed identity-provider decision
+173 | - Pilot merchants and verified outcome data for calibration
 174 |
-175 | - Steadfast UI/internal endpoint changes can break automation.
-176 | - The managed v2 boundary is implemented, but runtime call sites remain on local v1 until a reviewed provider adapter, service identities, access audits, and background rewrite procedure are provisioned.
-177 | - DNS validation reduces hostname-based SSRF risk, but production still requires controlled egress and network policy against DNS rebinding/route changes.
-178 | - In-process API and browser-session rate limiting is not distributed across replicas.
-179 | - Retention/archive code and baseline guidance are implemented, but production windows, incident/legal holds, maintenance identity, monitoring, scheduling, and backup/PITR recovery remain unprovisioned.
-180 | - The repository runtime-role policy is verified, but the selected managed PostgreSQL provider must still provision distinct credentials, run the grant command after migrations, and pass a production smoke test.
-181 | - The verification runner has no bundled production provider adapter; provider selection, account credentials, terms, delivery callbacks, and staging validation remain external.
-182 | - Browser login has no account recovery, invitation, MFA, or managed identity-provider integration yet.
-183 | - GitHub currently reports public repository visibility although the expected policy is private.
-184 | - Provider-specific infrastructure has not been provisioned or smoke-tested.
-185 | - Structured logs, API/domain/browser/admin/native-shadow plus worker/repository/provider metrics/gauges, and API-to-durable-worker/provider trace propagation are implemented, but external integration-adapter/client metrics, exporter/collector, sampling policy, dashboards, alerts, managed backend, and telemetry retention are not yet implemented.
-186 | - Five moderate dependency advisories remain; the high/critical audit threshold is clear. One affects the Hono Node adapter on Windows static serving, while the remaining findings are development/build tooling; production upgrade review remains pending.
-187 | - Native shadow mode is advisory only; the verified post-persist hook still requires production deployment to explicitly selected stores, and pilot outcomes must be reviewed before any enforcement design.
-188 | - Automatic blocking remains merchant-controlled and disabled by default until pilot calibration.
-189 |
-190 | ## Next milestone
+175 | ## Remaining risks
+176 |
+177 | - Steadfast UI/internal endpoint changes can break automation.
+178 | - The managed v2 boundary is implemented, but runtime call sites remain on local v1 until a reviewed provider adapter, service identities, access audits, and background rewrite procedure are provisioned.
+179 | - DNS validation reduces hostname-based SSRF risk, but production still requires controlled egress and network policy against DNS rebinding/route changes.
+180 | - In-process API and browser-session rate limiting is not distributed across replicas.
+181 | - Retention/archive code and baseline guidance are implemented, but production windows, incident/legal holds, maintenance identity, monitoring, scheduling, and backup/PITR recovery remain unprovisioned.
+182 | - The repository runtime-role policy is verified, but the selected managed PostgreSQL provider must still provision distinct credentials, run the grant command after migrations, and pass a production smoke test.
+183 | - The verification runner has no bundled production provider adapter; provider selection, account credentials, terms, delivery callbacks, and staging validation remain external.
+184 | - Browser login has no account recovery, invitation, MFA, or managed identity-provider integration yet.
+185 | - GitHub currently reports public repository visibility although the expected policy is private.
+186 | - Provider-specific infrastructure has not been provisioned or smoke-tested.
+187 | - Structured logs, API/domain/browser/admin/native-shadow plus worker/repository/provider metrics/gauges, and API-to-durable-worker/provider trace propagation are implemented, but external integration-adapter/client metrics, exporter/collector, sampling policy, dashboards, alerts, managed backend, and telemetry retention are not yet implemented.
+188 | - Five moderate dependency advisories remain; the high/critical audit threshold is clear. One affects the Hono Node adapter on Windows static serving, while the remaining findings are development/build tooling; production upgrade review remains pending.
+189 | - Native shadow mode is advisory only; the verified post-persist hook still requires production deployment to explicitly selected stores, and pilot outcomes must be reviewed before any enforcement design.
+190 | - Automatic blocking remains merchant-controlled and disabled by default until pilot calibration.
 191 |
-192 | Provision the accepted infrastructure baseline with distinct database identities and a production point-in-time restore drill, select and wire the managed KMS adapter plus audited re-encryption runner, validate Steadfast, select and bundle the OTP provider adapter, deploy the verified source hook to explicit pilot stores, and collect outcomes for calibration.
+192 | ## Next milestone
 193 |
+194 | Provision the accepted infrastructure baseline with distinct database identities and a production point-in-time restore drill, select and wire the managed KMS adapter plus audited re-encryption runner, validate Steadfast, select and bundle the OTP provider adapter, deploy the verified source hook to explicit pilot stores, and collect outcomes for calibration.
+195 |
 ```
 
 ### apps/api/src/browser.test.ts
@@ -7580,9 +7762,9 @@ Lines: 1-878 of 878
 
 ### tracker.yml
 
-Bytes: 23121
-SHA-256: 354ffdfd464b7843d233c46f34c2f1b62f648aa1144942a7c0057258c18e4406
-Lines: 1-420 of 420
+Bytes: 22878
+SHA-256: 0742921b662df818cd0dc128b2b03f244353b9ced54ba10d4268b1f083220c86
+Lines: 1-421 of 421
 
 ```yaml
   1 | schema_version: 1
@@ -7793,218 +7975,219 @@ Lines: 1-420 of 420
 206 | verification:
 207 |   command: npm run verify
 208 |   last_verified: 2026-07-28
-209 |   status: local_passed_remote_ci_pending
+209 |   status: passed
 210 |   results:
 211 |     migrations: 14_of_14_with_sha256_manifest
-212 |     migration_replay: previous_main_passed_no_migration_change
-213 |     migration_history_integrity: previous_main_passed_no_migration_change
-214 |     clean_restore_rehearsal: previous_main_passed_no_migration_change
-215 |     architecture_boundaries: passed_locally_remote_ci_pending
-216 |     typecheck: 20_of_20_passed_locally_remote_ci_pending
-217 |     test_tasks: 31_of_31_passed_locally_remote_ci_pending
-218 |     source_tests: 191_total
-219 |     previous_main_remote_tests: 186_passed
-220 |     migration_integrity_tests: 7_of_7_passed
-221 |     postgresql_concurrency_tests: 7_of_7_passed
-222 |     postgresql_courier_worker_lease_tests: 7_of_7_passed
-223 |     postgresql_webhook_worker_lease_tests: 7_of_7_passed
-224 |     postgresql_verification_worker_lease_tests: 7_of_7_passed
-225 |     verification_payload_validation_tests: 3_of_3_passed
-226 |     postgresql_tenant_admin_isolation_tests: 7_of_7_passed
-227 |     postgresql_runtime_role_tests: 8_of_8_passed
-228 |     managed_envelope_tests: 11_of_11_passed
-229 |     native_shadow_adapter_tests: 10_of_10_passed
-230 |     native_shadow_api_tests: 7_of_7_passed
-231 |     native_shadow_postgresql_tests: 7_of_7_passed
-232 |     native_shadow_browser_tests: 2_of_2_passed
-233 |     native_shadow_sdk_tests: 2_of_2_passed
-234 |     native_shadow_total_tests: 28_of_28_passed
-235 |     durable_dead_letter_postgresql_tests: 5_of_5_passed
-236 |     browser_dead_letter_api_tests: 3_of_3_passed
-237 |     observability_tests: 22_of_22_passed_locally
-238 |     api_source_tests: 56_of_56_passed_locally
-239 |     critical_path_metric_integrations: 3_of_3_previous_main_passed
-240 |     browser_metric_integrations: 2_of_2_passed_locally
-241 |     native_shadow_metric_integrations: 2_of_2_passed_locally
-242 |     worker_metric_integration_tests: 4_of_4_passed
-243 |     provider_metric_integration_tests: 4_of_4_passed
-244 |     repository_metric_helper_tests: 3_of_3_passed
-245 |     queue_snapshot_postgresql_tests: 3_of_3_passed
-246 |     api_trace_lineage_tests: 1_of_1_passed
-247 |     worker_trace_lineage_integrations: 4_of_4_passed
-248 |     durable_trace_context_postgresql_tests: 3_of_3_passed
-249 |     lease_heartbeat_unit_tests: 3_of_3_passed
-250 |     provider_abort_on_lease_loss_tests: 3_of_3_passed
-251 |     durable_retention_input_tests: 4_of_4_passed
-252 |     durable_retention_postgresql_tests: 4_of_4_passed
-253 |     builds: 20_of_20_passed_locally_remote_ci_pending
-254 |     php_syntax: passed_locally_remote_ci_pending
-255 |     high_critical_dependency_check: passed_locally_remote_ci_pending
-256 |     moderate_dependency_findings: 5
-257 |     documentation_links: 61_reviewed_0_known_broken
-258 |   continuation_bundle:
-259 |     status: refreshed_locally
-260 |     canonical_main_sync: verified_at_a09a7828c3bbc4b7b47ada9acff689615e01f2e5
-261 |     local_exporter: completed_after_browser_integration_metric_docs
-262 |   remote_ci:
-263 |     status: passed
-264 |     run_id: 30348649679
-265 |     job_id: 90240703555
-266 |     job: verify
-267 |     tested_head: 4242c1244a56a1e74de721fb34ba06612bdcae64
-268 |     merged_main_commit: dfaf92c4f1f29a0068363d815b9cc3d0902be6fe
-269 |     completed: 2026-07-28
-270 |     steps: gitguardian_audit_format_lint_manifest_fourteen_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_twenty_typechecks_one_hundred_eighty_six_tests_twenty_builds_php_all_passed
-271 |   source_validation:
-272 |     status: local_passed_remote_ci_pending
-273 |     branch: feat/browser-integration-metrics
-274 |     tested_head: pending_feature_commit
-275 |     completed: 2026-07-28
-276 |     steps: format_lint_fourteen_migration_manifest_architecture_twenty_typechecks_thirty_one_test_tasks_one_hundred_ninety_one_source_tests_twenty_builds_audit_php_yaml_links_and_secret_scan_passed_locally
-277 |     shared_observability_tests: 22_of_22_passed
-278 |     api_source_tests: 56_of_56_passed
-279 |     browser_metric_integrations: 2_of_2_passed
-280 |     native_shadow_metric_integrations: 2_of_2_passed
-281 |     browser_metric_sink_failure_isolation: passed
-282 |     relational_reauthorization_and_unknown_error_distinction: passed
-283 |   pending_follow_up:
-284 |     - provision_retention_maintenance_identity_and_approved_windows_holds_monitoring_recovery
-285 |     - observability_exporter_collector_sampling_external_integration_adapter_client_metrics_and_managed_backend
-286 |     - production_source_hook_deployment_and_explicit_pilot_store_selection
-287 |     - pilot_outcome_collection_and_calibration
-288 |
-289 | migrations:
-290 |   immutable: true
-291 |   manifest: packages/database/migrations/manifest.json
-292 |   history_checksum_column: checksum_sha256_not_null
-293 |   files:
-294 |     - packages/database/migrations/0001_foundation.sql
-295 |     - packages/database/migrations/0002_courier.sql
-296 |     - packages/database/migrations/0003_risk.sql
-297 |     - packages/database/migrations/0004_verification_events.sql
-298 |     - packages/database/migrations/0005_durable_operations.sql
-299 |     - packages/database/migrations/0006_browser_access.sql
-300 |     - packages/database/migrations/0007_worker_leases.sql
-301 |     - packages/database/migrations/0008_webhook_delivery_leases.sql
-302 |     - packages/database/migrations/0009_verification_delivery_queue.sql
-303 |     - packages/database/migrations/0010_native_shadow_comparisons.sql
-304 |     - packages/database/migrations/0011_native_shadow_pilot.sql
-305 |     - packages/database/migrations/0012_durable_work_replays.sql
-306 |     - packages/database/migrations/0013_durable_work_archives.sql
-307 |     - packages/database/migrations/0014_durable_trace_context.sql
-308 |
-309 | accepted_adrs:
-310 |   - docs/adr/0006-production-deployment-topology.md
-311 |   - docs/adr/0007-managed-postgresql-production-baseline.md
-312 |   - docs/adr/0008-postgresql-first-durable-work-and-cache.md
-313 |   - docs/adr/0009-managed-secrets-and-kms-envelope-encryption.md
-314 |   - docs/adr/0010-vendor-neutral-production-observability.md
-315 |   - docs/adr/0011-selected-source-shadow-pilot.md
-316 |   - docs/adr/0012-durable-work-dead-letter-operations.md
-317 |
-318 | external_dependencies:
-319 |   - authorized_steadfast_test_account
-320 |   - provider_authorization_review
-321 |   - deployment_platform_account_region_and_budget
-322 |   - managed_postgresql_provider_and_service_tier
-323 |   - managed_secret_store_and_kms_vault_provider
-324 |   - observability_backend_and_retention_policy
-325 |   - otp_provider_account
-326 |   - pilot_outcome_data
-327 |
-328 | next_milestone:
-329 |   name: production-hardening-and-pilot-readiness
-330 |   tasks:
-331 |     - select_and_provision_accepted_infrastructure_providers
-332 |     - select_and_wire_a_reviewed_managed_kms_adapter_and_audited_reencryption_runner
-333 |     - validate_steadfast_with_an_authorized_account
-334 |     - implement_the_selected_otp_provider_adapter
-335 |     - add_distributed_cache_only_when_replica_coordination_requires_it
-336 |     - deploy_the_selected_source_post_persist_hook_to_explicitly_opted_in_pilot_stores
-337 |     - run_a_selected_merchant_pilot_and_collect_verified_outcomes
-338 |     - calibrate_decisions_before_broad_automatic_blocking
-339 |
-340 | release_policy:
-341 |   branch: main
-342 |   before_push:
-343 |     - npm_run_verify_passes
-344 |     - documentation_and_tracker_are_current
-345 |     - repository_review_is_clean
-346 |   rules:
-347 |     - no_force_push_to_main
-348 |     - do_not_edit_applied_migrations
-349 |     - use_descriptive_commits
-350 |
-351 | notes:
-352 |   - codexpro_and_local_mcp_files_are_workspace_tooling_and_ignored
-353 |   - dashboard_and_admin_use_separate_authenticated_live_browser_sessions
-354 |   - github_connector_reports_public_visibility_while_expected_state_is_private
-355 |   - infrastructure_architecture_is_accepted_but_provider_selection_is_pending
-356 |   - postgresql_remains_the_pilot_durable_job_and_outbox_source_of_truth
-357 |   - assessment_and_outcome_idempotency_races_resolve_to_the_scoped_persisted_winner
-358 |   - assessment_and_outcome_winners_enqueue_matching_webhook_rows_transactionally
-359 |   - webhook_event_payloads_do_not_include_raw_phone_values
-360 |   - courier_jobs_use_atomic_claims_expiring_leases_and_owner_checked_transitions
-361 |   - webhook_deliveries_use_atomic_claims_expiring_leases_and_owner_checked_transitions
-362 |   - webhook_worker_scope_is_revalidated_against_endpoint_and_store_relationships
-363 |   - webhook_signing_secrets_are_decrypted_only_inside_the_event_worker
-364 |   - webhook_destinations_require_https_public_dns_results_and_redirect_rejection
-365 |   - production_egress_policy_is_still_required_for_dns_rebinding_defense
-366 |   - otp_send_requests_create_session_hash_and_encrypted_job_in_one_transaction
-367 |   - otp_provider_delivery_occurs_only_in_the_private_verification_worker
-368 |   - verification_jobs_use_atomic_claims_expiring_leases_and_owner_checked_transitions
-369 |   - verification_scope_mismatch_fails_the_job_and_authoritative_session_closed
-370 |   - verification_payloads_are_bound_to_job_context_tenant_phone_hmac_and_otp_hash
-371 |   - selected_otp_provider_module_and_credentials_remain_external
-372 |   - migration_files_are_bound_to_a_committed_sha256_manifest
-373 |   - migration_history_unknown_gap_or_checksum_mismatch_fails_closed
-374 |   - legacy_name_only_history_is_backfilled_only_from_the_committed_manifest
-375 |   - migration_execution_uses_one_session_advisory_lock
-376 |   - ci_restores_pg_dump_into_a_clean_distinct_database_and_compares_schema_data_sequences_history_and_replay
-377 |   - managed_provider_point_in_time_restore_drill_remains_external
-378 |   - api_keys_feature_assembly_assessment_and_outcome_writes_fail_closed_on_relational_tenant_mismatch
-379 |   - webhook_and_verification_administration_queries_reauthorize_active_owner_or_admin_scope_and_return_no_secret_material
-380 |   - platform_admin_repository_rechecks_active_explicit_role_on_every_call
-381 |   - runtime_role_grants_are_explicit_current_table_only_and_exclude_migration_history_delete_and_ddl
-382 |   - runtime_role_must_be_externally_created_non_owner_login_without_elevated_privileges_or_memberships
-383 |   - runtime_grants_must_be_reapplied_by_the_migration_owner_after_each_migration_release
-384 |   - managed_envelope_v2_uses_one_random_dek_per_record_and_authenticated_wrapped_key_metadata
-385 |   - managed_envelope_context_mismatch_is_rejected_before_key_unwrap
-386 |   - legacy_ciphertext_is_dual_read_only_through_explicitly_configured_legacy_keys
-387 |   - production_runtime_stays_on_local_v1_until_a_reviewed_kms_adapter_and_identity_policy_are_provisioned
-388 |   - native_shadow_sampling_is_deterministic_by_store_key_and_order_id
-389 |   - native_shadow_guard_or_persistence_failure_keeps_the_legacy_result_authoritative
-390 |   - native_shadow_comparisons_are_immutable_tenant_scoped_and_idempotent
-391 |   - native_shadow_sampled_attempts_record_success_timeout_assessment_and_persistence_states
-392 |   - native_shadow_dashboard_and_admin_reporting_is_secret_free_and_tenant_scoped
-393 |   - native_shadow_enforcement_is_not_implemented_and_requires_pilot_review
-394 |   - broad_automatic_blocking_remains_disabled_until_pilot_calibration
-395 |   - durable_dead_letter_listing_is_secret_free_and_exact_store_scoped
-396 |   - durable_replay_resets_only_failed_replayable_work_and_clears_old_leases
-397 |   - durable_replay_ledger_is_insert_only_for_the_runtime_role
-398 |   - durable_replay_never_performs_provider_or_webhook_network_io
-399 |   - merchant_dead_letter_browser_routes_reauthorize_session_visible_owner_or_admin_scope
-400 |   - merchant_dead_letter_replay_requires_csrf_and_forwards_one_stable_idempotency_key
-401 |   - browser_replay_key_is_assigned_synchronously_before_network_io_and_retained_on_failure
-402 |   - merchant_dead_letter_ui_hides_operations_from_non_admin_members
-403 |   - structured_log_redaction_is_canonicalized_in_packages_observability
-404 |   - private_worker_logging_uses_the_shared_telemetry_failure_isolation_boundary
-405 |   - api_request_logs_use_opaque_ids_bounded_routes_status_and_latency_only
-406 |   - api_unhandled_errors_export_safe_name_and_code_without_message_or_stack
-407 |   - durable_worker_heartbeat_defaults_to_one_third_of_the_lease
-408 |   - lease_renewal_interval_must_not_exceed_half_the_lease
-409 |   - heartbeat_renewal_and_final_state_transitions_do_not_overlap
-410 |   - durable_retention_cutoff_has_a_twenty_four_hour_minimum_safety_floor
-411 |   - durable_retention_batches_are_globally_bounded_to_five_hundred
-412 |   - completed_source_retention_baseline_is_thirty_days_pending_approval
-413 |   - failed_source_retention_baseline_is_one_hundred_eighty_days_pending_approval
-414 |   - archive_evidence_does_not_replace_backup_or_point_in_time_recovery
-415 |   - vendor_neutral_metrics_use_only_finite_descriptor_owned_attributes
-416 |   - api_metrics_use_method_canonical_route_and_status_class_only
-417 |   - worker_metrics_use_worker_type_operation_and_outcome_only
-418 |   - pro_context_was_refreshed_after_vendor_neutral_metrics_documentation
-419 |   - update_this_file_after_every_material_milestone
-420 |
+212 |     migration_replay: passed
+213 |     migration_history_integrity: passed
+214 |     clean_restore_rehearsal: passed_with_schema_data_sequence_history_and_replay
+215 |     architecture_boundaries: passed
+216 |     typecheck: 20_of_20_passed
+217 |     test_tasks: 31_of_31_passed
+218 |     remote_tests: 191_passed
+219 |     migration_integrity_tests: 7_of_7_passed
+220 |     postgresql_concurrency_tests: 7_of_7_passed
+221 |     postgresql_courier_worker_lease_tests: 7_of_7_passed
+222 |     postgresql_webhook_worker_lease_tests: 7_of_7_passed
+223 |     postgresql_verification_worker_lease_tests: 7_of_7_passed
+224 |     verification_payload_validation_tests: 3_of_3_passed
+225 |     postgresql_tenant_admin_isolation_tests: 7_of_7_passed
+226 |     postgresql_runtime_role_tests: 8_of_8_passed
+227 |     managed_envelope_tests: 11_of_11_passed
+228 |     native_shadow_adapter_tests: 10_of_10_passed
+229 |     native_shadow_api_tests: 7_of_7_passed
+230 |     native_shadow_postgresql_tests: 7_of_7_passed
+231 |     native_shadow_browser_tests: 2_of_2_passed
+232 |     native_shadow_sdk_tests: 2_of_2_passed
+233 |     native_shadow_total_tests: 28_of_28_passed
+234 |     durable_dead_letter_postgresql_tests: 5_of_5_passed
+235 |     browser_dead_letter_api_tests: 3_of_3_passed
+236 |     observability_tests: 22_of_22_passed
+237 |     api_source_tests: 56_of_56_passed
+238 |     critical_path_metric_integrations: 3_of_3_previous_main_passed
+239 |     browser_metric_integrations: 2_of_2_passed
+240 |     native_shadow_metric_integrations: 2_of_2_passed
+241 |     worker_metric_integration_tests: 4_of_4_passed
+242 |     provider_metric_integration_tests: 4_of_4_passed
+243 |     repository_metric_helper_tests: 3_of_3_passed
+244 |     queue_snapshot_postgresql_tests: 3_of_3_passed
+245 |     api_trace_lineage_tests: 1_of_1_passed
+246 |     worker_trace_lineage_integrations: 4_of_4_passed
+247 |     durable_trace_context_postgresql_tests: 3_of_3_passed
+248 |     lease_heartbeat_unit_tests: 3_of_3_passed
+249 |     provider_abort_on_lease_loss_tests: 3_of_3_passed
+250 |     durable_retention_input_tests: 4_of_4_passed
+251 |     durable_retention_postgresql_tests: 4_of_4_passed
+252 |     builds: 20_of_20_passed
+253 |     php_syntax: passed
+254 |     high_critical_dependency_check: passed
+255 |     moderate_dependency_findings: 5
+256 |     documentation_links: 61_reviewed_0_known_broken
+257 |   continuation_bundle:
+258 |     status: refreshed_locally
+259 |     canonical_main_sync: verified_at_c697935549c427e4a4a6c81ad642416363e89e8e
+260 |     local_exporter: completed_after_merged_browser_integration_metric_ci_evidence
+261 |   remote_ci:
+262 |     status: passed
+263 |     run_id: 30386368200
+264 |     job_id: 90366572706
+265 |     job: verify
+266 |     tested_head: d29b5ef672ce31d65c6c3bfecacdc363ccf611ad
+267 |     merged_main_commit: c697935549c427e4a4a6c81ad642416363e89e8e
+268 |     completed: 2026-07-28
+269 |     steps: gitguardian_audit_format_lint_manifest_fourteen_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_twenty_typechecks_one_hundred_ninety_one_tests_twenty_builds_php_all_passed
+270 |   source_validation:
+271 |     status: passed
+272 |     run_id: 30386368200
+273 |     job_id: 90366572706
+274 |     branch: feat/browser-integration-metrics
+275 |     tested_head: d29b5ef672ce31d65c6c3bfecacdc363ccf611ad
+276 |     completed: 2026-07-28
+277 |     steps: gitguardian_audit_format_lint_manifest_fourteen_migrations_replay_history_integrity_clean_restore_runtime_role_grants_architecture_twenty_typechecks_one_hundred_ninety_one_tests_twenty_builds_php_all_passed
+278 |     shared_observability_tests: 22_of_22_passed
+279 |     api_source_tests: 56_of_56_passed
+280 |     browser_metric_integrations: 2_of_2_passed
+281 |     native_shadow_metric_integrations: 2_of_2_passed
+282 |     browser_metric_sink_failure_isolation: passed
+283 |     relational_reauthorization_and_unknown_error_distinction: passed
+284 |   pending_follow_up:
+285 |     - provision_retention_maintenance_identity_and_approved_windows_holds_monitoring_recovery
+286 |     - observability_exporter_collector_sampling_external_integration_adapter_client_metrics_and_managed_backend
+287 |     - production_source_hook_deployment_and_explicit_pilot_store_selection
+288 |     - pilot_outcome_collection_and_calibration
+289 |
+290 | migrations:
+291 |   immutable: true
+292 |   manifest: packages/database/migrations/manifest.json
+293 |   history_checksum_column: checksum_sha256_not_null
+294 |   files:
+295 |     - packages/database/migrations/0001_foundation.sql
+296 |     - packages/database/migrations/0002_courier.sql
+297 |     - packages/database/migrations/0003_risk.sql
+298 |     - packages/database/migrations/0004_verification_events.sql
+299 |     - packages/database/migrations/0005_durable_operations.sql
+300 |     - packages/database/migrations/0006_browser_access.sql
+301 |     - packages/database/migrations/0007_worker_leases.sql
+302 |     - packages/database/migrations/0008_webhook_delivery_leases.sql
+303 |     - packages/database/migrations/0009_verification_delivery_queue.sql
+304 |     - packages/database/migrations/0010_native_shadow_comparisons.sql
+305 |     - packages/database/migrations/0011_native_shadow_pilot.sql
+306 |     - packages/database/migrations/0012_durable_work_replays.sql
+307 |     - packages/database/migrations/0013_durable_work_archives.sql
+308 |     - packages/database/migrations/0014_durable_trace_context.sql
+309 |
+310 | accepted_adrs:
+311 |   - docs/adr/0006-production-deployment-topology.md
+312 |   - docs/adr/0007-managed-postgresql-production-baseline.md
+313 |   - docs/adr/0008-postgresql-first-durable-work-and-cache.md
+314 |   - docs/adr/0009-managed-secrets-and-kms-envelope-encryption.md
+315 |   - docs/adr/0010-vendor-neutral-production-observability.md
+316 |   - docs/adr/0011-selected-source-shadow-pilot.md
+317 |   - docs/adr/0012-durable-work-dead-letter-operations.md
+318 |
+319 | external_dependencies:
+320 |   - authorized_steadfast_test_account
+321 |   - provider_authorization_review
+322 |   - deployment_platform_account_region_and_budget
+323 |   - managed_postgresql_provider_and_service_tier
+324 |   - managed_secret_store_and_kms_vault_provider
+325 |   - observability_backend_and_retention_policy
+326 |   - otp_provider_account
+327 |   - pilot_outcome_data
+328 |
+329 | next_milestone:
+330 |   name: production-hardening-and-pilot-readiness
+331 |   tasks:
+332 |     - select_and_provision_accepted_infrastructure_providers
+333 |     - select_and_wire_a_reviewed_managed_kms_adapter_and_audited_reencryption_runner
+334 |     - validate_steadfast_with_an_authorized_account
+335 |     - implement_the_selected_otp_provider_adapter
+336 |     - add_distributed_cache_only_when_replica_coordination_requires_it
+337 |     - deploy_the_selected_source_post_persist_hook_to_explicitly_opted_in_pilot_stores
+338 |     - run_a_selected_merchant_pilot_and_collect_verified_outcomes
+339 |     - calibrate_decisions_before_broad_automatic_blocking
+340 |
+341 | release_policy:
+342 |   branch: main
+343 |   before_push:
+344 |     - npm_run_verify_passes
+345 |     - documentation_and_tracker_are_current
+346 |     - repository_review_is_clean
+347 |   rules:
+348 |     - no_force_push_to_main
+349 |     - do_not_edit_applied_migrations
+350 |     - use_descriptive_commits
+351 |
+352 | notes:
+353 |   - codexpro_and_local_mcp_files_are_workspace_tooling_and_ignored
+354 |   - dashboard_and_admin_use_separate_authenticated_live_browser_sessions
+355 |   - github_connector_reports_public_visibility_while_expected_state_is_private
+356 |   - infrastructure_architecture_is_accepted_but_provider_selection_is_pending
+357 |   - postgresql_remains_the_pilot_durable_job_and_outbox_source_of_truth
+358 |   - assessment_and_outcome_idempotency_races_resolve_to_the_scoped_persisted_winner
+359 |   - assessment_and_outcome_winners_enqueue_matching_webhook_rows_transactionally
+360 |   - webhook_event_payloads_do_not_include_raw_phone_values
+361 |   - courier_jobs_use_atomic_claims_expiring_leases_and_owner_checked_transitions
+362 |   - webhook_deliveries_use_atomic_claims_expiring_leases_and_owner_checked_transitions
+363 |   - webhook_worker_scope_is_revalidated_against_endpoint_and_store_relationships
+364 |   - webhook_signing_secrets_are_decrypted_only_inside_the_event_worker
+365 |   - webhook_destinations_require_https_public_dns_results_and_redirect_rejection
+366 |   - production_egress_policy_is_still_required_for_dns_rebinding_defense
+367 |   - otp_send_requests_create_session_hash_and_encrypted_job_in_one_transaction
+368 |   - otp_provider_delivery_occurs_only_in_the_private_verification_worker
+369 |   - verification_jobs_use_atomic_claims_expiring_leases_and_owner_checked_transitions
+370 |   - verification_scope_mismatch_fails_the_job_and_authoritative_session_closed
+371 |   - verification_payloads_are_bound_to_job_context_tenant_phone_hmac_and_otp_hash
+372 |   - selected_otp_provider_module_and_credentials_remain_external
+373 |   - migration_files_are_bound_to_a_committed_sha256_manifest
+374 |   - migration_history_unknown_gap_or_checksum_mismatch_fails_closed
+375 |   - legacy_name_only_history_is_backfilled_only_from_the_committed_manifest
+376 |   - migration_execution_uses_one_session_advisory_lock
+377 |   - ci_restores_pg_dump_into_a_clean_distinct_database_and_compares_schema_data_sequences_history_and_replay
+378 |   - managed_provider_point_in_time_restore_drill_remains_external
+379 |   - api_keys_feature_assembly_assessment_and_outcome_writes_fail_closed_on_relational_tenant_mismatch
+380 |   - webhook_and_verification_administration_queries_reauthorize_active_owner_or_admin_scope_and_return_no_secret_material
+381 |   - platform_admin_repository_rechecks_active_explicit_role_on_every_call
+382 |   - runtime_role_grants_are_explicit_current_table_only_and_exclude_migration_history_delete_and_ddl
+383 |   - runtime_role_must_be_externally_created_non_owner_login_without_elevated_privileges_or_memberships
+384 |   - runtime_grants_must_be_reapplied_by_the_migration_owner_after_each_migration_release
+385 |   - managed_envelope_v2_uses_one_random_dek_per_record_and_authenticated_wrapped_key_metadata
+386 |   - managed_envelope_context_mismatch_is_rejected_before_key_unwrap
+387 |   - legacy_ciphertext_is_dual_read_only_through_explicitly_configured_legacy_keys
+388 |   - production_runtime_stays_on_local_v1_until_a_reviewed_kms_adapter_and_identity_policy_are_provisioned
+389 |   - native_shadow_sampling_is_deterministic_by_store_key_and_order_id
+390 |   - native_shadow_guard_or_persistence_failure_keeps_the_legacy_result_authoritative
+391 |   - native_shadow_comparisons_are_immutable_tenant_scoped_and_idempotent
+392 |   - native_shadow_sampled_attempts_record_success_timeout_assessment_and_persistence_states
+393 |   - native_shadow_dashboard_and_admin_reporting_is_secret_free_and_tenant_scoped
+394 |   - native_shadow_enforcement_is_not_implemented_and_requires_pilot_review
+395 |   - broad_automatic_blocking_remains_disabled_until_pilot_calibration
+396 |   - durable_dead_letter_listing_is_secret_free_and_exact_store_scoped
+397 |   - durable_replay_resets_only_failed_replayable_work_and_clears_old_leases
+398 |   - durable_replay_ledger_is_insert_only_for_the_runtime_role
+399 |   - durable_replay_never_performs_provider_or_webhook_network_io
+400 |   - merchant_dead_letter_browser_routes_reauthorize_session_visible_owner_or_admin_scope
+401 |   - merchant_dead_letter_replay_requires_csrf_and_forwards_one_stable_idempotency_key
+402 |   - browser_replay_key_is_assigned_synchronously_before_network_io_and_retained_on_failure
+403 |   - merchant_dead_letter_ui_hides_operations_from_non_admin_members
+404 |   - structured_log_redaction_is_canonicalized_in_packages_observability
+405 |   - private_worker_logging_uses_the_shared_telemetry_failure_isolation_boundary
+406 |   - api_request_logs_use_opaque_ids_bounded_routes_status_and_latency_only
+407 |   - api_unhandled_errors_export_safe_name_and_code_without_message_or_stack
+408 |   - durable_worker_heartbeat_defaults_to_one_third_of_the_lease
+409 |   - lease_renewal_interval_must_not_exceed_half_the_lease
+410 |   - heartbeat_renewal_and_final_state_transitions_do_not_overlap
+411 |   - durable_retention_cutoff_has_a_twenty_four_hour_minimum_safety_floor
+412 |   - durable_retention_batches_are_globally_bounded_to_five_hundred
+413 |   - completed_source_retention_baseline_is_thirty_days_pending_approval
+414 |   - failed_source_retention_baseline_is_one_hundred_eighty_days_pending_approval
+415 |   - archive_evidence_does_not_replace_backup_or_point_in_time_recovery
+416 |   - vendor_neutral_metrics_use_only_finite_descriptor_owned_attributes
+417 |   - api_metrics_use_method_canonical_route_and_status_class_only
+418 |   - worker_metrics_use_worker_type_operation_and_outcome_only
+419 |   - pro_context_was_refreshed_after_vendor_neutral_metrics_documentation
+420 |   - update_this_file_after_every_material_milestone
+421 |
 ```
 
 ### eslint.config.js
