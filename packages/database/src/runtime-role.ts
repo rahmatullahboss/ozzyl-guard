@@ -71,6 +71,7 @@ export const runtimeRolePolicy = {
     'webhook_endpoints',
     'webhook_deliveries',
   ],
+  denied: ['durable_work_archives'],
 } as const;
 
 export class RuntimeRoleConfigurationError extends Error {
@@ -212,7 +213,11 @@ async function verifyCurrentTablePolicy(client: PoolClient): Promise<void> {
     `,
   );
   const actual = new Set(result.rows.map((row) => row.table_name));
-  const expected = new Set([...runtimeRolePolicy.select, MIGRATION_HISTORY_TABLE]);
+  const expected = new Set([
+    ...runtimeRolePolicy.select,
+    ...runtimeRolePolicy.denied,
+    MIGRATION_HISTORY_TABLE,
+  ]);
   const missing = [...expected].filter((table) => !actual.has(table)).sort();
   const unexpected = [...actual].filter((table) => !expected.has(table)).sort();
   if (missing.length > 0 || unexpected.length > 0) {
@@ -232,6 +237,7 @@ async function verifyEffectiveRuntimePrivileges(
     database_create: boolean;
     migration_history_access: boolean;
     delete_access: boolean;
+    denied_access: boolean;
   }>(
     `
       select
@@ -251,9 +257,18 @@ async function verifyEffectiveRuntimePrivileges(
             format('public.%I', scoped_table.table_name),
             'DELETE'
           )
-        ) as delete_access
+        ) as delete_access,
+        exists(
+          select 1
+          from unnest($3::text[]) as denied_table(table_name)
+          where has_table_privilege(
+            $1,
+            format('public.%I', denied_table.table_name),
+            'SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER'
+          )
+        ) as denied_access
     `,
-    [roleName, [...runtimeRolePolicy.select]],
+    [roleName, [...runtimeRolePolicy.select], [...runtimeRolePolicy.denied]],
   );
   const effective = result.rows[0];
   if (
@@ -261,7 +276,8 @@ async function verifyEffectiveRuntimePrivileges(
     effective.schema_create ||
     effective.database_create ||
     effective.migration_history_access ||
-    effective.delete_access
+    effective.delete_access ||
+    effective.denied_access
   ) {
     throw new RuntimeRoleConfigurationError(
       'Runtime role effective privileges violate the least-privilege policy',

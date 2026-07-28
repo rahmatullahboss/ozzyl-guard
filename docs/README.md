@@ -4,7 +4,7 @@ This directory is the long-term product and engineering source of truth. New dev
 
 ## Current verified milestone
 
-The authenticated merchant browser dead-letter operations surface is merged on `main` as `27cff21a9fd024e7b8094da3397c79387c83ea02`. Final feature CI run `29645967968`, job `88084164235`, passed twelve migrations, 19 typechecks, 28 test tasks with 129 assertions, 19 builds, and PHP syntax at tested head `2129b51ca7393b3c942f2f5c074cb3990b615b89`. Listing remains exact-store, owner/admin-only, and secret-free; replay remains CSRF-protected, idempotent, audited, and provider-I/O-free. This slice reused migration `0012` and introduced no schema change or automatic retry loop. The generated continuation bundle remains marked for repository-local refresh.
+The durable worker heartbeat milestone is merged on `main` as `6ab01a78713afdef47fde3a8d462f2bd6a43403a`, with verification evidence merged as `f19e9b4183b9b809f5f8cc45e301a1fa8a819a8b`. Feature CI run `30322016826`, job `90159676583`, passed the twelve-migration baseline, 20 typechecks, 31 Turbo tasks with 145 assertions, 20 builds, GitGuardian, audit, restore, runtime-role, and PHP gates. Courier, webhook, and verification workers renew owner-checked leases, abort active provider I/O on renewal loss, and drain heartbeats before final state transitions. The current retention/archive slice adds migration `0013` and remains source-branch work until its PostgreSQL-integrated CI evidence is recorded.
 
 ## Architecture
 
@@ -18,6 +18,7 @@ The authenticated merchant browser dead-letter operations surface is merged on `
 - [Public API specification](api/api-specification.md)
 - [Database design](database/database-design.md)
 - [Durable work replay ledger](database/durable-work-replay-ledger.md)
+- [Durable work retention and archive](database/durable-work-retention.md)
 - [Courier intelligence](courier/courier-intelligence.md)
 - [Canonical risk engine](risk-engine/risk-engine.md)
 - [Integrations](integrations/integrations.md)
@@ -29,6 +30,7 @@ The authenticated merchant browser dead-letter operations surface is merged on `
 - [Durable work dead-letter testing](testing/durable-work-dead-letter-testing.md)
 - [Operations and observability](operations/operations-observability.md)
 - [Durable work dead-letter runbook](operations/durable-work-dead-letter-runbook.md)
+- [Durable work retention runbook](operations/durable-work-retention-runbook.md)
 - [Browser dead-letter operations](operations/browser-dead-letter-operations.md)
 - [Development environment](operations/development-environment.md)
 - [Deployment](operations/deployment.md)

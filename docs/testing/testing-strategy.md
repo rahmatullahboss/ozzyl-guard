@@ -189,11 +189,7 @@ CI additionally proves:
 
 Production-managed point-in-time recovery remains a provider provisioning gate rather than a repository CI claim.
 
-Future PostgreSQL coverage must include:
-
-- owner-checked lease renewal during courier, webhook, and verification jobs whose execution crosses the initial lease window;
-- selected-provider smoke tests for distinct API/worker runtime identities and migration-owner grant execution;
-- operational replay/dead-letter authorization and audit coverage.
+Current PostgreSQL coverage includes owner-checked lease renewal, durable dead-letter authorization/replay, runtime-role isolation, and maintenance-only retention archival. Future provider validation must still include selected-provider smoke tests for distinct API/worker identities, migration-owner grant execution, and the separately provisioned retention-maintenance identity.
 
 ## End-to-end tests
 
@@ -227,7 +223,7 @@ Future PostgreSQL coverage must include:
 - Credential decryption failure
 - Worker lease ownership, renewal cadence, stale-owner rejection, provider abort on renewal loss, and drain-before-transition ordering
 - Job payload scope, encryption-context, phone-HMAC, and OTP-hash tampering
-- Runtime database role privilege escape, ownership, migration-history, DELETE, and DDL attempts
+- Runtime database role privilege escape, ownership, migration-history, DELETE, DDL, and durable archive-table access attempts
 
 ## Scraper tests
 
@@ -281,3 +277,19 @@ Do not promote automatic blocking until false-positive behavior is understood an
 ## Browser dead-letter operations coverage
 
 Browser API tests must prove session enforcement, exact-store hiding, owner/admin authorization, member rejection, CSRF protection, stable idempotency forwarding, secret-free list serialization, replay-result serialization, and structured conflict mapping. The existing real-PostgreSQL durable-work suite remains authoritative for concurrent duplicate replay, tenant isolation, structural/expiry rejection, lease reset, immutable evidence, and audit atomicity.
+
+## Durable work retention coverage
+
+Default unit tests prove invalid cutoffs, empty terminal-status selections, unsafe archive-run IDs, and batches above 500 fail before a database connection is opened.
+
+PostgreSQL integration tests must prove:
+
+- preview returns only old `completed`/`failed` rows and performs no mutation;
+- queued and recent rows remain in their source queues;
+- preview and archive responses exclude source payload and provider-reference values;
+- archive evidence is inserted before source deletion in one transaction;
+- courier, webhook, and verification source rows are deleted only after matching evidence exists;
+- replay ledger rows remain after source archival;
+- rerunning the same cutoff is idempotent when no source rows remain;
+- the archive schema contains no payload, raw contact, endpoint, credential, or provider-reference columns;
+- the normal runtime role cannot read `durable_work_archives` and has no source `DELETE` privilege.

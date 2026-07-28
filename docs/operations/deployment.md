@@ -122,16 +122,17 @@ Staging and production require separate:
 4. Run the migration command again to verify replay/no-op behavior.
 5. Run `npm run db:integrity` and fail the release on manifest, history, gap, null-checksum, or checksum mismatch.
 6. As the migration owner, run `DATABASE_RUNTIME_ROLE=<external-runtime-role> npm run db:runtime-grants`; fail if the role is missing, elevated, inherited, owns database objects, the table policy is stale, or effective privileges exceed the reviewed policy.
-7. Restore a release-candidate backup into a separate clean staging/recovery database and verify schema/history/replay; use full data hashes when the dataset and maintenance window permit.
-8. Verify database and service readiness using runtime credentials rather than migration-owner credentials.
-9. Deploy API and private workers independently.
-10. Verify event-worker database, KMS/decrypt, DNS, and controlled-egress access.
-11. Deploy static dashboard/admin assets.
-12. Enable new engine/policy/integration behavior through a feature flag or merchant pilot.
-13. Compare decision, outcome, outbox, and delivery metrics before broader rollout.
-14. Roll back application artifacts without editing applied migrations when release validation fails.
+7. Provision a separate reviewed maintenance identity for retention operations. It must not be used by API/workers and must have only archive read/insert plus durable-source delete/read privileges required by the runbook.
+8. Restore a release-candidate backup into a separate clean staging/recovery database and verify schema/history/replay; use full data hashes when the dataset and maintenance window permit.
+9. Verify database and service readiness using runtime credentials rather than migration-owner credentials.
+10. Deploy API and private workers independently.
+11. Verify event-worker database, KMS/decrypt, DNS, and controlled-egress access.
+12. Deploy static dashboard/admin assets.
+13. Enable new engine/policy/integration behavior through a feature flag or merchant pilot.
+14. Compare decision, outcome, outbox, and delivery metrics before broader rollout.
+15. Roll back application artifacts without editing applied migrations when release validation fails.
 
-Migrations 0008 and 0009 are append-only and immutable after application. Future webhook or verification-delivery schema changes require a new migration. Every new SQL migration must also add its reviewed SHA-256 entry to the manifest; regenerating the manifest to bless an unexplained edit is prohibited.
+All applied migrations are append-only and immutable. Future webhook, verification-delivery, replay, or retention schema changes require a new migration. Every new SQL migration must also add its reviewed SHA-256 entry to the manifest; regenerating the manifest to bless an unexplained edit is prohibited.
 
 ### Database integrity and restore commands
 
@@ -157,7 +158,7 @@ The Docker Compose setup is a development/self-hosted baseline, not the final pr
 
 - Use managed secrets and least-privilege service identities.
 - Select and wire a reviewed KMS/vault adapter and component service identities before switching runtime writes to managed-envelope v2; then run an audited background rewrite before retiring local v1 keys.
-- Give migration ownership and runtime access distinct PostgreSQL identities. The migration owner runs schema/history/grant operations; runtime services use non-owner explicit DML grants and never migration-owner credentials.
+- Give migration ownership, application runtime access, and retention maintenance distinct PostgreSQL identities. The migration owner runs schema/history/grant operations; runtime services use non-owner explicit DML grants; retention maintenance uses a separately reviewed identity and is never embedded in API or worker services.
 - Split API, session worker, sync worker, event worker, and verification worker into narrower roles on the selected platform when supported; each must remain no more privileged than the reviewed repository runtime policy.
 - Do not put secrets in images, CI logs, command arguments, source maps, logs, traces, or cache values.
 - Restrict browser-worker ingress, egress, and filesystem access where practical.
@@ -173,10 +174,11 @@ The Docker Compose setup is a development/self-hosted baseline, not the final pr
 
 Before a selected merchant pilot:
 
-- all nine migrations match the committed SHA-256 manifest and apply to a clean managed PostgreSQL 16+ database;
+- all thirteen migrations match the committed SHA-256 manifest and apply to a clean managed PostgreSQL 16+ database;
 - migration replay is a clean no-op and migration-history integrity passes;
 - a logical restore rehearsal succeeds against a distinct clean target;
-- runtime and migration database roles are separated, the runtime role is externally provisioned as non-owner/non-elevated, and `db:runtime-grants` plus effective-permission checks pass after migrations;
+- runtime, migration, and retention-maintenance database roles are separated; the runtime role is externally provisioned as non-owner/non-elevated, and `db:runtime-grants` plus effective-permission checks pass after migrations;
+- the maintenance identity can run retention preview/archive while the runtime identity cannot read archive evidence or delete durable source rows;
 - point-in-time restore is demonstrated;
 - API readiness, graceful shutdown, and artifact rollback are demonstrated;
 - private workers have no public ingress;
@@ -192,8 +194,8 @@ Before a selected merchant pilot:
 
 ## Current verification boundary
 
-Repository source-head CI run `29560049322`, job `87820368024`, verifies nine manifest-bound migrations, immediate replay, non-null history checksums, clean full-data-hash logical restore, runtime-role grants/effective permissions, architecture boundaries, 19 workspace typechecks, 28 test tasks with 87 assertions, 19 builds, dependency audit, formatting, lint, and WooCommerce PHP syntax.
+The latest merged feature CI run `30322016826`, job `90159676583`, verifies the twelve-migration heartbeat baseline, immediate replay, non-null history checksums, clean full-data-hash logical restore, runtime-role grants/effective permissions, architecture boundaries, 20 workspace typechecks, 31 Turbo tasks with 145 assertions, 20 builds, dependency audit, formatting, lint, GitGuardian, and WooCommerce PHP syntax.
 
-The verified event-worker boundary includes transactional assessment/outcome outbox rows, explicit organization/store scope, atomic claims, stale recovery, expired-owner rejection, retry/final-failure transitions, endpoint-bound secret decryption, HMAC signing, HTTPS validation, DNS-to-non-public rejection, and redirect rejection.
+The current retention source branch adds manifest-bound migration `0013`, a maintenance-only archive repository/CLI, runtime archive-table denial, four local input-boundary tests, and four PostgreSQL archival tests. Thirteen-migration restore/runtime-role and 154-assertion verification remain pending source-branch CI.
 
-Production provider provisioning, controlled-egress smoke tests, managed-provider PITR/retention validation, selected KMS adapter/service-identity/access-audit validation, audited ciphertext rewrite, and provider-specific OTP delivery remain pending.
+Production provider provisioning, controlled-egress smoke tests, managed-provider PITR validation, selected KMS adapter/service-identity/access-audit validation, audited ciphertext rewrite, provider-specific OTP delivery, and retention-maintenance identity/window/hold/monitoring provisioning remain pending.

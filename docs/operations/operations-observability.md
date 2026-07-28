@@ -241,7 +241,7 @@ A webhook endpoint outage, provider outage, or telemetry outage must not necessa
 - Point-in-time recovery
 - Restore testing on a schedule
 - Migration preflight and post-deploy verification
-- Outbox retention and terminal-delivery archival policy
+- Preview-first bounded terminal durable-work archival through the maintenance-only PostgreSQL boundary
 - Retention/deletion jobs for sessions, traces, screenshots, raw evidence, and logs
 - Audit trail for privileged data and credential access
 - KMS key rotation and ciphertext re-encryption procedures
@@ -270,3 +270,21 @@ A managed observability backend, retention policy, alert-delivery channel, optio
 The merchant dashboard may list and explicitly replay failed durable work only for an exact active store where the current user is an owner or administrator. Listing is read-only and secret-free. Replay requires CSRF proof and a stable idempotency key, then delegates to the same transactional PostgreSQL repository used by the operator CLI.
 
 The browser surface does not implement an automatic retry loop and performs no provider or destination network I/O. Structural webhook failures, expired or structurally invalid verification work, unsupported courier job types, relational scope mismatches, and changed source state remain blocked. Successful replay returns work to the existing private worker queue and preserves the immutable replay ledger plus audit evidence.
+
+## Durable work retention operations
+
+Terminal courier, webhook, and verification rows may be archived only through the maintenance-only repository and CLI documented in [Durable Work Retention Runbook](durable-work-retention-runbook.md). The application runtime role cannot read or write `durable_work_archives` and cannot delete source queue rows.
+
+Every run must preview first, use a cutoff at least 24 hours old, select only `completed`/`failed`, and process no more than 500 rows. Production baseline guidance is 30 days for completed work and 180 days for failed work until support, incident, privacy, and legal owners approve another policy. Archive evidence is secret-free and does not replace backup/PITR because source payloads cannot be reconstructed after commit.
+
+Monitor and record:
+
+- candidate and archived counts by work type and terminal status;
+- oldest eligible terminal timestamp;
+- skipped locked or state-changed rows;
+- archive evidence conflicts and maintenance privilege failures;
+- duration and rows per batch;
+- source queue size before and after maintenance;
+- archive table growth and approved evidence-retention window.
+
+No unattended retention scheduler is implemented. Automatic scheduling remains blocked on approved retention windows, incident/legal holds, maintenance identity provisioning, monitoring, backup/PITR recovery, and archive-evidence retention.

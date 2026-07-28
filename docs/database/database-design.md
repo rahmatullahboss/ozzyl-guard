@@ -374,6 +374,19 @@ OTP send creation inserts the verification session, hash-only OTP attempt, and e
 
 The ciphertext context is `verification-job:<job-id>`. Before provider I/O, the worker validates tenant, purpose, phone HMAC, and OTP hash. Queue rows and logs never contain plaintext phone or OTP values.
 
+## Durable work retention subsystem
+
+### `durable_work_archives`
+
+- composite primary key: work type and original work ID
+- organization and optional store scope
+- terminal status (`completed` or `failed`)
+- attempt count and bounded error code
+- terminal and source-created timestamps
+- archive timestamp, opaque archive-run ID, and maintenance database identity
+
+The archive table stores no courier payload, webhook event payload, encrypted verification payload, OTP/contact material, endpoint data, credentials, or provider message reference. A maintenance-only transaction locks old terminal source rows, writes or validates matching archive evidence, and deletes the source row only after evidence exists. The application runtime role is explicitly denied all archive-table privileges and retains no durable-source `DELETE` privilege.
+
 ## Initial migration boundaries
 
 Migration 0001 should establish only the Phase 1 foundation:
@@ -401,6 +414,10 @@ Current ordered migrations:
 7. `0007_worker_leases.sql` — explicit courier-worker ownership, claim/lease timestamps, stale-job recovery support, and claim scheduling index.
 8. `0008_webhook_delivery_leases.sql` — scoped canonical webhook event payloads, event-worker ownership/lease timestamps, completion state, and claim/scope indexes.
 9. `0009_verification_delivery_queue.sql` — verification idempotency/attempt controls plus encrypted delivery jobs, owner leases, completion state, and claim/scope indexes.
+10. `0010_native_shadow_comparisons.sql` — tenant-scoped native shadow comparison evidence and rollout state.
+11. `0011_native_shadow_pilot.sql` — sampled attempt evidence and pilot reporting support.
+12. `0012_durable_work_replays.sql` — immutable secret-free dead-letter replay evidence.
+13. `0013_durable_work_archives.sql` — maintenance-only secret-free terminal work archive evidence.
 
 Migration 0006 does not store raw session material. `user_sessions.token_hash` remains the only persisted session-token representation. The merchant dashboard repository authorizes with `(user_id, organization_id, store_id)` before running any aggregate query.
 
@@ -409,6 +426,8 @@ Migration 0007 is append-only and does not rewrite prior migration files. Courie
 Migration 0008 backfills endpoint-derived scope for prior delivery rows. Legacy rows whose canonical event payload cannot be reconstructed are terminalized with `LEGACY_EVENT_PAYLOAD_MISSING` rather than delivered with invented data.
 
 Migration 0009 leaves prior verification records valid, adds nullable idempotency keys for legacy rows, and introduces a separate encrypted delivery queue without placing plaintext phone or OTP material in existing tables.
+
+Migrations 0010–0012 add immutable shadow-pilot and replay evidence without weakening tenant scope. Migration 0013 adds the maintenance-only archive table; it does not automatically schedule deletion, grant runtime access, or modify prior queue payloads.
 
 ## Migration history integrity
 
@@ -426,8 +445,10 @@ The rehearsal creates a custom-format `pg_dump`, restores it with `pg_restore`, 
 
 Repository CI applies the complete migration set twice, verifies the history table, and restores into a clean PostgreSQL 16 database. Managed-provider automated backup retention and point-in-time recovery must still be demonstrated separately before the merchant pilot.
 
-## Runtime and migration database identities
+## Runtime, migration, and maintenance database identities
 
-`packages/database/src/runtime-role.ts` defines the reviewed current-table runtime policy. The migration owner validates the full public base-table inventory, revokes prior direct table/schema/sequence privileges, grants explicit required `SELECT`/`INSERT`/`UPDATE`, and then verifies effective privileges. `ozzyl_guard_migrations` remains inaccessible.
+`packages/database/src/runtime-role.ts` defines the reviewed current-table application runtime policy. The migration owner validates the full public base-table inventory, revokes prior direct table/schema/sequence privileges, grants explicit required `SELECT`/`INSERT`/`UPDATE`, and then verifies effective privileges. `ozzyl_guard_migrations` and `durable_work_archives` remain inaccessible.
 
-The runtime role must already exist as a non-owner `LOGIN` without elevated attributes or inherited memberships. It cannot own the current database, public schema, or public relations and cannot receive `DELETE`, DDL, schema `CREATE`, migration-history access, or role-management privileges. Run `DATABASE_RUNTIME_ROLE=<role> npm run db:runtime-grants` after every migration release; an unreviewed new table causes the command to fail closed until the policy is updated.
+The runtime role must already exist as a non-owner `LOGIN` without elevated attributes or inherited memberships. It cannot own the current database, public schema, or public relations and cannot receive `DELETE`, DDL, schema `CREATE`, migration-history access, archive-table access, or role-management privileges. Run `DATABASE_RUNTIME_ROLE=<role> npm run db:runtime-grants` after every migration release; an unreviewed new table causes the command to fail closed until the policy is updated.
+
+Retention preview/archive requires a distinct reviewed maintenance identity with archive read/insert and durable-source delete privileges. That identity must never be used by API or workers. The repository verifies required privileges before preview and archive, while production provisioning, rotation, access review, and scheduling remain external operations work.

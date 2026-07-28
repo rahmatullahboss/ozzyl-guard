@@ -76,8 +76,8 @@ The least-privilege runtime role receives:
 - `SELECT` for idempotent replay reads and evidence inspection
 - `INSERT` for new immutable replay evidence
 
-It does not receive `UPDATE`, `DELETE`, table ownership, DDL, or migration-history access. Runtime grants must be reapplied after migration `0012`.
+It does not receive `UPDATE`, `DELETE`, table ownership, DDL, or migration-history access. Runtime grants must be reapplied after every migration. Migration `0013` additionally keeps the maintenance archive table completely outside the runtime role.
 
 ## Retention
 
-Replay evidence is operational audit material. No automatic deletion policy is implemented in this milestone. A future retention decision must account for incident review, merchant support, legal/privacy requirements, and audit retention before adding a new append-only migration or archival process.
+Replay evidence is operational audit material and is not deleted by durable source retention. Migration `0013` archives old terminal source rows into secret-free `durable_work_archives` metadata while preserving replay and audit evidence. Any future deletion policy for replay/archive evidence must still account for incident review, merchant support, legal/privacy requirements, and audit retention.
